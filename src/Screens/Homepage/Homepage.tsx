@@ -18,7 +18,7 @@ export default function Homepage() {
             "url(https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg)",
         }}
       ></figure>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <BestDeals status={productFetchingStatus} />
       </div>
     </section>

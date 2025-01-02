@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import Homepage from "./Screens/Homepage/Homepage";
+import ProductScreen from "./Screens/ProductScreen/ProductScreen";
 
 export const router = createBrowserRouter([
   {
@@ -8,7 +9,8 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <Homepage /> },
-      { path: "*", element: <h1 className="text-5xl">nina is hoe</h1> },
+      { path: "/product/:id", element: <ProductScreen /> },
+      { path: "*", element: <div>nina is hoe</div> },
     ],
   },
 ]);
