@@ -21,12 +21,11 @@ async function getProductDetail(id: string | undefined) {
   return data;
 }
 
-export default function ProductScreen() {
+export default function ProductDetailsScreen() {
   const { id } = useParams();
   const { data: product, status } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
-    staleTime: 10,
   });
 
   const [count, setCount] = useState(1);
