@@ -1,6 +1,7 @@
 import React from "react";
 import { IoMdCart } from "react-icons/io";
 import { CiHeart } from "react-icons/ci";
+import { FaRegEye } from "react-icons/fa";
 interface Product {
   id: number;
   image: string;
@@ -46,9 +47,8 @@ const products: Product[] = [
 interface ProductCardProps {
   product: Product;
 }
-
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
-  <div className="border rounded-lg   bg-white shadow hover:shadow-lg transition">
+  <div className="border rounded-lg bg-white shadow hover:shadow-lg transition group">
     <div className="relative">
       {product.discount && (
         <span className="absolute top-2 left-2 bg-teal-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
@@ -60,6 +60,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
         alt={product.name}
         className="w-full h-48 object-cover rounded"
       />
+      {/* Add group-hover to control visibility */}
+      {/* Add group-hover with transition and transform effects */}
+      <div className="absolute top-2 right-2 bg-white text-black text-xs font-semibold px-2 py-0.5 rounded flex-col opacity-0 transform -translate-y-4 transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:translate-y-0">
+        <button>
+          <CiHeart className="text-xl" />
+        </button>
+        <hr />
+        <button>
+          <FaRegEye className="text-xl" />
+        </button>
+      </div>
     </div>
     <div className="p-4">
       <h3 className="mt-4 text-gray-800 font-semibold text-base truncate">
@@ -77,10 +88,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
       </div>
       <div className="flex flex-col gap-2 mt-4">
         <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded font-medium flex justify-center items-center gap-2">
-        <IoMdCart className="text-xl" /><span> Add to Cart</span>
+          <IoMdCart className="text-xl" />
+          <span> Add to Cart</span>
         </button>
         <button className="w-full text-sm text-gray-500 hover:text-teal-600 flex justify-center items-center gap-2">
-        <CiHeart className="text-xl"/> <span>Add to Wishlist</span>
+          <CiHeart className="text-xl" /> <span>Add to Wishlist</span>
         </button>
       </div>
     </div>
@@ -95,7 +107,7 @@ const MostPopularProducts: React.FC = () => {
           className="text-2xl font-bold text-gray-800"
           style={{ color: "#1D647E" }}
         >
-          Most Popular
+          Recent Item
         </h2>
         <button
           className="hover:underline font-medium"

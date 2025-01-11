@@ -1,12 +1,43 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../components/Homepage/Homepage.hooks";
-import BestDeals from "../../components/Homepage/BestDeals";
+
+import Mostpopular from "../../components/Homepage/Mostpopular";
+import BestSeller from "../../components/Homepage/BestSeller";
+import RecentItem from "../../components/Homepage/RecentItem";
+
 import Furniture from "../../assets/Medical-Equipments.png";
 import Instruments from "../../assets/Medical-Instruments.png";
 import Miscellaneous from "../../assets/Miscellaneous-Products.png";
 import Equipments from "../../assets/Medical-Equipments.png";
 
+const sliderImages = [
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
+  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
+];
+
 export default function Homepage() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = sliderImages.length;
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
   const { status: productFetchingStatus } = useQuery({
     queryKey: ["products"],
     queryFn: getProducts,
@@ -22,13 +53,13 @@ export default function Homepage() {
 
   return (
     <section>
-      <div className=" w-full ">
+      <div className="w-full">
         {/* Categories Section */}
         <div className="hidden md:flex justify-center bg-gray-100 w-full">
           {categories.map((category, index) => (
             <div
               key={index}
-              className="flex flex-col items-center justify-center p-2  rounded-full    "
+              className="flex flex-col items-center justify-center p-2 rounded-full"
             >
               <img
                 src={category.icon}
@@ -41,27 +72,46 @@ export default function Homepage() {
             </div>
           ))}
         </div>
+
         {/* Image Slider Section */}
-        <figure
-          className="relative min-h-[35vh] bg-no-repeat bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url(https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg)",
-          }}
-        >
+        <div className="overflow-hidden relative">
+          <div
+            className="flex transition-transform duration-500"
+            style={{
+              transform: `translateX(-${currentSlide * 100}%)`,
+            }}
+          >
+            {sliderImages.map((image, index) => (
+              <figure
+                key={index}
+                className="min-w-full min-h-[35vh] bg-no-repeat bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${image})`,
+                }}
+              ></figure>
+            ))}
+          </div>
           <div className="absolute inset-0 flex items-center justify-between px-4">
-            <button className="rounded-full w-10 h-10 text-xl bg-white shadow hover:shadow-lg focus:outline-none">
+            <button
+              onClick={prevSlide}
+              className="rounded-full w-10 h-10 text-xl bg-white shadow hover:shadow-lg focus:outline-none"
+            >
               {"<"}
             </button>
-            <button className="rounded-full w-10 h-10 text-xl bg-white shadow hover:shadow-lg focus:outline-none">
+            <button
+              onClick={nextSlide}
+              className="rounded-full w-10 h-10 text-xl bg-white shadow hover:shadow-lg focus:outline-none"
+            >
               {">"}
             </button>
           </div>
-        </figure>
+        </div>
 
         {/* Best Deals Section */}
         <div className="mt-8">
-          <BestDeals status={productFetchingStatus} />
+          <Mostpopular />
+          <BestSeller />
+          <RecentItem />
         </div>
       </div>
     </section>
