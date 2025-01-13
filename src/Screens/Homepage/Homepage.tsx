@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../components/Homepage/Homepage.hooks";
-import BestDeals from "../../components/Homepage/BestDeals";
+import ProductShowcase from "../../components/Homepage/ProductShowcase";
+import ImageSlider from "../../components/Homepage/ImageSlider";
 
 export default function Homepage() {
   const { status: productFetchingStatus } = useQuery({
@@ -11,15 +12,11 @@ export default function Homepage() {
 
   return (
     <section>
-      <figure
-        className="min-h-[70vh] bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url(https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg)",
-        }}
-      ></figure>
-      <div className="container mx-auto px-4">
-        <BestDeals status={productFetchingStatus} />
+      <ImageSlider />
+      <div className="container mx-auto px-4 pt-12">
+        <ProductShowcase status={productFetchingStatus} title="Most Popular" />
+        <ProductShowcase status={productFetchingStatus} title="Best Seller" />
+        <ProductShowcase status={productFetchingStatus} title="Recent Items" />
       </div>
     </section>
   );

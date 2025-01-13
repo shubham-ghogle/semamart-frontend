@@ -4,7 +4,7 @@ import { CategoriesMenu } from "./Navbar.Ui";
 
 export default function Navbar() {
   return (
-    <nav className="bg-darkBlue h-16 px-14 sticky top-0 flex items-center justify-between">
+    <nav className="bg-darkBlue h-16 px-14 sticky top-0 flex items-center justify-between z-[999]">
       <section className="h-full">
         <CategoriesMenu />
       </section>

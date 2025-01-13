@@ -28,7 +28,7 @@ export interface Product {
   name: string;
   hsn: string;
   productType: string;
-  originalPrice?: number;
+  originalPrice: number;
   discountPrice: number;
   category: string;
   tags?: string[];

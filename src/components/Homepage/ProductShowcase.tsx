@@ -4,9 +4,10 @@ import ProductCard from "../Product/ProductCard";
 
 type BestDealsProps = {
   status: "error" | "success" | "pending";
+  title: string;
 };
 
-export default function BestDeals({ status }: BestDealsProps) {
+export default function ProductShowcase({ status, title }: BestDealsProps) {
   const queryClient = useQueryClient();
   const data = queryClient.getQueryData<{
     success: string;
@@ -18,8 +19,8 @@ export default function BestDeals({ status }: BestDealsProps) {
   const firstFive = sortedData && sortedData.slice(0, 5);
 
   return (
-    <article className="mt-8">
-      <h2 className="text-3xl font-semibold text-slate-900">Best Deals</h2>
+    <article className="mx-12">
+      <h2 className="text-2xl font-bold text-darkBlue">{title}</h2>
       {status === "pending" && (
         <div className="h-80 text-xl grid place-items-center">Loading...</div>
       )}
