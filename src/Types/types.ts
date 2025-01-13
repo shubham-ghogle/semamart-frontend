@@ -66,3 +66,28 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// USER TYPES /////
+type Address = {
+  state: string;
+  district: string;
+  instituteAddress1: string;
+  instituteAddress2: string;
+  pincode: string;
+  landmark: string;
+  _id: string;
+};
+
+export type User = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  instituteName: string;
+  password: string;
+  addresses: Address[];
+  role: string;
+  createdAt: string;
+  avatar?: string;
+};

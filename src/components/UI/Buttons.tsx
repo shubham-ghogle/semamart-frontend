@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 type ActionBtnProps = {
   children: ReactNode;
   onClick?: () => void;
+  width?: number;
 };
 export function ActionBtn({ onClick, children }: ActionBtnProps) {
   return (
@@ -17,15 +18,20 @@ export function ActionBtn({ onClick, children }: ActionBtnProps) {
   );
 }
 
-// export function SecondryBtn({ onClick = null, children }) {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className="w-[150px] border-darkBlue border-2 h-[50px] my-3 flex items-center justify-center rounded cursor-pointer"
-//     >
-//       <span className="text-darkBlue font-semibold flex items-center">
-//         {children}
-//       </span>
-//     </button>
-//   );
-// }
+export function SecondryBtn({
+  onClick,
+  children,
+  width = 150,
+}: ActionBtnProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="border-darkBlue border-2 h-[50px] my-3 flex items-center justify-center rounded cursor-pointer bg-white"
+      style={{ width: width }}
+    >
+      <span className="text-darkBlue font-semibold flex items-center">
+        {children}
+      </span>
+    </button>
+  );
+}

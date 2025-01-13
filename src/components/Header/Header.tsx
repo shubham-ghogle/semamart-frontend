@@ -3,8 +3,12 @@ import { ActionBtn } from "../UI/Buttons";
 import { IoIosArrowForward } from "react-icons/io";
 import { AiOutlineSearch } from "react-icons/ai";
 import { Logo } from "../UI/Logo";
+import { useUserStore } from "../../store/userStore";
 
 export default function Header() {
+  const user = useUserStore((state) => state.user);
+  const role = user?.role;
+
   return (
     <header className="w-11/12 mx-auto flex items-center justify-between h-24">
       <Logo />
@@ -21,7 +25,7 @@ export default function Header() {
       </article>
       <Link to="#">
         <ActionBtn>
-          Become Seller
+          {role && role === "seller" ? "Dashboard" : "Become Seller"}
           <IoIosArrowForward className="ml-1" />
         </ActionBtn>
       </Link>
