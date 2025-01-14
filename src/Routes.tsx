@@ -5,6 +5,7 @@ import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScr
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import { getUserFromLocalLoader } from "./components/Login/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
+import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 
 export const router = createBrowserRouter([
   {
@@ -12,13 +13,19 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <Homepage /> },
-      { path: "/product/:id", element: <ProductDetailsScreen /> },
+      { path: "product/:id", element: <ProductDetailsScreen /> },
     ],
   },
   { path: "/login", loader: getUserFromLocalLoader, element: <LoginScreen /> },
   {
     path: "/admin",
     element: <AdminLayout />,
-    children: [{ index: true, element: <div>admin index</div> }],
+    children: [
+      { index: true, element: <div>admin index</div> },
+      {
+        path: "requests",
+        element: <AdminRequestScreen />,
+      },
+    ],
   },
 ]);

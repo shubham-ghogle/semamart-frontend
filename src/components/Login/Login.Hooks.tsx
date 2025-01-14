@@ -24,6 +24,8 @@ export async function postUser(userData: UserData) {
     throw new Error();
   }
   const data = (await res.json()) as PostUserApiResponse;
+
+  if (!data.success) throw new Error();
   return data;
 }
 

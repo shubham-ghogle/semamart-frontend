@@ -91,3 +91,33 @@ export type User = {
   createdAt: string;
   avatar?: string;
 };
+
+// SELLER TYPES////
+type Transaction = {
+  amount: number;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type Seller = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  businessName?: string;
+  businessType: string;
+  gstNumber: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  profilePic: string;
+  banner: string;
+  avatar?: string;
+  address?: string;
+  zipCode?: number;
+  availableBalance: number;
+  createdAt: string;
+  verified: boolean;
+  transections: Transaction[];
+  __v: number;
+};
