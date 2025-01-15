@@ -11,6 +11,9 @@ export default function AdminRequestScreen() {
 
   return (
     <article className="h-full p-4">
+      <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
+        Seller Regitration Requests
+      </h1>
       {status === "pending" && <LoaderUi title="Loading..." />}
       {status === "error" && <LoaderUi title={error.message} />}
       {status === "success" && data && (

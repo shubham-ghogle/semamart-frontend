@@ -42,44 +42,42 @@ export default function AdminRequestTable({
   }
 
   return (
-    <table className="w-full max-w-4xl bg-white mx-auto table-auto border-collapse">
-      <AdminRequestTableHeader headers={headers} />
-      <tbody>
-        {sellers.map((el) => (
-          <tr key={el._id}>
-            <td className="p-4 border border-darkBlue text-slate-800">
-              {el.firstName + " " + el.lastName}
-            </td>
-            <td className="p-4 border border-darkBlue text-slate-800">
-              {el.businessName || "n/a"}
-            </td>
-            <td className="p-4 border border-darkBlue text-slate-800">
-              {el.email}
-            </td>
-            <td className="p-4 border border-darkBlue text-slate-800 text-center">
-              {el.verified ? (
-                <button
-                  className="bg-green-600 rounded text-sm text-white py-2 px-5"
-                  disabled
-                >
-                  Verified
-                </button>
-              ) : (
-                <article className="flex justify-center">
+    <div className="p-6 bg-white max-w-4xl mx-auto rounded-xl drop-shadow-md">
+      <table className="w-full table-auto rounded-table">
+        <AdminRequestTableHeader headers={headers} />
+        <tbody>
+          {sellers.map((el) => (
+            <tr key={el._id}>
+              <td className="p-4 text-slate-800">
+                {el.firstName + " " + el.lastName}
+              </td>
+              <td className="p-4 text-slate-800">{el.businessName || "n/a"}</td>
+              <td className="p-4 text-slate-800">{el.email}</td>
+              <td className="p-4  text-slate-800 text-center">
+                {el.verified ? (
                   <button
-                    className="bg-accentBlue rounded text-sm text-white py-2 px-5 disabled:bg-gray-800"
-                    onClick={() => clickHandler(el._id)}
-                    disabled={sellerId === el._id}
+                    className="bg-green-600 rounded text-sm text-white py-2 px-5"
+                    disabled
                   >
-                    {sellerId === el._id ? "Wait..." : "Verify"}
+                    Verified
                   </button>
-                </article>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                ) : (
+                  <article className="flex justify-center">
+                    <button
+                      className="bg-accentBlue rounded text-sm text-white py-2 px-5 disabled:bg-gray-800"
+                      onClick={() => clickHandler(el._id)}
+                      disabled={sellerId === el._id}
+                    >
+                      {sellerId === el._id ? "Wait..." : "Verify"}
+                    </button>
+                  </article>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -91,10 +89,7 @@ function AdminRequestTableHeader({ headers }: HeaderParams) {
     <thead>
       <tr>
         {headers.map((el) => (
-          <th
-            key={el}
-            className="p-4 border border-darkBlue text-darkBlue bg-white text-lg"
-          >
+          <th key={el} className="p-4 text-darkBlue text-lg bg-red-300">
             {el}
           </th>
         ))}
