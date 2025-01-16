@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
 import { useUserStore } from "../../store/userStore";
-import { postUser } from "./Login.Hooks";
+import { postUser } from "../../Screens/LoginScreen/Login.Hooks";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");

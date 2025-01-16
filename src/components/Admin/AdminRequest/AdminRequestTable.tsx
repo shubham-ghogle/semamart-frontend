@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Seller } from "../../../Types/types";
+import { AdminTableHeader } from "../../UI/Table";
 
 const headers = ["Seller Name", "Business Name", "Email", "Actions"];
 type AdminRequestTableParams = {
@@ -29,7 +30,12 @@ export default function AdminRequestTable({
       }
     },
     onSuccess: () => {
-      qClient.invalidateQueries({ queryKey: ["seller-requests"] });
+      qClient.invalidateQueries({
+        queryKey: ["sellerRequests"],
+      });
+      qClient.invalidateQueries({
+        queryKey: ["verifiedRequests"],
+      });
     },
   });
 
@@ -44,7 +50,7 @@ export default function AdminRequestTable({
   return (
     <div className="p-6 bg-white max-w-4xl mx-auto rounded-xl drop-shadow-md">
       <table className="w-full table-auto rounded-table">
-        <AdminRequestTableHeader headers={headers} />
+        <AdminTableHeader headers={headers} />
         <tbody>
           {sellers.map((el) => (
             <tr key={el._id}>
@@ -78,22 +84,5 @@ export default function AdminRequestTable({
         </tbody>
       </table>
     </div>
-  );
-}
-
-type HeaderParams = {
-  headers: string[];
-};
-function AdminRequestTableHeader({ headers }: HeaderParams) {
-  return (
-    <thead>
-      <tr>
-        {headers.map((el) => (
-          <th key={el} className="p-4 text-darkBlue text-lg bg-red-300">
-            {el}
-          </th>
-        ))}
-      </tr>
-    </thead>
   );
 }

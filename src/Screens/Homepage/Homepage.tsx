@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "../../components/Homepage/Homepage.hooks";
+import { getProducts } from "./Homepage.Hooks";
 import ProductShowcase from "../../components/Homepage/ProductShowcase";
 import ImageSlider from "../../components/Homepage/ImageSlider";
 

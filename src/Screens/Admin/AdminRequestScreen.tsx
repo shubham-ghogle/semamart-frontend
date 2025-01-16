@@ -1,24 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import LoaderUi from "../../components/UI/LoaderUi";
-import { getSellers } from "./Admin.HooksAndUtils";
+import { getAllSellers } from "./Admin.HooksAndUtils";
 import AdminRequestTable from "../../components/Admin/AdminRequest/AdminRequestTable";
+import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
 
 export default function AdminRequestScreen() {
   const { data, error, status } = useQuery({
-    queryKey: ["seller-requests"],
-    queryFn: getSellers,
+    queryKey: ["sellerRequests"],
+    queryFn: getAllSellers,
   });
 
   return (
-    <article className="h-full p-4">
-      <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
-        Seller Regitration Requests
-      </h1>
-      {status === "pending" && <LoaderUi title="Loading..." />}
-      {status === "error" && <LoaderUi title={error.message} />}
+    <AdminMainWrapper
+      status={status}
+      heading="Seller Regitration Requests"
+      errorMeassage={error?.message}
+    >
       {status === "success" && data && (
         <AdminRequestTable sellers={data.sellers} />
       )}
-    </article>
+    </AdminMainWrapper>
   );
 }
