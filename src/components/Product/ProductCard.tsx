@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               (product.images.length !== 0 ? product.images[0] : "")
             }
             alt={product.name}
-            className="w-full h-48 object-cover rounded"
+            className="w-full h-48 object-contain rounded"
           />
           {/* Add group-hover to control visibility */}
           {/* Add group-hover with transition and transform effects */}

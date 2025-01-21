@@ -2,7 +2,7 @@ type HeaderParams = {
   headers: string[];
 };
 
-export function AdminTableHeader({ headers }: HeaderParams) {
+export function TableHeader({ headers }: HeaderParams) {
   return (
     <thead>
       <tr>
@@ -16,6 +16,6 @@ export function AdminTableHeader({ headers }: HeaderParams) {
   );
 }
 
-export function AdminTableBodyCell({ text }: { text: string }) {
+export function TableBodyCell({ text }: { text: string }) {
   return <td className="p-4 text-slate-800">{text}</td>;
 }

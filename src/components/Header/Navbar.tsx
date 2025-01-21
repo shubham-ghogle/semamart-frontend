@@ -6,11 +6,28 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import { useUserStore } from "../../store/userStore";
 import { CgProfile } from "react-icons/cg";
 import { SecondryBtn } from "../UI/Buttons";
+import { useSellerStore } from "../../store/sellerStore";
 
 export default function Navbar() {
   const cart = useCartStore((state) => state.cart);
   const wishlist = useWishlistStore((state) => state.wishlist);
   const { user, removeUser } = useUserStore((state) => state);
+  const { seller, removeSeller } = useSellerStore((state) => state);
+
+  async function logoutHandler() {
+    try {
+      let url = "/api/v2/user/logout";
+      if (seller) {
+        url = "/api/v2/shop/logout";
+      }
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("something went wrong");
+      removeUser();
+      removeSeller();
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <nav className="bg-darkBlue h-16 px-14 sticky top-0 flex items-center justify-between z-[999]">
@@ -38,7 +55,7 @@ export default function Navbar() {
           </span>
         </figure>
         <figure>
-          {user ? (
+          {user || seller ? (
             <section className="flex items-center gap-2">
               <img
                 src="/placeholder.png"
@@ -46,7 +63,7 @@ export default function Navbar() {
                 className="w-[35px] h-[35px] rounded-full"
                 width={30}
               />
-              <SecondryBtn width={100} onClick={removeUser}>
+              <SecondryBtn width={100} onClick={logoutHandler}>
                 <p>Logout</p>
               </SecondryBtn>
             </section>

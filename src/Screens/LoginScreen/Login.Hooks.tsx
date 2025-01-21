@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { User } from "../../Types/types";
+import { Seller, User } from "../../Types/types";
 
 type UserData = {
   email: string;
@@ -10,6 +10,14 @@ type PostUserApiResponse = {
   success: boolean;
   user: User;
   token: string;
+  message?: string;
+};
+
+type PostSellerApiResponse = {
+  success: boolean;
+  user: Seller;
+  token: string;
+  message?: string;
 };
 
 export async function postUser(userData: UserData) {
@@ -20,23 +28,41 @@ export async function postUser(userData: UserData) {
     },
     body: JSON.stringify(userData),
   });
-  if (!res.ok) {
-    throw new Error();
-  }
   const data = (await res.json()) as PostUserApiResponse;
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
+  if (!data.success) throw new Error(data.message);
+  return data;
+}
 
+export async function postSeller(userData: UserData) {
+  const res = await fetch("/api/v2/shop/login-shop", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+  const data = (await res.json()) as PostSellerApiResponse;
+
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
   if (!data.success) throw new Error();
   return data;
 }
 
 export function getUserFromLocalLoader() {
   const user = localStorage.getItem("user-storage");
+  const seller = localStorage.getItem("seller-storage");
+
   if (user) {
-    const userData = JSON.parse(user);
-    if (userData.state.user) {
-      return redirect("/");
-    }
-    return null;
+    return redirect("/");
   }
+  if (seller) {
+    return redirect("/");
+  }
+
   return null;
 }

@@ -3,28 +3,51 @@ import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
 import { useUserStore } from "../../store/userStore";
-import { postUser } from "../../Screens/LoginScreen/Login.Hooks";
+import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
+import { useSellerStore } from "../../store/sellerStore";
+import { loginFailureToast } from "../UI/Toasts";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [accountType, setAccountType] = useState<string | null>();
 
   const navigate = useNavigate();
 
   const addUser = useUserStore((state) => state.addUser);
+  const addSeller = useSellerStore((state) => state.addSeller);
 
-  const mutation = useMutation({
+  const userMutation = useMutation({
     mutationFn: postUser,
     onSuccess: (data) => {
       addUser(data.user);
       navigate("/");
     },
+    onError: (a) => {
+      console.log(a);
+      loginFailureToast(a.message);
+    },
+  });
+
+  const sellerMutation = useMutation({
+    mutationFn: postSeller,
+    onSuccess: (data) => {
+      addSeller(data.user);
+      navigate("/");
+    },
+    onError: () => {
+      loginFailureToast();
+    },
   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    mutation.mutate({ password: password, email: email });
+    if (accountType === "seller") {
+      sellerMutation.mutate({ email, password });
+    } else {
+      userMutation.mutate({ password: password, email: email });
+    }
   }
 
   return (
@@ -91,31 +114,49 @@ export default function LoginForm() {
               )}
             </div>
           </div>
+          <div>
+            <p className="block text-sm font-medium text-gray-700">
+              Account type
+            </p>
+            <section className="flex items-center justify-around">
+              <article className="flex items-center gap-1">
+                <input
+                  required
+                  type="radio"
+                  id="user"
+                  name="account_type"
+                  value="user"
+                  onChange={(e) => setAccountType(e.target.value)}
+                />
+                <label htmlFor="user">User</label>
+              </article>
+              <article>
+                <input
+                  type="radio"
+                  id="seller"
+                  name="account_type"
+                  value="seller"
+                  required
+                  onChange={(e) => setAccountType(e.target.value)}
+                />
+                <label htmlFor="seller">Seller</label>
+              </article>
+            </section>
+          </div>
           {/* password end */}
-
-          <div className="flex items-center justify-between gap-1">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="remember-me"
-                id="remember-me"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                Remember me
-              </label>
-            </div>
-            <div className="text-sm">
-              <a
-                href=".forgot-password"
-                className="font-medium text-darkBlue hover:text-blue-500"
-              >
-                Forgot your password?
-              </a>
-            </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="remember-me"
+              id="remember-me"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-900"
+            >
+              Remember me
+            </label>
           </div>
           <div>
             <button
@@ -124,11 +165,19 @@ export default function LoginForm() {
             >
               Submit
             </button>
+            <div className="text-sm mt-2">
+              <a
+                href=".forgot-password"
+                className="font-medium text-darkBlue hover:text-blue-500"
+              >
+                Forgot your password?
+              </a>
+            </div>
           </div>
 
           <div className="flex items-center">
             <h4>Not have any account</h4>
-            <Link to="/sign-up" className="text-darkBlue pl-2">
+            <Link to="/signup" className="text-darkBlue pl-2">
               Sign Up
             </Link>
           </div>
