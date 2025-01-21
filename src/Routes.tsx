@@ -23,13 +23,16 @@ export const router = createBrowserRouter([
       { path: "product/:id", element: <ProductDetailsScreen /> },
     ],
   },
+  // Login routes
   {
     path: "/login",
     loader: getUserFromLocalLoader,
     element: <LoginScreen />,
   },
+  // Registraion routes
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
+  // Admin Routes
   {
     path: "/admin",
     loader: getAdminFromLocalLoader,
@@ -47,6 +50,7 @@ export const router = createBrowserRouter([
       { path: "*", element: <div>niniiii</div> },
     ],
   },
+  // Seller Routes
   {
     path: "/seller",
     element: <SellerLayout />,
@@ -55,6 +59,7 @@ export const router = createBrowserRouter([
       { path: "add-product", element: <AddProductScreen2 /> },
     ],
   },
+  // User Routes
   {
     path: "/user",
     children: [

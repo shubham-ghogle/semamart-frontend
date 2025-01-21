@@ -5,6 +5,7 @@ import {
   registerFailureToast,
   userRegisterSuccessToast,
 } from "../../components/UI/Toasts";
+import { Link } from "react-router";
 
 function Signup() {
   const [visible, setVisible] = useState(false);
@@ -115,6 +116,14 @@ function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-customBlue to-customGreen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md ">
+        <Link to="/">
+          <img
+            src="/Logo-imag.png"
+            width={100}
+            alt="SEMA Favicon Icon"
+            className="mt-1 mx-auto"
+          />
+        </Link>
         <h2 className="flex justify-center text-center mt-6 mb-6 items-center text-3xl  text-white">
           <IoIosLock />
           <span>Customer Signup</span>
