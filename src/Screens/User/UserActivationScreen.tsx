@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { AiOutlineLoading } from "react-icons/ai";
+import { SecondryBtn } from "../../components/UI/Buttons";
 
 export default function UserActivationScreen() {
   const { token } = useParams();
@@ -23,11 +25,36 @@ export default function UserActivationScreen() {
     retry: 0,
   });
 
+  const navigate = useNavigate();
+
   return (
-    <div>
-      {status === "error" && <p>Error</p>}
-      {status === "pending" && <p>Loading...</p>}
-      {status === "success" && <p>hello</p>}
-    </div>
+    <main>
+      {status === "error" && (
+        <section className="min-h-screen grid place-items-center">
+          <article>
+            <p className="text-2xl">Token not Valid</p>
+            <SecondryBtn onClick={() => navigate("/")}>Back Home</SecondryBtn>
+          </article>
+        </section>
+      )}
+      {status === "pending" && (
+        <section className="min-h-screen grid place-items-center">
+          <p className="text-2xl flex items-center gap-3">
+            <span>
+              <AiOutlineLoading className="animate-spin" />
+            </span>
+            Loading
+          </p>
+        </section>
+      )}
+      {status === "success" && (
+        <section className="min-h-screen grid place-items-center">
+          <article>
+            <p className="text-2xl">Your account is now verified.</p>
+            <SecondryBtn onClick={() => navigate("/login")}>Login</SecondryBtn>
+          </article>
+        </section>
+      )}
+    </main>
   );
 }
