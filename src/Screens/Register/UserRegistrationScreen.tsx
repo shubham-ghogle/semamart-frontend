@@ -1,11 +1,12 @@
 import { ChangeEvent, FormEvent, useState } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { IoIosLock } from "react-icons/io";
 import {
-  registerFailureToast,
-  userRegisterSuccessToast,
-} from "../../components/UI/Toasts";
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
+  AiOutlineLoading,
+} from "react-icons/ai";
+import { IoIosLock } from "react-icons/io";
 import { Link } from "react-router";
+import { useRegisterUser } from "./Registration.Hooks";
 
 function Signup() {
   const [visible, setVisible] = useState(false);
@@ -27,6 +28,8 @@ function Signup() {
 
   const [check, setCheck] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  const { mutateUser, status: regiStatus } = useRegisterUser();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -55,24 +58,7 @@ function Signup() {
     newForm.append("state", formData.state);
     newForm.append("password", formData.password);
 
-    try {
-      const res = await fetch("/api/v2/user/create-user", {
-        method: "post",
-        body: newForm,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message);
-
-      userRegisterSuccessToast();
-    } catch (error) {
-      console.error("API error:", error);
-      let err = undefined;
-      if (error instanceof Error) {
-        err = error.message;
-      }
-      registerFailureToast(err, false);
-    }
+    await mutateUser(newForm);
   }
 
   function validatePassword(password: string) {
@@ -112,7 +98,6 @@ function Signup() {
     }));
   };
 
-  //    console.log("checked :",check);
   return (
     <div className="min-h-screen bg-gradient-to-b from-customBlue to-customGreen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md ">
@@ -431,9 +416,14 @@ function Signup() {
             <div>
               <button
                 type="submit"
-                className=" relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-md font-medium rounded-3xl  bg-accentYellow text-black shadow-sm"
+                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl  bg-accentYellow text-black shadow-sm"
+                disabled={regiStatus === "pending"}
               >
-                SignUp
+                {regiStatus === "pending" ? (
+                  <AiOutlineLoading className="animate-spin" />
+                ) : (
+                  "SignUp"
+                )}
               </button>
             </div>
 

@@ -2,10 +2,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { RxAvatar } from "react-icons/rx";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link } from "react-router";
-import {
-  registerFailureToast,
-  sellerRegisterSuccessToast,
-} from "../../components/UI/Toasts";
+import { useRegisterSeller } from "./Registration.Hooks";
+import { AiOutlineLoading } from "react-icons/ai";
 
 export default function SellerRegisterScreen() {
   const [visible, setVisible] = useState(false);
@@ -24,6 +22,8 @@ export default function SellerRegisterScreen() {
   const [profilePic, setProfilePic] = useState<File | null>();
   const [check, setCheck] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  const { mutateSeller, status: regStatus } = useRegisterSeller();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -54,25 +54,7 @@ export default function SellerRegisterScreen() {
       newForm.append("profilePic", profilePic);
     }
 
-    try {
-      const response = await fetch("/api/v2/shop/create-shop", {
-        method: "post",
-        body: newForm,
-      });
-
-      if (!response.ok || response.status !== 201) {
-        const errMessage = await response.json();
-        throw new Error(errMessage.message);
-      }
-      sellerRegisterSuccessToast();
-    } catch (err) {
-      let errText = undefined;
-
-      if (err instanceof Error) {
-        errText = err.message;
-      }
-      registerFailureToast(errText);
-    }
+    await mutateSeller(newForm);
   }
 
   const validatePassword = (password: string) => {
@@ -469,9 +451,14 @@ export default function SellerRegisterScreen() {
               <div>
                 <button
                   type="submit"
-                  className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-md font-medium rounded-3xl  bg-accentYellow text-black shadow-sm"
+                  className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accentYellow text-black shadow-md disabled:bg-gray-400"
+                  disabled={regStatus === "pending"}
                 >
-                  Register
+                  {regStatus === "pending" ? (
+                    <AiOutlineLoading className="animate-spin" />
+                  ) : (
+                    "Register"
+                  )}
                 </button>
               </div>
             </form>

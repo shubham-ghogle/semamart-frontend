@@ -31,6 +31,9 @@ export function registerFailureToast(
   err = "Please try again later",
   showHomeBtn = true,
 ) {
+  if (!err) {
+    err = "Please try again later";
+  }
   toast(
     <div>
       <h2 className="text-2xl font-semibold text-red-700 mb-2">
