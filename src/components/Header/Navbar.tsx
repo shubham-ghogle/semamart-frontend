@@ -5,29 +5,14 @@ import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useUserStore } from "../../store/userStore";
 import { CgProfile } from "react-icons/cg";
-import { SecondryBtn } from "../UI/Buttons";
 import { useSellerStore } from "../../store/sellerStore";
 
 export default function Navbar() {
   const cart = useCartStore((state) => state.cart);
   const wishlist = useWishlistStore((state) => state.wishlist);
-  const { user, removeUser } = useUserStore((state) => state);
-  const { seller, removeSeller } = useSellerStore((state) => state);
-
-  async function logoutHandler() {
-    try {
-      let url = "/api/v2/user/logout";
-      if (seller) {
-        url = "/api/v2/shop/logout";
-      }
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("something went wrong");
-      removeUser();
-      removeSeller();
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  const { user } = useUserStore((state) => state);
+  const { seller } = useSellerStore((state) => state);
+  const isAdmin = user && user.role === "Admin";
 
   return (
     <nav className="bg-darkBlue h-16 px-14 sticky top-0 flex items-center justify-between z-[999]">
@@ -37,7 +22,7 @@ export default function Navbar() {
       <ol className="flex items-center gap-8">
         <NavLinks destination="/" label="Home" />
         <NavLinks destination="/best-selling" label="Best Selling" />
-        <NavLinks destination="/products" label="Products" />
+        <NavLinks destination="/product" label="Products" />
         <NavLinks destination="/events" label="Events" />
         <NavLinks destination="/faq" label="FAQ" />
       </ol>
@@ -57,15 +42,21 @@ export default function Navbar() {
         <figure>
           {user || seller ? (
             <section className="flex items-center gap-2">
-              <img
-                src="/placeholder.png"
-                alt="profile avatar"
-                className="w-[35px] h-[35px] rounded-full"
-                width={30}
-              />
-              <SecondryBtn width={100} onClick={logoutHandler}>
-                <p>Logout</p>
-              </SecondryBtn>
+              {seller && (
+                <Link to="/seller">
+                  <ProfileAvatar />
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin">
+                  <ProfileAvatar />
+                </Link>
+              )}
+              {user && !isAdmin && (
+                <Link to="/user">
+                  <ProfileAvatar />
+                </Link>
+              )}
             </section>
           ) : (
             <Link to="/login">
@@ -95,5 +86,16 @@ function NavLinks({ label, destination }: NavlinksProps) {
         {label}
       </NavLink>
     </li>
+  );
+}
+
+function ProfileAvatar() {
+  return (
+    <img
+      src="/placeholder.png"
+      alt="profile avatar"
+      className="w-[35px] h-[35px] rounded-full"
+      width={30}
+    />
   );
 }

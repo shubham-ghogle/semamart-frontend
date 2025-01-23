@@ -13,6 +13,7 @@ import UserRegistrationScreen from "./Screens/Register/UserRegistrationScreen";
 import SellerLayout from "./components/Layouts/SellerLayout";
 import AddProductScreen2 from "./Screens/Seller/AddProductScreen2";
 import UserActivationScreen from "./Screens/User/UserActivationScreen";
+import ProductsScreen from "./Screens/Products/ProductsScreen";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <Homepage /> },
+      { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetailsScreen /> },
     ],
   },

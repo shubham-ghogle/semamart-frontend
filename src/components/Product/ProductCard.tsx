@@ -16,7 +16,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
 
   return (
-    <article className="border rounded-lg bg-white shadow hover:shadow-lg transition group">
+    <article className="border rounded-lg bg-white shadow hover:shadow-lg transition group w-[250px]">
       <Link to={"/product/" + product._id}>
         <div className="relative">
           {productDiscount > 0 && (

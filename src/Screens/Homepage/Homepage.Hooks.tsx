@@ -9,5 +9,8 @@ export async function getProducts() {
     success: boolean;
     products: Product[];
   };
-  return data;
+
+  if (!data.success) throw new Error();
+
+  return data.products;
 }

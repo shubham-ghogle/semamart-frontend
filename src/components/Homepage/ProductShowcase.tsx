@@ -9,12 +9,9 @@ type BestDealsProps = {
 
 export default function ProductShowcase({ status, title }: BestDealsProps) {
   const queryClient = useQueryClient();
-  const data = queryClient.getQueryData<{
-    success: string;
-    products: Product[];
-  }>(["products"]);
+  const data = queryClient.getQueryData<Product[]>(["products"]);
 
-  const allProductsData = data?.products || [];
+  const allProductsData = data || [];
   const sortedData = allProductsData?.sort((a, b) => b.sold_out - a.sold_out);
   const firstFive = sortedData && sortedData.slice(0, 5);
 

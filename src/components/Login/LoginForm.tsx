@@ -36,8 +36,8 @@ export default function LoginForm() {
       addSeller(data.user);
       navigate("/");
     },
-    onError: () => {
-      loginFailureToast();
+    onError: (a) => {
+      loginFailureToast(a.message);
     },
   });
 
