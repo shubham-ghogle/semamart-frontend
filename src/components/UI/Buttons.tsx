@@ -1,15 +1,16 @@
-import { ReactNode } from "react";
+import { ButtonHTMLAttributes, ReactNode } from "react";
 
 type ActionBtnProps = {
   children: ReactNode;
-  onClick?: () => void;
   width?: number;
-};
-export function ActionBtn({ onClick, children }: ActionBtnProps) {
+} & ButtonHTMLAttributes<HTMLButtonElement>;
+
+export function ActionBtn({ onClick, children, ...btnProps }: ActionBtnProps) {
   return (
     <button
       onClick={onClick}
-      className="w-[150px] bg-accentYellow h-[50px] flex items-center justify-center rounded cursor-pointer hover:scale-105 transition-all duration-200 ease-out"
+      className="w-[150px] bg-accentYellow h-[50px] flex items-center justify-center rounded hover:scale-105 transition-all duration-200 ease-out disabled:bg-gray-400"
+      {...btnProps}
     >
       <span className="text-slate-800 font-semibold flex items-center">
         {children}

@@ -8,3 +8,17 @@ export default function LoaderUi({ title }: LoaderUiParams) {
     </div>
   );
 }
+
+type OverlayParams = {
+  label?: string;
+};
+export function ScreenOverlayLoaderUi({ label }: OverlayParams) {
+  if (!label) {
+    label = "Loading...";
+  }
+  return (
+    <article className="fixed inset-0 bg-black/60 grid place-items-center z-[1000]">
+      <p className="text-3xl">{label}</p>
+    </article>
+  );
+}

@@ -14,6 +14,8 @@ import SellerLayout from "./components/Layouts/SellerLayout";
 import AddProductScreen2 from "./Screens/Seller/AddProductScreen2";
 import UserActivationScreen from "./Screens/User/UserActivationScreen";
 import ProductsScreen from "./Screens/Products/ProductsScreen";
+import UserLayout from "./components/Layouts/UserLayout";
+import UserProfileScreen from "./Screens/User/UserProfileScreen";
 
 export const router = createBrowserRouter([
   {
@@ -64,8 +66,12 @@ export const router = createBrowserRouter([
   // User Routes
   {
     path: "/user",
+    loader: getAdminFromLocalLoader,
+    element: <UserLayout />,
     children: [
+      { index: true, element: <UserProfileScreen /> },
       { path: "activation/:token", element: <UserActivationScreen /> },
+      { path: "nina", element: <div>hello</div> },
     ],
   },
 ]);

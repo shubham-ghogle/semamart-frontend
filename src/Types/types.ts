@@ -7,21 +7,21 @@ export interface Review {
   createdAt: Date;
 }
 
-interface Shop {
-  _id: string;
-  name: string;
-  email: string;
-  password: string;
-  address: string;
-  phoneNumber: number;
-  role: string;
-  avatar: string;
-  zipCode: number;
-  availableBalance: number;
-  createdAt: Date;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  transections: any[];
-}
+// interface Shop {
+//   _id: string;
+//   name: string;
+//   email: string;
+//   password: string;
+//   address: string;
+//   phoneNumber: number;
+//   role: string;
+//   avatar: string;
+//   zipCode: number;
+//   availableBalance: number;
+//   createdAt: Date;
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   transections: any[];
+// }
 
 export interface Product {
   _id: string;
@@ -61,7 +61,7 @@ export interface Product {
   shortVideo?: string;
   reviews?: Review[];
   ratings?: number;
-  shopId: Shop;
+  shopId: string | Seller;
   sold_out: number;
   createdAt: Date;
   updatedAt: Date;

@@ -44,17 +44,17 @@ export default function Navbar() {
             <section className="flex items-center gap-2">
               {seller && (
                 <Link to="/seller">
-                  <ProfileAvatar />
+                  <ProfileAvatar src={seller.avatar} />
                 </Link>
               )}
               {isAdmin && (
                 <Link to="/admin">
-                  <ProfileAvatar />
+                  <ProfileAvatar src={user.avatar} />
                 </Link>
               )}
               {user && !isAdmin && (
                 <Link to="/user">
-                  <ProfileAvatar />
+                  <ProfileAvatar src={user.avatar} />
                 </Link>
               )}
             </section>
@@ -89,13 +89,21 @@ function NavLinks({ label, destination }: NavlinksProps) {
   );
 }
 
-function ProfileAvatar() {
+type ProfileAvatarProps = {
+  src?: string;
+};
+function ProfileAvatar({ src }: ProfileAvatarProps) {
+  if (!src) {
+    src = "/placeholder.png";
+  } else {
+    src = "/baseUrl" + "/" + src;
+  }
   return (
     <img
-      src="/placeholder.png"
+      src={src}
       alt="profile avatar"
-      className="w-[35px] h-[35px] rounded-full"
-      width={30}
+      className="w-[35px] h-[35px] rounded-full border bg-white"
+      width={35}
     />
   );
 }

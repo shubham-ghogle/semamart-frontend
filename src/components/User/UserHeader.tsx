@@ -1,12 +1,12 @@
 import { Link } from "react-router";
-import { useSellerStore } from "../../store/sellerStore";
+import { useUserStore } from "../../store/userStore";
 
-export default function SellerHeader() {
-  const seller = useSellerStore((state) => state.seller);
+export default function UserHeader() {
+  const user = useUserStore((state) => state.user);
 
   return (
     <header className="w-full bg-white shadow sticky top-0 left-0 z-30  px-4">
-      <div className="container mx-auto h-[80px] flex items-center justify-between">
+      <div className="container mx-auto h-[80px]  flex items-center justify-between">
         <div>
           <Link to="/">
             <img src="/logo.svg" alt="brand-logo" width={250} />
@@ -14,8 +14,8 @@ export default function SellerHeader() {
         </div>
         <img
           src={
-            seller && seller.avatar
-              ? "/baseUrl" + "/" + seller.avatar
+            user && user.avatar
+              ? "/baseUrl" + "/" + user.avatar
               : "/placeholder.png"
           }
           width={40}
