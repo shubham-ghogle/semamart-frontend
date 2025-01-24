@@ -23,20 +23,22 @@ export default function ProductMedia({ product }: ProductMediaProp) {
             <img src={"/baseUrl" + "/" + el} />
           </li>
         ))}
-        <li
-          className={
-            "aspect-square flex items-center " +
-            (selectedMedia === "vid" ? "border-2 border-darkBlue" : "border")
-          }
-          onClick={() => setSelectedMedia("vid")}
-        >
-          <video>
-            <source
-              src={"/baseUrl" + "/" + product?.shortVideo}
-              type="video/mp4"
-            />
-          </video>
-        </li>
+        {product.shortVideo && (
+          <li
+            className={
+              "aspect-square flex items-center " +
+              (selectedMedia === "vid" ? "border-2 border-darkBlue" : "border")
+            }
+            onClick={() => setSelectedMedia("vid")}
+          >
+            <video>
+              <source
+                src={"/baseUrl" + "/" + product.shortVideo}
+                type="video/mp4"
+              />
+            </video>
+          </li>
+        )}
       </ul>
       <figure className="h-full grid place-items-center">
         {typeof selectedMedia === "number" ? (

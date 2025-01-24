@@ -6,12 +6,13 @@ interface Qty {
   qty: number;
 }
 
-type CartItem = Product & Qty;
+export type CartItem = Product & Qty;
 
 interface CartStore {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
+  changeQyt: (itemId: string, amount: 1 | -1) => void;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -21,9 +22,25 @@ export const useCartStore = create<CartStore>()(
         cart: [],
 
         addToCart: (item) => {
-          set((state) => ({
-            cart: [...state.cart, item],
-          }));
+          set((state) => {
+            //if item is already in cart we increase its quantity
+            const existingItemIndex = state.cart.findIndex(
+              (el) => el._id === item._id,
+            );
+
+            if (existingItemIndex !== -1) {
+              const updatedCart = [...state.cart];
+              updatedCart[existingItemIndex] = {
+                ...updatedCart[existingItemIndex],
+                qty: updatedCart[existingItemIndex].qty + item.qty,
+              };
+              return { cart: updatedCart };
+            }
+
+            return {
+              cart: [...state.cart, item],
+            };
+          });
         },
 
         removeFromCart: (itemId) => {
@@ -31,6 +48,27 @@ export const useCartStore = create<CartStore>()(
             cart: state.cart.filter((item) => item._id !== itemId),
           }));
         },
+
+        changeQyt: (itemId, amount) => {
+          set((state) => {
+            const updatedCart = state.cart.map((item) => {
+              if (item._id === itemId) {
+                const newQty = item.qty + amount;
+
+                if (newQty > 0) {
+                  return { ...item, qty: item.qty + amount };
+                } else {
+                  return null;
+                }
+              }
+
+              return item;
+            });
+            const cleanCart = updatedCart.filter((el) => el !== null);
+            return { cart: cleanCart };
+          });
+        },
+        //////////////////////////////
       };
     },
     {
