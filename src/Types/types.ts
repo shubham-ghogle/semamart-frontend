@@ -67,7 +67,6 @@ export interface Product {
   updatedAt: Date;
 }
 
-// USER TYPES /////
 type Address = {
   state: string;
   district: string;
@@ -78,6 +77,7 @@ type Address = {
   _id: string;
 };
 
+// USER TYPES /////
 export type User = {
   _id: string;
   firstName: string;
@@ -92,7 +92,6 @@ export type User = {
   avatar?: string;
 };
 
-// SELLER TYPES////
 type Transaction = {
   amount: number;
   status: string;
@@ -100,6 +99,7 @@ type Transaction = {
   updatedAt?: string;
 };
 
+// SELLER TYPES////
 export type Seller = {
   _id: string;
   firstName: string;
@@ -120,4 +120,22 @@ export type Seller = {
   verified: boolean;
   transections: Transaction[];
   __v: number;
+};
+
+type PaymentInfo = {
+  id?: string;
+  status?: string;
+  type?: string;
+};
+
+export type Order = {
+  cart: Product[];
+  shippingAddress: Address;
+  user: User;
+  totalPrice: number;
+  status?: "Processing" | "Completed" | "Cancelled";
+  paymentInfo?: PaymentInfo;
+  paidAt?: Date;
+  deliveredAt?: Date;
+  createdAt?: Date;
 };

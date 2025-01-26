@@ -7,7 +7,7 @@ type MainWrapperParams = {
   children: ReactNode;
   errorMeassage?: string;
 };
-export default function AdminMainWrapper({
+export default function SellerMainWrapper({
   status,
   heading,
   children,
