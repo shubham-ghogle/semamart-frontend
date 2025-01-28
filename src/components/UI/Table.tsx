@@ -32,3 +32,18 @@ export function TableHeader({ headers }: HeaderParams) {
 export function TableBodyCell({ text }: { text: string }) {
   return <td className="p-4 text-slate-800">{text}</td>;
 }
+
+
+type ProductDetailsRowsProps = {
+  value: string
+  label: string
+}
+export function ProductDetailsRows({ label, value }: ProductDetailsRowsProps) {
+  return (
+    <tr>
+      <td className="p-2 font-semibold border border-darkBlue text-gray-800">{label}: </td>
+      <td className="p-2 border border-darkBlue text-dark-700">{value}</td>
+    </tr>
+  );
+}
+

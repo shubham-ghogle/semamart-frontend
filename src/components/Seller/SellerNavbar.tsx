@@ -1,7 +1,8 @@
 import { RxDashboard } from "react-icons/rx";
-import { GrWorkshop } from "react-icons/gr";
 import { TiDocumentAdd } from "react-icons/ti";
 import SidebarNavlinks from "../UI/SidebarNavlinks";
+import { AiOutlineProduct } from "react-icons/ai";
+import { CiDeliveryTruck } from "react-icons/ci";
 
 export default function SellerNavbar() {
   return (
@@ -19,9 +20,14 @@ export default function SellerNavbar() {
           label="Add Product"
         />
         <SidebarNavlinks
-          icon={<GrWorkshop />}
+          icon={<AiOutlineProduct />}
           to="products"
           label="All Products"
+        />
+        <SidebarNavlinks
+          icon={<CiDeliveryTruck />}
+          to="orders"
+          label="All Orders"
         />
       </ul>
     </nav>

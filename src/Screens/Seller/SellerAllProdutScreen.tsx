@@ -3,6 +3,8 @@ import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Product } from "../../Types/types";
 import { TableBodyCell, TableHeader, TableWrapper } from "../../components/UI/Table";
+import { AiOutlineEye } from "react-icons/ai";
+import { Link } from "react-router";
 
 const headers = [
   "Product Name",
@@ -11,6 +13,7 @@ const headers = [
   "Original Price",
   "Discounted Price",
   "Date Added",
+  ""
 ];
 
 export default function SellerAllProductsScreen() {
@@ -35,6 +38,13 @@ export default function SellerAllProductsScreen() {
               <TableBodyCell text={pro.originalPrice.toString()} />
               <TableBodyCell text={pro.discountPrice.toString()} />
               <TableBodyCell text={new Date(pro.createdAt).toLocaleDateString("en-IN")} />
+              <td align="center">
+                <button>
+                  <Link to={"/product/" + pro._id}>
+                    <AiOutlineEye size={20} />
+                  </Link>
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

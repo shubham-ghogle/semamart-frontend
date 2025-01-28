@@ -99,7 +99,7 @@ export default function ProductDetailsScreen() {
           </div>
         </article>
       </div>
-      <ProductDetailsInfo />
+      <ProductDetailsInfo product={product} />
     </section>
   );
 }

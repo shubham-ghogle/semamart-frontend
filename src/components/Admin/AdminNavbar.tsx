@@ -23,6 +23,11 @@ export default function AdminNavbar() {
           to="sellers"
           label="All Sellers"
         />
+        <SidebarNavlinks
+          icon={<GrWorkshop />}
+          to="users"
+          label="All USrrs"
+        />
       </ul>
     </nav>
   );

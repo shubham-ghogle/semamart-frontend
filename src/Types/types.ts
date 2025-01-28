@@ -52,10 +52,10 @@ export interface Product {
   allowproductreviews?: boolean;
   weight?: string;
   dimension?: string;
-  manufacturerName?: string;
+  manufacturerName: string;
   email?: string;
   phone?: string;
-  origin?: string;
+  origin: string;
   thumbnail?: string;
   images: string[];
   shortVideo?: string;
@@ -129,13 +129,14 @@ type PaymentInfo = {
 };
 
 export type Order = {
-  cart: Product[];
+  cart: { product: Product, qty: number }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;
-  status?: "Processing" | "Completed" | "Cancelled";
+  status?: "Processing" | "Transferred to delivery partner" | "Shipping" | "Received" | "On the way" | "Delivered" | "Processing refund" | "Refund Success";
   paymentInfo?: PaymentInfo;
   paidAt?: Date;
   deliveredAt?: Date;
-  createdAt?: Date;
+  createdAt: Date;
+  _id: string
 };

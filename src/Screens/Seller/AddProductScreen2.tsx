@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useSellerStore } from "../../store/sellerStore";
+import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 
 const categoriesData = [{ title: "edible" }];
 
@@ -124,10 +125,9 @@ export default function AddProductScreen2() {
   };
 
   return (
-    <div className="w-[90%] 800px:w-[50%] bg-white  shadow rounded-[4px] p-3 ">
-      <h5 className="text-[30px] font-Poppins text-center">Create Product</h5>
+    <SellerMainWrapper heading="Add Product" status="success">
       {/* create product form */}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white p-6 rounded-md drop-shadow">
         <br />
         <div>
           <label className="pb-2">
@@ -846,6 +846,6 @@ export default function AddProductScreen2() {
           </div>
         </div>
       </form>
-    </div>
+    </SellerMainWrapper>
   );
 }
