@@ -12,11 +12,11 @@ import { useEffect, useState } from "react";
 const headers = [
   "Order ID",
   "Status",
-  "Order Quantity",
+  "Customer",
+  // "Order Quantity",
   "Total Price",
   "Ordered on",
-  "Delivered on",
-  "",
+  "Actions",
 ]
 
 export default function SellerAllOrders() {
@@ -53,10 +53,10 @@ export default function SellerAllOrders() {
             <tr key={or._id}>
               <TableBodyCell text={or._id} />
               <TableBodyCell text={or.status || ""} />
-              <TableBodyCell text={or.cart.length.toString()} />
+              {/* <TableBodyCell text={or.cart.length.toString()} /> */}
+              <TableBodyCell text={or.user.firstName + " " + or.user.lastName} />
               <TableBodyCell text={or.totalPrice.toString()} />
               <TableBodyCell text={formatDate(or.createdAt)} />
-              <TableBodyCell text={formatDate(or.deliveredAt)} />
               <td align="center">
                 <button>
                   <Link to={or._id}>

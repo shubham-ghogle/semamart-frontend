@@ -74,15 +74,6 @@ export default function OrderDetailsScreen() {
               <OrderDetailsField label="Type:" value={data?.paymentInfo?.type ? data?.paymentInfo?.type : "Not Paid"} />
             </div>
           </section>
-          {/* Shipping Address */}
-          <section className="mt-6 flex justify-between border-b pb-4">
-            <h5 className="text-xl">Shipping Address:</h5>
-            <div>
-              <p>{data?.shippingAddress.instituteAddress1}, {data?.shippingAddress.instituteAddress2}</p>
-              <p>{data?.shippingAddress.district}, {data?.shippingAddress.state}</p>
-              <p>Pincode: {data?.shippingAddress.pincode}</p>
-            </div>
-          </section>
           <section className="flex justify-between mt-4">
             <h4 className="pt-3 text-[20px] font-[600]">Order Status:</h4>
             {data?.status && (

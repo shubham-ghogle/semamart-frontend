@@ -9,11 +9,12 @@ import { Link } from "react-router";
 const headers = [
   "Product Name",
   "Image",
+  "status",
   "Stock",
   "Original Price",
   "Discounted Price",
   "Date Added",
-  ""
+  "Actions"
 ];
 
 export default function SellerAllProductsScreen() {
@@ -33,7 +34,8 @@ export default function SellerAllProductsScreen() {
           {data.map(pro => (
             <tr key={pro._id}>
               <TableBodyCell text={pro.name} />
-              <td align="center"><img src={"/baseUrl" + "/" + pro.images[0]} width={50} /></td>
+              <td align="center"><img src={"/baseUrl" + "/" + pro.images[0]} width={60} /></td>
+              <TableBodyCell text="staus" />
               <TableBodyCell text={pro.stock.toString()} />
               <TableBodyCell text={pro.originalPrice.toString()} />
               <TableBodyCell text={pro.discountPrice.toString()} />
