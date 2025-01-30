@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { useSellerStore } from "../../store/sellerStore";
 import Input, { InputCheckbox, InputChips, SelectInput, Textarea } from "../UI/Inputs";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { MdDeleteForever } from "react-icons/md";
 
 type ProductDetailsFormProps = {
   mode: "views",
@@ -17,7 +18,7 @@ export default function ProductDetailsForm({ mode, media, video }: ProductDetail
   const [images, setImages] = useState<File[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [name, setName] = useState("");
-  // const [hsn, setHsn] = useState("");
+  const [hsn, setHsn] = useState("");
   const [shortdescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -87,7 +88,7 @@ export default function ProductDetailsForm({ mode, media, video }: ProductDetail
       newForm.append("images", image);
     });
     newForm.append("name", name);
-    // newForm.append("hsn", hsn);
+    newForm.append("hsn", hsn);
     newForm.append("productType", productType);
     newForm.append("originalPrice", originalPrice.toString());
     newForm.append("discountPrice", discountPrice.toString());
@@ -120,6 +121,9 @@ export default function ProductDetailsForm({ mode, media, video }: ProductDetail
     if (seller?._id) {
       newForm.append("shopId", seller._id);
     }
+    if (enableAttri) {
+      newForm.append("attributes", JSON.stringify(attriForForm))
+    }
     try {
       const res = await fetch("/api/v2/product/create-product", {
         method: "post",
@@ -132,9 +136,33 @@ export default function ProductDetailsForm({ mode, media, video }: ProductDetail
     }
   };
 
+
+  type Attribute = {
+    key: string;
+    value: string;
+  };
+  const [enableAttri, setEnableAttri] = useState(false)
+  const [attributes, setAttributes] = useState<Attribute[]>([]);
+  const [newAttribute, setNewAttribute] = useState<Attribute>({ key: "", value: "" });
+
+  function addAttribute() {
+    if (!newAttribute.key.trim() || !newAttribute.value.trim()) return;
+    setAttributes([...attributes, newAttribute]);
+    setNewAttribute({ key: "", value: "" });
+  };
+
+  function deleteAttri(index: number) {
+    const newAttri = [...attributes]
+    newAttri.splice(index, 1)
+    setAttributes(newAttri)
+  }
+
+  const attriForForm = attributes.length > 0 ? attributes.map(el => ({ [el.key]: el.value })) : null
+
   return (
     < form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white p-6 rounded-md drop-shadow" >
       <Input disabled={mode === "views"} label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      <Input disabled={mode === "views"} label="HSN code" type="text" value={hsn} onChange={(e) => setHsn(e.target.value)} />
       <Input disabled={mode === "views"} label="Product Type" value={productType} onChange={(e) => setProductType(e.target.value)} />
       <Input disabled={mode === "views"} label="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
       <section>
@@ -184,34 +212,28 @@ export default function ProductDetailsForm({ mode, media, video }: ProductDetail
         </div>
       </section>
 
-      {/*  MANAGE ATTRIBUTES Section  TODO CUSTOM */}
+      {/*  MANAGE ATTRIBUTES Section  TODO CUSTOM ATTRIBUTES */}
       <section className="border border-gray-300 rounded-[5px] p-4 mt-6">
         <p className="mb-2 font-bold">
           MANAGE ATTRIBUTES (Manage attributes for this simple product)
         </p>
-        <div className="flex justify-between gap-4">
-          {/* Column 1 - Attribute Selector */}
-          <div className="w-1/3">
-            <label className="pb-2">Attributes</label>
-            <select disabled={mode === "views"} className="w-full mt-2 border h-[35px] rounded-[5px]">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
+        <InputCheckbox label="Enable custom attributes" checked={enableAttri} onChange={(e) => setEnableAttri(e.target.checked)} />
+        {enableAttri && (
+          <div className="space-y-2">
+            {attributes.length > 0 && attributes.map((el, i) => (
+              <div key={i} className="grid grid-cols-[2fr_2fr_1fr] gap-4">
+                <Input value={el.key} disabled />
+                <Input value={el.value} disabled />
+                <button type="button" onClick={() => deleteAttri(i)}><MdDeleteForever color="red" className="p-1 h-full w-fit justify-self-center" /></button>
+              </div>
+            ))}
+            <div className="grid grid-cols-[2fr_2fr_1fr] items-center gap-4">
+              <Input value={newAttribute.key} onChange={(e) => setNewAttribute({ ...newAttribute, key: e.target.value })} />
+              <Input value={newAttribute.value} onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })} />
+              <button type="button" className="p-1 text-sm bg-accentBlue rounded text-white" onClick={addAttribute}>Add attribute</button>
+            </div>
           </div>
-          {/* Column 2 - Add Attribute Button */}
-          <div className="w-1/3 flex items-end">
-            <button disabled={mode === "views"} className="w-full bg-blue-500 text-white h-[35px] rounded-[5px] hover:bg-blue-600">
-              Add Attribute
-            </button>
-          </div>
-          {/* Column 3 - Save Attribute Button */}
-          <div className="w-1/3 flex items-end">
-            <button disabled={mode === "views"} className="w-full bg-yellow-500 text-white h-[35px] rounded-[5px] hover:bg-yellow-600">
-              Save Attribute
-            </button>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* DISCOUNT OPTIONS Section TODO */}

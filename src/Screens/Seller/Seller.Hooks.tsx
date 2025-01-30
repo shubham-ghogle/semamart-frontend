@@ -1,6 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryFunction, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Order, Product } from "../../Types/types";
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 
 export async function getOrdersForSeller(id: string) {
   const res = await fetch(
@@ -20,7 +21,8 @@ export async function getOrdersForSeller(id: string) {
   return data.orders;
 }
 
-export async function getProductsForSeller(id: string) {
+export async function getProductsForSeller(id?: string) {
+  if (!id) return
   const res = await fetch(
     "/api/v2/product/get-all-products-shop/" + id,
   );
@@ -94,4 +96,36 @@ export function useSellerOrderMutation() {
   })
 
   return { mutationStatus, mutateOrder }
+}
+
+export function useCustomEnsureQuerty<T>(qkey: (string | undefined)[],
+  qFunc: QueryFunction,
+  id?: string) {
+  const [data, setData] = useState<T | null>(null)
+  const [status, setStatus] = useState<"success" | "error" | "pending">("pending")
+
+  const qc = useQueryClient()
+
+  useEffect(() => {
+    if (!id) return
+
+    async function z() {
+      try {
+        const a = await qc.ensureQueryData({ queryKey: qkey, queryFn: qFunc })
+        if (!a) {
+          setStatus("error")
+          return
+        }
+        setData(a as T)
+        setStatus("success")
+      } catch (err) {
+        console.log(err)
+        setStatus("error")
+      }
+    }
+    setStatus("pending")
+    z()
+  }, [id])
+
+  return { data, status }
 }

@@ -9,7 +9,7 @@
 
   body {
     /*@apply bg-bgGray;*/
-    @apply font-mono;
+    @apply font-sans;
   }
 }
 

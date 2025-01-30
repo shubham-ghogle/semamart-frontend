@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Order } from "../../Types/types";
@@ -6,8 +5,7 @@ import { TableBodyCell, TableHeader, TableWrapper } from "../../components/UI/Ta
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router";
 import { formatDate } from "../../components/UI/Inputs";
-import { getOrdersForSeller } from "./Seller.Hooks";
-import { useEffect, useState } from "react";
+import { getOrdersForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
 
 const headers = [
   "Order ID",
@@ -21,26 +19,9 @@ const headers = [
 
 export default function SellerAllOrders() {
   const seller = useSellerStore(state => state.seller)
-  const qC = useQueryClient()
-  // const orders = qC.getQueryData(["seller-orders", seller?._id]) as (Order[] | undefined)
-  const [orders, setOrders] = useState<Order[] | null>(null)
-  const [status, setStatus] = useState<"success" | "error" | "pending">("pending")
+  const { data: orders, status } = useCustomEnsureQuerty<Order[]>(["seller-orders", seller?._id],
+    () => getOrdersForSeller(seller?._id || ""), seller?._id)
 
-  useEffect(() => {
-    async function z() {
-      const a = await qC.ensureQueryData({ queryKey: ["seller-orders", seller?._id], queryFn: () => getOrdersForSeller(seller?._id || "") })
-      if (!a) {
-        setStatus("error")
-        return
-      }
-      setOrders(a)
-      setStatus("success")
-    }
-    setStatus("pending")
-    z()
-  }, [seller])
-
-  // const status = orders ? "success" : "error"
   const errMess = "Something went wrong"
 
 

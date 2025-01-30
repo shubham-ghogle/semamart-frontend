@@ -6,7 +6,7 @@ type InputProps = {
 
 export default function Input({ label, ...inputProps }: InputProps) {
   return (
-    <article className="mb-2">
+    <article className="">
       {label && (
         <label
           htmlFor={label}

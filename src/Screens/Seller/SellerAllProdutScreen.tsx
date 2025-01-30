@@ -1,10 +1,10 @@
-import { useQueryClient } from "@tanstack/react-query";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Product } from "../../Types/types";
 import { TableBodyCell, TableHeader, TableWrapper } from "../../components/UI/Table";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router";
+import { getProductsForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
 
 const headers = [
   "Product Name",
@@ -19,11 +19,8 @@ const headers = [
 
 export default function SellerAllProductsScreen() {
   const { seller } = useSellerStore((state) => state);
-  const qClient = useQueryClient()
+  const { data, status } = useCustomEnsureQuerty<Product[]>(["seller-products", seller?._id], () => getProductsForSeller(seller?._id), seller?._id)
 
-  const data = qClient.getQueryData(["seller-products", seller?._id]) as (Product[] | undefined)
-
-  const status = data ? "success" : "error"
   const errMess = "Something went wrong"
 
   return <SellerMainWrapper status={status} errorMeassage={errMess} heading="Products">
