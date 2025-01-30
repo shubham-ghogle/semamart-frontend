@@ -7,6 +7,8 @@ import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
+import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
 import SellerRegisterScreen from "./Screens/Register/SellerRegisterScreen";
 import UserRegistrationScreen from "./Screens/Register/UserRegistrationScreen";
@@ -52,6 +54,10 @@ export const router = createBrowserRouter([
       {
         path: "sellers",
         element: <AllSellerScreen />,
+      },
+      {
+        path: "orders",
+        element: <AllOrderScreen />,
       },
       { path: "*", element: <div>niniiii</div> },
     ],

@@ -129,6 +129,7 @@ type PaymentInfo = {
 };
 
 export type Order = {
+  _id: string;
   cart: Product[];
   shippingAddress: Address;
   user: User;
@@ -138,4 +139,5 @@ export type Order = {
   paidAt?: Date;
   deliveredAt?: Date;
   createdAt?: Date;
+  shop?: string;
 };
