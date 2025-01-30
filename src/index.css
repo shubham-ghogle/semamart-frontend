@@ -8,7 +8,8 @@
   }
 
   body {
-    @apply bg-bgGray;
+    /*@apply bg-bgGray;*/
+    @apply font-mono;
   }
 }
 
@@ -22,6 +23,8 @@
 
 .rounded-table {
   --boder-clr: #3692b4;
+  --brd-rds: 6px;
+
   border-collapse: separate;
 
   th {
@@ -49,19 +52,19 @@
 
   tr:first-child {
     th:first-child {
-      border-top-left-radius: 12px;
+      border-top-left-radius: var(--brd-rds);
     }
     th:last-child {
-      border-top-right-radius: 12px;
+      border-top-right-radius:var(--brd-rds);
     }
   }
 
   tr:last-child {
     td:last-child {
-      border-bottom-right-radius: 12px;
+      border-bottom-right-radius:var(--brd-rds);
     }
     td:first-child {
-      border-bottom-left-radius: 12px;
+      border-bottom-left-radius:var(--brd-rds);
     }
   }
 }

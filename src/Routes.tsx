@@ -20,6 +20,8 @@ import UserLayout from "./components/Layouts/UserLayout";
 import UserProfileScreen from "./Screens/User/UserProfileScreen";
 import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
+import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
+import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 
 export const router = createBrowserRouter([
   {
@@ -69,7 +71,13 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
-      { path: "products", element: <SellerAllProductsScreen /> }
+      { path: "products", element: <SellerAllProductsScreen /> },
+      {
+        path: "orders", children: [
+          { index: true, element: <SellerAllOrders /> },
+          { path: ":orderId", element: <OrderDetailsScreen /> }
+        ]
+      }
     ],
   },
   // User Routes

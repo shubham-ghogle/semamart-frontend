@@ -20,3 +20,9 @@ export default function Input({ label, ...inputProps }: InputProps) {
     </article>
   );
 }
+
+
+export function formatDate(date?: Date) {
+  if (!date) return "-"
+  return new Date(date).toLocaleDateString("en-IN")
+}
