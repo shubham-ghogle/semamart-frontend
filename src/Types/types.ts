@@ -31,7 +31,7 @@ export interface Product {
   originalPrice: number;
   discountPrice: number;
   category: string;
-  tags?: string[];
+  tags: string[];
   shortdescription: string;
   description: string;
   stock: number;
@@ -43,20 +43,19 @@ export interface Product {
   taxClass?: string;
   upsells?: string[];
   crosssells?: string[];
-  discountOptions?: string;
+  discountOptions?: { minimumQty: number; percent: number };
   rma?: string;
   minmaxrule?: string;
   productStatus?: string;
-  visibility?: string;
+  visibility: "offline" | "online";
   purchaseNote?: string;
   allowproductreviews?: boolean;
   weight?: string;
   dimension?: string;
   manufacturerName: string;
-  email?: string;
-  phone?: string;
+  email: string;
+  phone: string;
   origin: string;
-  thumbnail?: string;
   images: string[];
   shortVideo?: string;
   reviews?: Review[];
@@ -65,6 +64,7 @@ export interface Product {
   sold_out: number;
   createdAt: Date;
   updatedAt: Date;
+  attributes?: Record<string, string>[];
 }
 
 type Address = {
@@ -129,14 +129,22 @@ type PaymentInfo = {
 };
 
 export type Order = {
-  cart: { product: Product, qty: number }[];
+  cart: { product: Product; qty: number }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;
-  status?: "Processing" | "Transferred to delivery partner" | "Shipping" | "Received" | "On the way" | "Delivered" | "Processing refund" | "Refund Success";
+  status?:
+    | "Processing"
+    | "Transferred to delivery partner"
+    | "Shipping"
+    | "Received"
+    | "On the way"
+    | "Delivered"
+    | "Processing refund"
+    | "Refund Success";
   paymentInfo?: PaymentInfo;
   paidAt?: Date;
   deliveredAt?: Date;
   createdAt: Date;
-  _id: string
+  _id: string;
 };
