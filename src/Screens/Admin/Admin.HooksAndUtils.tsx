@@ -1,13 +1,13 @@
 import { redirect } from "react-router";
-import { Seller } from "../../Types/types";
+import { Seller,Order } from "../../Types/types";
 
 export type AdminSellersApiRes =
-  | {
-      success: true;
-      sellers: Seller[];
-    }
+  | { success: true; sellers: Seller[] }
   | { success: false; message: string };
 
+export type AdminOrdersApiRes =
+  | { success: true; orders: Order[] }
+  | { success: false; message: string };
 export async function getAllSellers() {
   const response = await fetch("/api/v2/shop/admin-all-sellers");
 
@@ -17,6 +17,20 @@ export async function getAllSellers() {
   }
 
   const data = (await response.json()) as AdminSellersApiRes;
+
+  if (!data.success) throw new Error(data.message);
+  return data;
+}
+
+export async function getAllOrders() {
+  const response = await fetch("/api/v2/order/admin-all-orders");
+
+  if (!response.ok) {
+    const errMessage = await response.json();
+    throw new Error(errMessage.message);
+  }
+
+  const data = (await response.json()) as AdminOrdersApiRes;
 
   if (!data.success) throw new Error(data.message);
   return data;

@@ -13,6 +13,11 @@ export default function AdminNavbar() {
           end
           label="Dashboard"
         />
+         <SidebarNavlinks
+          icon={<GrWorkshop />}
+          to="orders"
+          label="All Orders"
+        />
         <SidebarNavlinks
           icon={<LuMessageSquare />}
           to="requests"

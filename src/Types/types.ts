@@ -145,6 +145,6 @@ export type Order = {
   paymentInfo?: PaymentInfo;
   paidAt?: Date;
   deliveredAt?: Date;
-  createdAt: Date;
-  _id: string;
+  createdAt?: Date;
+  shop?: string;
 };
