@@ -7,9 +7,9 @@ export default function AdminLayout() {
     <>
       <AdminHeader />
       <section className="bg-bgGray">
-        <div className="container mx-auto grid grid-cols-[250px_1fr] min-h-[calc(100vh-80px)]">
+        <div className="container mx-auto grid grid-cols-[250px_1fr] min-h-[calc(100vh-80px)] w-full">
           <AdminNavbar />
-          <main className="bg-bgGray">
+          <main className="bg-bgGray ">
             <Outlet />
           </main>
         </div>
