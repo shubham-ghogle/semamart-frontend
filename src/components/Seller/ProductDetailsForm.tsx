@@ -11,15 +11,15 @@ import { MdDeleteForever } from "react-icons/md";
 
 type ProductDetailsFormProps =
   | {
-      mode: "views";
-      media: string[];
-      video: string;
-    }
+    mode: "views";
+    media: string[];
+    video: string;
+  }
   | {
-      mode: "add";
-      media?: never;
-      video?: never;
-    };
+    mode: "add";
+    media?: never;
+    video?: never;
+  };
 
 export default function ProductDetailsForm({
   mode,
@@ -45,7 +45,6 @@ export default function ProductDetailsForm({
   const [allowSingleQuantity, setAllowSingleQuantity] = useState(false);
   const [taxStatus, setTaxStatus] = useState("Taxable");
   const [taxClass, setTaxClass] = useState("Standard");
-  const [minmaxrule, setMinMacRule] = useState(false);
   // const [productStatus, setProductStatus] = useState("");
   // const [visibiliy, setVisibility] = useState("Visible");
   // const [purchaseNote, setPurchaseNote] = useState("");
@@ -118,9 +117,8 @@ export default function ProductDetailsForm({
     newForm.append("upsells", upsells);
     newForm.append("crosssells", crosssells);
     // newForm.append("discountoptions", discountOptions.toString());
-    newForm.append("minmaxrule", minmaxrule.toString());
     // newForm.append("productStatus", productStatus);
-    // newForm.append("visibility", visibiliy);
+    newForm.append("visibility", visibility.toString());
     // newForm.append("purchaseNote", purchaseNote);
     newForm.append("allowproductreviews", allowproductreviews.toString());
     newForm.append("weight", weight);
@@ -142,6 +140,10 @@ export default function ProductDetailsForm({
 
     if (rma) {
       newForm.append("rma", JSON.stringify(rmaOpts));
+    }
+
+    if (isMinMaxRule) {
+      newForm.append("minmaxrule", JSON.stringify(minMaxRule))
     }
 
     try {
@@ -216,6 +218,17 @@ export default function ProductDetailsForm({
     refundReason: { damagedProduct: false, wrongProduct: false },
     rmaPolicy: "",
   });
+
+  const [isMinMaxRule, setIsMinMaxRule] = useState(false);
+  const [minMaxRule, setMinMaxRule] = useState({
+    minimumQty: 0,
+    maximumQty: 0,
+    minimumAmt: 0,
+    maximumAmt: 0
+  })
+
+
+  const [visibility, setVisibility] = useState<"visible" | "hidden">("hidden")
 
   return (
     <form
@@ -532,9 +545,37 @@ export default function ProductDetailsForm({
         <InputCheckbox
           disabled={mode === "views"}
           label="Enable Min Max Rule for this product"
-          checked={minmaxrule}
-          onChange={(e) => setMinMacRule(e.target.checked)}
+          checked={isMinMaxRule}
+          onChange={(e) => setIsMinMaxRule(e.target.checked)}
         />
+        {isMinMaxRule && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <Input
+              label="Minimum Quantity"
+              value={minMaxRule.minimumQty}
+              type="number"
+              onChange={e => setMinMaxRule(z => ({ ...z, minimumQty: parseInt(e.target.value) }))}
+            />
+            <Input
+              label="Maximum Quantity"
+              value={minMaxRule.maximumQty}
+              type="number"
+              onChange={e => setMinMaxRule(z => ({ ...z, maximumQty: parseInt(e.target.value) }))}
+            />
+            <Input
+              label="Minimum Amount"
+              value={minMaxRule.minimumAmt}
+              type="number"
+              onChange={e => setMinMaxRule(z => ({ ...z, minimumAmt: parseInt(e.target.value) }))}
+            />
+            <Input
+              label="Maximum Amount"
+              value={minMaxRule.maximumAmt}
+              type="number"
+              onChange={e => setMinMaxRule(z => ({ ...z, maximumAmt: parseInt(e.target.value) }))}
+            />
+          </div>
+        )}
       </section>
 
       {/* OTHER OPTIONS Section */}
@@ -542,46 +583,11 @@ export default function ProductDetailsForm({
         <p className="mb-2 font-bold">
           OTHER OPTIONS (Set your extra product options)
         </p>
-        {/* <div className="flex justify-between gap-4"> */}
-        {/*   {/*     {/* Row 1 - Product Status and Visibility */}
-        {/*   <div className="w-1/2"> */}
-        {/*     <label className="pb-2">Product Status</label> */}
-        {/*     <select */}
-        {/*       className="w-full mt-2 border h-[35px] rounded-[5px]" */}
-        {/*       value={productStatus} // Add a state variable for tax class */}
-        {/*       onChange={(e) => setProductStatus(e.target.value)} */}
-        {/*     > */}
-        {/*       <option value="pending">Pending</option> */}
-        {/*       <option value="success">Success</option> */}
-        {/*     </select> */}
-        {/*   </div> */}
-        {/*   <div className="w-1/2"> */}
-        {/*     <label className="pb-2">Visibility</label> */}
-        {/*     <select */}
-        {/*       className="w-full mt-2 border h-[35px] rounded-[5px]" */}
-        {/*       value={visibiliy} // Add a state variable for tax class */}
-        {/*       onChange={(e) => setVisibility(e.target.value)} */}
-        {/*     > */}
-        {/*       <option value="visible">Visible</option> */}
-        {/*       <option value="invisible">Invisible</option> */}
-        {/*     </select> */}
-        {/*   </div> */}
-        {/* </div> */}
-        {/**/}
-        {/*   {/* Row 2 - Purchase Note */}
-        {/*   <div className="mt-4"> */}
-        {/*     <label className="pb-2">Purchase Note</label> */}
-        {/*     <input */}
-        {/*       type="text" */}
-        {/*       name="purchaseNote" */}
-        {/*       value={purchaseNote} // Add a state variable for SKU */}
-        {/*       onChange={(e) => setPurchaseNote(e.target.value)} */}
-        {/*       className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" */}
-        {/*       placeholder="Enter purchase note..." */}
-        {/*     /> */}
-        {/*   </div> */}
-        {/**/}
-        {/*   {/* Row 3 - Enable Product Reviews */}
+        <SelectInput
+          label="Visibility"
+          value={visibility}
+          onChange={e => setVisibility(e.target.value as "hidden" | "visible")}
+        />
         <InputCheckbox
           disabled={mode === "views"}
           label="Enable Product Reviews"
@@ -731,43 +737,43 @@ export default function ProductDetailsForm({
           <div className="flex gap-4 flex-wrap">
             {mode === "add"
               ? Array.from({ length: 4 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                <div
+                  key={index}
+                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                >
+                  <label
+                    htmlFor={`uploadImage-${index}`}
+                    className="cursor-pointer"
                   >
-                    <label
-                      htmlFor={`uploadImage-${index}`}
-                      className="cursor-pointer"
-                    >
-                      {images[index] ? (
-                        <img
-                          src={URL.createObjectURL(images[index])}
-                          alt={`Image-${index + 1}`}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <AiOutlinePlusCircle size={30} color="#555" />
-                      )}
-                    </label>
-                    <input
-                      type="file"
-                      id={`uploadImage-${index}`}
-                      className="hidden"
-                      onChange={(e) => handleImageChange(e)}
-                    />
-                  </div>
-                ))
+                    {images[index] ? (
+                      <img
+                        src={URL.createObjectURL(images[index])}
+                        alt={`Image-${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AiOutlinePlusCircle size={30} color="#555" />
+                    )}
+                  </label>
+                  <input
+                    type="file"
+                    id={`uploadImage-${index}`}
+                    className="hidden"
+                    onChange={(e) => handleImageChange(e)}
+                  />
+                </div>
+              ))
               : media.map((el, i) => (
-                  <div
-                    key={i}
-                    className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
-                  >
-                    <img
-                      src={"baseUrl" + "/" + el}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
+                <div
+                  key={i}
+                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                >
+                  <img
+                    src={"baseUrl" + "/" + el}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ))}
           </div>
         </div>
 

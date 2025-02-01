@@ -49,7 +49,7 @@ export const router = createBrowserRouter([
     loader: getAdminFromLocalLoader,
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Dashboard/> },
+      { index: true, element: <Dashboard /> },
       {
         path: "requests",
         element: <AdminRequestScreen />,
@@ -74,11 +74,12 @@ export const router = createBrowserRouter([
       { path: "add-product", element: <AddProductScreen2 /> },
       { path: "products", element: <SellerAllProductsScreen /> },
       {
-        path: "orders", children: [
+        path: "orders",
+        children: [
           { index: true, element: <SellerAllOrders /> },
-          { path: ":orderId", element: <OrderDetailsScreen /> }
-        ]
-      }
+          { path: ":orderId", element: <OrderDetailsScreen /> },
+        ],
+      },
     ],
   },
   // User Routes
