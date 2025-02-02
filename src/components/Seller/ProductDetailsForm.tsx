@@ -59,7 +59,7 @@ export default function ProductDetailsForm({
   const [length, setLength] = useState(viewDimension ? viewDimension[0] : "");
   const [breadth, setBreadth] = useState(viewDimension ? viewDimension[1] : "");
   const [height, setHeight] = useState(viewDimension ? viewDimension[2].split("/")[0] : "");
-  const [dimensionUnit, setDimensionUnit] = useState(viewDimension ? viewDimension[2].split("/")[1] : "metre");
+  const [dimensionUnit, setDimensionUnit] = useState(viewDimension ? viewDimension[2].split("/") : "metre");
   const [manufacturerName, setManufacturerName] = useState(product ? product.manufacturerName : "");
   const [selectedManufacturer, setSelectedManufacturer] = useState("Manu1");
   const [email, setEmail] = useState(product ? product.email : "");
@@ -88,6 +88,7 @@ export default function ProductDetailsForm({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (mode === "views") return
 
     const newForm = new FormData();
     if (thumbnail) {
@@ -451,6 +452,7 @@ export default function ProductDetailsForm({
           label="Enable custom attributes"
           checked={enableAttri}
           onChange={(e) => setEnableAttri(e.target.checked)}
+          disabled={mode === "views"}
         />
         {enableAttri && (
           <div className="space-y-2">

@@ -6,7 +6,6 @@ import { AiOutlineProduct } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import { CiDeliveryTruck } from "react-icons/ci";
-import { TableWrapper } from "../../components/UI/Table";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 
 type status =
