@@ -58,7 +58,7 @@ export default function AdminProductScren() {
                 <td align="center">
                   <div className="flex items-center justify-center gap-2 px-2">
                     <button>
-                      <Link to="#">
+                      <Link to={"view/" + pro._id}>
                         <AiOutlineEye size={20} />
                       </Link>
                     </button>

@@ -8,56 +8,63 @@ import Input, {
 } from "../UI/Inputs";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
+import { Product } from "../../Types/types";
 
 type ProductDetailsFormProps =
-  | {
+  {
     mode: "views";
     media: string[];
-    video: string;
+    video?: string;
+    product: Product
   }
   | {
     mode: "add";
     media?: never;
     video?: never;
+    product?: never
   };
 
 export default function ProductDetailsForm({
   mode,
   media,
   video,
+  product
 }: ProductDetailsFormProps) {
+  const viewDimension = product && product.dimension.split("X")
+  const viewWgt = product && product.weight.split("/")
+
   const [images, setImages] = useState<File[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [name, setName] = useState("");
-  const [hsn, setHsn] = useState("");
-  const [shortdescription, setShortDescription] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [originalPrice, setOriginalPrice] = useState("");
-  const [discountPrice, setDiscountPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [productType, setProductType] = useState("");
-  const [sku, setSku] = useState("");
-  const [stockStatus, setStockStatus] = useState("In Stock");
-  const [enableStockManagement, setEnableStockManagement] = useState(false);
-  const [allowSingleQuantity, setAllowSingleQuantity] = useState(false);
-  const [taxStatus, setTaxStatus] = useState("Taxable");
-  const [taxClass, setTaxClass] = useState("Standard");
+  const [name, setName] = useState(product ? product.name : "");
+  const [hsn, setHsn] = useState(product ? product.hsn : "");
+  const [shortdescription, setShortDescription] = useState(product ? product.shortdescription : "");
+  const [description, setDescription] = useState(product ? product.description : "");
+  const [category, setCategory] = useState(product ? product.category : "");
+  const [originalPrice, setOriginalPrice] = useState(product ? product.originalPrice : "");
+  const [discountPrice, setDiscountPrice] = useState(product ? product.discountPrice : "");
+  const [stock, setStock] = useState(product ? product.stock : "");
+  const [productType, setProductType] = useState(product ? product.productType : "");
+  const [sku, setSku] = useState(product ? product.sku : "");
+  const [stockStatus, setStockStatus] = useState(product ? product.stockStatus : "In Stock");
+  const [enableStockManagement, setEnableStockManagement] = useState(product ? product.enableStockManagement : false);
+  const [allowSingleQuantity, setAllowSingleQuantity] = useState(product ? product.allowSingleQuantity : false);
+  const [taxStatus, setTaxStatus] = useState((product && product.taxStatus) ? product.taxStatus : "Taxable");
+  const [taxClass, setTaxClass] = useState((product && product.taxClass) ? product.taxClass : "Standard");
   // const [productStatus, setProductStatus] = useState("");
   // const [visibiliy, setVisibility] = useState("Visible");
   // const [purchaseNote, setPurchaseNote] = useState("");
-  const [allowproductreviews, setAllowProductReviews] = useState(false);
-  const [weightValue, setWeightValue] = useState("");
-  const [weightUnit, setWeightUnit] = useState("grams");
-  const [length, setLength] = useState("");
-  const [breadth, setBreadth] = useState("");
-  const [height, setHeight] = useState("");
-  const [dimensionUnit, setDimensionUnit] = useState("metre");
-  const [manufacturerName, setManufacturerName] = useState("");
+  const [allowproductreviews, setAllowProductReviews] = useState(product ? product.allowproductreviews : false);
+  const [weightValue, setWeightValue] = useState(viewWgt ? viewWgt[0] : "");
+  const [weightUnit, setWeightUnit] = useState(viewWgt ? viewWgt[1] : "grams");
+  const [length, setLength] = useState(viewDimension ? viewDimension[0] : "");
+  const [breadth, setBreadth] = useState(viewDimension ? viewDimension[1] : "");
+  const [height, setHeight] = useState(viewDimension ? viewDimension[2].split("/")[0] : "");
+  const [dimensionUnit, setDimensionUnit] = useState(viewDimension ? viewDimension[2].split("/")[1] : "metre");
+  const [manufacturerName, setManufacturerName] = useState(product ? product.manufacturerName : "");
   const [selectedManufacturer, setSelectedManufacturer] = useState("Manu1");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [countryOfOrigin, setCountryOfOrigin] = useState("");
+  const [email, setEmail] = useState(product ? product.email : "");
+  const [phone, setPhone] = useState(product ? product.phone : "");
+  const [countryOfOrigin, setCountryOfOrigin] = useState(product ? product.origin : "");
   const [selectedCountry, setSelectedCountry] = useState("country1");
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
@@ -105,7 +112,7 @@ export default function ProductDetailsForm({
     newForm.append("tags", JSON.stringify(tags));
     newForm.append("shortdescription", shortdescription);
     newForm.append("description", description);
-    newForm.append("stock", stock);
+    newForm.append("stock", stock.toString());
     newForm.append("sku", sku);
     newForm.append("stockStatus", stockStatus);
     newForm.append("enableStockManagement", enableStockManagement.toString());
@@ -163,12 +170,18 @@ export default function ProductDetailsForm({
     }
   };
 
+  const viewAttributes = product && product.attributes?.map(a => {
+    const [key, val] = Object.entries(a)[0]
+    return { key: key, value: val }
+  })
+
+
   type Attribute = {
     key: string;
     value: string;
   };
-  const [enableAttri, setEnableAttri] = useState(false);
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
+  const [enableAttri, setEnableAttri] = useState(viewAttributes ? true : false);
+  const [attributes, setAttributes] = useState<Attribute[]>(viewAttributes ? viewAttributes : []);
   const [newAttribute, setNewAttribute] = useState<Attribute>({
     key: "",
     value: "",
@@ -191,18 +204,22 @@ export default function ProductDetailsForm({
       ? attributes.map((el) => ({ [el.key]: el.value }))
       : null;
 
+
+  const viewDiscountOpts = product && product.discountOptions
   type DiscountOpt = {
     minimumQty: number;
     percent: number;
   };
-  const [enableDiscountOpt, setEnableDiscountOpt] = useState(false);
+  const [enableDiscountOpt, setEnableDiscountOpt] = useState(viewDiscountOpts ? true : false);
 
-  const [discountOpts, setDiscountOpts] = useState<DiscountOpt>({
-    minimumQty: 0,
-    percent: 0,
-  });
+  const [discountOpts, setDiscountOpts] = useState<DiscountOpt>(viewDiscountOpts ?
+    { ...viewDiscountOpts } :
+    {
+      minimumQty: 0,
+      percent: 0,
+    });
 
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(product ? product.tags : []);
   const [currTag, setCurrTag] = useState("");
 
   function addTag() {
@@ -216,30 +233,36 @@ export default function ProductDetailsForm({
     setTags(newTags);
   }
 
-  const [rma, setRma] = useState(false);
-  const [rmaOpts, setRmaOpts] = useState({
-    label: "",
-    type: "",
-    refundReason: { damagedProduct: false, wrongProduct: false },
-    rmaPolicy: "",
-  });
+  const viewRma = product && product.rma
+  const [rma, setRma] = useState(viewRma ? true : false);
+  const [rmaOpts, setRmaOpts] = useState(viewRma ?
+    { ...viewRma } :
+    {
+      label: "",
+      type: "",
+      refundReason: { damagedProduct: false, wrongProduct: false },
+      rmaPolicy: "",
+    });
 
-  const [isMinMaxRule, setIsMinMaxRule] = useState(false);
-  const [minMaxRule, setMinMaxRule] = useState({
-    minimumQty: 0,
-    maximumQty: 0,
-    minimumAmt: 0,
-    maximumAmt: 0
-  })
+  const viewMinMax = product && product.minmaxrule
+  const [isMinMaxRule, setIsMinMaxRule] = useState(viewMinMax ? true : false);
+  const [minMaxRule, setMinMaxRule] = useState(viewMinMax ?
+    { ...viewMinMax } :
+    {
+      minimumQty: 0,
+      maximumQty: 0,
+      minimumAmt: 0,
+      maximumAmt: 0
+    })
 
 
-  const [visibility, setVisibility] = useState<"visible" | "hidden">("hidden")
+  const [visibility, setVisibility] = useState<"visible" | "hidden">(product ? product.visibility : "hidden")
 
   const [currUpsells, setCurrUpsells] = useState("");
   const [currCrosssells, setCurrCrossSells] = useState("");
 
-  const [upsells, setUpsells] = useState<string[]>([])
-  const [crosssells, setCrosssells] = useState<string[]>([])
+  const [upsells, setUpsells] = useState<string[]>((product && product.upSells) ? product.upSells : [])
+  const [crosssells, setCrosssells] = useState<string[]>((product && product.crossSells) ? product.crossSells : [])
 
   function addUpSells() {
     setUpsells(prev => ([...prev, currUpsells]))
@@ -436,7 +459,11 @@ export default function ProductDetailsForm({
                 <div key={i} className="grid grid-cols-[2fr_2fr_1fr] gap-4">
                   <Input value={el.key} disabled />
                   <Input value={el.value} disabled />
-                  <button type="button" onClick={() => deleteAttri(i)}>
+                  <button
+                    type="button"
+                    disabled={mode === "views"}
+                    onClick={() => deleteAttri(i)}
+                  >
                     <MdDeleteForever
                       color="red"
                       className="p-1 h-full w-fit justify-self-center"
@@ -450,17 +477,20 @@ export default function ProductDetailsForm({
                 onChange={(e) =>
                   setNewAttribute({ ...newAttribute, key: e.target.value })
                 }
+                disabled={mode === "views"}
               />
               <Input
                 value={newAttribute.value}
                 onChange={(e) =>
                   setNewAttribute({ ...newAttribute, value: e.target.value })
                 }
+                disabled={mode === "views"}
               />
               <button
                 type="button"
                 className="p-1 text-sm bg-accentBlue rounded text-white"
                 onClick={addAttribute}
+                disabled={mode === "views"}
               >
                 Add attribute
               </button>
@@ -491,6 +521,8 @@ export default function ProductDetailsForm({
                   minimumQty: Number(e.target.value),
                 }))
               }
+              value={discountOpts.minimumQty}
+              disabled={mode === "views"}
             />
             <Input
               label="Percentage"
@@ -501,6 +533,8 @@ export default function ProductDetailsForm({
                   percent: Number(e.target.value),
                 }))
               }
+              value={discountOpts.percent}
+              disabled={mode === "views"}
             />
           </div>
         )}
@@ -526,6 +560,7 @@ export default function ProductDetailsForm({
               onChange={(e) =>
                 setRmaOpts((z) => ({ ...z, label: e.target.value }))
               }
+              disabled={mode === "views"}
             />
             <SelectInput
               label="Type"
@@ -533,6 +568,7 @@ export default function ProductDetailsForm({
               onChange={(e) =>
                 setRmaOpts((z) => ({ ...z, type: e.target.value }))
               }
+              disabled={mode === "views"}
             />
             <section>
               <Input label="Refund Reasons" type="hidden" />
@@ -549,6 +585,7 @@ export default function ProductDetailsForm({
                       },
                     }))
                   }
+                  disabled={mode === "views"}
                 />
                 <InputCheckbox
                   label="Wrong Product deleivered"
@@ -562,6 +599,7 @@ export default function ProductDetailsForm({
                       },
                     }))
                   }
+                  disabled={mode === "views"}
                 />
               </article>
             </section>
@@ -571,6 +609,7 @@ export default function ProductDetailsForm({
               onChange={(e) =>
                 setRmaOpts((z) => ({ ...z, rmaPolicy: e.target.value }))
               }
+              disabled={mode === "views"}
             />
           </div>
         )}
@@ -594,24 +633,28 @@ export default function ProductDetailsForm({
               value={minMaxRule.minimumQty}
               type="number"
               onChange={e => setMinMaxRule(z => ({ ...z, minimumQty: parseInt(e.target.value) }))}
+              disabled={mode === "views"}
             />
             <Input
               label="Maximum Quantity"
               value={minMaxRule.maximumQty}
               type="number"
               onChange={e => setMinMaxRule(z => ({ ...z, maximumQty: parseInt(e.target.value) }))}
+              disabled={mode === "views"}
             />
             <Input
               label="Minimum Amount"
               value={minMaxRule.minimumAmt}
               type="number"
               onChange={e => setMinMaxRule(z => ({ ...z, minimumAmt: parseInt(e.target.value) }))}
+              disabled={mode === "views"}
             />
             <Input
               label="Maximum Amount"
               value={minMaxRule.maximumAmt}
               type="number"
               onChange={e => setMinMaxRule(z => ({ ...z, maximumAmt: parseInt(e.target.value) }))}
+              disabled={mode === "views"}
             />
           </div>
         )}
@@ -626,6 +669,7 @@ export default function ProductDetailsForm({
           label="Visibility"
           value={visibility}
           onChange={e => setVisibility(e.target.value as "hidden" | "visible")}
+          disabled={mode === "views"}
         />
         <InputCheckbox
           disabled={mode === "views"}
@@ -731,84 +775,86 @@ export default function ProductDetailsForm({
       </section>
 
       {/* PRODUCT MEDIA */}
+      {/* Thumbnail Upload */}
       <section className="border border-gray-300 p-4 rounded-[5px] mt-6">
-        <h2 className="text-lg font-bold mb-4">Product Image Upload</h2>
-        {/* Thumbnail Upload */}
-        <div className="mb-6">
-          <label className="block font-medium mb-2">
-            Upload Thumbnail Image
-          </label>
-          <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer">
-            <label
-              htmlFor="uploadThumbnail"
-              className="cursor-pointer w-full h-full grid place-items-center"
-            >
-              {mode === "add" ? (
-                thumbnail ? (
-                  <img
-                    src={URL.createObjectURL(thumbnail)}
-                    alt="Thumbnail"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <AiOutlinePlusCircle size={30} color="#555" />
-                )
-              ) : (
-                <img
-                  src={"/baseUrl" + "/" + media[0]}
-                  alt="Thumbnail"
-                  className="h-full w-full object-cover"
-                />
-              )}
-            </label>
-          </div>
-          <input
-            type="file"
-            id="uploadThumbnail"
-            className="hidden"
-            onChange={handleThumbnailChange}
-          />
-        </div>
-
-        {/* Other Images Upload */}
-        <div>
-          <label className="block font-medium mb-2">Upload Other Images</label>
-          <div className="flex gap-4 flex-wrap">
-            {mode === "add"
-              ? Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+        {mode === 'add' && (
+          <>
+            <h2 className="text-lg font-bold mb-4">Product Image Upload</h2>
+            <div className="mb-6">
+              <label className="block font-medium mb-2">
+                Upload Thumbnail Image
+              </label>
+              <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer">
+                <label
+                  htmlFor="uploadThumbnail"
+                  className="cursor-pointer w-full h-full grid place-items-center"
                 >
-                  <label
-                    htmlFor={`uploadImage-${index}`}
-                    className="cursor-pointer"
-                  >
-                    {images[index] ? (
+                  {
+                    thumbnail ? (
                       <img
-                        src={URL.createObjectURL(images[index])}
-                        alt={`Image-${index + 1}`}
+                        src={URL.createObjectURL(thumbnail)}
+                        alt="Thumbnail"
                         className="h-full w-full object-cover"
                       />
                     ) : (
                       <AiOutlinePlusCircle size={30} color="#555" />
                     )}
-                  </label>
-                  <input
-                    type="file"
-                    id={`uploadImage-${index}`}
-                    className="hidden"
-                    onChange={(e) => handleImageChange(e)}
-                  />
-                </div>
-              ))
+                </label>
+              </div>
+              <input
+                type="file"
+                id="uploadThumbnail"
+                className="hidden"
+                onChange={handleThumbnailChange}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Other Images Upload */}
+        <div>
+          {mode === "add" ? (
+            <label className="block font-medium mb-2">Upload Other Images</label>
+          ) : (
+            <label className="block font-medium mb-2">Images</label>
+          )}
+          <div className="flex gap-4 flex-wrap">
+            {mode === "add"
+              ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                  >
+                    <label
+                      htmlFor={`uploadImage-${index}`}
+                      className="cursor-pointer"
+                    >
+                      {images[index] ? (
+                        <img
+                          src={URL.createObjectURL(images[index])}
+                          alt={`Image-${index + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <AiOutlinePlusCircle size={30} color="#555" />
+                      )}
+                    </label>
+                    <input
+                      type="file"
+                      id={`uploadImage-${index}`}
+                      className="hidden"
+                      onChange={(e) => handleImageChange(e)}
+                    />
+                  </div>
+                )))
               : media.map((el, i) => (
                 <div
                   key={i}
-                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px]"
                 >
                   <img
-                    src={"baseUrl" + "/" + el}
+                    src={"/baseUrl" + "/" + el}
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -824,7 +870,7 @@ export default function ProductDetailsForm({
           </label>
           <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer">
             <label htmlFor="uploadShortVideo" className="cursor-pointer">
-              {mode === "add" ? (
+              {mode === "add" && (
                 shortVideo ? (
                   <video
                     controls
@@ -833,13 +879,15 @@ export default function ProductDetailsForm({
                   />
                 ) : (
                   <AiOutlinePlusCircle size={30} color="#555" />
-                )
-              ) : (
+                ))}
+              {mode === "views" && product.shortVideo ? (
                 <video
                   controls
                   src={"baseUrl" + "/" + video}
                   className="h-full w-full object-cover"
                 />
+              ) : (
+                <p>No video</p>
               )}
             </label>
           </div>
@@ -862,13 +910,16 @@ export default function ProductDetailsForm({
         </div>
       </section>
       {/* Submit Button */}
-      <div className="mt-6">
-        <input
-          type="submit"
-          value="Create"
-          className="cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        />
-      </div>
-    </form>
+      {mode === "add" && (
+        <div className="mt-6">
+          <button
+            type="submit"
+            className="block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            Submit
+          </button>
+        </div>
+      )}
+    </form >
   );
 }

@@ -27,7 +27,7 @@ export default function AdminNavbar() {
         <SidebarNavlinks
           icon={<MdOutlineShoppingBag />}
           to="products"
-          label="Product Requests"
+          label="Products"
         />
         <SidebarNavlinks
           icon={<GrWorkshop />}

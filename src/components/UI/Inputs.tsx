@@ -31,6 +31,7 @@ type InputChipsProps = {
   onAddChip: () => void;
   onDeleteChip: (i: number) => void;
   flexDir?: "flex-row" | "flex-col"
+  disabled?: Boolean
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export function InputChips({
@@ -39,6 +40,7 @@ export function InputChips({
   label,
   values,
   flexDir = "flex-row",
+  disabled = false,
   ...inputProps
 }: InputChipsProps) {
   return (
@@ -57,7 +59,7 @@ export function InputChips({
               key={i}
             >
               {el}
-              <button onClick={() => onDeleteChip(i)}>
+              <button onClick={() => onDeleteChip(i)} disabled={disabled}>
                 <RxCross2 />
               </button>
             </span>
@@ -66,11 +68,13 @@ export function InputChips({
           {...inputProps}
           id={label}
           className="w-full px-2 py-1 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+          disabled={disabled}
         />
         <button
           className="py-1 px-2 bg-accentBlue rounded-sm text-white text-sm"
           onClick={onAddChip}
           type="button"
+          disabled={disabled}
         >
           Add
         </button>

@@ -35,10 +35,10 @@ export interface Product {
   shortdescription: string;
   description: string;
   stock: number;
-  sku?: string;
-  stockStatus?: string;
-  enableStockManagement?: boolean;
-  allowSingleQuantity?: boolean;
+  sku: string;
+  stockStatus: string;
+  enableStockManagement: boolean;
+  allowSingleQuantity: boolean;
   taxStatus?: string;
   taxClass?: string;
   upSells?: string[];
@@ -62,9 +62,9 @@ export interface Product {
   productStatus: "offline" | "online";
   visibility: "visible" | "hidden";
   purchaseNote?: string;
-  allowproductreviews?: boolean;
-  weight?: string;
-  dimension?: string;
+  allowproductreviews: boolean;
+  weight: string;
+  dimension: string;
   manufacturerName: string;
   email: string;
   phone: string;

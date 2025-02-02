@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import { Product } from "../../Types/types";
 import ProductMedia from "../../components/Product/ProductMedia";
 import RatingsStarView from "../../components/UI/RatingStarView";
 import ProductPrice from "../../components/Product/ProductPrice";
@@ -9,17 +8,8 @@ import { useCartStore } from "../../store/cartStore";
 import ProductPageBtns from "../../components/Product/ProductPageBtns";
 import { useWishlistStore } from "../../store/wishlistStore";
 import ProductDetailsInfo from "../../components/Product/ProductDetailsInfo";
+import { getProductDetail } from "./ProductDetails.HooksUtils";
 
-async function getProductDetail(id: string | undefined) {
-  const res = await fetch("/api/v2/product/get-product/" + id);
-
-  if (!res.ok) {
-    throw new Error("something went wrong");
-  }
-
-  const data = (await res.json()) as Product;
-  return data;
-}
 
 export default function ProductDetailsScreen() {
   const { id } = useParams();

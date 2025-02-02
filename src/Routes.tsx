@@ -24,6 +24,7 @@ import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
 import AdminProductRequestScreen from "./Screens/Admin/AdminProductScreen";
+import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
 
 export const router = createBrowserRouter([
   {
@@ -53,7 +54,12 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen />, },
       { path: "sellers", element: <AllSellerScreen />, },
-      { path: "products", element: <AdminProductRequestScreen />, },
+      {
+        path: "products", children: [
+          { index: true, element: <AdminProductRequestScreen /> },
+          { path: "view/:id", element: <ViewProductScreen /> }
+        ]
+      },
       // {path: "orders", element: <AllOrderScreen />,
       { path: "*", element: <div>niniiii</div> },
     ],
@@ -65,7 +71,12 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
-      { path: "products", element: <SellerAllProductsScreen /> },
+      {
+        path: "products", children: [
+          { index: true, element: <SellerAllProductsScreen /> },
+          { path: "view/:id", element: <ViewProductScreen /> }
+        ],
+      },
       {
         path: "orders",
         children: [

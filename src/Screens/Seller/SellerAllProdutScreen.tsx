@@ -40,7 +40,7 @@ export default function SellerAllProductsScreen() {
               <TableBodyCell text={formatDate(pro.createdAt)} />
               <td align="center">
                 <button>
-                  <Link to={"/product/" + pro._id}>
+                  <Link to={"view/" + pro._id}>
                     <AiOutlineEye size={20} />
                   </Link>
                 </button>
