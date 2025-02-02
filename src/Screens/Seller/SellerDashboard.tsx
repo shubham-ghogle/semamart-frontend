@@ -6,6 +6,8 @@ import { AiOutlineProduct } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import { CiDeliveryTruck } from "react-icons/ci";
+import { TableWrapper } from "../../components/UI/Table";
+import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 
 type status =
   "pending" | "success" | "error"
@@ -39,31 +41,38 @@ export default function SellerDashboard() {
 
   return (
     <SellerMainWrapper status={overAllStatus} errorMeassage={overAllError} heading="Seller Dashboard">
-      {isSuccess &&
-        <section className="grid grid-cols-[repeat(3,1fr)] gap-12 max-w-5xl mx-auto">
-          <DashboardCard
-            heading="Available Balance"
-            icon={<AiOutlineMoneyCollect size={30} />}
-            value={seller?.availableBalance || 0}
-            linkTo="#"
-            linkLabel="Withdraw Money"
-          />
-          <DashboardCard
-            heading="All Orders"
-            icon={<CiDeliveryTruck size={30} />}
-            value={orders?.length || 0}
-            linkTo="orders"
-            linkLabel="View Orders"
-          />
-          <DashboardCard
-            heading="All Products"
-            icon={<AiOutlineProduct size={30} />}
-            value={products?.length || 0}
-            linkTo="products"
-            linkLabel="View Products"
-          />
-        </section>
-      }
+      {isSuccess && (
+        <>
+          <section className="grid grid-cols-[repeat(3,1fr)] gap-12 max-w-5xl mx-auto">
+            <DashboardCard
+              heading="Available Balance"
+              icon={<AiOutlineMoneyCollect size={30} />}
+              value={seller?.availableBalance || 0}
+              linkTo="#"
+              linkLabel="Withdraw Money"
+            />
+            <DashboardCard
+              heading="All Orders"
+              icon={<CiDeliveryTruck size={30} />}
+              value={orders?.length || 0}
+              linkTo="orders"
+              linkLabel="View Orders"
+            />
+            <DashboardCard
+              heading="All Products"
+              icon={<AiOutlineProduct size={30} />}
+              value={products?.length || 0}
+              linkTo="products"
+              linkLabel="View Products"
+            />
+          </section>
+          <section className="mt-16">
+            <h2 className="text-center text-2xl mb-2 text-darkBlue font-semibold">Recent Orders</h2>
+            <SellerOrderTable orders={orders} />
+            {/* TODO Splices for only recent orders */}
+          </section>
+        </>
+      )}
     </SellerMainWrapper>
   );
 }
