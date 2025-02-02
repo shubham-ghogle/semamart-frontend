@@ -28,15 +28,17 @@ export default function Input({ label, ...inputProps }: InputProps) {
 type InputChipsProps = {
   label: string;
   values: string[];
-  onAddTag: () => void;
-  onDeleteTag: (i: number) => void;
+  onAddChip: () => void;
+  onDeleteChip: (i: number) => void;
+  flexDir?: "flex-row" | "flex-col"
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export function InputChips({
-  onDeleteTag,
-  onAddTag,
+  onDeleteChip,
+  onAddChip,
   label,
   values,
+  flexDir = "flex-row",
   ...inputProps
 }: InputChipsProps) {
   return (
@@ -47,15 +49,15 @@ export function InputChips({
       >
         {label}
       </label>
-      <section className="flex items-center gap-2">
+      <section className={"flex gap-2 " + flexDir + (flexDir === "flex-row" ? " items-center" : " justify-center")}>
         {values.length > 0 &&
           values.map((el, i) => (
             <span
-              className="p-1 bg-bgGray rounded-sm flex items-center gap-1"
+              className="p-1 bg-bgGray rounded-sm flex items-center justify-between gap-1"
               key={i}
             >
               {el}
-              <button onClick={() => onDeleteTag(i)}>
+              <button onClick={() => onDeleteChip(i)}>
                 <RxCross2 />
               </button>
             </span>
@@ -67,7 +69,7 @@ export function InputChips({
         />
         <button
           className="py-1 px-2 bg-accentBlue rounded-sm text-white text-sm"
-          onClick={onAddTag}
+          onClick={onAddChip}
           type="button"
         >
           Add

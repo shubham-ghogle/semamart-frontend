@@ -38,8 +38,6 @@ export default function ProductDetailsForm({
   const [stock, setStock] = useState("");
   const [productType, setProductType] = useState("");
   const [sku, setSku] = useState("");
-  const [upsells, setUpsells] = useState("");
-  const [crosssells, setCrossSells] = useState("");
   const [stockStatus, setStockStatus] = useState("In Stock");
   const [enableStockManagement, setEnableStockManagement] = useState(false);
   const [allowSingleQuantity, setAllowSingleQuantity] = useState(false);
@@ -114,8 +112,6 @@ export default function ProductDetailsForm({
     newForm.append("allowSingleQuantity", allowSingleQuantity.toString());
     newForm.append("taxStatus", taxStatus);
     newForm.append("taxClass", taxClass);
-    newForm.append("upsells", upsells);
-    newForm.append("crosssells", crosssells);
     // newForm.append("discountoptions", discountOptions.toString());
     // newForm.append("productStatus", productStatus);
     newForm.append("visibility", visibility.toString());
@@ -127,6 +123,7 @@ export default function ProductDetailsForm({
     newForm.append("email", email);
     newForm.append("phone", phone);
     newForm.append("origin", countryOfOrigin);
+
     if (seller?._id) {
       newForm.append("shopId", seller._id);
     }
@@ -144,6 +141,14 @@ export default function ProductDetailsForm({
 
     if (isMinMaxRule) {
       newForm.append("minmaxrule", JSON.stringify(minMaxRule))
+    }
+
+    if (upsells.length > 0) {
+      newForm.append("upSells", JSON.stringify(upsells))
+    }
+
+    if (crosssells.length > 0) {
+      newForm.append("crossSells", JSON.stringify(crosssells))
     }
 
     try {
@@ -230,6 +235,32 @@ export default function ProductDetailsForm({
 
   const [visibility, setVisibility] = useState<"visible" | "hidden">("hidden")
 
+  const [currUpsells, setCurrUpsells] = useState("");
+  const [currCrosssells, setCurrCrossSells] = useState("");
+
+  const [upsells, setUpsells] = useState<string[]>([])
+  const [crosssells, setCrosssells] = useState<string[]>([])
+
+  function addUpSells() {
+    setUpsells(prev => ([...prev, currUpsells]))
+    setCurrUpsells("")
+  }
+  function deleteUpSells(i: number) {
+    const a = [...upsells]
+    a.splice(i, 1)
+    setUpsells(a)
+  }
+
+  function addCrossSells() {
+    setCrosssells(prev => ([...prev, currCrosssells]))
+    setCurrCrossSells("")
+  }
+  function deleteCrossSells(i: number) {
+    const a = [...crosssells]
+    a.splice(i, 1)
+    setCrosssells(a)
+  }
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -281,8 +312,8 @@ export default function ProductDetailsForm({
         values={tags}
         value={currTag}
         onChange={(e) => setCurrTag(e.target.value)}
-        onAddTag={addTag}
-        onDeleteTag={deleteTag}
+        onAddChip={addTag}
+        onDeleteChip={deleteTag}
       />
       <Textarea
         disabled={mode === "views"}
@@ -365,17 +396,25 @@ export default function ProductDetailsForm({
           LINKED PRODUCTS (See your linked products for upsell and cross-sells)
         </p>
         <div className="grid grid-cols-2 gap-4">
-          <Input
+          <InputChips
             disabled={mode === "views"}
             label="Upsells"
-            value={upsells}
-            onChange={(e) => setUpsells(e.target.value)}
+            values={upsells}
+            value={currUpsells}
+            onAddChip={addUpSells}
+            onDeleteChip={deleteUpSells}
+            onChange={e => setCurrUpsells(e.target.value)}
+            flexDir="flex-col"
           />
-          <Input
+          <InputChips
             disabled={mode === "views"}
             label="Cross-sells"
-            value={crosssells}
-            onChange={(e) => setCrossSells(e.target.value)}
+            values={crosssells}
+            value={currCrosssells}
+            onAddChip={addCrossSells}
+            onDeleteChip={deleteCrossSells}
+            onChange={e => setCurrCrossSells(e.target.value)}
+            flexDir="flex-col"
           />
         </div>
       </section>

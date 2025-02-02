@@ -41,13 +41,26 @@ export interface Product {
   allowSingleQuantity?: boolean;
   taxStatus?: string;
   taxClass?: string;
-  upsells?: string[];
-  crosssells?: string[];
+  upSells?: string[];
+  crossSells?: string[];
   discountOptions?: { minimumQty: number; percent: number };
-  rma?: string;
-  minmaxrule?: string;
-  productStatus?: string;
-  visibility: "offline" | "online";
+  rma?: {
+    label: string
+    type: string
+    refundReason: {
+      damagedProduct: boolean
+      wrongProduct: boolean
+    }
+    rmaPolicy: string
+  };
+  minmaxrule?: {
+    minimumQty: number,
+    maximumQty: number,
+    minimumAmt: number,
+    maximumAmt: number
+  };
+  productStatus: "offline" | "online";
+  visibility: "visible" | "hidden";
   purchaseNote?: string;
   allowproductreviews?: boolean;
   weight?: string;
@@ -129,19 +142,20 @@ type PaymentInfo = {
 };
 
 export type Order = {
+  _id: string
   cart: { product: Product; qty: number }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;
   status?:
-    | "Processing"
-    | "Transferred to delivery partner"
-    | "Shipping"
-    | "Received"
-    | "On the way"
-    | "Delivered"
-    | "Processing refund"
-    | "Refund Success";
+  | "Processing"
+  | "Transferred to delivery partner"
+  | "Shipping"
+  | "Received"
+  | "On the way"
+  | "Delivered"
+  | "Processing refund"
+  | "Refund Success";
   paymentInfo?: PaymentInfo;
   paidAt?: Date;
   deliveredAt?: Date;

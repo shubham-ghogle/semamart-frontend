@@ -5,13 +5,13 @@ import { FaRegAddressCard } from "react-icons/fa6";
 import { IoPersonAdd } from "react-icons/io5";
 import { FaBuilding } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
-const Dashboard = () => {
+
+const AdminDashboard = () => {
   const { data, error, status } = useQuery({
     queryKey: ["verifiedOrders"],
     queryFn: getAllOrders,
     retry: 3,
   });
-  console.log("data", data);
   const stockData = [
     { label: "New Vendor", icon: <IoPersonAdd className="text-[2rem] m-2" /> },
     { label: "Vendor", icon: <FaRegAddressCard className="text-[2rem] m-2" /> },
@@ -44,5 +44,5 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
 

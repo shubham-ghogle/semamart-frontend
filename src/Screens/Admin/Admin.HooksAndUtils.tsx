@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { Seller,Order } from "../../Types/types";
+import { Seller, Order, Product } from "../../Types/types";
 
 export type AdminSellersApiRes =
   | { success: true; sellers: Seller[] }
@@ -66,4 +66,18 @@ export function getAdminFromLocalLoader() {
     return redirect("/");
 
   return null;
+}
+
+export async function getAdminProducts() {
+
+  const res = await fetch("/api/v2/product/admin-all-products")
+
+  if (!res.ok) {
+    throw new Error("Something went wrong")
+  }
+  const data = await res.json() as { success: Boolean; products: Product[], message: string }
+
+  if (!data.success) throw new Error(data.message)
+
+  return data.products
 }

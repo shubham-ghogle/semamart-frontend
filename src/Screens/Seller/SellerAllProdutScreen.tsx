@@ -1,10 +1,11 @@
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Product } from "../../Types/types";
-import { TableBodyCell, TableHeader, TableWrapper } from "../../components/UI/Table";
+import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UI/Table";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router";
 import { getProductsForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
+import { formatDate } from "../../components/UI/Inputs";
 
 const headers = [
   "Product Name",
@@ -31,12 +32,12 @@ export default function SellerAllProductsScreen() {
           {data.map(pro => (
             <tr key={pro._id}>
               <TableBodyCell text={pro.name} />
-              <td align="center"><img src={"/baseUrl" + "/" + pro.images[0]} width={60} /></td>
+              <TableImageCell src={"/baseUrl" + "/" + pro.images[0]} />
               <TableBodyCell text="staus" />
               <TableBodyCell text={pro.stock.toString()} />
               <TableBodyCell text={pro.originalPrice.toString()} />
               <TableBodyCell text={pro.discountPrice.toString()} />
-              <TableBodyCell text={new Date(pro.createdAt).toLocaleDateString("en-IN")} />
+              <TableBodyCell text={formatDate(pro.createdAt)} />
               <td align="center">
                 <button>
                   <Link to={"/product/" + pro._id}>

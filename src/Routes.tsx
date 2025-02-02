@@ -6,9 +6,8 @@ import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
-import Dashboard from "./Screens/Admin/Dashboard";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
-import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+// import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
 import SellerRegisterScreen from "./Screens/Register/SellerRegisterScreen";
@@ -23,6 +22,8 @@ import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
+import AdminDashboard from "./Screens/Admin/AdminDashboard";
+import AdminProductRequestScreen from "./Screens/Admin/AdminProductScreen";
 
 export const router = createBrowserRouter([
   {
@@ -49,19 +50,11 @@ export const router = createBrowserRouter([
     loader: getAdminFromLocalLoader,
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Dashboard /> },
-      {
-        path: "requests",
-        element: <AdminRequestScreen />,
-      },
-      {
-        path: "sellers",
-        element: <AllSellerScreen />,
-      },
-      {
-        path: "orders",
-        element: <AllOrderScreen />,
-      },
+      { index: true, element: <AdminDashboard /> },
+      { path: "requests", element: <AdminRequestScreen />, },
+      { path: "sellers", element: <AllSellerScreen />, },
+      { path: "products", element: <AdminProductRequestScreen />, },
+      // {path: "orders", element: <AllOrderScreen />,
       { path: "*", element: <div>niniiii</div> },
     ],
   },
@@ -85,7 +78,7 @@ export const router = createBrowserRouter([
   // User Routes
   {
     path: "/user",
-    loader: getAdminFromLocalLoader,
+    // loader: getAdminFromLocalLoader,
     element: <UserLayout />,
     children: [
       { index: true, element: <UserProfileScreen /> },

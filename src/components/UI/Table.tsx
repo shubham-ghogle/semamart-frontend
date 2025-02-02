@@ -20,7 +20,7 @@ export function TableHeader({ headers }: HeaderParams) {
     <thead>
       <tr>
         {headers.map((el) => (
-          <th key={el} align="left" className="py-2 pl-2 text-darkBlue text-lg">
+          <th key={el} align="left" className="p-2 text-darkBlue text-lg">
             {el}
           </th>
         ))}
@@ -31,6 +31,13 @@ export function TableHeader({ headers }: HeaderParams) {
 
 export function TableBodyCell({ text }: { text: string }) {
   return <td className="p-2 text-slate-800">{text}</td>;
+}
+
+type TableImageCellProps = {
+  src: string
+}
+export function TableImageCell({ src }: TableImageCellProps) {
+  return (<td align="center"><img src={src} width={60} /></td >)
 }
 
 
