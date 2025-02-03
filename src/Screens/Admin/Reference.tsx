@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  FaRegEye,
-  FaFileInvoiceDollar,
-  FaFileInvoice,
-  FaFilter,
-} from "react-icons/fa";
+import { FaRegEye, FaFileInvoiceDollar, FaFileInvoice,FaFilter } from "react-icons/fa";
 import { RiResetLeftLine } from "react-icons/ri";
+
 
 const OrderManagement: React.FC = () => {
   const orders = [
@@ -14,35 +10,80 @@ const OrderManagement: React.FC = () => {
       total: "₹5,200.00",
       revenue: "₹4,680.0000",
       status: "Failed",
-      customer: "Rahul kumar",
+      customer: "demo1 we",
       date: "December 28, 2023",
-      address:"rajasthan india"
     },
     {
       id: 4743,
       total: "₹6,700.00",
       revenue: "₹6,030.0000",
-      status: "Completed",
+      status: "Cancelled",
       customer: "ashish sharma",
       date: "November 17, 2023",
-      address:"rajasthan india"
     },
-    
+    {
+      id: 4587,
+      total: "₹5,200.00",
+      revenue: "₹4,680.0000",
+      status: "Cancelled",
+      customer: "demo1 we",
+      date: "November 3, 2023",
+    },
+    {
+      id: 4581,
+      total: "₹5,000.00",
+      revenue: "₹4,500.0000",
+      status: "Failed",
+      customer: "demo1 we",
+      date: "November 2, 2023",
+    },
+    {
+      id: 3649,
+      total: "₹5,400.00",
+      revenue: "₹4,860.0000",
+      status: "Completed",
+      customer: "demo1 we",
+      date: "October 3, 2023",
+    },
+    {
+      id: 3603,
+      total: "₹7,600.00",
+      revenue: "₹6,840.0000",
+      status: "Processing",
+      customer: "Test Test",
+      date: "October 3, 2023",
+    },
+    {
+      id: 3514,
+      total: "₹7,600.00",
+      revenue: "₹6,840.0000",
+      status: "Processing",
+      customer: "demo1 we",
+      date: "October 2, 2023",
+    },
+    {
+      id: 3512,
+      total: "₹7,300.00",
+      revenue: "₹6,570.0000",
+      status: "Processing",
+      customer: "demo1 we",
+      date: "October 2, 2023",
+    },
   ];
 
   const statusColors: Record<string, string> = {
     Failed: "text-red-500 bg-red-100",
-    // Cancelled: "text-gray-500 bg-gray-100",
+    Cancelled: "text-gray-500 bg-gray-100",
     Completed: "text-green-500 bg-green-100",
-    // Processing: "text-blue-500 bg-blue-100",
+    Processing: "text-blue-500 bg-blue-100",
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
+       <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
         ALL Orders
       </h1>
-
+      <span className="text-xs text-gray-700">All (8) | Pending payment (0) | Processing (3) | On hold (0) | Completed (1) | Cancelled (2) | Refunded (0) | Failed (2) | On Pre Ordered (0)</span>
       {/* Filters Section */}
       <div className="flex flex-wrap items-center gap-4 mb-4 justify-center">
         <input
@@ -57,8 +98,7 @@ const OrderManagement: React.FC = () => {
         />
         <input type="date" className="border rounded-lg p-2 w-48" />
         <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex justify-center items-center gap-2">
-          <FaFilter />
-          <span>Filter</span>
+        <FaFilter /><span>Filter</span>
         </button>
         <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex justify-center items-center gap-2">
           <RiResetLeftLine />
@@ -92,32 +132,23 @@ const OrderManagement: React.FC = () => {
       <table className="w-full border-collapse border border-blue-100 text-left text-sm bg-white">
         <thead>
           <tr className="bg-blue-100 text-xl">
-            <th className="p-2 border border-blue-200">Sr. No.</th>
+            <th className="p-2 border border-blue-200">Order</th>
+            <th className="p-2 border border-blue-200">Order Total</th>
+            <th className="p-2 border border-blue-200">Revenue</th>
+            <th className="p-2 border border-blue-200">Status</th>
+            <th className="p-2 border border-blue-200">Customer</th>
             <th className="p-2 border border-blue-200">Date</th>
-            <th className="p-2 border border-blue-200">Product</th>
-            <th className="p-2 border border-blue-200">Price</th>
-            <th className="p-2 border border-blue-200">Shipping Address</th>
-            
-            
-            <th className="p-2 border border-blue-200">Vendor</th>
-            <th className="p-2 border border-blue-200">Payment</th>
-
             <th className="p-2 border border-blue-200">Action</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order,index) => (
-            <tr key={index} className="hover:bg-blue-50">
+          {orders.map((order) => (
+            <tr key={order.id} className="hover:bg-blue-50">
               <td className="p-2 border border-blue-200 font-bold text-xl text-gray-500">
-                 {index+1}
-              </td>
-              <td className="p-2 border border-blue-200">{order.date}</td>
-              <td className="p-2 border border-blue-200 font-bold text-xl text-gray-500">
-                 Order {order.id}
+                Order {order.id}
               </td>
               <td className="p-2 border border-blue-200">{order.total}</td>
-              <td className="p-2 border border-blue-200">{order.address}</td>
-              <td className="p-2 border border-blue-200">{order.customer}</td>
+              <td className="p-2 border border-blue-200">{order.revenue}</td>
               <td className={`p-2 border border-blue-200 `}>
                 <span
                   className={`${
@@ -127,8 +158,8 @@ const OrderManagement: React.FC = () => {
                   {order.status}
                 </span>
               </td>
-              
-
+              <td className="p-2 border border-blue-200">{order.customer}</td>
+              <td className="p-2 border border-blue-200">{order.date}</td>
               <td className="p-2 border border-blue-200 flex gap-2">
                 <button className="text-blue-500 text-xl">
                   <FaRegEye />
