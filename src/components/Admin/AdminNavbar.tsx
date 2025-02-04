@@ -2,7 +2,7 @@ import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
 import SidebarNavlinks from "../UI/SidebarNavlinks";
-
+import { IoIosPeople } from "react-icons/io";
 export default function AdminNavbar() {
   return (
     <nav className="w-full px-6 pt-6 drop-shadow bg-white">
@@ -17,6 +17,11 @@ export default function AdminNavbar() {
           icon={<GrWorkshop />}
           to="orders"
           label="All Orders"
+        />
+        <SidebarNavlinks
+          icon={<IoIosPeople />}
+          to="vendors"
+          label="All Vendors"
         />
         <SidebarNavlinks
           icon={<LuMessageSquare />}

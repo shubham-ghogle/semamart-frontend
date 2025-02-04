@@ -89,9 +89,9 @@ const OrderManagement: React.FC = () => {
       </div>
 
       {/* Orders Table */}
-      <table className="w-full border-collapse border border-blue-100 text-left text-sm bg-white">
+      <table className="w-full border-collapse border border-blue-100 text-left text-sm bg-white ">
         <thead>
-          <tr className="bg-blue-100 text-xl">
+          <tr className="bg-blue-100 text-darkBlue text-xl">
             <th className="p-2 border border-blue-200">Sr. No.</th>
             <th className="p-2 border border-blue-200">Date</th>
             <th className="p-2 border border-blue-200">Product</th>

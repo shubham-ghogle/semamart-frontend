@@ -8,6 +8,7 @@ import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import Dashboard from "./Screens/Admin/Dashboard";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
+import Vendors from "./Screens/Admin/Vendors";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "sellers",
         element: <AllSellerScreen />,
+      },
+      {
+        path: "vendors",
+        element: <Vendors/>,
       },
       {
         path: "orders",
