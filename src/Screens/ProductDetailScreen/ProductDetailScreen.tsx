@@ -24,12 +24,12 @@ export default function ProductDetailsScreen() {
   const { addToCart, cart } = useCartStore((state) => state);
   function addToCartHandler() {
     if (!product) return;
-    const isItemInCart = cart.some((el) => el._id === product._id);
+    const isItemInCart = cart.some((el) => el.product._id === product._id);
     if (isItemInCart) {
-      alert("kkkkk");
+      alert("Item already in the cart");
       return;
     }
-    const item = { ...product, qty: count };
+    const item = { product, qty: count };
     addToCart(item);
   }
 

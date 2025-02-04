@@ -2,7 +2,9 @@ import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
 import { CartItem, useCartStore } from "../../store/cartStore";
-import { Link } from "react-router";
+import { useUserStore } from "../../store/userStore";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 type CartProps = {
   cartOpenHandler: () => void;
@@ -10,12 +12,30 @@ type CartProps = {
 
 export default function Cart({ cartOpenHandler }: CartProps) {
   const { cart } = useCartStore((state) => state);
+  const user = useUserStore(state => state.user)
 
-  // Total price
+  const navigate = useNavigate()
+
+  function checkoutHandler() {
+    if (!user) {
+      toast.warning("Please login to continue", { position: "top-left" })
+      return
+    }
+    if (user.role === "Admin") {
+      toast.warning("Please login as customer to continue", { position: "top-left" })
+      return
+    }
+
+    cartOpenHandler()
+    navigate("/checkout")
+  }
+
+
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.qty * item.discountPrice,
+    (acc, item) => acc + item.qty * item.product.discountPrice,
     0,
   );
+
 
   return (
     <article className="fixed top-0 left-0 w-screen bg-black/60 h-screen z-[1000]">
@@ -42,10 +62,10 @@ export default function Cart({ cartOpenHandler }: CartProps) {
                 />
               </div>
               {/* item length */}
-              <div className="">
+              <div className="flex gap-2 mt-2">
                 <IoBagHandleOutline size={25} />
                 <h5 className="pl-2 text-[20px] font-[500]">
-                  {cart && cart.length} items
+                  {cart && cart.length} item
                 </h5>
               </div>
 
@@ -61,20 +81,15 @@ export default function Cart({ cartOpenHandler }: CartProps) {
 
             <div className="px-5 mb-3">
               {/* Check out btn */}
-              <Link to="/checkout">
-                <div
-                  className={`h-[45px] flex items-center justify-center w-[100%] bg-[#e44343] rounded-[5px]`}
-                >
-                  <h1 className="text-[#fff] text-[18px] font-[600]">
-                    Checkout Now (USD${totalPrice})
-                  </h1>
-                </div>
-              </Link>
+              <button onClick={checkoutHandler} className="bg-red-500 p-3 w-full rounded-md text-white">
+                Checkout Now (₹{totalPrice})
+              </button>
             </div>
           </>
-        )}
-      </div>
-    </article>
+        )
+        }
+      </div >
+    </article >
   );
 }
 
@@ -82,7 +97,7 @@ type CartSingleProps = {
   data: CartItem;
 };
 const CartSingle = ({ data }: CartSingleProps) => {
-  const totalPrice = data.discountPrice * data.qty;
+  const totalPrice = "₹" + data.product.discountPrice * data.qty;
 
   const { removeFromCart, changeQyt } = useCartStore((state) => state);
 
@@ -93,34 +108,34 @@ const CartSingle = ({ data }: CartSingleProps) => {
           <section>
             <button
               className="bg-red-500 aspect-square rounded-full p-1 grid place-items-center"
-              onClick={() => changeQyt(data._id, 1)}
+              onClick={() => changeQyt(data.product._id, 1)}
             >
               <HiPlus size={18} color="#fff" />
             </button>
             <span className="pl-[10px]">{data.qty}</span>
             <button
               className="bg-gray-200 aspect-square rounded-full p-1 grid place-items-center"
-              onClick={() => changeQyt(data._id, -1)}
+              onClick={() => changeQyt(data.product._id, -1)}
             >
               <HiOutlineMinus size={16} color="#7d879c" />
             </button>
           </section>
           <img
-            src={"/baseUrl" + "/" + data.images[0]}
+            src={"/baseUrl" + "/" + data.product.images[0]}
             className="w-[130px] h-min ml-2 mr-2 rounded-[5px]"
             alt="side card"
           />
 
           <section className="pl-[15px]">
-            <h1>{data.name}</h1>
+            <h1>{data.product.name}</h1>
             <h4 className="font-[400] text-[15px] text-[#00000082]">
-              ${data.discountPrice} * {data.qty}
+              ₹{data.product.discountPrice} * {data.qty}
             </h4>
             <h4 className="font-[400] text-[17px] pt-[3px]  text-[#d02222] font-Roboto ">
-              US${totalPrice}
+              {totalPrice}
             </h4>
           </section>
-          <button className="ml-auto" onClick={() => removeFromCart(data._id)}>
+          <button className="ml-auto" onClick={() => removeFromCart(data.product._id)}>
             <RxCross1 size={99} color="#7d879c" />
           </button>
         </div>

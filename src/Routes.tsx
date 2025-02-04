@@ -25,6 +25,8 @@ import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
 import AdminProductRequestScreen from "./Screens/Admin/AdminProductScreen";
 import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
+import CheckoutScreen from "./Screens/CheckoutScreen/CheckoutScreen";
+import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUtils";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +36,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Homepage /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetailsScreen /> },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
     ],
   },
   // Login routes
@@ -93,8 +96,10 @@ export const router = createBrowserRouter([
     element: <UserLayout />,
     children: [
       { index: true, element: <UserProfileScreen /> },
-      { path: "activation/:token", element: <UserActivationScreen /> },
+      { path: "checkout", element: <div>checkout</div> },
       { path: "nina", element: <div>hello</div> },
     ],
   },
+  { path: "/user/activation/:token", element: <UserActivationScreen /> },
+  /////////
 ]);

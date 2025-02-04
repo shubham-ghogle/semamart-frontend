@@ -6,7 +6,7 @@ interface Qty {
   qty: number;
 }
 
-export type CartItem = Product & Qty;
+export type CartItem = { product: Product; qty: number }
 
 interface CartStore {
   cart: CartItem[];
@@ -25,7 +25,7 @@ export const useCartStore = create<CartStore>()(
           set((state) => {
             //if item is already in cart we increase its quantity
             const existingItemIndex = state.cart.findIndex(
-              (el) => el._id === item._id,
+              (el) => el.product._id === item.product._id,
             );
 
             if (existingItemIndex !== -1) {
@@ -45,14 +45,14 @@ export const useCartStore = create<CartStore>()(
 
         removeFromCart: (itemId) => {
           set((state) => ({
-            cart: state.cart.filter((item) => item._id !== itemId),
+            cart: state.cart.filter((item) => item.product._id !== itemId),
           }));
         },
 
         changeQyt: (itemId, amount) => {
           set((state) => {
             const updatedCart = state.cart.map((item) => {
-              if (item._id === itemId) {
+              if (item.product._id === itemId) {
                 const newQty = item.qty + amount;
 
                 if (newQty > 0) {

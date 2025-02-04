@@ -49,7 +49,7 @@ export default function UserActivationScreen() {
       )}
       {status === "success" && (
         <section className="min-h-screen grid place-items-center">
-          <article>
+          <article className="grid place-items-center">
             <p className="text-2xl">Your account is now verified.</p>
             <SecondryBtn onClick={() => navigate("/login")}>Login</SecondryBtn>
           </article>

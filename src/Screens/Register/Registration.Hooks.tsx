@@ -40,7 +40,9 @@ export function useRegisterUser() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message);
     },
-    onSuccess: () => userRegisterSuccessToast(),
+    onSuccess: () => {
+      userRegisterSuccessToast()
+    },
     onError: (err) => {
       registerFailureToast(err.message, false);
     },
