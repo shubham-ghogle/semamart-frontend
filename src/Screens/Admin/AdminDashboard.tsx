@@ -7,7 +7,7 @@ import { FaBuilding } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
 
 const AdminDashboard = () => {
-  const { data, error, status } = useQuery({
+  const { error, status } = useQuery({
     queryKey: ["verifiedOrders"],
     queryFn: getAllOrders,
     retry: 3,

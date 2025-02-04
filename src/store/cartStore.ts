@@ -2,9 +2,6 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Product } from "../Types/types";
 
-interface Qty {
-  qty: number;
-}
 
 export type CartItem = { product: Product; qty: number }
 
