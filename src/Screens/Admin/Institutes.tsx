@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import { RiResetLeftLine } from "react-icons/ri";
 
-const Vendors: React.FC = () => {
+const Institutes: React.FC = () => {
     const vendors = [
         {
           srNo: 1,
@@ -39,14 +39,14 @@ const Vendors: React.FC = () => {
   return (
     <div className="p-4">
       <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
-        ALL Vendors
+        ALL Institute
       </h1>
 
       {/* Filters Section */}
       <div className="flex flex-wrap items-center gap-4 mb-4 justify-center">
         <input
           type="text"
-          placeholder="Search vendor"
+          placeholder="Search Institute"
           className="border rounded-lg p-2 w-48"
         />
         
@@ -88,7 +88,7 @@ const Vendors: React.FC = () => {
           <tr className="bg-blue-100 text-darkBlue text-xl">
             <th className="p-2 border border-blue-200">Sr. No.</th>
             <th className="p-2 border border-blue-200">Name</th>
-            <th className="p-2 border border-blue-200">Products (Count)</th>
+           
             <th className="p-2 border border-blue-200">Orders (Count)</th>
             <th className="p-2 border border-blue-200">Sale</th>
             <th className="p-2 border border-blue-200">Returns</th>
@@ -102,7 +102,7 @@ const Vendors: React.FC = () => {
                  {index+1}
               </td>
               <td className="p-2 border border-blue-200">{order.name}</td>
-              <td className="p-2 border border-blue-200">{order.productsCount}</td>
+              
               <td className="p-2 border border-blue-200">{order.ordersCount}</td>
               <td className="p-2 border border-blue-200 f  ">
                   {order.sale}
@@ -122,4 +122,4 @@ const Vendors: React.FC = () => {
   );
 };
 
-export default Vendors;
+export default Institutes;

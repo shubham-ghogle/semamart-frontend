@@ -9,6 +9,7 @@ import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import Dashboard from "./Screens/Admin/Dashboard";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
 import Vendors from "./Screens/Admin/Vendors";
+import Institutes from "./Screens/Admin/Institutes";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
@@ -58,6 +59,11 @@ export const router = createBrowserRouter([
       {
         path: "sellers",
         element: <AllSellerScreen />,
+      },
+      
+      {
+        path: "institutes",
+        element: <Institutes/>,
       },
       {
         path: "vendors",
