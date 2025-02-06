@@ -4,13 +4,36 @@ import AddressForm from "../../components/User/AddressForm";
 import UserScreenMainWrapper from "../../components/User/UserScreenMainWrapper";
 import { useUserStore } from "../../store/userStore";
 import { IoAdd } from "react-icons/io5";
+import { useMutation } from "@tanstack/react-query";
+import { User } from "../../Types/types";
+import { ScreenOverlayLoaderUi } from "../../components/UI/LoaderUi";
+import { toast } from "react-toastify";
 
 export default function UserAddressScreen() {
-  const user = useUserStore(state => state.user)
+  const { user, addUser } = useUserStore(state => state)
   const [isFormOpen, setISFormOpen] = useState(false)
 
+  const { mutateAsync: removeAddressAsync, status } = useMutation({
+    mutationFn: async function (addressId: string) {
+      const res = await fetch("/api/v2/user/delete-user-address/" + addressId, {
+        method: "DELETE"
+      })
+
+      if (!res.ok) throw new Error("Something went wrong")
+      const data = await res.json() as { user: User, success: boolean, message: string }
+      if (!data.success) throw new Error(data.message)
+      return data.user
+    },
+    onSuccess: (data) => {
+      addUser(data)
+    },
+    onError: () => {
+      toast.error("Something went wrong!!")
+    }
+  })
+
   function handleRemoveAddress(id: string) {
-    alert(id)
+    removeAddressAsync(id)
   }
 
   function handleEditAddress() {
@@ -41,6 +64,7 @@ export default function UserAddressScreen() {
         ))}
       </section>
       {isFormOpen && <AddressForm onCloseModal={() => { setISFormOpen(false) }} />}
+      {status === "pending" && <ScreenOverlayLoaderUi label="Please wait..." />}
     </UserScreenMainWrapper>
   )
 }

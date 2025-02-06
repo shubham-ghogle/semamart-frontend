@@ -18,7 +18,7 @@ export function ScreenOverlayLoaderUi({ label }: OverlayParams) {
   }
   return (
     <article className="fixed inset-0 bg-black/60 grid place-items-center z-[1000]">
-      <p className="text-3xl">{label}</p>
+      <p className="text-3xl text-white">{label}</p>
     </article>
   );
 }
