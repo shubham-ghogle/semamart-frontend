@@ -80,7 +80,7 @@ export interface Product {
   attributes?: Record<string, string>[];
 }
 
-type Address = {
+export type Address = {
   state: string;
   district: string;
   instituteAddress1: string;

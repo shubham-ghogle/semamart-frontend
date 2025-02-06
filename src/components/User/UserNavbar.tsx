@@ -2,6 +2,7 @@ import { RxDashboard } from "react-icons/rx";
 // import { GrWorkshop } from "react-icons/gr";
 import { TiDocumentAdd } from "react-icons/ti";
 import SidebarNavlinks from "../UI/SidebarNavlinks";
+import { FaRegAddressBook } from "react-icons/fa";
 
 export default function UserNavbar() {
   return (
@@ -12,6 +13,10 @@ export default function UserNavbar() {
           to="/user"
           end
           label="Profile"
+        />
+        <SidebarNavlinks icon={<FaRegAddressBook />}
+          to="address"
+          label="Address"
         />
         <SidebarNavlinks icon={<TiDocumentAdd />} to="nina" label="Test" />
         {/* <SidebarNavlinks */}

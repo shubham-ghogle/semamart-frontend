@@ -7,6 +7,7 @@ import { ScreenOverlayLoaderUi } from "../../components/UI/LoaderUi";
 import Input from "../../components/UI/Inputs";
 import { ActionBtn } from "../../components/UI/Buttons";
 
+// TODO edit user profile
 export default function UserProfileScreen() {
   const { user, addUser } = useUserStore((state) => state);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +70,7 @@ export default function UserProfileScreen() {
       <div className="w-full px-5 mt-20">
         <form
           className="flex flex-col justify-center items-center"
-          onSubmit={() => {}}
+          onSubmit={() => { }}
         >
           <section className="grid grid-cols-2 w-3/5 mx-auto gap-6 mb-4">
             <Input label="First name" type="text" value={user?.firstName} />
