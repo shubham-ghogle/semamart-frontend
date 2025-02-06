@@ -1,19 +1,21 @@
 import { useState } from "react";
 import Input from "../UI/Inputs";
-import { Address, User } from "../../Types/types";
+import { Address } from "../../Types/types";
 import { ActionBtn } from "../UI/Buttons";
-import { useMutation } from "@tanstack/react-query";
-import { useUserStore } from "../../store/userStore";
-import { toast } from "react-toastify";
+import { useAddAddress, useEditAddress } from "../../Screens/User/User.HooksUtils";
 
 type AddressFormProps = {
-  initialData?: Address;
+  isEditing: false
+  onCloseModal: () => void
+  initialData?: never;
+} | {
+  isEditing: true
+  initialData: Address;
   onCloseModal: () => void
 };
 
 
-export default function AddressForm({ initialData, onCloseModal }: AddressFormProps) {
-  const addUser = useUserStore(state => state.addUser)
+export default function AddressForm({ initialData, onCloseModal, isEditing }: AddressFormProps) {
 
   const [formData, setFormData] = useState<Partial<Address>>(
     initialData || {
@@ -31,33 +33,22 @@ export default function AddressForm({ initialData, onCloseModal }: AddressFormPr
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const { mutateAsync: mutateAddress, status } = useMutation({
-    mutationFn: async function (formData: Partial<Address>) {
-      const res = await fetch("/api/v2/user/update-user-addresses", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData)
-      })
-      if (!res.ok) {
-        throw new Error()
-      }
-      const data = await res.json() as User
-      return data
-    },
-    onSuccess: (data) => {
-      addUser(data)
-      onCloseModal()
-    },
-    onError: () => {
-      toast.error("Something went wrong.")
-    }
-  })
+  const { mutateAddress, status } = useAddAddress()
+  const { editAddressAsync, editAddStatus } = useEditAddress()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    mutateAddress(formData)
+    if (isEditing) {
+      await editAddressAsync({ addressId: initialData._id, formData })
+      if (editAddStatus === "success") {
+        onCloseModal()
+      }
+    } else {
+      await mutateAddress(formData)
+      if (status === "success") {
+        onCloseModal()
+      }
+    }
   };
 
   return (
@@ -75,8 +66,8 @@ export default function AddressForm({ initialData, onCloseModal }: AddressFormPr
         <Input label="Pincode" name="pincode" type="number" value={formData.pincode} onChange={handleChange} required />
         <Input label="State" name="state" value={formData.state} onChange={handleChange} required />
 
-        <ActionBtn type="submit" disabled={status === "pending"}>
-          {status === "pending" ? "Wait..." : "Save Address"}
+        <ActionBtn type="submit" disabled={status === "pending" || editAddStatus === "pending"}>
+          {(status === "pending" || editAddStatus === "pending") ? "Wait..." : "Save Address"}
         </ActionBtn>
       </form>
     </section>
