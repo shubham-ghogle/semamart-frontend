@@ -1,8 +1,7 @@
 import { RxDashboard } from "react-icons/rx";
-// import { GrWorkshop } from "react-icons/gr";
-import { TiDocumentAdd } from "react-icons/ti";
 import SidebarNavlinks from "../UI/SidebarNavlinks";
 import { FaRegAddressBook } from "react-icons/fa";
+import { CiDeliveryTruck } from "react-icons/ci";
 
 export default function UserNavbar() {
   return (
@@ -18,12 +17,11 @@ export default function UserNavbar() {
           to="address"
           label="Address"
         />
-        <SidebarNavlinks icon={<TiDocumentAdd />} to="nina" label="Test" />
-        {/* <SidebarNavlinks */}
-        {/*   icon={<GrWorkshop />} */}
-        {/*   to="products" */}
-        {/*   label="All Products" */}
-        {/* /> */}
+        <SidebarNavlinks
+          icon={<CiDeliveryTruck />}
+          to="orders"
+          label="All Orders"
+        />
       </ul>
     </nav>
   );

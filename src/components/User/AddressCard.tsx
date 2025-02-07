@@ -3,9 +3,9 @@ import { Address } from "../../Types/types"
 type AddressCardProps = {
   address: Address
   name: string
-  onRemove: (id: string) => void
-  onEdit: (index: number) => void
-  index: number
+  onRemove?: (id: string) => void
+  onEdit?: (index: number) => void
+  index?: number
 }
 
 export default function AddressCard({ address, name, onRemove, onEdit, index }: AddressCardProps) {
@@ -17,8 +17,8 @@ export default function AddressCard({ address, name, onRemove, onEdit, index }: 
       <p className="text-gray-700"><strong>Landmark:</strong> {address.landmark}</p>
       <p className="text-gray-700">{address.district}, {address.state}, {address.pincode}</p>
       <article className="pt-4 space-x-4">
-        <button className="text-darkBlue text-sm" onClick={() => onRemove(address._id)}>Remove</button>
-        <button className="text-darkBlue text-sm" onClick={() => onEdit(index)}>Edit</button>
+        {onRemove && <button className="text-darkBlue text-sm" onClick={() => onRemove(address._id)}>Remove</button>}
+        {onEdit && index && <button className="text-darkBlue text-sm" onClick={() => onEdit(index)}>Edit</button>}
       </article>
     </div>
 

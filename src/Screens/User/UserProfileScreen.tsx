@@ -73,20 +73,37 @@ export default function UserProfileScreen() {
           onSubmit={() => { }}
         >
           <section className="grid grid-cols-2 w-3/5 mx-auto gap-6 mb-4">
-            <Input label="First name" type="text" value={user?.firstName} />
-            <Input label="Last name" type="text" value={user?.lastName} />
+            <Input
+              label="First name"
+              type="text"
+              value={user?.firstName}
+              onChange={() => { }}
+            />
+            <Input
+              label="Last name"
+              type="text"
+              value={user?.lastName}
+              onChange={() => { }}
+            />
             <Input
               label="Institute name"
               type="text"
               value={user?.instituteName}
+              onChange={() => { }}
             />
-            <Input label="Email" type="email" value={user?.email} />
+            <Input
+              label="Email"
+              type="email"
+              value={user?.email}
+              onChange={() => { }}
+            />
             <Input
               label="Phone nuber"
               type="number"
               value={user?.phoneNumber}
+              onChange={() => { }}
             />
-            <Input label="Password" type="password" />
+            {/* <Input label="Password" type="password" value={} /> */}
           </section>
           <ActionBtn disabled>Update</ActionBtn>
         </form>

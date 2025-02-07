@@ -28,6 +28,7 @@ import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
 import CheckoutScreen from "./Screens/CheckoutScreen/CheckoutScreen";
 import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUtils";
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
+import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 
 export const router = createBrowserRouter([
   {
@@ -98,7 +99,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <UserProfileScreen /> },
       { path: "address", element: <UserAddressScreen /> },
-      { path: "nina", element: <div>hello</div> },
+      { path: "orders", element: <UserOrdersScreen /> },
     ],
   },
   { path: "/user/activation/:token", element: <UserActivationScreen /> },

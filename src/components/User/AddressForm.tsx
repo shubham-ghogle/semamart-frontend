@@ -40,14 +40,10 @@ export default function AddressForm({ initialData, onCloseModal, isEditing }: Ad
     e.preventDefault();
     if (isEditing) {
       await editAddressAsync({ addressId: initialData._id, formData })
-      if (editAddStatus === "success") {
-        onCloseModal()
-      }
+      onCloseModal()
     } else {
       await mutateAddress(formData)
-      if (status === "success") {
-        onCloseModal()
-      }
+      onCloseModal()
     }
   };
 

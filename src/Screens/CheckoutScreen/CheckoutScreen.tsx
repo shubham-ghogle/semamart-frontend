@@ -1,4 +1,6 @@
+import { useState } from "react"
 import OrderDetailsField from "../../components/Seller/OrderDetailsFields"
+import AddressCard from "../../components/User/AddressCard"
 import { useCartStore } from "../../store/cartStore"
 import { useUserStore } from "../../store/userStore"
 import { Seller } from "../../Types/types"
@@ -7,7 +9,9 @@ export default function CheckoutScreen() {
   const { user } = useUserStore(state => state)
   const { cart } = useCartStore(state => state)
 
-  const address = user?.addresses[0]
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<null | number>(null)
+
+  const address = selectedAddressIndex && user?.addresses[selectedAddressIndex]
 
   const b = cart.map(el => {
     const cartObj = {
@@ -64,24 +68,26 @@ export default function CheckoutScreen() {
           ))}
       </section>
       <section>
-        <h2 className="text-2xl mb-4">Addresses:</h2>
-        {user && (
-          user.addresses?.map(el => (
-            <article>
-              <OrderDetailsField label="Address Line 1" value={el.instituteAddress1} />
-              <OrderDetailsField label="Address Line 2" value={el.instituteAddress2} />
-              <OrderDetailsField label="district" value={el.district} />
-              <OrderDetailsField label="State" value={el.state} />
-              <OrderDetailsField label="Pincode" value={el.pincode} />
-            </article>
-          )))}
+        <h2 className="text-2xl mb-4">Select Address:</h2>
+        <section className="grid grid-cols-4 gap-4">
+          {user && (
+            user.addresses?.map((el, i) => (
+              <article key={i}
+                className={"border-accentYellow rounded-lg cursor-pointer " + (selectedAddressIndex === i ? "border" : " ")}
+                onClick={() => setSelectedAddressIndex(i)}
+              >
+                <AddressCard address={el} name={user.firstName + " " + user.lastName} />
+              </article>
+            )))}
+        </section>
       </section>
       <section className="flex justify-end">
         <button
           onClick={orderHnadler}
-          className="text-center py-2 px-4 bg-red-500 rounded text-white text-2xl mt-28"
+          className="text-center py-2 px-4 bg-red-500 rounded text-white text-2xl mt-28 disabled:bg-gray-700"
+          disabled={selectedAddressIndex === null}
         >
-          order
+          {selectedAddressIndex !== null ? "order" : "please select address"}
         </button>
       </section>
     </div>
