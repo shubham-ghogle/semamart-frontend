@@ -44,7 +44,7 @@ const OrderManagement: React.FC = () => {
       </h1>
 
       {/* Filters Section */}
-      <div className="flex flex-wrap items-center gap-4 mb-4 justify-center">
+      <div className="flex flex-wrap items-center gap-4 mb-4 justify-center ">
         <input
           type="text"
           placeholder="Filter by registration"
@@ -69,7 +69,7 @@ const OrderManagement: React.FC = () => {
       {/* Export Section */}
 
       {/* Bulk Actions */}
-      <div className="flex items-center gap-2 mb-4 justify-between ">
+      <div className="flex items-center gap-2 mb-4 justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2 justify-between">
           <select className="border rounded-lg p-2">
             <option className="hover:bg-grey-500">Bulk Actions</option>
@@ -89,47 +89,48 @@ const OrderManagement: React.FC = () => {
       </div>
 
       {/* Orders Table */}
-      <table className="w-full border-collapse border border-blue-100 text-left text-sm bg-white ">
+      <div className="p-6 bg-white max-w-6xl mx-auto rounded-xl drop-shadow-md">
+      <table className="w-full border-collapse border border-darkBlue text-left text-sm bg-white ">
         <thead>
-          <tr className="bg-blue-100 text-darkBlue text-xl">
-            <th className="p-2 border border-blue-200">Sr. No.</th>
-            <th className="p-2 border border-blue-200">Date</th>
-            <th className="p-2 border border-blue-200">Product</th>
-            <th className="p-2 border border-blue-200">Price</th>
-            <th className="p-2 border border-blue-200">Shipping Address</th>
+          <tr className=" text-darkBlue text-xl" style={{background:"#e7f9fe"}}>
+            <th className="p-2 border border-darkBlue">Sr. No.</th>
+            <th className="p-2 border border-darkBlue">Date</th>
+            <th className="p-2 border border-darkBlue">Product</th>
+            <th className="p-2 border border-darkBlue">Price</th>
+            <th className="p-2 border border-darkBlue">Shipping Address</th>
             
             
-            <th className="p-2 border border-blue-200">Vendor</th>
-            <th className="p-2 border border-blue-200">Payment</th>
+            <th className="p-2 border border-darkBlue">Vendor</th>
+            <th className="p-2 border border-darkBlue">Payment</th>
 
-            <th className="p-2 border border-blue-200">Action</th>
+            <th className="p-2 border border-darkBlue">Action</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order,index) => (
-            <tr key={index} className="hover:bg-blue-50">
-              <td className="p-2 border border-blue-200 font-bold text-xl text-gray-500">
+            <tr key={index} className="">
+              <td className="p-2 border border-darkBlue font-bold text-xl text-gray-500">
                  {index+1}
               </td>
-              <td className="p-2 border border-blue-200">{order.date}</td>
-              <td className="p-2 border border-blue-200 font-bold text-xl text-gray-500">
+              <td className="p-2 border border-darkBlue">{order.date}</td>
+              <td className="p-2 border border-darkBlue font-bold text-xl text-gray-500">
                  Order {order.id}
               </td>
-              <td className="p-2 border border-blue-200">{order.total}</td>
-              <td className="p-2 border border-blue-200">{order.address}</td>
-              <td className="p-2 border border-blue-200">{order.customer}</td>
-              <td className={`p-2 border border-blue-200 `}>
+              <td className="p-2 border border-darkBlue">{order.total}</td>
+              <td className="p-2 border border-darkBlue">{order.address}</td>
+              <td className="p-2 border border-darkBlue">{order.customer}</td>
+              <td className={`p-2 border border-darkBlue `}>
                 <span
                   className={`${
                     statusColors[order.status]
-                  } p-1 rounded-lg text-center`}
+                  } p-1 rounded-lg text-center `}
                 >
                   {order.status}
                 </span>
               </td>
               
 
-              <td className="p-2 border border-blue-200 flex gap-2">
+              <td className="p-2 border border-darkBlue flex gap-2">
                 <button className="text-blue-500 text-xl">
                   <FaRegEye />
                 </button>
@@ -143,7 +144,9 @@ const OrderManagement: React.FC = () => {
             </tr>
           ))}
         </tbody>
+        
       </table>
+      </div>
     </div>
   );
 };

@@ -63,7 +63,7 @@ const Vendors: React.FC = () => {
       {/* Export Section */}
 
       {/* Bulk Actions */}
-      <div className="flex items-center gap-2 mb-4 justify-between ">
+      <div className="flex items-center gap-2 mb-4 justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2 justify-between">
           <select className="border rounded-lg p-2">
             <option className="hover:bg-grey-500">sort by</option>
@@ -83,32 +83,33 @@ const Vendors: React.FC = () => {
       </div>
 
       {/* Orders Table */}
+      <div className="p-6 bg-white max-w-6xl mx-auto rounded-xl drop-shadow-md">
       <table className="w-full border-collapse border border-blue-100 text-left text-sm bg-white ">
         <thead>
-          <tr className="bg-blue-100 text-darkBlue text-xl">
-            <th className="p-2 border border-blue-200">Sr. No.</th>
-            <th className="p-2 border border-blue-200">Name</th>
-            <th className="p-2 border border-blue-200">Products (Count)</th>
-            <th className="p-2 border border-blue-200">Orders (Count)</th>
-            <th className="p-2 border border-blue-200">Sale</th>
-            <th className="p-2 border border-blue-200">Returns</th>
-            <th className="p-2 border border-blue-200">Comission</th>
+          <tr className=" text-darkBlue text-xl" style={{background:"#e7f9fe"}}>
+            <th className="p-2 border border-darkBlue">Sr. No.</th>
+            <th className="p-2 border border-darkBlue">Name</th>
+            <th className="p-2 border border-darkBlue">Products (Count)</th>
+            <th className="p-2 border border-darkBlue">Orders (Count)</th>
+            <th className="p-2 border border-darkBlue">Sale</th>
+            <th className="p-2 border border-darkBlue">Returns</th>
+            <th className="p-2 border border-darkBlue">Comission</th>
           </tr>
         </thead>
         <tbody>
           {vendors.map((order,index) => (
-            <tr key={index} className="hover:bg-blue-50">
-              <td className="p-2 border border-blue-200 font-bold text-xl text-gray-500">
+            <tr key={index} className="">
+              <td className="p-2 border border-darkBlue font-bold text-xl text-gray-500">
                  {index+1}
               </td>
-              <td className="p-2 border border-blue-200">{order.name}</td>
-              <td className="p-2 border border-blue-200">{order.productsCount}</td>
-              <td className="p-2 border border-blue-200">{order.ordersCount}</td>
-              <td className="p-2 border border-blue-200 f  ">
+              <td className="p-2 border border-darkBlue">{order.name}</td>
+              <td className="p-2 border border-darkBlue">{order.productsCount}</td>
+              <td className="p-2 border border-darkBlue">{order.ordersCount}</td>
+              <td className="p-2 border border-darkBlue f  ">
                   {order.sale}
               </td>
-              <td className="p-2 border border-blue-200">{order.returns}</td>
-              <td className="p-2 border border-blue-200">{order.commission}</td>
+              <td className="p-2 border border-darkBlue">{order.returns}</td>
+              <td className="p-2 border border-darkBlue">{order.commission}</td>
               
               
               
@@ -118,6 +119,7 @@ const Vendors: React.FC = () => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
