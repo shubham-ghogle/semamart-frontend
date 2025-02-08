@@ -11,8 +11,6 @@ export default function UserOrderTable({ orders }: UserOrderTableProps) {
   const headers = [
     "Order ID",
     "Status",
-    "Customer",
-    // "Order Quantity",
     "Total Price",
     "Ordered on",
     "Actions",
@@ -25,12 +23,11 @@ export default function UserOrderTable({ orders }: UserOrderTableProps) {
           <tr key={or._id}>
             <TableBodyCell text={or._id} />
             <TableBodyCell text={or.status || ""} />
-            {/* <TableBodyCell text={or.cart.length.toString()} /> */}
-            <TableBodyCell text={or.user.firstName + " " + or.user.lastName} />
             <TableBodyCell text={or.totalPrice.toString()} />
             <TableBodyCell text={formatDate(or.createdAt)} />
             <td align="center">
               <button>
+                {/* TODO order details */}
                 <Link to={or._id}>
                   <AiOutlineEye size={20} />
                 </Link>

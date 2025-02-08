@@ -11,9 +11,9 @@ export default function CheckoutScreen() {
 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<null | number>(null)
 
-  const address = selectedAddressIndex && user?.addresses[selectedAddressIndex]
+  const address = user?.addresses[selectedAddressIndex || 0] // BUG
 
-  const b = cart.map(el => {
+  const cartToApi = cart.map(el => {
     const cartObj = {
       shopId: (el.product.shopId as Seller)._id,
       _id: el.product._id,
@@ -22,11 +22,13 @@ export default function CheckoutScreen() {
     return cartObj
   })
 
+  const totalPrice = cart.reduce((acc, curr) => ((curr.qty * curr.product.discountPrice) + acc), 0)
+
   const order = {
-    cart: b,
+    cart: cartToApi,
     shippingAddress: address,
     user: user?._id,
-    totalPrice: 100,
+    totalPrice: totalPrice,
     paymentInfo: {
       id: "test_payment",
       status: "Succeeded",

@@ -21,6 +21,6 @@ export default function UserOrdersScreen() {
   })
 
   return <UserScreenMainWrapper heading="Orders" status={status}>
-    {orders && <UserOrderTable orders={orders} />}
+    {status === "success" && orders && <UserOrderTable orders={orders} />}
   </UserScreenMainWrapper>
 }

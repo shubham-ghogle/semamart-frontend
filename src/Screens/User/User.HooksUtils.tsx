@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { Address, User } from "../../Types/types"
+import { Address, Order, User } from "../../Types/types"
 import { useUserStore } from "../../store/userStore"
 import { toast } from "react-toastify"
 
@@ -89,5 +89,20 @@ export function useAddAddress() {
   })
 
   return { mutateAddress, status }
+}
 
+export async function getUserOrderDetails(orderId?: string) {
+  if (!orderId) throw new Error("Something went wrong")
+
+  const res = await fetch("/api/v2/order/user-order-details/" + orderId)
+
+  if (!res.ok) {
+    const errMessage = await res.json();
+    throw new Error(errMessage.message);
+  }
+
+  const data = (await res.json()) as { message: string, success: boolean, order: Order };
+
+  if (!data.success) throw new Error(data.message);
+  return data.order;
 }
