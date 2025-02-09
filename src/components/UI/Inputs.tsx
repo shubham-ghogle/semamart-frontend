@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { RxCross2 } from "react-icons/rx";
 
 type InputProps = {
@@ -104,7 +104,12 @@ export function Textarea({ label, ...inputProps }: TextareaProps) {
   );
 }
 
-export function SelectInput({ label, ...inputProps }: InputProps) {
+type SelectInputProps = {
+  label: string
+  options: string[]
+} & SelectHTMLAttributes<HTMLSelectElement>
+
+export function SelectInput({ options, label, ...inputProps }: SelectInputProps) {
   return (
     <article className="mb-2">
       <label
@@ -113,11 +118,17 @@ export function SelectInput({ label, ...inputProps }: InputProps) {
       >
         {label}
       </label>
-      <input
+      <select
         {...inputProps}
         id={label}
-        className="w-full px-2 py-1 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
-      />
+        className="w-full bg-white px-2 py-1.5 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+      >
+        {options && options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
     </article>
   );
 }

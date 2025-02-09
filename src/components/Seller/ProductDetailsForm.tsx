@@ -9,6 +9,7 @@ import Input, {
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import { Product } from "../../Types/types";
+import { countryArr, dimensionUnitArr, manufacArr, rmaTypeArr, stockStatusArr, taxClassArr, taxStatusArr, visibilityArr, weightUnitArr } from "../constants";
 
 type ProductDetailsFormProps =
   {
@@ -375,6 +376,7 @@ export default function ProductDetailsForm({
             label="Stock status"
             value={stockStatus}
             onChange={(e) => setStockStatus(e.target.value)}
+            options={stockStatusArr}
           />
         </div>
         <InputCheckbox
@@ -403,6 +405,7 @@ export default function ProductDetailsForm({
             disabled={mode === "views"}
             label="Tax status"
             value={taxStatus}
+            options={taxStatusArr}
             onChange={(e) => setTaxStatus(e.target.value)}
           />
           <SelectInput
@@ -410,6 +413,7 @@ export default function ProductDetailsForm({
             label="Tax Class"
             value={taxClass}
             onChange={(e) => setTaxClass(e.target.value)}
+            options={taxClassArr}
           />
         </div>
       </section>
@@ -564,6 +568,7 @@ export default function ProductDetailsForm({
               }
               disabled={mode === "views"}
             />
+            {/* TODO warranty options sub options */}
             <SelectInput
               label="Type"
               value={rmaOpts.type}
@@ -571,6 +576,7 @@ export default function ProductDetailsForm({
                 setRmaOpts((z) => ({ ...z, type: e.target.value }))
               }
               disabled={mode === "views"}
+              options={rmaTypeArr}
             />
             <section>
               <Input label="Refund Reasons" type="hidden" />
@@ -672,6 +678,7 @@ export default function ProductDetailsForm({
           value={visibility}
           onChange={e => setVisibility(e.target.value as "hidden" | "visible")}
           disabled={mode === "views"}
+          options={visibilityArr}
         />
         <InputCheckbox
           disabled={mode === "views"}
@@ -696,6 +703,7 @@ export default function ProductDetailsForm({
             label="Weight Unit"
             value={weightUnit}
             onChange={(e) => setWeightUnit(e.target.value)}
+            options={weightUnitArr}
           />
         </div>
         {/* Row 2 - Dimension Inputs and Selector */}
@@ -726,6 +734,7 @@ export default function ProductDetailsForm({
               label="Dimension Unit"
               value={dimensionUnit}
               onChange={(e) => setDimensionUnit(e.target.value)}
+              options={dimensionUnitArr}
             />
           </div>
         </div>
@@ -740,11 +749,13 @@ export default function ProductDetailsForm({
             value={manufacturerName}
             onChange={(e) => setManufacturerName(e.target.value)}
           />
+          {/* TODO autofill and serachbale selecte for Manufacturer */}
           <SelectInput
             disabled={mode === "views"}
             label="Select Manufacturer"
             value={selectedManufacturer}
             onChange={(e) => setSelectedManufacturer(e.target.value)}
+            options={manufacArr}
           />
         </div>
         <Input
@@ -772,6 +783,7 @@ export default function ProductDetailsForm({
             label="Select Country"
             value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
+            options={countryArr}
           />
         </div>
       </section>
