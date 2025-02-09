@@ -44,9 +44,11 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
       <section className="mt-6 flex justify-between border-b pb-4">
         <h5 className="text-xl">Shipping Address</h5>
         <div className="space-y-1">
-          <OrderDetailsField label="Total Price:" value={data?.shippingAddress.instituteAddress1} />
-          <OrderDetailsField label="Status:" value={data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"} />
-          <OrderDetailsField label="Type:" value={data?.paymentInfo?.type ? data?.paymentInfo?.type : "Not Paid"} />
+          <OrderDetailsField label="" value={data?.shippingAddress.instituteAddress1} />
+          <OrderDetailsField label="" value={data?.shippingAddress.instituteAddress2} />
+          <OrderDetailsField label="" value={data.shippingAddress.landmark} />
+          <OrderDetailsField label="" value={data?.shippingAddress.district + ", " + data.shippingAddress.state} />
+          <OrderDetailsField label="" value={data.shippingAddress.pincode} />
         </div>
       </section>
       <section className="flex justify-between items-center my-4">
