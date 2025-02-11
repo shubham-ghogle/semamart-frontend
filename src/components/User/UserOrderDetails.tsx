@@ -32,19 +32,21 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
         <section className="mt-4 bg-white border-b">
           {data &&
             data?.cart.map((item) => (
-              <article key={item.product._id} className="w-full flex items-center gap-2 mb-5">
-                <img
-                  src={"/baseUrl" + "/" + item.product.images[0]}
-                  alt="Product item order img"
-                  className="w-[80x] h-[80px]"
-                />
-                <div className="w-full">
-                  <h5 className="pl-3 text-lg">{item.product.name}</h5>
-                  <h5 className="pl-3 text-lg text-darkGray">
-                    US${item.qty} x {item.product.discountPrice}
-                  </h5>
-                </div>
-                <OrderDetailsField label="Total:" value={item.qty * item.product.discountPrice} />
+              <article key={item.product._id} className="w-full grid grid-cols-[7fr_1fr] gap-4 items-center mb-5">
+                <section className="w-full flex items-center gap-2">
+                  <img
+                    src={"/baseUrl" + "/" + item.product.images[0]}
+                    alt="Product item order img"
+                    className="w-[80x] h-[80px]"
+                  />
+                  <div className="w-full">
+                    <h5 className="pl-3 text-lg">{item.product.name}</h5>
+                    <h5 className="pl-3 text-lg text-darkGray">
+                      US${item.qty} x {item.product.discountPrice}
+                    </h5>
+                  </div>
+                  <OrderDetailsField label="Total:" value={item.qty * item.product.discountPrice} />
+                </section>
                 {data.status === "Delivered" && !item.isReviewed && (
                   <div className="mr-4">
                     <button onClick={() => handleAddReview(item.product._id)} className="bg-accentYellow text-white text-sm rounded-md p-1">Add Review</button>
