@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ProductDetailsRows } from "../UI/Table";
-import { Product } from "../../Types/types";
+import { Product, User } from "../../Types/types";
 import { Link } from "react-router";
 import { SecondryBtn } from "../UI/Buttons";
+import RatingStarView from "../UI/RatingStarView";
 
 type ProductDetailsInfoProps = {
   product: Product
@@ -106,12 +107,24 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
         </div>
       )}
       {activeTab === 3 && (
-        <div>
-          {(product.reviews && product.reviews.length === 0) && (
-            <p className="mt-6 min-h-[40vh] text-center text-darkGray text-xl">No reviews</p>
-          )}
+        <div className="space-y-4 pt-4 min-h-[40vh]">
+          {(product.reviews && product.reviews.length > 0) ? (
+            product.reviews.map(review => (
+              <div key={review._id}>
+                <h3 className="text-lg font-semibold">
+                  {(review.user as User).firstName} {(review.user as User).lastName}
+                </h3>
+                <RatingStarView rating={review.rating} />
+                <p className="text-gray-700 mt-2">{review.comment}</p>
+              </div>
+            ))
+          ) :
+            (
+              <p className="text-darkGray text-center text-lg">No reviews</p>
+            )}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

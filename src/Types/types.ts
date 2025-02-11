@@ -1,10 +1,12 @@
 export interface Review {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  user: any;
+  user: string | User;
   rating: number;
   comment: string;
-  productId: string;
+  product: string | Product;
   createdAt: Date;
+  updatedAt: Date;
+  _id: string
 }
 
 // interface Shop {
@@ -143,12 +145,12 @@ type PaymentInfo = {
 
 export type Order = {
   _id: string
-  cart: { product: Product; qty: number }[];
+  cart: { product: Product; qty: number; isReviewed: boolean }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;
   status?:
-  | "Processing"
+  "Processing"
   | "Transferred to delivery partner"
   | "Shipping"
   | "Received"
