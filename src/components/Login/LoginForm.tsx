@@ -25,7 +25,6 @@ export default function LoginForm() {
       navigate("/");
     },
     onError: (a) => {
-      console.log(a);
       loginFailureToast(a.message);
     },
   });

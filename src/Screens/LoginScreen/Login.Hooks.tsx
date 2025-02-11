@@ -21,36 +21,45 @@ type PostSellerApiResponse = {
 };
 
 export async function postUser(userData: UserData) {
-  const res = await fetch("/api/v2/user/login-user", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-  const data = (await res.json()) as PostUserApiResponse;
-  if (!res.ok) {
-    throw new Error(data.message);
+  try {
+    const res = await fetch("/api/v2/user/login-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = (await res.json()) as PostUserApiResponse;
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+    if (!data.success) throw new Error(data.message);
+    return data;
+  } catch {
+    throw new Error("Something went wrong");
+
   }
-  if (!data.success) throw new Error(data.message);
-  return data;
 }
 
 export async function postSeller(userData: UserData) {
-  const res = await fetch("/api/v2/shop/login-shop", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-  const data = (await res.json()) as PostSellerApiResponse;
+  try {
+    const res = await fetch("/api/v2/shop/login-shop", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = (await res.json()) as PostSellerApiResponse;
 
-  if (!res.ok) {
-    throw new Error(data.message);
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+    if (!data.success) throw new Error(data.message);
+    return data;
+  } catch {
+    throw new Error("Something went wrong");
   }
-  if (!data.success) throw new Error();
-  return data;
 }
 
 export function getUserFromLocalLoader() {
