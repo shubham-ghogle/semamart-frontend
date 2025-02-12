@@ -22,7 +22,7 @@ export default function ProductShowcase({ status, title }: BestDealsProps) {
         <div className="h-80 text-xl grid place-items-center">Loading...</div>
       )}
       {status === "success" && (
-        <div className="mt-3 grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12 border-0">
+        <div className="mt-3 flex items-center gap-8 mb-12">
           {firstFive?.map((el) => <ProductCard product={el} key={el._id} />)}
         </div>
       )}
