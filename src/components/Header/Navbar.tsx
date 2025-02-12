@@ -8,6 +8,7 @@ import { CgProfile } from "react-icons/cg";
 import { useSellerStore } from "../../store/sellerStore";
 import Cart from "./Cart";
 import { useState } from "react";
+import Wishlist from "./Wishlist";
 
 export default function Navbar() {
   const cart = useCartStore((state) => state.cart);
@@ -17,9 +18,14 @@ export default function Navbar() {
   const isAdmin = user && user.role === "Admin";
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   function openCartHandler() {
     setIsCartOpen((prev) => !prev);
+  }
+
+  function openWishlistHandler() {
+    setIsWishlistOpen((prev) => !prev);
   }
 
   return (
@@ -44,12 +50,14 @@ export default function Navbar() {
               </span>
             </figure>
           </button>
-          <figure className="relative">
-            <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
-            <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-              {wishlist.length}
-            </span>
-          </figure>
+          <button onClick={openWishlistHandler}>
+            <figure className="relative">
+              <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
+              <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
+                {wishlist.length}
+              </span>
+            </figure>
+          </button>
           <figure>
             {user || seller ? (
               <section className="flex items-center gap-2">
@@ -78,6 +86,7 @@ export default function Navbar() {
         </section>
       </nav>
       {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
+      {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
     </>
   );
 }
