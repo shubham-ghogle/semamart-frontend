@@ -12,7 +12,7 @@ export default function Homepage() {
 
   return (
     <section>
-      <ImageSlider />
+      <ImageSlider/>
       <div className="container mx-auto px-4 pt-12">
         <ProductShowcase status={productFetchingStatus} title="Most Popular" />
         <ProductShowcase status={productFetchingStatus} title="Best Seller" />

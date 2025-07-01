@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Product } from "../../Types/types";
 import ProductCard from "../Product/ProductCard";
+import EquipmentProductCard from "../Product/EquipmentProductCard";
 
 type BestDealsProps = {
   status: "error" | "success" | "pending";
@@ -22,9 +23,11 @@ export default function ProductShowcase({ status, title }: BestDealsProps) {
         <div className="h-80 text-xl grid place-items-center">Loading...</div>
       )}
       {status === "success" && (
-        <div className="mt-3 flex items-center gap-8 mb-12">
-          {firstFive?.map((el) => <ProductCard product={el} key={el._id} />)}
-        </div>
+        <div className="mt-3 flex flex-wrap items-start gap-8 mb-12">
+  {firstFive?.map(el => (
+    <EquipmentProductCard product={el} key={el._id} variant="default" />
+  ))}
+</div>
       )}
     </article>
   );

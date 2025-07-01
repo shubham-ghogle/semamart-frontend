@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Product } from "../../Types/types";
 import { IoMdCart } from "react-icons/io";
 import { CiHeart } from "react-icons/ci";
-import { FaHeart, FaRegEye } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 // import RatingsStarView from "../UI/RatingStarView";
@@ -63,7 +63,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     </h3>
 
     {/* Prices */}
-    <div className="mt-1">
+    <div className="mt-1 flex justify-center">
       <span className="block text-gray-400 line-through text-sm">
         ₹{product.originalPrice.toLocaleString()}
       </span>
