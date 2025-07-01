@@ -4,20 +4,7 @@ import {
   IoIosArrowDropleftCircle,
 } from "react-icons/io";
 
-const sliderImages = [
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-1.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/banner-3.jpg",
-  "https://themes.rslahmed.dev/rafcart/assets/images/category-1.jpg",
-];
+const sliderImages = ["/banner_home.png","/banner_home.png"]; // path relative to /public
 
 export default function ImageSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -40,35 +27,38 @@ export default function ImageSlider() {
         }}
       >
         {sliderImages.map((image, index) => (
-          <figure
+          <img
             key={index}
-            className="min-w-full min-h-[45vh] bg-no-repeat bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${image})`,
-            }}
-          ></figure>
+            src={image}
+            alt={`banner-${index}`}
+            className="min-w-full h-[45vh] object-cover"
+          />
         ))}
       </article>
-      <article className="absolute inset-0 flex items-center justify-between px-4">
-        <button onClick={prevSlide}>
-          <IoIosArrowDropleftCircle
-            size={40}
-            color="white"
-            className="drop-shadow-lg"
-            strokeWidth={1}
-            stroke="black"
-          />
-        </button>
-        <button onClick={nextSlide}>
-          <IoIosArrowDroprightCircle
-            size={40}
-            color="white"
-            className="drop-shadow-lg"
-            strokeWidth={1}
-            stroke="black"
-          />
-        </button>
-      </article>
+
+      {/* Only show arrows if more than 1 image */}
+      {totalSlides > 1 && (
+        <article className="absolute inset-0 flex items-center justify-between px-4">
+          <button onClick={prevSlide}>
+            <IoIosArrowDropleftCircle
+              size={40}
+              color="white"
+              className="drop-shadow-lg"
+              strokeWidth={1}
+              stroke="black"
+            />
+          </button>
+          <button onClick={nextSlide}>
+            <IoIosArrowDroprightCircle
+              size={40}
+              color="white"
+              className="drop-shadow-lg"
+              strokeWidth={1}
+              stroke="black"
+            />
+          </button>
+        </article>
+      )}
     </section>
   );
 }
