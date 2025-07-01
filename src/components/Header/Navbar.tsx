@@ -1,131 +1,91 @@
-import { Link, NavLink } from "react-router";
-import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
-import { CategoriesMenu } from "./Navbar.Ui";
-import { useCartStore } from "../../store/cartStore";
-import { useWishlistStore } from "../../store/wishlistStore";
-import { useUserStore } from "../../store/userStore";
-import { CgProfile } from "react-icons/cg";
-import { useSellerStore } from "../../store/sellerStore";
-import Cart from "./Cart";
+
 import { useState } from "react";
-import Wishlist from "./Wishlist";
+import { NavbarIcons } from "../UI/NavbarIcons";
 
 export default function Navbar() {
-  const cart = useCartStore((state) => state.cart);
-  const wishlist = useWishlistStore((state) => state.wishlist);
-  const { user } = useUserStore((state) => state);
-  const { seller } = useSellerStore((state) => state);
-  const isAdmin = user && user.role === "Admin";
+  const [selectedName, setSelectedName] = useState("");
 
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const names = ["Equipment", "Consumables", "Pharmaceutical"];
 
-  function openCartHandler() {
-    setIsCartOpen((prev) => !prev);
-  }
+  const getIcon = (name: string) => {
+    switch (name) {
+      case "Equipment":
+        return <NavbarIcons show={[4]} />;
+      case "Consumables":
+         return <NavbarIcons show={[5]} />;
+      case "Pharmaceutical":
+         return <NavbarIcons show={[6]} />;
+      default:
+        return null;
+    }
+  };
 
-  function openWishlistHandler() {
-    setIsWishlistOpen((prev) => !prev);
-  }
+  const categories = [
+    {
+      label: "Medical Furniture",
+      icon: <NavbarIcons show={[0]} />,
+      options: ["Hospital Bed", "Examination Table", "Stretcher"],
+    },
+    {
+      label: "Medical Instruments",
+      icon: <NavbarIcons show={[1]} />,
+      options: ["Scalpel", "Forceps", "Stethoscope"],
+    },
+    {
+      label: "Medical Equipment's",
+      icon: <NavbarIcons show={[2]} />,
+      options: ["X-Ray Machine", "ECG Monitor", "Ultrasound"],
+    },
+    {
+      label: "Miscellaneous Products",
+      icon: <NavbarIcons show={[3]} />,
+      options: ["Gloves", "Masks", "Sanitizers"],
+    },
+  ];
 
   return (
     <>
-      <nav className="bg-darkBlue h-16 px-14 sticky top-0 flex items-center justify-between z-[999]">
-        <section className="h-full">
-          <CategoriesMenu />
-        </section>
-        <ol className="flex items-center gap-8">
-          <NavLinks destination="/" label="Home" />
-          <NavLinks destination="/best-selling" label="Best Selling" />
-          <NavLinks destination="/product" label="Products" />
-          <NavLinks destination="/events" label="Events" />
-          <NavLinks destination="/faq" label="FAQ" />
-        </ol>
-        <section className="flex items-center gap-4">
-          <button onClick={openCartHandler}>
-            <figure className="relative">
-              <AiOutlineShoppingCart size={30} color="rgb(255 255 255 / 83%)" />
-              <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                {cart.length}
-              </span>
-            </figure>
-          </button>
-          <button onClick={openWishlistHandler}>
-            <figure className="relative">
-              <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
-              <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                {wishlist.length}
-              </span>
-            </figure>
-          </button>
-          <figure>
-            {user || seller ? (
-              <section className="flex items-center gap-2">
-                {seller && (
-                  <Link to="/seller">
-                    <ProfileAvatar src={seller.avatar} />
-                  </Link>
-                )}
-                {isAdmin && (
-                  <Link to="/admin">
-                    <ProfileAvatar src={user.avatar} />
-                  </Link>
-                )}
-                {user && !isAdmin && (
-                  <Link to="/user">
-                    <ProfileAvatar src={user.avatar} />
-                  </Link>
-                )}
-              </section>
-            ) : (
-              <Link to="/login">
-                <CgProfile size={30} color="white" />
-              </Link>
-            )}
-          </figure>
-        </section>
-      </nav>
-      {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
-      {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
+      <div className="mx-auto text-center border py-8">
+        {/* Button Group */}
+          <div className="flex justify-center mb-6">
+            <div className="flex gap-[60px] bg-white border border-gray-300 rounded-full px-[19px] py-[5px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(0,0,0,0.06)]">
+              {names.map((name) => (
+                <button
+                  key={name}
+                  onClick={() => setSelectedName(name)}
+                  className={`flex items-center gap-2 px-10 py-2 text-lg rounded-full font-semibold transition ${
+                    selectedName === name
+                      ? "bg-[#006666] text-white"
+                      : "bg-white text-black hover:bg-gray-100"
+                  }`}
+                >
+                  {getIcon(name)}
+                  {name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+
+        {/* Dropdowns with Icons */}
+        <div className="flex justify-center gap-20 flex-wrap text-[14px] leading-[21px] tracking-[0px] font-[Plus_Jakarta_Sans]">
+          {categories.map((cat) => (
+            <div key={cat.label} className="relative">
+              <div className="absolute top-1/2 left-2 -translate-y-1/2 pointer-events-none">
+                {cat.icon}
+              </div>
+              <select className="pl-10 pr-4 py-2 outline-none  text-gray-700">
+                <option disabled selected>
+                  {cat.label}
+                </option>
+                {cat.options.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+      </div>
     </>
-  );
-}
-
-type NavlinksProps = {
-  label: string;
-  destination: string;
-};
-
-function NavLinks({ label, destination }: NavlinksProps) {
-  return (
-    <li className="font-medium">
-      <NavLink
-        to={destination}
-        className={({ isActive }) =>
-          isActive ? "text-accentYellow" : "text-white"
-        }
-      >
-        {label}
-      </NavLink>
-    </li>
-  );
-}
-
-type ProfileAvatarProps = {
-  src?: string;
-};
-function ProfileAvatar({ src }: ProfileAvatarProps) {
-  if (!src) {
-    src = "/placeholder.png";
-  } else {
-    src = "/baseUrl" + "/" + src;
-  }
-  return (
-    <img
-      src={src}
-      alt="profile avatar"
-      className="w-[35px] h-[35px] rounded-full border bg-white"
-      width={35}
-    />
   );
 }
