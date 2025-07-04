@@ -3,6 +3,11 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily:{
+          jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+          montserrat: ['Montserrat', 'sans-serif'],
+          poppins: ['Poppins', 'sans-serif'],
+      },
       colors: {
         customBlue: "#6EC1E5",
         customGreen: "#61ceb6",

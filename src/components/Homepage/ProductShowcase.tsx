@@ -1,5 +1,5 @@
 // src/components/Homepage/ProductShowcase.tsx
-import React from "react";
+
 import { useQueryClient } from "@tanstack/react-query";
 import { Product } from "../../Types/types";
 import EquipmentProductCard from "../Product/EquipmentProductCard";
@@ -20,7 +20,7 @@ export default function ProductShowcase({
   const items = sorted.slice(0, isBest ? 6 : 4);
 
   const container = "mx-4 md:mx-12 mb-16";
-  const header    = "text-2xl font-bold text-darkBlue mb-4";
+  const header    = "text-2xl font-bold font-jakarta text-[#1C170D] mb-4";
 
   if (status === "pending") {
     return (

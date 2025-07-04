@@ -12,10 +12,10 @@ export default function Homepage() {
 
   return (
     <section>
-      <ImageSlider/>
-      <div className="container max-w-[1200px] mx-auto px-4 pt-12">
+      <ImageSlider image="banner_Equipment.png"/>
+      <div className="container max-w-[1060px] mx-auto px-4 pt-12">
         <ProductShowcase status={productFetchingStatus} title="Most Popular" />
-        <ProductShowcase status={productFetchingStatus} title="Best Seller" />
+        <ProductShowcase status={productFetchingStatus} title="Best Sellers" />
         <ProductShowcase status={productFetchingStatus} title="Recent Items" />
       </div>
     </section>

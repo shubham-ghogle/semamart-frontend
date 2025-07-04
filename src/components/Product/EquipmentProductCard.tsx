@@ -1,9 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
 import { Product } from "../../Types/types";
-import { IoMdCart } from "react-icons/io";
-import { CiHeart } from "react-icons/ci";
-import { FaHeart } from "react-icons/fa";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 
@@ -30,6 +27,7 @@ export default function EquipmentProductCard({
     e.preventDefault();
     addToCart({ product, qty: 1 });
   };
+
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
@@ -51,111 +49,124 @@ export default function EquipmentProductCard({
     "p-3",
   ];
   const sizeMap: Record<ProductCardVariant, string> = {
-    default: "w-[245px] flex-col",
-    square: "w-[240px] h-[210px] flex-col",
-    tall: "w-[230px] h-[430px] flex-col",
-    wide: "w-[510px] h-[210px] flex-row",
+    default: "w-[215px] h-[350] flex-col",
+    square: "w-[216.90005493164062px] h-[200px] flex-col",
+    tall: "w-[216.90005493164062px] h-[420px] flex-col",
+    wide: "w-[453.97686767578125px] h-[200px] flex-row",
   };
   const rootClass = [...base, sizeMap[variant]].join(" ");
 
-  // === SQUARE VARIANT ===
- if (variant === "square") {
-  return (
-    <article className={rootClass}>
-      {discountPct > 0 && (
-        <span className="absolute top-2 right-2 bg-red-100 text-red-500 text-[10px] font-semibold px-2 py-0.5 rounded-full">
-          -{discountPct}%
-        </span>
-      )}
+ const renderWishlistIcon = () => (
+  <span
+    className="w-4 h-4 inline-block transition duration-200"
+    style={{
+      WebkitMaskImage: "url('/heart_icon.png')",
+      WebkitMaskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      WebkitMaskSize: "contain",
+      maskImage: "url('/heart_icon.png')",
+      maskRepeat: "no-repeat",
+      maskPosition: "center",
+      maskSize: "contain",
+      backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
+    }}
+  />
+);
 
-      <Link to={`/product/${product._id}`} className="flex flex-col w-full h-full">
-        {/* Title */}
-        <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2 max-w-[180px]">
-          {/* {product.name} */}
-          Women's pleated short sleeve scrubs
-        </h3>
 
-        {/* Image */}
-        <div className="w-full h-[100px] rounded-md bg-center bg-cover mb-2"
-         //style={{ backgroundImage: `url(${imageSrc})`
-         style={{ backgroundImage: `url(${"squared.png"})`
-          }} />
-
-        {/* Price + Icons */}
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-400 line-through">
-              ₹{product.originalPrice}
-            </span>
-            <span className="text-base font-semibold text-gray-900">
-              ₹{product.discountPrice}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleToggleWishlist}
-              className="text-[16px] text-[#4F4F4F] hover:text-red-500"
-            >
-              {inWishlist ? <FaHeart className="text-red-500" /> : <CiHeart />}
-            </button>
-            <button
-              onClick={handleAddCart}
-              className="w-6 h-6 flex items-center justify-center rounded-full bg-[#005B5D] text-white hover:bg-[#004C4D]"
-            >
-              <IoMdCart className="text-sm" />
-            </button>
-          </div>
-        </div>
-      </Link>
-    </article>
+  const renderCartIcon = () => (
+    <img
+      src="/st_icon.png"
+      alt="Cart"
+      className="w-3.5 h-3.5 text-[#FFFFFF]"
+    />
   );
-}
 
+  // === SQUARE VARIANT ===
+  if (variant === "square") {
+    return (
+      <article className={rootClass}>
+        {discountPct > 0 && (
+          <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
+            -{discountPct}%
+          </span>
+        )}
+
+        <Link to={`/product/${product._id}`} className="flex flex-col w-full h-full">
+          <h3 className="text-xs font-medium text-[#1C170D] font-montserrat mb-1 line-clamp-2 max-w-[180px]">
+            Women's pleated short sleeve scrubs
+          </h3>
+
+          <div
+            className="w-[158px] h-[92px] rounded-md bg-center bg-cover mb-2"
+            style={{ backgroundImage: `url("squared.png")` }}
+          />
+
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex flex-col">
+              <span className="text-xs font-montserrat text-gray-400 line-through">
+                ₹{product.originalPrice}
+              </span>
+              <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                ₹{product.discountPrice}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={handleToggleWishlist} className="hover:scale-110 transition-transform">
+                {renderWishlistIcon()}
+              </button>
+              <button
+                onClick={handleAddCart}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#005B5D] hover:bg-[#004C4D]"
+              >
+                {renderCartIcon()}
+              </button>
+            </div>
+          </div>
+        </Link>
+      </article>
+    );
+  }
 
   // === WIDE VARIANT ===
   if (variant === "wide") {
     return (
       <article className={rootClass}>
         {discountPct > 0 && (
-          <span className="absolute top-2 right-2 bg-red-100 text-red-500 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
             -{discountPct}%
           </span>
         )}
 
         <Link to={`/product/${product._id}`} className="relative w-full h-full">
-          <h3 className="absolute top-3 left-3 text-sm font-medium text-gray-900 bg-white px-1 z-10 max-w-[180px]">
-            {/* {product.name} */}
+          <h3 className="absolute top-3 left-3 text-xs font-medium text-[#1C170D] font-montserrat bg-white px-1 z-10 max-w-[180px]">
             Women's pleated short sleeve scrubs
           </h3>
 
           <div className="flex w-full h-full">
             <div className="w-1/3 relative p-3">
               <div className="absolute bottom-3 left-3 flex flex-col">
-                <span className="text-xs text-gray-400 line-through">
+                <span className="text-xs text-gray-400 font-montserrat line-through">
                   ₹{product.originalPrice}
                 </span>
-                <span className="text-base font-semibold text-gray-900">
+                <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
                   ₹{product.discountPrice}
                 </span>
               </div>
             </div>
             <div
               className="w-full h-full relative bg-center bg-cover"
-              //style={{ backgroundImage: `url(${imageSrc})` }}
               style={{ backgroundImage: `url("fan.png")` }}
             >
               <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
-                <button
-                  onClick={handleToggleWishlist}
-                  className="text-[16px] text-[#4F4F4F] hover:text-red-500"
-                >
-                  {inWishlist ? <FaHeart className="text-red-500" /> : <CiHeart />}
+                <button onClick={handleToggleWishlist} className="hover:scale-110 transition-transform">
+                  {renderWishlistIcon()}
                 </button>
                 <button
                   onClick={handleAddCart}
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#005B5D] text-white hover:bg-[#004C4D]"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#005B5D] hover:bg-[#004C4D]"
                 >
-                  <IoMdCart className="text-sm" />
+                  {renderCartIcon()}
                 </button>
               </div>
             </div>
@@ -179,7 +190,7 @@ export default function EquipmentProductCard({
   return (
     <article className={rootClass}>
       {discountPct > 0 && (
-        <span className="absolute top-2 right-2 bg-red-100 text-red-500 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+        <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
           -{discountPct}%
         </span>
       )}
@@ -187,7 +198,6 @@ export default function EquipmentProductCard({
       <Link to={`/product/${product._id}`} className="flex flex-col gap-2 w-full h-full">
         <div className={imgClass}>
           <img
-            //src={imageSrc}
             src="image60.png"
             alt={product.name}
             className="object-contain max-h-full max-w-full"
@@ -195,8 +205,7 @@ export default function EquipmentProductCard({
         </div>
 
         <div className={infoClass}>
-          <h3 className="text-sm font-medium text-gray-900 mb-1 break-words max-w-[180px]">
-            {/* {product.name} */}
+          <h3 className="text-xs font-medium text-[#1C170D] mb-1 break-words max-w-[180px] font-montserrat">
             Women's pleated short sleeve scrubs
           </h3>
 
@@ -212,25 +221,22 @@ export default function EquipmentProductCard({
 
           <div className="flex items-center justify-between mt-1">
             <div className="flex flex-col">
-              <span className="text-xs text-gray-400 line-through">
+              <span className="text-xs text-gray-400 line-through font-montserrat">
                 ₹{product.originalPrice}
               </span>
-              <span className="text-base font-semibold text-gray-900">
+              <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
                 ₹{product.discountPrice}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleToggleWishlist}
-                className="text-[16px] text-[#4F4F4F] hover:text-red-500"
-              >
-                {inWishlist ? <FaHeart className="text-red-500" /> : <CiHeart />}
+              <button onClick={handleToggleWishlist} className="hover:scale-110 transition-transform">
+                {renderWishlistIcon()}
               </button>
               <button
                 onClick={handleAddCart}
-                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#005B5D] text-white hover:bg-[#004C4D]"
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D]"
               >
-                <IoMdCart className="text-sm"/>
+                {renderCartIcon()}
               </button>
             </div>
           </div>

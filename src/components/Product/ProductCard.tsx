@@ -1,104 +1,98 @@
+import React from "react";
 import { Link } from "react-router";
 import { Product } from "../../Types/types";
-import { IoMdCart } from "react-icons/io";
-import { CiHeart } from "react-icons/ci";
-import { FaHeart } from "react-icons/fa";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-// import RatingsStarView from "../UI/RatingStarView";
 
-type ProductCardProps = {
+type DefaultProductCardProps = {
   product: Product;
 };
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const productDiscount = Math.floor(
-    ((product.originalPrice - product.discountPrice) / product.originalPrice) *
-    100,
+export default function DefaultProductCard({ product }: DefaultProductCardProps) {
+  const discountPct = Math.floor(
+    ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
   );
 
-  const addProduct = useCartStore(state => state.addToCart)
-  const { addToWishlist, wishlist, removeFromWishlist } = useWishlistStore(state => state)
+  const addToCart = useCartStore((s) => s.addToCart);
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
+  const inWishlist = wishlist.some((p) => p._id === product._id);
 
-  function handleAddCart(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault()
-    addProduct({ product, qty: 1 })
-  }
+  const handleAddCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart({ product, qty: 1 });
+  };
 
-  function addToWishlistHandler(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault()
-    addToWishlist(product)
-  }
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
+  };
 
-  function removeWishlistHandler(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault()
-    removeFromWishlist(product._id)
-  }
-
-  const isInWishlist = wishlist.some(el => el._id === product._id)
+  const imageSrc = product.images?.[0]
+    ? `/baseUrl/${product.images[0]}`
+    : "/image60.png";
 
   return (
-    <article className="w-[220px] bg-white border border-gray-200 rounded shadow-sm hover:shadow-md transition">
-  <Link to={`/product/${product._id}`} className="block px-4 pt-4 pb-3 text-center">
-    {/* Discount Badge + Image */}
-    <div className="relative mb-2">
-      {productDiscount > 0 && (
-        <span className="absolute top-1 left-1 bg-black text-white text-xs px-1.5 py-0.5 rounded-sm">
-          -{productDiscount}%
+    <article className="relative border rounded-xl bg-white shadow-sm transition hover:shadow-md overflow-hidden flex p-3 w-[215px] h-[350px] flex-col">
+      {discountPct > 0 && (
+        <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
+          -{discountPct}%
         </span>
       )}
-      <div className="h-36 flex items-center justify-center overflow-hidden">
-        <img
-          // src={`/baseUrl/${product.images[0] || ""}`}
-          src="/image60.png"
-          alt={product.name}
-          className="h-full object-contain"
-        />
-      </div>
-    </div>
 
-    {/* Title */}
-    <h3 className="text-gray-800 text-sm leading-tight h-9 overflow-hidden">
-      {product.name}
-    </h3>
+      <Link to={`/product/${product._id}`} className="flex flex-col gap-2 w-full h-full">
+        <div className="w-full h-44 flex items-center justify-center mb-2">
+          <img
+            src={imageSrc}
+            alt={product.name}
+            className="object-contain max-h-full max-w-full"
+          />
+        </div>
 
-    {/* Prices */}
-    <div className="mt-1 flex justify-center">
-      <span className="block text-gray-400 line-through text-sm">
-        ₹{product.originalPrice.toLocaleString()}
-      </span>
-      <span className="block text-black font-semibold text-base">
-        ₹{product.discountPrice.toLocaleString()}
-      </span>
-    </div>
+        <div className="w-full flex flex-col justify-between flex-1">
+          <h3 className="text-xs font-medium text-[#1C170D] mb-1 break-words max-w-[180px] font-montserrat">
+            {product.name}
+          </h3>
 
-    {/* Add to Cart */}
-    <button
-      onClick={handleAddCart}
-      className="mt-3 w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-black py-1.5 rounded font-medium"
-    >
-      <IoMdCart className="text-lg" />
-      <span>Add to cart</span>
-    </button>
+          <div className="flex gap-0.5 text-[#FF9529] text-sm mb-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i}>
+                {i < Math.round(product.ratings ?? 0) ? "★" : "☆"}
+              </span>
+            ))}
+          </div>
 
-    {/* Wishlist */}
-    {isInWishlist ? (
-      <button
-        onClick={removeWishlistHandler}
-        className="mt-2 w-full flex items-center justify-center gap-1 text-sm text-red-500"
-      >
-        <FaHeart className="text-base" /> <span>Remove from Wishlist</span>
-      </button>
-    ) : (
-      <button
-        onClick={addToWishlistHandler}
-        className="mt-2 w-full flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-teal-500"
-      >
-        <CiHeart className="text-lg" /> <span>Add to Wishlist</span>
-      </button>
-    )}
-  </Link>
-</article>
-
+          <div className="flex items-center justify-between mt-1">
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-400 line-through font-montserrat">
+                ₹{product.originalPrice}
+              </span>
+              <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                ₹{product.discountPrice}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={handleToggleWishlist}>
+                <img
+                  src="/heart_icon.png"
+                  alt="Wishlist"
+                  className="w-4 h-4"
+                  style={{
+                    filter: inWishlist
+                      ? "invert(21%) sepia(99%) saturate(7487%) hue-rotate(356deg) brightness(90%) contrast(105%)"
+                      : undefined,
+                  }}
+                />
+              </button>
+              <button
+                onClick={handleAddCart}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D]"
+              >
+                <img src="/st_icon.png" alt="Cart" className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </Link>
+    </article>
   );
 }

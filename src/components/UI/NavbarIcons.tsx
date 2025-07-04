@@ -1,26 +1,36 @@
+
 type NavbarIconsProps = {
   show?: number[];
+  color?: string;
 };
 
-export function NavbarIcons({ show = [] }: NavbarIconsProps) {
+export function NavbarIcons({ show = [], color = "currentColor" }: NavbarIconsProps) {
   const logos = [
-    { src: "/chair.svg" },
-    { src: "/bagtype.svg"},
-    { src: "/setting.svg"},
-    { src: "/square.svg"},
-    { src: "/material-symbols_stethoscope.svg"},
-    { src: "/material-symbols_syringe.svg"},
-    { src: "/mdi_capsule.svg"},
+    "/chair.svg",
+    "/bagtype.svg",
+    "/setting.svg",
+    "/square.svg",
+    "/material-symbols_stethoscope.svg",
+    "/material-symbols_syringe.svg",
+    "/mdi_capsule.svg",
   ];
 
   return (
-    <figure className="flex gap-4">
-        {logos.map((logo, index) =>
-            show.includes(index) ? (
-            <img key={index} src={logo.src} className="w-6 h-6" />
-            ) : null
-        )}
-    </figure>
-
+    <div className="flex gap-2">
+      {logos.map((src, idx) =>
+        show.includes(idx) ? (
+          <span
+            key={idx}
+            className="w-6 h-6"
+            style={{
+              // use the SVG file as a mask so we can paint it any color
+              WebkitMask: `url(${src}) no-repeat center / contain`,
+              mask: `url(${src}) no-repeat center / contain`,
+              backgroundColor: color,
+            }}
+          />
+        ) : null
+      )}
+    </div>
   );
 }

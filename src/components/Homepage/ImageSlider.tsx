@@ -6,7 +6,11 @@ import {
 
 const sliderImages = ["/banner_Equipment.png"]; // path relative to /public
 
-export default function ImageSlider() {
+type ImageSliderProps = {
+  image: string;
+};
+
+export default function ImageSlider({image}:ImageSliderProps){
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = sliderImages.length;
 
@@ -26,14 +30,21 @@ export default function ImageSlider() {
           transform: `translateX(-${currentSlide * 100}%)`,
         }}
       >
-        {sliderImages.map((image, index) => (
+        {/* {sliderImages.map((image, index) => (
           <img
             key={index}
             src={image}
             alt={`banner-${index}`}
             className="min-w-full h-[45vh] object-cover"
           />
-        ))}
+          
+        ))} */}
+        <img
+            src={image}
+            alt={'banner'}
+            className="min-w-full h-[45vh] object-cover"
+          />
+          
       </article>
 
       {/* Only show arrows if more than 1 image */}

@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ActionBtn, SecondryBtn } from "../UI/Buttons";
 import {
   AiOutlineHeart,
@@ -7,8 +7,6 @@ import {
   AiOutlineHome,
   AiOutlineUser,
 } from "react-icons/ai";
-
-import { CgProfile } from "react-icons/cg";
 import { IoIosArrowForward } from "react-icons/io";
 import { Logo } from "../UI/Logo";
 import { useUserStore } from "../../store/userStore";
@@ -55,124 +53,102 @@ export default function Header() {
 
   return (
     <header className="w-11/12 mx-auto flex items-center justify-between h-24">
+      {/* 1) Logo */}
       <Logo />
-      <article className="w-1/2 mx-auto">
-  <div className="relative w-3/4 mx-auto">
-    <input
-      className="w-full border rounded-full px-4 pr-10 h-10"
-      type="text"
-      placeholder="Search Products..."
-    />
-    <AiOutlineSearch
-      size={20}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
-    />
-  </div>
-</article>
 
-
-
-
-      {!user && !seller ? (
-        <Link to="/signup-seller">
-          <ActionBtn>
-            Become Seller
-            <IoIosArrowForward className="ml-1" />
-          </ActionBtn>
-        </Link>
-      ) : (
-        <SecondryBtn width={100} onClick={logoutHandler}>
-          <p>Logout</p>
-        </SecondryBtn>
-      )}
-
-      <section className="flex items-center gap-4">
-  {/* Home Icon */}
-  <Link to="/">
-    <div className="bg-[#006666] p-2 rounded-full">
-      <AiOutlineHome size={24} color="white" />
-    </div>
-  </Link>
-
-  {/* Cart */}
-  <button onClick={openCartHandler}>
-    <div className="relative bg-[#006666] p-2 rounded-full">
-      <AiOutlineShoppingCart size={24} color="white" />
-      <span className="absolute -top-1 -right-1 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
-        {cart.length}
-      </span>
-    </div>
-  </button>
-
-  {/* Wishlist */}
-  <button onClick={openWishlistHandler}>
-    <div className="relative bg-[#006666] p-2 rounded-full">
-      <AiOutlineHeart size={24} color="white" />
-      <span className="absolute -top-1 -right-1 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
-        {wishlist.length}
-      </span>
-    </div>
-  </button>
-
-  {/* Profile Avatar or Login */}
-  <figure>
-    <div className="relative bg-[#006666] p-2 rounded-full">
-    {user || seller ? (
-      <section className="flex items-center gap-2">
-        {seller && (
-          <Link to="/seller">
-            <ProfileAvatar src={seller.avatar} />
-          </Link>
-        )}
-        {isAdmin && (
-          <Link to="/admin">
-            <ProfileAvatar src={user.avatar} />
-          </Link>
-        )}
-        {user && !isAdmin && (
-          <Link to="/user">
-            <ProfileAvatar src={user.avatar} />
-          </Link>
-        )}
-      </section>
-    ) : (
-      <Link to="/login">
-        <div className="bg-[#006666]  rounded-full">
-          <AiOutlineUser size={24} color="white" />
+      {/* 2) Search Bar */}
+      <article className="w-[402px] h-[42px]">
+        <div className="relative w-full h-full">
+          <input
+            type="text"
+            placeholder="Search"
+            className="w-full h-full pl-4 pr-10 text-sm font-poppins font-normal rounded-full text-[#1C647C] placeholder-[#1C647C] bg-white outline-none"
+          />
+          <AiOutlineSearch
+            size={28}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1C647C] cursor-pointer"
+          />
         </div>
-      </Link>
-    )}
-    </div>
-  </figure>
-</section>
+      </article>
 
+      {/* 3) Right-hand group: Become Seller + Icons */}
+      <div className="flex items-center gap-4">
+        {!user && !seller ? (
+          <Link to="/signup-seller">
+            <ActionBtn>
+              Become Seller
+              <IoIosArrowForward className="ml-1" />
+            </ActionBtn>
+          </Link>
+        ) : (
+          <SecondryBtn width={100} onClick={logoutHandler}>
+            Logout
+          </SecondryBtn>
+        )}
 
+        <section className="flex items-center gap-4">
+          {/* Home Icon */}
+          <Link to="/">
+            <div className="bg-[#006666] p-2 rounded-full">
+              <AiOutlineHome size={24} color="white" />
+            </div>
+          </Link>
+
+          {/* Cart */}
+          <button onClick={openCartHandler}>
+            <div className="relative bg-[#006666] p-2 rounded-full">
+              <AiOutlineShoppingCart size={24} color="white" />
+              <span className="absolute -top-1 -right-1 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
+                {cart.length}
+              </span>
+            </div>
+          </button>
+
+          {/* Wishlist */}
+          <button onClick={openWishlistHandler}>
+            <div className="relative bg-[#006666] p-2 rounded-full">
+              <AiOutlineHeart size={24} color="white" />
+              <span className="absolute -top-1 -right-1 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
+                {wishlist.length}
+              </span>
+            </div>
+          </button>
+
+          {/* Profile Avatar or Login */}
+          <figure>
+            <div className="relative bg-[#006666] p-2 rounded-full">
+              {user || seller ? (
+                <section className="flex items-center gap-2">
+                  {seller && (
+                    <Link to="/seller">
+                      <ProfileAvatar src={seller.avatar} />
+                    </Link>
+                  )}
+                  {isAdmin && (
+                    <Link to="/admin">
+                      <ProfileAvatar src={user.avatar} />
+                    </Link>
+                  )}
+                  {user && !isAdmin && (
+                    <Link to="/user">
+                      <ProfileAvatar src={user.avatar} />
+                    </Link>
+                  )}
+                </section>
+              ) : (
+                <Link to="/login">
+                  <AiOutlineUser size={24} color="white" />
+                </Link>
+              )}
+            </div>
+          </figure>
+        </section>
+      </div>
 
       {/* Conditionally Rendered Cart and Wishlist */}
       {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
       {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
     </header>
-  );
-}
-
-// NavLinks component
-type NavlinksProps = {
-  label: string;
-  destination: string;
-};
-
-function NavLinks({ label, destination }: NavlinksProps) {
-  return (
-    <li className="font-medium">
-      <NavLink
-        to={destination}
-        className={({ isActive }) =>
-          isActive ? "text-accentYellow" : "text-white"
-        }
-      >
-        {label}
-      </NavLink>
-    </li>
   );
 }
 

@@ -30,13 +30,36 @@ import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUti
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
 import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
+import ConsumablesLayout from "./components/Layouts/ConsumablesLayout";
+import Consumables from "./Screens/Consumables/Consumables";
+import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/equipments",
     element: <RootLayout />,
     children: [
       { index: true, element: <Homepage /> },
+      { path: "product", element: <ProductsScreen /> },
+      { path: "product/:id", element: <ProductDetailsScreen /> },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+    ],
+  },
+  {
+    path: "/",
+    element: <RootLayout/>,
+    children: [
+      { index: true, element: <Consumables/> },
+      { path: "product", element: <ProductsScreen /> },
+      { path: "product/:id", element: <ProductDetailsScreen /> },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+    ],
+  },
+  {
+    path: "/pharmaceutical",
+    element: <RootLayout/>,
+    children: [
+      { index: true, element: <Pharmaceutical/> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetailsScreen /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
