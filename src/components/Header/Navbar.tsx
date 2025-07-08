@@ -59,7 +59,7 @@ export default function Navbar() {
         >
           {/* Sliding pill */}
           <div
-            className="absolute z-0 bg-[#006666] rounded-full transition-all duration-300 ease-out"
+            className="absolute z-0 bg-[#1C647C] rounded-full transition-all duration-300 ease-out"
             style={{
               top: 1,
               height: "calc(100% - 2px)",
@@ -103,7 +103,7 @@ export default function Navbar() {
           <div key={cat.label} className="relative">
             <div className="absolute top-1/2 left-2 -translate-y-1/2 pointer-events-none z-10">
               {/* dropdown icon stays static gray */}
-              <NavbarIcons show={[cat.iconIdx]} color="#A0A6B1" />
+              <NavbarIcons show={[cat.iconIdx]} color="#3B3B3B" />
             </div>
             <select className="pl-10 pr-4 py-2 outline-none text-gray-700">
               <option disabled selected>

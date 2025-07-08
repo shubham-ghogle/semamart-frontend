@@ -33,13 +33,14 @@ import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
 import ConsumablesLayout from "./components/Layouts/ConsumablesLayout";
 import Consumables from "./Screens/Consumables/Consumables";
 import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
+import Equipment from "./Screens/Equipment/Equipment";
 
 export const router = createBrowserRouter([
   {
     path: "/equipments",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Homepage /> },
+      { index: true, element: <Equipment/> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetailsScreen /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },

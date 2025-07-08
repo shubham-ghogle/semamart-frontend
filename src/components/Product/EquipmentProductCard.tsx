@@ -57,21 +57,25 @@ export default function EquipmentProductCard({
   const rootClass = [...base, sizeMap[variant]].join(" ");
 
  const renderWishlistIcon = () => (
-  <span
-    className="w-4 h-4 inline-block transition duration-200"
-    style={{
-      WebkitMaskImage: "url('/heart_icon.png')",
-      WebkitMaskRepeat: "no-repeat",
-      WebkitMaskPosition: "center",
-      WebkitMaskSize: "contain",
-      maskImage: "url('/heart_icon.png')",
-      maskRepeat: "no-repeat",
-      maskPosition: "center",
-      maskSize: "contain",
-      backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
-    }}
-  />
+  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200">
+    <span
+      className="w-4 h-4 inline-block transition duration-200"
+      style={{
+        WebkitMaskImage: "url('/heart_icon.png')",
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskImage: "url('/heart_icon.png')",
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        maskSize: "contain",
+        backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
+      }}
+    />
+  </span>
 );
+
+
 
 
   const renderCartIcon = () => (
