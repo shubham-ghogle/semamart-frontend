@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ActionBtn, SecondryBtn } from "../UI/Buttons";
 import {
   AiOutlineHeart,
@@ -8,7 +8,7 @@ import {
   AiOutlineUser,
 } from "react-icons/ai";
 
-import { CgProfile } from "react-icons/cg";
+//import { CgProfile } from "react-icons/cg";
 import { IoIosArrowForward } from "react-icons/io";
 import { Logo } from "../UI/Logo";
 import { useUserStore } from "../../store/userStore";
@@ -155,26 +155,26 @@ export default function Header() {
   );
 }
 
-// NavLinks component
-type NavlinksProps = {
-  label: string;
-  destination: string;
-};
+// // NavLinks component
+// type NavlinksProps = {
+//   label: string;
+//   destination: string;
+// };
 
-function NavLinks({ label, destination }: NavlinksProps) {
-  return (
-    <li className="font-medium">
-      <NavLink
-        to={destination}
-        className={({ isActive }) =>
-          isActive ? "text-accentYellow" : "text-white"
-        }
-      >
-        {label}
-      </NavLink>
-    </li>
-  );
-}
+// function NavLinks({ label, destination }: NavlinksProps) {
+//   return (
+//     <li className="font-medium">
+//       <NavLink
+//         to={destination}
+//         className={({ isActive }) =>
+//           isActive ? "text-accentYellow" : "text-white"
+//         }
+//       >
+//         {label}
+//       </NavLink>
+//     </li>
+//   );
+// }
 
 // ProfileAvatar component
 type ProfileAvatarProps = {
