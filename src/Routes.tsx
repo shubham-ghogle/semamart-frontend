@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
-import Homepage from "./Screens/Homepage/Homepage";
 import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
@@ -30,7 +29,6 @@ import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUti
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
 import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
-import ConsumablesLayout from "./components/Layouts/ConsumablesLayout";
 import Consumables from "./Screens/Consumables/Consumables";
 import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
 import Equipment from "./Screens/Equipment/Equipment";
