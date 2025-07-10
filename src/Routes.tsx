@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import Homepage from "./Screens/Homepage/Homepage";
-import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
+// import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";

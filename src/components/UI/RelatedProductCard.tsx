@@ -1,8 +1,8 @@
-import React from "react";
+
 import { Link } from "react-router";
 
-import { useCartStore } from "../../store/cartStore";
-import { useWishlistStore } from "../../store/wishlistStore";
+// import { useCartStore } from "../../store/cartStore";
+// import { useWishlistStore } from "../../store/wishlistStore";
 import light from "../../../public/light.png"; 
 import heart from "../../../public/heart.svg";
 import cart from "../../../public/cart.png";
@@ -25,9 +25,9 @@ export default function RelatedProductCard({ product }: DefaultProductCardProps)
     ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
   );
 
-  const addToCart = useCartStore((s) => s.addToCart);
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
-  const inWishlist = wishlist.some((p) => p._id === product._id);
+  // const addToCart = useCartStore((s) => s.addToCart);
+  // const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
+  // const inWishlist = wishlist.some((p) => p._id === product._id);
 
   const imageSrc = light; // use the imported chair image
 

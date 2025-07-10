@@ -3,14 +3,13 @@ import {
   AiOutlineShoppingCart,
   AiOutlineArrowRight,
   AiOutlineQuestionCircle,
-   AiOutlineHeart,
 } from "react-icons/ai";
 import ProductImage from "../../components/UI/ProductImage";
 
 import { CashOnDelivery } from "../../components/UI/CashOnDelivery";
-import ProductDetailsNavbar from "../../components/Header/ProductDetailsNavbar";
+// import ProductDetailsNavbar from "../../components/Header/ProductDetailsNavbar";
 import RelatedProductCard from "../../components/UI/RelatedProductCard";
-import { NavbarIcons } from "../../components/UI/NavbarIcons";
+//import { NavbarIcons } from "../../components/UI/NavbarIcons";
 import offer from "../../../public/offer.png";
 const relatedProducts = [
   {
