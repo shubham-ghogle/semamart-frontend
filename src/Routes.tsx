@@ -40,7 +40,7 @@ export const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Equipment /> },
+      { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { 
         path: "checkout", 
@@ -61,10 +61,10 @@ export const router = createBrowserRouter([
 
   // Consumables section
   {
-    path: "/consumables",
+    path: "/equipments",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables /> },
+      { index: true, element: <Equipment /> },
       { path: "product", element: <ProductsScreen /> },
       { 
         path: "product/:id", 
