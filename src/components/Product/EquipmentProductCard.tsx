@@ -33,9 +33,9 @@ export default function EquipmentProductCard({
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
   };
 
-  const imageSrc = product.images?.[0]
-    ? `/baseUrl/${product.images[0]}`
-    : "/image60.png";
+  // const imageSrc = product.images?.[0]
+  //   ? `/baseUrl/${product.images[0]}`
+  //   : "/image60.png";
 
   const base = [
     "relative",

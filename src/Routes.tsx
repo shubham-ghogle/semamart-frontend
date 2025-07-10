@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
-import Homepage from "./Screens/Homepage/Homepage";
 // import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
@@ -31,32 +30,92 @@ import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUti
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
 import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
+import Consumables from "./Screens/Consumables/Consumables";
+import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
+import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
 
 export const router = createBrowserRouter([
-    {
+  {
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Homepage /> },
+      { index: true, element: <Equipment /> },
       { path: "product", element: <ProductsScreen /> },
-      {
-        path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
+      { 
+        path: "checkout", 
+        loader: checkoutScreenLoader, 
+        element: <CheckoutScreen /> 
       },
     ],
   },
 
-  // Separate route using ProductLayout only for product details
+  // Product details using a separate layout
   {
     path: "product/:id",
     element: <ProductLayout />,
     children: [
-      {
-        index: true,
-        element: <ProductDetails />,
+      { index: true, element: <ProductDetails /> },
+    ],
+  },
+
+  // Consumables section
+  {
+    path: "/consumables",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Consumables /> },
+      { path: "product", element: <ProductsScreen /> },
+      { 
+        path: "product/:id", 
+        element: <ProductLayout />, 
+        children: [{ index: true, element: <ProductDetails /> }] 
       },
+      { 
+        path: "checkout", 
+        loader: checkoutScreenLoader, 
+        element: <CheckoutScreen /> 
+      },
+    ],
+  },
+
+  // Pharmaceutical section
+  {
+    path: "/pharmaceutical",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Pharmaceutical /> },
+      { path: "product", element: <ProductsScreen /> },
+      { 
+        path: "product/:id", 
+        element: <ProductLayout />, 
+        children: [{ index: true, element: <ProductDetails /> }] 
+      },
+      { 
+        path: "checkout", 
+        loader: checkoutScreenLoader, 
+        element: <CheckoutScreen /> 
+      },
+    ],
+  },
+  {
+    path: "/",
+    element: <RootLayout/>,
+    children: [
+      { index: true, element: <Consumables/> },
+      { path: "product", element: <ProductsScreen /> },
+      { path: "product/:id", element: <ProductDetails /> },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+    ],
+  },
+  {
+    path: "/pharmaceutical",
+    element: <RootLayout/>,
+    children: [
+      { index: true, element: <Pharmaceutical/> },
+      { path: "product", element: <ProductsScreen /> },
+      { path: "product/:id", element: <ProductDetails /> },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
     ],
   },
   // Login routes
