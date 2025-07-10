@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import Homepage from "./Screens/Homepage/Homepage";
 import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
+import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
@@ -30,40 +31,32 @@ import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUti
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
 import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
-import ConsumablesLayout from "./components/Layouts/ConsumablesLayout";
-import Consumables from "./Screens/Consumables/Consumables";
-import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
-import Equipment from "./Screens/Equipment/Equipment";
+import ProductLayout from "./components/Layouts/ProductLayout";
 
 export const router = createBrowserRouter([
-  {
-    path: "/equipments",
+    {
+    path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Equipment/> },
+      { index: true, element: <Homepage /> },
       { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetailsScreen /> },
-      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />,
+      },
     ],
   },
+
+  // Separate route using ProductLayout only for product details
   {
-    path: "/",
-    element: <RootLayout/>,
+    path: "product/:id",
+    element: <ProductLayout />,
     children: [
-      { index: true, element: <Consumables/> },
-      { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetailsScreen /> },
-      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
-    ],
-  },
-  {
-    path: "/pharmaceutical",
-    element: <RootLayout/>,
-    children: [
-      { index: true, element: <Pharmaceutical/> },
-      { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetailsScreen /> },
-      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+      {
+        index: true,
+        element: <ProductDetails />,
+      },
     ],
   },
   // Login routes
