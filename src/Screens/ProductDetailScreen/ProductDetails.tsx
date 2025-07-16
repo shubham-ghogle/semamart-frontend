@@ -104,23 +104,41 @@ export default function ProductCard() {
             >
               {/* Title & Rating */}
               <div>
-                <h2 className="text-2xl font-semibold">Women’s pleated short sleeve scrubs</h2>
-                <div className="flex items-center text-sm text-gray-500 mb-2 gap-2">
+                <h2 className="text-[21.4px] leading-[100%] tracking-[0] font-semibold align-middle font-inter">
+                   Women’s pleated short sleeve scrubs
+                </h2>
+
+                <div className="flex items-center text-sm text-gray-500 mb-2 gap-2 w-50">
                   <div style={{ color: "rgba(251, 149, 115, 1)" }}>★★★★☆</div>
                   <span>(128 reviews)</span>
                 </div>
-                <div className="mt-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="line-through text-gray-400 text-sm">₹790.00</span>
-                      <span className="text-orange-500 text-lg font-bold">₹499.00</span>
-                    </div>
-                    <span className="text-sm text-gray-600">Pack of 100</span>
-                  </div>
-                  <div className="flex justify-end">
-                    <span className="text-sm text-gray-600">@ ₹4.99/piece</span>
-                  </div>
-                </div>
+               <div className="mt-2">
+  {/* Top row: Pack of 100 aligned right */}
+  <div className="flex justify-end">
+    <span className="text-sm text-gray-600">Pack of 100</span>
+  </div>
+
+  {/* Second row: price on left, per piece price on right */}
+  <div className="flex justify-between items-center">
+    <div className="flex items-center gap-2">
+      <span className="line-through text-gray-400 text-sm">₹790.00</span>
+      <span
+        className="text-white px-2 py-1 rounded font-medium text-[24px] leading-[100%]"
+        style={{
+          fontFamily: 'Inter',
+          letterSpacing: '0%',
+          verticalAlign: 'middle',
+          color: '#FB9573',
+        }}
+      >
+        ₹499.00
+      </span>
+    </div>
+    <span className="text-sm text-gray-600">@ ₹4.99/piece</span>
+  </div>
+</div>
+
+
               </div>
 
               {/* Offers */}

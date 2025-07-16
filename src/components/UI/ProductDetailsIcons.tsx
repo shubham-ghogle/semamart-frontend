@@ -8,9 +8,11 @@ export function ProductDetailsIcons({ show = [] }: NavbarIconsProps) {
     { src: "/ProductDetails/med_pro.png"},
     { src: "/ProductDetails/med_fur.png"},
     { src: "/ProductDetails/med_ins.png"},
-    { src: "/material-symbols_stethoscope.svg"},
+    { src: "/equipment.png"},
     { src: "/material-symbols_syringe.svg"},
     { src: "/mdi_capsule.svg"},
+   
+  
   ];
 
   return (

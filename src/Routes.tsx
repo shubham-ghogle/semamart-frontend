@@ -60,24 +60,30 @@ export const router = createBrowserRouter([
   },
 
   // Consumables section
-  {
-    path: "/equipments",
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Equipment /> },
-      { path: "product", element: <ProductsScreen /> },
-      { 
-        path: "product/:id", 
-        element: <ProductLayout />, 
-        children: [{ index: true, element: <ProductDetails /> }] 
-      },
-      { 
-        path: "checkout", 
-        loader: checkoutScreenLoader, 
-        element: <CheckoutScreen /> 
-      },
-    ],
-  },
+{
+  path: "/equipments",
+  element: <RootLayout />,
+  children: [
+    { index: true, element: <Equipment /> },
+    { path: "product", element: <ProductsScreen /> },
+    {
+      path: "product/:id",
+      element: <ProductLayout />,
+      children: [
+        {
+          index: true,
+          element: <ProductDetails />,
+        },
+      ],
+    },
+    {
+      path: "checkout",
+      loader: checkoutScreenLoader,
+      element: <CheckoutScreen />,
+    },
+  ],
+},
+
 
   // Pharmaceutical section
   {
