@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ProductDetailsIcons } from "../UI/ProductDetailsIcons";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [selectedName, setSelectedName] = useState("");
@@ -55,6 +56,14 @@ export default function Navbar() {
     },
   ];
 
+  const navigate = useNavigate();
+  const nameToRoute: Record<string, string> = {
+  Equipment: "/equipments",
+  Pharmaceutical: "/pharmaceutical",
+  Consumables: "/"
+};
+
+
   return (
     <>
       <div className="mx-auto text-center border-t mb-3">
@@ -75,9 +84,18 @@ export default function Navbar() {
               >
               {names.map((name) => (
                 <button
+                
               key={name}
               type="button"
-              onClick={() => setSelectedName(name)}
+              onClick={() => {
+                if (selectedName === name) {
+                  const route = nameToRoute[name];
+                  navigate(route ); 
+                } else {
+                  setSelectedName(name);
+                }
+              }}
+
               className={`flex items-center justify-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 ${
                 selectedName === name
                   ? "text-white"
