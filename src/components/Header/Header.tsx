@@ -62,7 +62,7 @@ export default function Header() {
           <input
             type="text"
             placeholder="Search"
-            className="w-full h-full pl-4 pr-10 text-sm font-poppins font-normal rounded-full text-[#1C647C] placeholder-[#1C647C] bg-white outline-none"
+            className="w-full h-full pl-4 pr-10 text-sm font-poppins font-normal border-2 rounded-full text-[#1C647C] placeholder-[#1C647C] bg-white outline-none"
           />
           <AiOutlineSearch
             size={28}
