@@ -180,12 +180,16 @@ export default function Navbar() {
       </div>
 
       {/* Breadcrumb (Optional static text) */}
-      <span className="text-xs text-gray-400 tracking-wide ml-16">
-        Consumables &gt; Miscellaneous Products &gt;{" "}
-        <span className="font-semibold text-gray-600">
-          Medical Furniture
+      {selectedName && (
+        <span className="text-xs text-gray-400 tracking-wide ml-16">
+          {selectedName} &gt; Miscellaneous Products &gt;{" "}
+          <span className="font-semibold text-gray-600">
+            Medical Furniture
+          </span>
         </span>
-      </span>
+      )}
+
+
     </>
   );
 }

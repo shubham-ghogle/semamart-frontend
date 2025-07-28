@@ -13,8 +13,10 @@ import offer from "../../../public/offer.png";
 import RelatedProducts from "../../components/UI/RelatedProductCard";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
+import ProductImage from "../../components/UI/ProductImage";
 
 export default function ProductCard() {
+  
   const { id } = useParams();
   const {
     data: product,
@@ -24,7 +26,7 @@ export default function ProductCard() {
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
   });
-
+  const images = product?.images || [];
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
 
@@ -87,21 +89,12 @@ export default function ProductCard() {
     <div className="max-w-6xl mx-auto font-sans mt-5">
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Image */}
-        <div className="w-full lg:w-[40%] space-y-4">
-          <div className="aspect-square rounded flex items-center justify-center">
-            <div className="aspect-w-1 aspect-h-1 w-full max-w-xs">
-              {product?.images?.[0] ? (
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
-                  No Image Available
-                </div>
-              )}
-            </div>
+       
+          <div className="w-full lg:w-[40%] space-y-4">
+          {/* Product Image Placeholder */}
+          <div className=" aspect-square rounded flex items-center justify-center">
+            
+            <ProductImage images={images} />
           </div>
         </div>
 
@@ -259,7 +252,7 @@ export default function ProductCard() {
                   className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-1 text-black"
                   style={{ border: "1px solid #1C647C" }}
                 >
-                  {inWishlist ? "Remove from Wishlist" : "Add to Wish List"}
+                  {inWishlist ? "Remove Wishlist" : "Add to Wish List"}
                 </button>
               </div>
 
