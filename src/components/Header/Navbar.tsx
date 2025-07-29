@@ -105,7 +105,7 @@ export default function Navbar() {
               {/* dropdown icon stays static gray */}
               <NavbarIcons show={[cat.iconIdx]} color="#3B3B3B" />
             </div>
-            <select className="pl-10 pr-4 py-2 outline-none text-gray-700">
+            <select className="pl-10 pr-4 py-2 outline-hidden text-gray-700">
               <option disabled selected>
                 {cat.label}
               </option>

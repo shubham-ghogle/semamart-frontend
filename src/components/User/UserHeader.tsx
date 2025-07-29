@@ -5,7 +5,7 @@ export default function UserHeader() {
   const user = useUserStore((state) => state.user);
 
   return (
-    <header className="w-full bg-white shadow sticky top-0 left-0 z-30  px-4">
+    <header className="w-full bg-white shadow-sm sticky top-0 left-0 z-30  px-4">
       <div className="container mx-auto h-[80px]  flex items-center justify-between">
         <div>
           <Link to="/">

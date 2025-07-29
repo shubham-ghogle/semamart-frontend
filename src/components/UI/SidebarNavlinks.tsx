@@ -19,8 +19,8 @@ export default function SidebarNavlinks({
         to={to}
         end={end}
         className={({ isActive }) =>
-          (isActive ? "bg-accentYellow text-white" : "bg-white text-darkBlue") +
-          " p-2 rounded transition-all w-full flex items-center gap-2"
+          (isActive ? "bg-accent-yellow text-white" : "bg-white text-dark-blue") +
+          " p-2 rounded-sm transition-all w-full flex items-center gap-2"
         }
       >
         <span className="text-2xl">{icon}</span>

@@ -65,7 +65,7 @@ export default function AdminProductScren() {
                     {pro.productStatus === "offline" && (
                       <button
                         onClick={() => mutateProduct({ proId: pro._id })}
-                        className="bg-green-500 py-1 px-2 rounded-sm text-white text-sm disabled:bg-gray-700"
+                        className="bg-green-500 py-1 px-2 rounded-xs text-white text-sm disabled:bg-gray-700"
                         disabled={proVerifyStatus === "pending"}
                       >
                         {proVerifyStatus === "pending" ? "Wait..." : "Verify"}

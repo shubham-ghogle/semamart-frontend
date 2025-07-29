@@ -108,7 +108,7 @@ export default function SellerRegisterScreen() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-customBlue to-customGreen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-linear-to-b from-custom-blue to-custom-green flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md ">
           <Link to="/">
             <img
@@ -123,8 +123,8 @@ export default function SellerRegisterScreen() {
             Seller Registration
           </h2>
         </div>
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[35rem] ">
-          <div className="bg-white bg-opacity-30 py-8 px-4 shadow sm:rounded-3xl sm:px-10">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-140 ">
+          <div className="bg-white bg-opacity-30 py-8 px-4 shadow-sm sm:rounded-3xl sm:px-10">
             <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Shop Name */}
               <div>
@@ -141,7 +141,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -159,7 +159,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.businessName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -215,7 +215,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.gstNumber}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -236,7 +236,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.phoneNumber}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -257,7 +257,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.businessType}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
                   >
                     <option value="" disabled>
                       Select an option
@@ -308,7 +308,7 @@ export default function SellerRegisterScreen() {
                   </span>
                   <label
                     htmlFor="file-input"
-                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 "
+                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 "
                   >
                     {/* <span>Upload</span> */}
                     <input
@@ -343,7 +343,7 @@ export default function SellerRegisterScreen() {
                   </span>
                   <label
                     htmlFor="file-input"
-                    className="ml-5 flex items-center justify-center px-4 py-2   rounded-md shadow-sm text-sm font-medium text-gray-700 "
+                    className="ml-5 flex items-center justify-center px-4 py-2   rounded-md shadow-xs text-sm font-medium text-gray-700 "
                   >
                     {/* <span>Upload</span> */}
                     <input
@@ -372,7 +372,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.password}
                     onChange={handlePasswordChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                   {visible ? (
                     <AiOutlineEye
@@ -412,7 +412,7 @@ export default function SellerRegisterScreen() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                   {visible ? (
                     <AiOutlineEye
@@ -434,7 +434,7 @@ export default function SellerRegisterScreen() {
                   type="checkbox"
                   id="checkbox"
                   name="checkbox"
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
                   onChange={() => {
                     setCheck((prev) => !prev);
                   }}
@@ -451,7 +451,7 @@ export default function SellerRegisterScreen() {
               <div>
                 <button
                   type="submit"
-                  className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accentYellow text-black shadow-md disabled:bg-gray-400"
+                  className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accent-yellow text-black shadow-md disabled:bg-gray-400"
                   disabled={regStatus === "pending"}
                 >
                   {regStatus === "pending" ? (

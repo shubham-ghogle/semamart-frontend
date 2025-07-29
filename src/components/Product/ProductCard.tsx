@@ -32,7 +32,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
     : "/image60.png";
 
   return (
-    <article className="relative border rounded-xl bg-white shadow-sm transition hover:shadow-md overflow-hidden flex p-3 w-[215px] h-[350px] flex-col">
+    <article className="relative border rounded-xl bg-white shadow-xs transition hover:shadow-md overflow-hidden flex p-3 w-[215px] h-[350px] flex-col">
       {discountPct > 0 && (
         <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
           -{discountPct}%

@@ -17,10 +17,10 @@ export function DashboardCard({
   heading,
 }: DashboardCardProps) {
   return (
-    <article className="w-full mb-4 800px:w-[30%] min-h-[20vh] bg-white shadow rounded px-2 pt-5">
+    <article className="w-full mb-4 800px:w-[30%] min-h-[20vh] bg-white shadow-sm rounded-sm px-2 pt-5">
       <div className="flex items-center gap-3">
         {icon}
-        <h3 className="text-lg font-[400] text-darkGray">
+        <h3 className="text-lg font-normal text-dark-gray">
           {heading}
         </h3>
       </div>

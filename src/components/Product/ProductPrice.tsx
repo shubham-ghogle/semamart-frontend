@@ -16,7 +16,7 @@ export default function ProductPrice({ product }: ProductPriceProps) {
         </p>
       )}
       <section className="font-Roboto text-slate-700 flex gap-4">
-        <p className="mt-1 text-sm text-darkBlue font-semibold">
+        <p className="mt-1 text-sm text-dark-blue font-semibold">
           Discounted Price:{" "}
         </p>
         <article className="">

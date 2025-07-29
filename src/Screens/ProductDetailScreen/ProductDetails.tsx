@@ -92,7 +92,7 @@ export default function ProductCard() {
        
           <div className="w-full lg:w-[40%] space-y-4">
           {/* Product Image Placeholder */}
-          <div className=" aspect-square rounded flex items-center justify-center">
+          <div className=" aspect-square rounded-sm flex items-center justify-center">
             
             <ProductImage images={images} />
           </div>
@@ -102,7 +102,7 @@ export default function ProductCard() {
         <div className="w-full lg:w-[60%] space-y-6">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Product Info */}
-            <div className="w-full lg:w-1/2 bg-white rounded p-4 overflow-y-auto space-y-6" style={{ height: "534px" }}>
+            <div className="w-full lg:w-1/2 bg-white rounded-sm p-4 overflow-y-auto space-y-6" style={{ height: "534px" }}>
               <div>
                 <h2 className="text-[21.4px] font-semibold font-inter">{product.name}</h2>
                 <div className="flex items-center text-sm text-gray-500 mb-2 gap-2">
@@ -122,7 +122,7 @@ export default function ProductCard() {
                           ₹{product.originalPrice}
                         </span>
                       )}
-                      <span className="text-white px-2 py-1 rounded font-medium text-[24px]" style={{ color: "#FB9573" }}>
+                      <span className="text-white px-2 py-1 rounded-sm font-medium text-[24px]" style={{ color: "#FB9573" }}>
                         ₹{product.discountPrice}
                       </span>
                     </div>
@@ -179,14 +179,14 @@ export default function ProductCard() {
             </div>
 
             {/* Purchase Panel */}
-            <div className="w-full lg:w-1/2 bg-gray-50 p-3 rounded shadow-md space-y-4 overflow-y-auto" style={{ height: "537px" }}>
+            <div className="w-full lg:w-1/2 bg-gray-50 p-3 rounded-sm shadow-md space-y-4 overflow-y-auto" style={{ height: "537px" }}>
               <div>
                 <label className="text-sm font-medium">Delivery</label>
                 <div className="flex items-center mt-1">
                   <input
                     type="text"
                     placeholder="Pin Code"
-                    className="flex-grow border-0 border-b border-gray-400 focus:border-black focus:outline-none py-1 mr-4"
+                    className="grow border-0 border-b border-gray-400 focus:border-black focus:outline-hidden py-1 mr-4"
                   />
                   <button className="text-blue-500">Check</button>
                 </div>
@@ -267,7 +267,7 @@ export default function ProductCard() {
 
           {/* Bottom Sections */}
           <div className="space-y-6">
-            <select className="w-full px-4 py-2 border rounded text-gray-700 text-base mt-2">
+            <select className="w-full px-4 py-2 border rounded-sm text-gray-700 text-base mt-2">
               <option value="product-description">Product Description</option>
             </select>
 
@@ -317,7 +317,7 @@ export default function ProductCard() {
 
       {/* Related Products */}
       <div className="space-y-6 mt-6">
-        <hr className="border-t-1 border-gray-400" />
+        <hr className="border-t border-gray-400" />
         <h1 className="font-medium text-[17.6px] mt-6 ml-2">Related Products</h1>
         <div className="flex flex-wrap justify-around mt-8">
           {product && (

@@ -75,7 +75,7 @@ export default function LoginForm() {
                 placeholder="Please enter valid email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function LoginForm() {
                 placeholder="Please enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
               {visible ? (
                 <AiOutlineEye
@@ -148,7 +148,7 @@ export default function LoginForm() {
               type="checkbox"
               name="remember-me"
               id="remember-me"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-sm"
             />
             <label
               htmlFor="remember-me"
@@ -160,14 +160,14 @@ export default function LoginForm() {
           <div>
             <button
               type="submit"
-              className="relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accentYellow hover:bg-accentBlue"
+              className="relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent-yellow hover:bg-accent-blue"
             >
               Submit
             </button>
             <div className="text-sm mt-2">
               <a
                 href=".forgot-password"
-                className="font-medium text-darkBlue hover:text-blue-500"
+                className="font-medium text-dark-blue hover:text-blue-500"
               >
                 Forgot your password?
               </a>
@@ -176,7 +176,7 @@ export default function LoginForm() {
 
           <div className="flex items-center">
             <h4>Not have any account</h4>
-            <Link to="/signup" className="text-darkBlue pl-2">
+            <Link to="/signup" className="text-dark-blue pl-2">
               Sign Up
             </Link>
           </div>

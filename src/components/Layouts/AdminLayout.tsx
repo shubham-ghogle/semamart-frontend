@@ -6,10 +6,10 @@ export default function AdminLayout() {
   return (
     <>
       <AdminHeader />
-      <section className="bg-bgGray">
+      <section className="bg-bg-gray">
         <div className="container mx-auto grid grid-cols-[250px_1fr] min-h-[calc(100vh-80px)]">
           <AdminNavbar />
-          <main className="bg-bgGray">
+          <main className="bg-bg-gray">
             <Outlet />
           </main>
         </div>

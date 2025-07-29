@@ -15,7 +15,7 @@ export default function AdminMainWrapper({
 }: MainWrapperParams) {
   return (
     <article className="h-full p-4">
-      <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
+      <h1 className="text-center text-3xl mb-8 text-dark-blue font-bold">
         {heading}
       </h1>
       {status === "pending" && <LoaderUi title="Loading..." />}

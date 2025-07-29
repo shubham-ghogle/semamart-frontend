@@ -19,13 +19,13 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
   ];
 
   return (
-    <div className="bg-lightBlue px-3 md:px-10 py-2 rounded">
+    <div className="bg-light-blue px-3 md:px-10 py-2 rounded-sm">
       <article className="w-full flex justify-between border-b pt-5 pb-2">
         {tabHeadings.map((el, i) => (
           <h5
             key={i}
             className={
-              "text-darkBlue font-semibold text-lg md:text-xl hover:cursor-pointer " +
+              "text-dark-blue font-semibold text-lg md:text-xl hover:cursor-pointer " +
               (activeTab === i + 1 && "underline underline-offset-8")
             }
             onClick={() => setActiveTab(i + 1)}
@@ -65,7 +65,7 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
       }
       {activeTab === 2 &&
         <div className="w-full min-h-[40vh] py-3 pt-6">
-          <p className="font-Poppins text-lg text-darkGray">
+          <p className="font-Poppins text-lg text-dark-gray">
             {product.description}
           </p>
         </div>
@@ -92,9 +92,9 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
             </Link>
           </div>
           <div className="w-full">
-            <h5 className="font-[600]">
+            <h5 className="font-semibold">
               Joined on:{" "}
-              <span className="font-[500]">
+              <span className="font-medium">
                 {product.shopId?.createdAt?.slice(0, 10)}
               </span>
             </h5>
@@ -120,7 +120,7 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
             ))
           ) :
             (
-              <p className="text-darkGray text-center text-lg">No reviews</p>
+              <p className="text-dark-gray text-center text-lg">No reviews</p>
             )}
         </div>
       )

@@ -6,7 +6,7 @@ export default function OrderDetailsField({ label, value }: OrderDetailsFieldPro
   return (
     <article className="flex items-center gap-1">
       <h5 className="">{label}</h5>
-      <p className="text-darkGray">{value}</p>
+      <p className="text-dark-gray">{value}</p>
     </article>
   )
 }

@@ -289,7 +289,7 @@ export default function ProductDetailsForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-3xl mx-auto bg-white p-6 rounded-md drop-shadow"
+      className="max-w-3xl mx-auto bg-white p-6 rounded-md drop-shadow-sm"
     >
       <Input
         disabled={mode === "views"}
@@ -494,7 +494,7 @@ export default function ProductDetailsForm({
               />
               <button
                 type="button"
-                className="p-1 text-sm bg-accentBlue rounded text-white"
+                className="p-1 text-sm bg-accent-blue rounded-sm text-white"
                 onClick={addAttribute}
                 disabled={mode === "views"}
               >
@@ -928,7 +928,7 @@ export default function ProductDetailsForm({
         <div className="mt-6">
           <button
             type="submit"
-            className="block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             Submit
           </button>

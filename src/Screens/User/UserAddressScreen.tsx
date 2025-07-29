@@ -35,8 +35,8 @@ export default function UserAddressScreen() {
               onClick={() => setISFormOpen(true)}
             >
               <article>
-                <IoAdd size={100} className="text-darkGray" />
-                <p className="text-center text-darkGray">Add</p>
+                <IoAdd size={100} className="text-dark-gray" />
+                <p className="text-center text-dark-gray">Add</p>
               </article>
             </button>
             {user && user.addresses.map((address, i) => (

@@ -23,7 +23,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
 
   return (
     <>
-      <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded drop-shadow">
+      <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
         <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
           <OrderDetailsField label="Order ID:" value={data?._id} />
           <OrderDetailsField label="Placed on:" value={formatDate(data?.createdAt)} />
@@ -41,7 +41,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
                   />
                   <div className="w-full">
                     <h5 className="pl-3 text-lg">{item.product.name}</h5>
-                    <h5 className="pl-3 text-lg text-darkGray">
+                    <h5 className="pl-3 text-lg text-dark-gray">
                       US${item.qty} x {item.product.discountPrice}
                     </h5>
                   </div>
@@ -49,7 +49,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
                 </section>
                 {data.status === "Delivered" && !item.isReviewed && (
                   <div className="mr-4">
-                    <button onClick={() => handleAddReview(item.product._id)} className="bg-accentYellow text-white text-sm rounded-md p-1">Add Review</button>
+                    <button onClick={() => handleAddReview(item.product._id)} className="bg-accent-yellow text-white text-sm rounded-md p-1">Add Review</button>
                   </div>
                 )}
               </article>
@@ -74,8 +74,8 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
           </div>
         </section>
         <section className="flex justify-between items-center my-4">
-          <h4 className="pt-3 text-[20px] font-[600]">Order Status:</h4>
-          <h4 className="pt-3 text-[20px] font-[600]">{data?.status}</h4>
+          <h4 className="pt-3 text-[20px] font-semibold">Order Status:</h4>
+          <h4 className="pt-3 text-[20px] font-semibold">{data?.status}</h4>
         </section>
       </div>
       {isReviewModalOpen && <ReviewModal onCloseModal={closeReviewModal} productId={reviewingProdutId} orderId={data._id} />}

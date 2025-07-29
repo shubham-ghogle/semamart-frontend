@@ -99,7 +99,7 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-customBlue to-customGreen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-b from-custom-blue to-custom-green flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md ">
         <Link to="/">
           <img
@@ -114,8 +114,8 @@ function Signup() {
           <span>Customer Signup</span>
         </h2>
       </div>
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[35rem] ">
-        <div className="bg-white bg-opacity-30 py-8 px-4 shadow sm:rounded-3xl sm:px-10">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-140 ">
+        <div className="bg-white bg-opacity-30 py-8 px-4 shadow-sm sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Shop Name */}
             <div>
@@ -133,7 +133,7 @@ function Signup() {
                   placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -152,7 +152,7 @@ function Signup() {
                   placeholder="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -173,7 +173,7 @@ function Signup() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder="Phone Number"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -193,7 +193,7 @@ function Signup() {
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ function Signup() {
                   placeholder="Institute Name"
                   value={formData.instituteName}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -233,7 +233,7 @@ function Signup() {
                   placeholder="Address line 1"
                   value={formData.instituteAddress1}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 <input
                   type="text"
@@ -242,7 +242,7 @@ function Signup() {
                   placeholder="Address line 2"
                   value={formData.instituteAddress2}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border mt-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border mt-2 border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -262,7 +262,7 @@ function Signup() {
                   placeholder="Landmark"
                   value={formData.landmark}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -281,7 +281,7 @@ function Signup() {
                   placeholder="⁠Pincode"
                   value={formData.pincode}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -299,7 +299,7 @@ function Signup() {
                   placeholder="District"
                   value={formData.district}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ function Signup() {
                   placeholder="⁠State"
                   value={formData.state}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -339,7 +339,7 @@ function Signup() {
                   placeholder="Password"
                   value={formData.password}
                   onChange={handlePasswordChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 {visible ? (
                   <AiOutlineEye
@@ -380,7 +380,7 @@ function Signup() {
                   placeholder="Confirm Password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 {visible ? (
                   <AiOutlineEye
@@ -402,7 +402,7 @@ function Signup() {
                 type="checkbox"
                 id="checkbox"
                 name="checkbox"
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
                 onChange={() => {
                   setCheck((prev) => !prev);
                 }}
@@ -416,7 +416,7 @@ function Signup() {
             <div>
               <button
                 type="submit"
-                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl  bg-accentYellow text-black shadow-sm"
+                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl  bg-accent-yellow text-black shadow-xs"
                 disabled={regiStatus === "pending"}
               >
                 {regiStatus === "pending" ? (

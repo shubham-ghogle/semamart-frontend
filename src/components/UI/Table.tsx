@@ -20,7 +20,7 @@ export function TableHeader({ headers }: HeaderParams) {
     <thead>
       <tr>
         {headers.map((el) => (
-          <th key={el} align="left" className="p-2 text-darkBlue text-lg">
+          <th key={el} align="left" className="p-2 text-dark-blue text-lg">
             {el}
           </th>
         ))}
@@ -48,8 +48,8 @@ type ProductDetailsRowsProps = {
 export function ProductDetailsRows({ label, value }: ProductDetailsRowsProps) {
   return (
     <tr>
-      <td className="p-2 font-semibold border border-darkBlue text-gray-800">{label}: </td>
-      <td className="p-2 border border-darkBlue text-dark-700">{value}</td>
+      <td className="p-2 font-semibold border border-dark-blue text-gray-800">{label}: </td>
+      <td className="p-2 border border-dark-blue text-dark-700">{value}</td>
     </tr>
   );
 }

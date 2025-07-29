@@ -30,7 +30,7 @@ const AdminDashboard = () => {
           {stockData.map((item, index) => (
             <button
               key={index}
-              className="bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col items-center w-40"
+              className="bg-gray-100 p-4 rounded-lg shadow-xs flex flex-col items-center w-40"
             >
               {item.icon}
               <span className="text-xl font-semibold text-gray-600">

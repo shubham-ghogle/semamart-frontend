@@ -66,7 +66,7 @@ export default function SellerDashboard() {
             />
           </section>
           <section className="mt-16">
-            <h2 className="text-center text-2xl mb-2 text-darkBlue font-semibold">Recent Orders</h2>
+            <h2 className="text-center text-2xl mb-2 text-dark-blue font-semibold">Recent Orders</h2>
             <SellerOrderTable orders={orders} />
             {/* TODO Splices for only recent orders */}
           </section>

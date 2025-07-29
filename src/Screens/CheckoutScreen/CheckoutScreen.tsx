@@ -62,7 +62,7 @@ export default function CheckoutScreen() {
               />
               <div className="w-full">
                 <h5 className="pl-3 text-lg">{item.product.name}</h5>
-                <h5 className="pl-3 text-lg text-darkGray">
+                <h5 className="pl-3 text-lg text-dark-gray">
                   US${item.qty} x {item.product.discountPrice}
                 </h5>
               </div>
@@ -76,7 +76,7 @@ export default function CheckoutScreen() {
           {user && (
             user.addresses?.map((el, i) => (
               <article key={i}
-                className={"border-accentYellow rounded-lg cursor-pointer " + (selectedAddressIndex === i ? "border" : " ")}
+                className={"border-accent-yellow rounded-lg cursor-pointer " + (selectedAddressIndex === i ? "border" : " ")}
                 onClick={() => setSelectedAddressIndex(i)}
               >
                 <AddressCard address={el} name={user.firstName + " " + user.lastName} />
@@ -87,7 +87,7 @@ export default function CheckoutScreen() {
       <section className="flex justify-end">
         <button
           onClick={orderHnadler}
-          className="text-center py-2 px-4 bg-red-500 rounded text-white text-2xl mt-28 disabled:bg-gray-700"
+          className="text-center py-2 px-4 bg-red-500 rounded-sm text-white text-2xl mt-28 disabled:bg-gray-700"
           disabled={selectedAddressIndex === null}
         >
           {selectedAddressIndex !== null ? "order" : "please select address"}

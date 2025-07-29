@@ -59,7 +59,7 @@ export default function AdminRequestTable({
             <td className="p-4  text-slate-800 text-center">
               {el.verified ? (
                 <button
-                  className="bg-green-600 rounded text-sm text-white py-2 px-5"
+                  className="bg-green-600 rounded-sm text-sm text-white py-2 px-5"
                   disabled
                 >
                   Verified
@@ -67,7 +67,7 @@ export default function AdminRequestTable({
               ) : (
                 <article className="flex justify-center">
                   <button
-                    className="bg-accentBlue rounded text-sm text-white py-2 px-5 disabled:bg-gray-800"
+                    className="bg-accent-blue rounded-sm text-sm text-white py-2 px-5 disabled:bg-gray-800"
                     onClick={() => clickHandler(el._id)}
                     disabled={sellerId === el._id}
                   >

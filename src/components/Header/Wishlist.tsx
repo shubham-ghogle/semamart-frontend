@@ -11,8 +11,8 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
   const wishlist = useWishlistStore(state => state.wishlist)
 
   return (
-    <article className="fixed top-0 left-0 w-screen bg-black/60 h-screen z-[1000]">
-      <div className="fixed top-0 right-0 h-full w-full max-w-lg bg-white flex flex-col overflow-y-auto justify-between shadow-sm px-3">
+    <article className="fixed top-0 left-0 w-screen bg-black/60 h-screen z-1000">
+      <div className="fixed top-0 right-0 h-full w-full max-w-lg bg-white flex flex-col overflow-y-auto justify-between shadow-xs px-3">
         {wishlist && wishlist.length == 0 ? (
           <div className="w-full h-screen flex items-center justify-center">
             <div className="flex w-full justify-end pt-5 pr-5 fixed top-3 right-3">
@@ -37,7 +37,7 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
               {/* item length */}
               <div className="flex gap-2 mt-2">
                 <IoBagHandleOutline size={25} />
-                <h5 className="pl-2 text-[20px] font-[500]">
+                <h5 className="pl-2 text-[20px] font-medium">
                   {wishlist && wishlist.length} item
                 </h5>
               </div>
@@ -84,11 +84,11 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
           <section className="pl-[15px]">
             <h1>{data.name}</h1>
-            <h4 className="font-[400] text-[15px] text-[#00000082]">
+            <h4 className="font-normal text-[15px] text-[#00000082]">
               ₹{data.discountPrice}
               {/* * {data.qty} */}
             </h4>
-            {/* <h4 className="font-[400] text-[17px] pt-[3px]  text-[#d02222] font-Roboto "> */}
+            {/* <h4 className="font-normal text-[17px] pt-[3px]  text-[#d02222] font-Roboto "> */}
             {/*   {totalPrice} */}
             {/* </h4> */}
           </section>

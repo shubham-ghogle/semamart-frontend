@@ -113,7 +113,7 @@ const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
           <input
             type="text"
             placeholder="Search"
-            className="w-full h-full pl-4 pr-10 text-sm rounded-full text-[#1C647C] bg-white outline-none"
+            className="w-full h-full pl-4 pr-10 text-sm rounded-full text-[#1C647C] bg-white outline-hidden"
           />
           <AiOutlineSearch size={28} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1C647C]" />
         </div>
@@ -190,7 +190,7 @@ const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
                 <div className="absolute top-1/2 left-3 -translate-y-1/2 text-white">
                   {cat.icon}
                 </div>
-                <select className="w-full pl-10 pr-4 py-2 text-white rounded bg-[#1C647C] outline-none">
+                <select className="w-full pl-10 pr-4 py-2 text-white rounded-sm bg-[#1C647C] outline-hidden">
                   <option value="" disabled>{cat.label}</option>
                   {cat.options.map((opt) => (
                     <option key={opt} className="text-black bg-white">{opt}</option>
@@ -226,7 +226,7 @@ const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
             {offers.map((offer) => (
               <div
                 key={offer.title}
-                className="border rounded p-2 text-sm cursor-pointer"
+                className="border rounded-sm p-2 text-sm cursor-pointer"
                 onClick={() => setSelectedOffer(offer)}
               >
                 <strong>{offer.title}</strong>

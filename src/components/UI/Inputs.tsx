@@ -11,7 +11,7 @@ export default function Input({ label, ...inputProps }: InputProps) {
       {label && (
         <label
           htmlFor={label}
-          className="block text-darkGray font-medium text-sm mb-1"
+          className="block text-dark-gray font-medium text-sm mb-1"
         >
           {label}
         </label>
@@ -19,7 +19,7 @@ export default function Input({ label, ...inputProps }: InputProps) {
       <input
         {...inputProps}
         id={label}
-        className="w-full px-2 py-1 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+        className="w-full px-2 py-1 border border-dark-gray rounded-lg focus:outline-hidden focus:ring-2 focus:ring-custom-blue"
       />
     </article>
   );
@@ -47,7 +47,7 @@ export function InputChips({
     <article className="mb-2">
       <label
         htmlFor={label}
-        className="block text-darkGray font-medium text-sm mb-1"
+        className="block text-dark-gray font-medium text-sm mb-1"
       >
         {label}
       </label>
@@ -55,7 +55,7 @@ export function InputChips({
         {values?.length > 0 &&
           values.map((el, i) => (
             <span
-              className="p-1 bg-bgGray rounded-sm flex items-center justify-between gap-1"
+              className="p-1 bg-bg-gray rounded-xs flex items-center justify-between gap-1"
               key={i}
             >
               {el}
@@ -67,11 +67,11 @@ export function InputChips({
         <input
           {...inputProps}
           id={label}
-          className="w-full px-2 py-1 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+          className="w-full px-2 py-1 border border-dark-gray rounded-lg focus:outline-hidden focus:ring-2 focus:ring-custom-blue"
           disabled={disabled}
         />
         <button
-          className="py-1 px-2 bg-accentBlue rounded-sm text-white text-sm"
+          className="py-1 px-2 bg-accent-blue rounded-xs text-white text-sm"
           onClick={onAddChip}
           type="button"
           disabled={disabled}
@@ -92,13 +92,13 @@ export function Textarea({ label, ...inputProps }: TextareaProps) {
     <article className="mb-2">
       <label
         htmlFor={label}
-        className="block text-darkGray font-medium text-sm mb-1"
+        className="block text-dark-gray font-medium text-sm mb-1"
       >
         {label}
       </label>
       <textarea
         {...inputProps}
-        className="w-full px-2 py-1 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+        className="w-full px-2 py-1 border border-dark-gray rounded-lg focus:outline-hidden focus:ring-2 focus:ring-custom-blue"
       />
     </article>
   );
@@ -114,14 +114,14 @@ export function SelectInput({ options, label, ...inputProps }: SelectInputProps)
     <article className="mb-2">
       <label
         htmlFor={label}
-        className="block text-darkGray font-medium text-sm mb-1"
+        className="block text-dark-gray font-medium text-sm mb-1"
       >
         {label}
       </label>
       <select
         {...inputProps}
         id={label}
-        className="w-full bg-white px-2 py-1.5 border border-darkGray rounded-lg focus:outline-none focus:ring-2 focus:ring-customBlue"
+        className="w-full bg-white px-2 py-1.5 border border-dark-gray rounded-lg focus:outline-hidden focus:ring-2 focus:ring-custom-blue"
       >
         {options && options.map((option) => (
           <option key={option} value={option}>
@@ -140,11 +140,11 @@ export function InputCheckbox({ label, ...inputProps }: InputProps) {
         {...inputProps}
         id={label}
         type="checkbox"
-        className="focus:outline-none focus:ring-2 focus:ring-customBlue"
+        className="focus:outline-hidden focus:ring-2 focus:ring-custom-blue"
       />
       <label
         htmlFor={label}
-        className="block text-darkGray font-medium text-sm"
+        className="block text-dark-gray font-medium text-sm"
       >
         {label}
       </label>

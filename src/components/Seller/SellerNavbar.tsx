@@ -6,7 +6,7 @@ import { CiDeliveryTruck } from "react-icons/ci";
 
 export default function SellerNavbar() {
   return (
-    <nav className="w-full px-6 pt-6 drop-shadow bg-white">
+    <nav className="w-full px-6 pt-6 drop-shadow-sm bg-white">
       <ul className="flex flex-col gap-4 w-full">
         <SidebarNavlinks
           icon={<RxDashboard />}

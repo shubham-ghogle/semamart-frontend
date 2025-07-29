@@ -7,13 +7,13 @@ export function sellerRegisterSuccessToast() {
       <h2 className="text-2xl font-semibold text-green-600">
         Account Registered
       </h2>
-      <p className="text-darkGray mt-2 mb-4">
+      <p className="text-dark-gray mt-2 mb-4">
         Once the account is verified by the admin you can use your account as a
         seller
       </p>
       <button
         onClick={() => redirect("/")}
-        className="border-accentBlue border hover:bg-green-700 px-2 py-1 rounded text-accentBlue hover:text-bgGray hover:border-green-700"
+        className="border-accent-blue border hover:bg-green-700 px-2 py-1 rounded-sm text-accent-blue hover:text-bg-gray hover:border-green-700"
       >
         Go back Home
       </button>
@@ -39,11 +39,11 @@ export function registerFailureToast(
       <h2 className="text-2xl font-semibold text-red-700 mb-2">
         Error occurred!
       </h2>
-      <p className="text-darkGray mt-2 mb-4">{err}</p>
+      <p className="text-dark-gray mt-2 mb-4">{err}</p>
       {showHomeBtn && (
         <button
           onClick={() => redirect("/")}
-          className="bg-accentBlue hover:bg-red-600 px-2 py-1 rounded text-bgGray"
+          className="bg-accent-blue hover:bg-red-600 px-2 py-1 rounded-sm text-bg-gray"
         >
           Go back Home
         </button>
@@ -74,7 +74,7 @@ export function userRegisterSuccessToast() {
       <h2 className="text-2xl font-semibold text-green-600">
         Account Registered
       </h2>
-      <p className="text-darkGray mt-2 mb-4">
+      <p className="text-dark-gray mt-2 mb-4">
         Please verify your account using the link sent to your email.
       </p>
     </div>,

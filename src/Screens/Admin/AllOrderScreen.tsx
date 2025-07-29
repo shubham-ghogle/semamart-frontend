@@ -80,7 +80,7 @@ const OrderManagement: React.FC = () => {
 
   return (
     <div className="p-4">
-       <h1 className="text-center text-3xl mb-8 text-darkBlue font-bold">
+       <h1 className="text-center text-3xl mb-8 text-dark-blue font-bold">
         ALL Orders
       </h1>
       <span className="text-xs text-gray-700">All (8) | Pending payment (0) | Processing (3) | On hold (0) | Completed (1) | Cancelled (2) | Refunded (0) | Failed (2) | On Pre Ordered (0)</span>

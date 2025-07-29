@@ -38,7 +38,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   };
 
   return (
-    <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded drop-shadow">
+    <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
         <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField label="Placed on:" value={formatDate(data?.createdAt)} />
@@ -55,7 +55,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               />
               <div className="w-full">
                 <h5 className="pl-3 text-lg">{item.product.name}</h5>
-                <h5 className="pl-3 text-lg text-darkGray">
+                <h5 className="pl-3 text-lg text-dark-gray">
                   US${item.qty} x {item.product.discountPrice}
                 </h5>
               </div>
@@ -72,7 +72,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         </div>
       </section>
       <section className="flex justify-between mt-4">
-        <h4 className="pt-3 text-[20px] font-[600]">Order Status:</h4>
+        <h4 className="pt-3 text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
           <div>
             <article>
@@ -90,7 +90,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               </select>
             </article>
             <button
-              className="px-3 py-2 bg-accentYellow rounded mt-4 w-full shadow-md"
+              className="px-3 py-2 bg-accent-yellow rounded-sm mt-4 w-full shadow-md"
               onClick={async () => (await mutateOrder({ status, currentStatus: data?.status || "", orderId: orderId || "" }))}
               disabled={mutationStatus === "pending"}
             >

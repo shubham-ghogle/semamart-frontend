@@ -42,7 +42,7 @@ export default function EquipmentProductCard({
     "border",
     "rounded-xl",
     "bg-white",
-    "shadow-sm",
+    "shadow-xs",
     "transition hover:shadow-md",
     "overflow-hidden",
     "flex",
@@ -57,7 +57,7 @@ export default function EquipmentProductCard({
   const rootClass = [...base, sizeMap[variant]].join(" ");
 
  const renderWishlistIcon = () => (
-  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200">
+  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow-xs border border-gray-200">
     <span
       className="w-4 h-4 inline-block transition duration-200"
       style={{

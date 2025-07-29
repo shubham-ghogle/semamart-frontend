@@ -16,7 +16,7 @@ export default function ProductMedia({ product }: ProductMediaProp) {
             key={i}
             onClick={() => setSelectedMedia(i)}
             className={
-              (selectedMedia === i ? "border-darkBlue border-2" : "border") +
+              (selectedMedia === i ? "border-dark-blue border-2" : "border") +
               " hover:cursor-pointer"
             }
           >
@@ -27,7 +27,7 @@ export default function ProductMedia({ product }: ProductMediaProp) {
           <li
             className={
               "aspect-square flex items-center " +
-              (selectedMedia === "vid" ? "border-2 border-darkBlue" : "border")
+              (selectedMedia === "vid" ? "border-2 border-dark-blue" : "border")
             }
             onClick={() => setSelectedMedia("vid")}
           >

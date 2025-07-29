@@ -107,7 +107,7 @@ export default function Navbar() {
                   const route = nameToRoute[name];
                   navigate(route);
                 }}
-                className={`flex items-center justify-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 ${
+                className={`flex items-center justify-center rounded-full transition-colors duration-200 focus:outline-hidden focus:ring-2 ${
                   selectedName === name ? "text-white" : "hover:bg-gray-100"
                 }`}
                 style={{
