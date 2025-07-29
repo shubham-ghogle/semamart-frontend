@@ -52,7 +52,7 @@ export function InputChips({
         {label}
       </label>
       <section className={"flex gap-2 " + flexDir + (flexDir === "flex-row" ? " items-center" : " justify-center")}>
-        {values.length > 0 &&
+        {values?.length > 0 &&
           values.map((el, i) => (
             <span
               className="p-1 bg-bgGray rounded-sm flex items-center justify-between gap-1"
