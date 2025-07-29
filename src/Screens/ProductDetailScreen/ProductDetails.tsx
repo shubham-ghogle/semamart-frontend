@@ -5,12 +5,15 @@ import {
   AiOutlineQuestionCircle,
 } from "react-icons/ai";
 import ProductImage from "../../components/UI/ProductImage";
-
 import { CashOnDelivery } from "../../components/UI/CashOnDelivery";
-// import ProductDetailsNavbar from "../../components/Header/ProductDetailsNavbar";
 import RelatedProductCard from "../../components/UI/RelatedProductCard";
-//import { NavbarIcons } from "../../components/UI/NavbarIcons";
 import offer from "../../../public/offer.png";
+import { useCartStore } from "../../store/cartStore";
+import { useWishlistStore } from "../../store/wishlistStore";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getProductDetail } from "./ProductDetails.HooksUtils";
+
 const relatedProducts = [
   {
     _id: "1",
@@ -54,11 +57,21 @@ const relatedProducts = [
   },
 ];
 
-
 export default function ProductCard() {
+  const { id } = useParams();
+  const productId = id ?? "";
+
+  const { data: product, status, error } = useQuery({
+    queryKey: ["product", productId],
+    queryFn: () => getProductDetail(productId),
+    enabled: !!productId,
+  });
+
   const [selectedPack, setSelectedPack] = useState("100 Pack");
+  const [selectedOffer, setSelectedOffer] = useState<{ title: string; details: string } | null>(null);
+
   const packs = ["100 Pack", "500 Pack", "1000 Pack"];
- const offers = [
+  const offers = [
     {
       title: "Bank Offers",
       details: "Get 10% off with HDFC Bank debit/credit cards.",
@@ -77,7 +90,24 @@ export default function ProductCard() {
     },
   ];
 
- const [selectedOffer, setSelectedOffer] = useState<{ title: string; details: string } | null>(null);
+  const addToCart = useCartStore((s) => s.addToCart);
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
+  const inWishlist = wishlist.some((p) => p._id === product?._id);
+
+  const handleAddCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product) addToCart({ product, qty: 1 });
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!product) return;
+    inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
+  };
+
+  if (!productId) return <div>Invalid product ID.</div>;
+  if (status === "pending") return <div>Loading...</div>;
+  if (status === "error" || !product) return <div>Product not found.</div>;
 
   return (
     <div className="max-w-6xl mx-auto  font-sans mt-5 ">
@@ -248,6 +278,7 @@ export default function ProductCard() {
               {/* Buttons */}
               <div className="flex gap-3">
                 <button
+                  onClick={handleAddCart}
                   className="flex-1 flex items-center justify-center gap-2 rounded-2xl"
                   style={{
                     backgroundColor: "#ECFBFF",
@@ -259,6 +290,7 @@ export default function ProductCard() {
                   Add to Cart
                 </button>
                 <button
+                  onClick={handleToggleWishlist}
                   className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-1 text-black"
                   style={{ border: "1px solid #1C647C" }}
                 >
