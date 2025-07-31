@@ -43,7 +43,10 @@ export default function ProductPageBtns({
           +
         </button>
       </article>
-      <ActionBtn onClick={addToCartHandler}>
+      <ActionBtn onClick={() => {
+    console.log("🟡 ActionBtn clicked");
+    addToCartHandler();
+  }}>
         Add to Cart <AiOutlineShoppingCart className="ml-1" />
       </ActionBtn>
       <figure className="ml-auto">
