@@ -34,6 +34,8 @@ import Consumables from "./Screens/Consumables/Consumables";
 import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
 import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
+import SearchResultsPage from "./Screens/Search/SearchResultsPage";
+import SearchLayout from "./components/Layouts/SearchLayout";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +52,13 @@ export const router = createBrowserRouter([
     ],
   },
 
+   {
+    path: "/search",
+    element: <SearchLayout />,
+    children: [
+      { index: true, element: <SearchResultsPage /> },
+    ],
+  },
   // Product details using a separate layout
   {
     path: "product/:id",
