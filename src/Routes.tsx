@@ -36,6 +36,8 @@ import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
 import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
+import AccountPage from "./components/Account/AccountPage";
+import MyOrders from "./components/Account/MyOrders";
 
 export const router = createBrowserRouter([
   {
@@ -202,5 +204,6 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  /////////
+  {path:"/account", element: <AccountPage/>},
+  {path:"/account/orders", element: <MyOrders/>}
 ]);
