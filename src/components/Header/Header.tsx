@@ -318,7 +318,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
   // ------------------------------------
 
   return (
-    <header className="w-full px-4 sm:px-6 max-w-screen-xl mx-auto h-24 flex items-center justify-between gap-6 relative">
+    <header className="w-full px-4 sm:px-6 max-w-screen-xl mx-auto h-24 flex items-center justify-between gap-6 relative font-montserrat">
       {/* Logo */}
       <div className="flex-shrink-0">
         <Logo />
@@ -335,7 +335,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
               setIsCategoryOpen((prev) => !prev);
               setHoveredCategory(null);
             }}
-            className="flex items-center px-4 bg-[#f5f5f5] text-sm font-medium gap-1 border-r h-full whitespace-nowrap font-montserrat"
+            className="flex items-center px-4 bg-[#f5f5f5] text-sm font-medium gap-1 border-r h-full whitespace-nowrap "
           >
             📦 Categories
             <IoIosArrowForward className="rotate-90 transition-transform duration-200" />
@@ -345,7 +345,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
           <input
             type="text"
             placeholder="Search"
-            className="flex-1 px-4 font-montserrat text-sm outline-none font-poppins bg-white text-[#1C647C] placeholder-[#1C647C] h-full"
+            className="flex-1 px-4  text-sm outline-none  bg-white text-[#1C647C] placeholder-[#1C647C] h-full"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -379,7 +379,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         {/* Category Dropdown */}
         {isCategoryOpen && (
           <div className="absolute mt-2 z-50 flex">
-            <div className="relative bg-white shadow-lg border w-60  font-montserrat">
+            <div className="relative bg-white shadow-lg border w-60  ">
               {categories.map((cat) => (
                 <div
                   key={cat}
@@ -394,7 +394,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
                       setSubcategoryTop(itemRect.top - parentRect.top);
                     }
                   }}
-                  className="flex justify-between items-center font-montserrat px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="flex justify-between items-center  px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 >
                   {cat}
                   <IoIosArrowForward />
@@ -404,7 +404,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
               {/* Subcategory Panel */}
               {hoveredCategory && (
                 <div
-                  className="absolute left-full ml-2 font-montserrat bg-white shadow-lg border w-[90vw] sm:w-[600px] p-4 grid grid-cols-2 sm:grid-cols-2 gap-4"
+                  className="absolute left-full ml-2  bg-white shadow-lg border w-[90vw] sm:w-[600px] p-4 grid grid-cols-2 sm:grid-cols-2 gap-4"
                   style={{ top: subcategoryTop }}
                   onMouseEnter={() => setHoveredCategory(hoveredCategory)}
                   onMouseLeave={() => setHoveredCategory(null)}
@@ -412,7 +412,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
                   {getSubcategories(hoveredCategory).map((sub) => (
                     <div
                       key={sub}
-                      className="text-sm text-gray-700 hover:underline font-montserrat cursor-pointer"
+                      className="text-sm text-gray-700 hover:underline cursor-pointer"
                     >
                       {sub}
                     </div>
@@ -484,13 +484,13 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         </Link>
         <Link
           to="/account"
-          className="flex font-montserrat items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
+          className="flex  items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
         >
           👤 My Account
         </Link>
         <Link
           to="/support"
-          className="flex font-montserrat items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
+          className="flex  items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
         >
           📞 Support
         </Link>
