@@ -1,16 +1,35 @@
 import { AiOutlineCamera } from "react-icons/ai";
 import { useUserStore } from "../../store/userStore";
 import { useMutation } from "@tanstack/react-query";
-import { ChangeEvent, useRef } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { User } from "../../Types/types";
 import { ScreenOverlayLoaderUi } from "../../components/UI/LoaderUi";
 import Input from "../../components/UI/Inputs";
 import { ActionBtn } from "../../components/UI/Buttons";
+import { useNavigate, useLocation } from "react-router-dom";
 
-// TODO edit user profile
 export default function UserProfileScreen() {
   const { user, addUser } = useUserStore((state) => state);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [hydrated, setHydrated] = useState(false);
+
+  // Wait for Zustand to hydrate from localStorage
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // Redirect if no user after hydration, using replace:true to avoid history trap
+  useEffect(() => {
+    if (hydrated && !user) {
+      navigate("/login", {
+        replace: true, // <-- important: replaces current history entry
+        state: { from: location.pathname }, // save intended route
+      });
+    }
+  }, [hydrated, user, navigate, location.pathname]);
 
   const { mutateAsync: mutateAvatarAsync, status: avatarStatus } = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -37,9 +56,10 @@ export default function UserProfileScreen() {
     if (!file) return;
     const formData = new FormData();
     formData.append("image", file);
-
     await mutateAvatarAsync(formData);
   }
+
+  if (!hydrated) return null; // avoid flicker before hydration
 
   return (
     <>
@@ -48,7 +68,7 @@ export default function UserProfileScreen() {
           <img
             src={
               user && user.avatar
-                ? "/baseUrl" + "/" + user.avatar
+                ? `/baseUrl/${user.avatar}`
                 : "/placeholder.png"
             }
             className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
@@ -70,40 +90,39 @@ export default function UserProfileScreen() {
       <div className="w-full px-5 mt-20">
         <form
           className="flex flex-col justify-center items-center"
-          onSubmit={() => { }}
+          onSubmit={(e) => e.preventDefault()}
         >
           <section className="grid grid-cols-2 w-3/5 mx-auto gap-6 mb-4">
             <Input
               label="First name"
               type="text"
-              value={user?.firstName}
-              onChange={() => { }}
+              value={user?.firstName || ""}
+              onChange={() => {}}
             />
             <Input
               label="Last name"
               type="text"
-              value={user?.lastName}
-              onChange={() => { }}
+              value={user?.lastName || ""}
+              onChange={() => {}}
             />
             <Input
               label="Institute name"
               type="text"
-              value={user?.instituteName}
-              onChange={() => { }}
+              value={user?.instituteName || ""}
+              onChange={() => {}}
             />
             <Input
               label="Email"
               type="email"
-              value={user?.email}
-              onChange={() => { }}
+              value={user?.email || ""}
+              onChange={() => {}}
             />
             <Input
-              label="Phone nuber"
+              label="Phone number"
               type="number"
-              value={user?.phoneNumber}
-              onChange={() => { }}
+              value={user?.phoneNumber || ""}
+              onChange={() => {}}
             />
-            {/* <Input label="Password" type="password" value={} /> */}
           </section>
           <ActionBtn disabled>Update</ActionBtn>
         </form>

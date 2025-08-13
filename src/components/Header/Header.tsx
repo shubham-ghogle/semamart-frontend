@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 // import { ActionBtn, SecondryBtn } from "../UI/Buttons";
 import {
+  AiOutlineHeart,
   // AiOutlineHeart,
   // AiOutlineShoppingCart,
   AiOutlineSearch,
+  AiOutlineShoppingCart,
+  AiOutlineUser,
   // AiOutlineHome,
   // AiOutlineUser,
 } from "react-icons/ai";
@@ -14,10 +17,15 @@ import { Logo } from "../UI/Logo";
 // import { useCartStore } from "../../store/cartStore";
 // import { useWishlistStore } from "../../store/wishlistStore";
 import placeholderImg from "../../../public/image60.png";
-// import Wishlist from "./Wishlist";
-// import Cart from "./Cart";
+ import Wishlist from "./Wishlist";
+ import Cart from "./Cart";
 import { useState, useRef, useEffect } from "react";
 import { Product } from "@/Types/types";
+import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import { useUserStore } from "@/store/userStore";
+import { useSellerStore } from "@/store/sellerStore";
+import { SecondryBtn } from "../UI/Buttons";
 
 //const BASE_URL = import.meta.env.VITE_BACKEND_URL || "";
 
@@ -160,14 +168,14 @@ const specialtyPackagesSubcategories = [
 ];
 
 export default function Header() {
-  // const cart = useCartStore((state) => state.cart) || [];
-  // const wishlist = useWishlistStore((state) => state.wishlist) || [];
-  // const { user, removeUser } = useUserStore((state) => state);
-  // const { seller, removeSeller } = useSellerStore((state) => state);
+   const cart = useCartStore((state) => state.cart) || [];
+   const wishlist = useWishlistStore((state) => state.wishlist) || [];
+   const { user, removeUser } = useUserStore((state) => state);
+   const { seller, removeSeller } = useSellerStore((state) => state);
   // const isAdmin = user && user.role === "Admin";
 
-  // const [isCartOpen, setIsCartOpen] = useState(false);
-  // const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+   const [isCartOpen, setIsCartOpen] = useState(false);
+   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [subcategoryTop, setSubcategoryTop] = useState<number>(0);
@@ -291,6 +299,21 @@ export default function Header() {
     }
   };
 
+  async function logoutHandler() {
+    try {
+      let url = "/api/v2/user/logout";
+      if (seller) {
+        url = "/api/v2/shop/logout";
+      }
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Something went wrong");
+      removeUser();
+      removeSeller();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // ---- ONLY THIS FUNCTION CHANGED ----
   // keyboard navigation for suggestions
 function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -314,6 +337,13 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
   }
 }
 
+  function openCartHandler() {
+    setIsCartOpen((prev) => !prev);
+  }
+
+  function openWishlistHandler() {
+    setIsWishlistOpen((prev) => !prev);
+  }
 
   // ------------------------------------
 
@@ -345,7 +375,7 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
           <input
             type="text"
             placeholder="Search"
-            className="flex-1 px-4 font-montserrat text-sm outline-none font-poppins bg-white text-[#1C647C] placeholder-[#1C647C] h-full"
+            className="flex-1 px-4 font-montserrat text-sm outline-none bg-white text-[#1C647C] placeholder-[#1C647C] h-full"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -469,32 +499,89 @@ function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex items-center gap-5 flex-shrink-0 whitespace-nowrap font-montserrat">
-        <Link
-          to="/specialty"
-          className="flex items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
-        >
-          🏥 By Specialty
-        </Link>
-        <Link
-          to="/get-quote"
-          className="flex items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
-        >
-          📄 Get Quote
-        </Link>
-        <Link
-          to="/account"
-          className="flex font-montserrat items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
-        >
-          👤 My Account
-        </Link>
-        <Link
-          to="/support"
-          className="flex font-montserrat items-center gap-1 text-sm font-medium text-[#1C647C]  whitespace-nowrap"
-        >
-          📞 Support
-        </Link>
-      </nav>
+      {/* Navigation (links row above, icons row below) */}
+            {/* Navigation: links row above, icons row below (centered under search) */}
+            {/* Navigation: links row above, icons row below (centered under search) */}
+            {/* Navigation: links row above, icons row below (no green bg) */}
+      {/* Navigation: links row above, icons row below (centered under search) */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-[600px] flex flex-col items-center">
+          {/* Links row (centered) */}
+          <nav className="w-full flex justify-center gap-5 text-sm text-[#1C647C] font-montserrat">
+            <Link to="/specialty" className="flex items-center gap-2 whitespace-nowrap">🏥 By Specialty</Link>
+            <Link to="/get-quote" className="flex items-center gap-2 whitespace-nowrap">📄 Get Quote</Link>
+            <Link to="/user" className="flex items-center gap-2 whitespace-nowrap">👤 My Account</Link>
+            <Link to="/support" className="flex items-center gap-2 whitespace-nowrap">📞 Support</Link>
+          </nav>
+
+          {/* Icons row (centered directly below links) */}
+          <div className="w-full flex justify-center gap-8 mt-3 items-center">
+            {/* Login (icon + label) */}
+            {(!user && !seller) ? (
+              <Link
+              to="/login"
+              className="flex items-center gap-2 text-sm text-[#1C647C] font-montserrat"
+              >
+              <AiOutlineUser size={18} />
+              <span>Login</span>
+            </Link>
+              ):(
+                  <button
+               onClick={logoutHandler}
+              className="flex items-center gap-2 text-sm text-[#1C647C] font-montserrat"
+              >
+              <AiOutlineUser size={18} />
+              <span>Logout</span>
+            </button>
+              )
+            }
+
+            {/* Wishlist button (icon + label) */}
+            <button
+              onClick={openWishlistHandler}
+              aria-label="Open Wishlist"
+              className="focus:outline-none"
+            >
+              <div className="flex items-center gap-2 px-2 py-1 rounded-full cursor-pointer text-sm text-[#1C647C] font-montserrat">
+                <div className="relative inline-flex items-center justify-center">
+                  <AiOutlineHeart size={18} />
+                  <span className="absolute -top-2 -right-2 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
+                    {wishlist.length}
+                  </span>
+                </div>
+                <span className="text-sm text-[#1C647C] font-montserrat">Wishlist</span>
+              </div>
+            </button>
+
+            {/* Cart button (icon + label) */}
+            <button
+              onClick={openCartHandler}
+              aria-label="Open Cart"
+              className="focus:outline-none"
+            >
+              <div className="flex items-center gap-2 px-2 py-1 rounded-full cursor-pointer text-sm text-[#1C647C] font-montserrat">
+                <div className="relative inline-flex items-center justify-center">
+                  <AiOutlineShoppingCart size={18} />
+                  <span className="absolute -top-2 -right-2 rounded-full bg-[#3bc177] w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                </div>
+                <span className="text-sm text-[#1C647C] font-montserrat">Cart</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+      {/* Optionally render Cart or Wishlist components here */}
+      {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
+      {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
+      
+
     </header>
   );
 }
