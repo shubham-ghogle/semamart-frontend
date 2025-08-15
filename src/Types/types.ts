@@ -164,3 +164,12 @@ export type Order = {
   createdAt?: Date;
   shop?: string;
 };
+
+export type CategoryApiRes = {
+  _id: string;
+  name: string;
+  subcategories: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
