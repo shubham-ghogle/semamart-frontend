@@ -6,6 +6,7 @@ import { useUserStore } from "../../store/userStore";
 import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
 import { useSellerStore } from "../../store/sellerStore";
 import { loginFailureToast } from "../UI/Toasts";
+import { Logo } from "../UI/Logo"; // Import Logo component
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -51,18 +52,25 @@ export default function LoginForm() {
 
   return (
     <>
-      <section className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-white drop-shadow-lg">
-          Customer Login
-        </h2>
+      <section className="mx-auto w-full max-w-md">
+        <div className="flex flex-col items-center mb-6">
+            <Logo /> {/* Use Logo component here */}
+          
+          <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center">
+            Welcome to Semamart
+          </h2>
+          <p className="text-base text-gray-700 mt-1 text-center font-medium">
+            Your trusted medical e-commerce partner
+          </p>
+        </div>
       </section>
-      <section className="mt-4 sm:mx-auto sw:w-full sm:max-w-md bg-white/40 backdrop-blur-3xl p-12 rounded-3xl drop-shadow-xl">
-        <form className="space-y-6" onSubmit={(e) => handleSubmit(e)}>
+      <section className="mt-4 mx-auto w-full max-w-md bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-semibold text-[#1C647C]"
             >
               Email address
             </label>
@@ -75,7 +83,7 @@ export default function LoginForm() {
                 placeholder="Please enter valid email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
               />
             </div>
           </div>
@@ -83,9 +91,9 @@ export default function LoginForm() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-semibold text-[#1C647C]"
             >
-              password
+              Password
             </label>
             <div className="mt-1 relative">
               <input
@@ -96,25 +104,26 @@ export default function LoginForm() {
                 placeholder="Please enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
               />
               {visible ? (
                 <AiOutlineEye
-                  className="absolute right-2 top-2 cursor-pointer"
-                  size={25}
+                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
+                  size={22}
                   onClick={() => setVisible(false)}
                 />
               ) : (
                 <AiOutlineEyeInvisible
-                  className="absolute right-2 top-2 cursor-pointer"
-                  size={25}
+                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
+                  size={22}
                   onClick={() => setVisible(true)}
                 />
               )}
             </div>
           </div>
+          {/* Account Type */}
           <div>
-            <p className="block text-sm font-medium text-gray-700">
+            <p className="block text-sm font-semibold text-[#1C647C] mb-1">
               Account type
             </p>
             <section className="flex items-center justify-around">
@@ -126,10 +135,11 @@ export default function LoginForm() {
                   name="account_type"
                   value="user"
                   onChange={(e) => setAccountType(e.target.value)}
+                  className="accent-[#1C647C]"
                 />
-                <label htmlFor="user">User</label>
+                <label htmlFor="user" className="text-sm text-gray-700 font-medium">User</label>
               </article>
-              <article>
+              <article className="flex items-center gap-1">
                 <input
                   type="radio"
                   id="seller"
@@ -137,18 +147,19 @@ export default function LoginForm() {
                   value="seller"
                   required
                   onChange={(e) => setAccountType(e.target.value)}
+                  className="accent-[#1C647C]"
                 />
-                <label htmlFor="seller">Seller</label>
+                <label htmlFor="seller" className="text-sm text-gray-700 font-medium">Seller</label>
               </article>
             </section>
           </div>
-          {/* password end */}
+          {/* Remember Me */}
           <div className="flex items-center">
             <input
               type="checkbox"
               name="remember-me"
               id="remember-me"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-sm"
+              className="h-4 w-4 text-[#1C647C] focus:ring-[#1C647C] border-gray-300 rounded-sm"
             />
             <label
               htmlFor="remember-me"
@@ -157,31 +168,32 @@ export default function LoginForm() {
               Remember me
             </label>
           </div>
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent-yellow hover:bg-accent-blue"
+              className="w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all"
             >
-              Submit
+              Login
             </button>
-            <div className="text-sm mt-2">
+            <div className="text-sm mt-2 text-center">
               <a
                 href=".forgot-password"
-                className="font-medium text-dark-blue hover:text-blue-500"
+                className="font-medium text-[#1C647C] hover:text-[#14506A]"
               >
                 Forgot your password?
               </a>
             </div>
           </div>
-
-          <div className="flex items-center">
-            <h4>Not have any account</h4>
-            <Link to="/signup" className="text-dark-blue pl-2">
+          {/* Signup Link */}
+          <div className="flex items-center justify-center mt-2">
+            <span className="text-sm text-gray-700">Don't have an account?</span>
+            <Link to="/signup" className="text-[#1C647C] pl-2 font-semibold hover:underline">
               Sign Up
             </Link>
           </div>
         </form>
       </section>
-    </>
+      </>
   );
 }

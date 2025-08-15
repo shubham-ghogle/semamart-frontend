@@ -11,6 +11,20 @@ type ProductCardProps = {
   variant?: ProductCardVariant;
 };
 
+// Array of random medical product images for ecom
+const medicalImages = [
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", // BP Monitor
+  "https://images.unsplash.com/photo-1519494080410-f9aa8df0e4c7?auto=format&fit=crop&w=400&q=80", // Thermometer
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", // Oximeter
+  "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=400&q=80", // ECG Machine
+  "https://images.unsplash.com/photo-1588776814546-ec7e1b3b1b1b?auto=format&fit=crop&w=400&q=80", // Face Mask
+  "https://images.unsplash.com/photo-1519821172143-3a7e8a7f6e8a?auto=format&fit=crop&w=400&q=80", // Hospital Bed
+  "https://images.unsplash.com/photo-1512069772995-ec65ed6b1b1b?auto=format&fit=crop&w=400&q=80", // IV Stand
+  "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80", // Wheelchair
+  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80", // Stethoscope
+  "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=400&q=80", // Glucometer
+];
+
 export default function EquipmentProductCard({
   product,
   variant = "default",
@@ -33,10 +47,6 @@ export default function EquipmentProductCard({
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
   };
 
-  // const imageSrc = product.images?.[0]
-  //   ? `/baseUrl/${product.images[0]}`
-  //   : "/image60.png";
-
   const base = [
     "relative",
     "border",
@@ -49,34 +59,31 @@ export default function EquipmentProductCard({
     "p-3",
   ];
   const sizeMap: Record<ProductCardVariant, string> = {
-    default: "w-[215px] h-[350] flex-col",
-    square: "w-[216.90005493164062px] h-[200px] flex-col",
-    tall: "w-[216.90005493164062px] h-[420px] flex-col",
-    wide: "w-[453.97686767578125px] h-[200px] flex-row",
+    default: "w-[215px] h-[350px] flex-col",
+    square: "w-[216px] h-[200px] flex-col",
+    tall: "w-[216px] h-[420px] flex-col",
+    wide: "w-[454px] h-[200px] flex-row",
   };
   const rootClass = [...base, sizeMap[variant]].join(" ");
 
- const renderWishlistIcon = () => (
-  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow-xs border border-gray-200">
-    <span
-      className="w-4 h-4 inline-block transition duration-200"
-      style={{
-        WebkitMaskImage: "url('/heart_icon.png')",
-        WebkitMaskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        WebkitMaskSize: "contain",
-        maskImage: "url('/heart_icon.png')",
-        maskRepeat: "no-repeat",
-        maskPosition: "center",
-        maskSize: "contain",
-        backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
-      }}
-    />
-  </span>
-);
-
-
-
+  const renderWishlistIcon = () => (
+    <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow-xs border border-gray-200">
+      <span
+        className="w-4 h-4 inline-block transition duration-200"
+        style={{
+          WebkitMaskImage: "url('/heart_icon.png')",
+          WebkitMaskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          WebkitMaskSize: "contain",
+          maskImage: "url('/heart_icon.png')",
+          maskRepeat: "no-repeat",
+          maskPosition: "center",
+          maskSize: "contain",
+          backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
+        }}
+      />
+    </span>
+  );
 
   const renderCartIcon = () => (
     <img
@@ -98,12 +105,18 @@ export default function EquipmentProductCard({
 
         <Link to={`/product/${product._id}`} className="flex flex-col w-full h-full">
           <h3 className="text-xs font-medium text-[#1C170D] font-montserrat mb-1 line-clamp-2 max-w-[180px]">
-            Women's pleated short sleeve scrubs
+            {product.name}
           </h3>
 
           <div
             className="w-[158px] h-[92px] rounded-md bg-center bg-cover mb-2"
-            style={{ backgroundImage: `url("squared.png")` }}
+            style={{
+              backgroundImage: `url(${
+                product.images?.[0]
+                  ? product.images[0]
+                  : medicalImages[Math.floor(Math.random() * medicalImages.length)]
+              })`
+            }}
           />
 
           <div className="flex items-center justify-between mt-auto">
@@ -144,7 +157,7 @@ export default function EquipmentProductCard({
 
         <Link to={`/product/${product._id}`} className="relative w-full h-full">
           <h3 className="absolute top-3 left-3 text-xs font-medium text-[#1C170D] font-montserrat bg-white px-1 z-10 max-w-[180px]">
-            Women's pleated short sleeve scrubs
+            {product.name}
           </h3>
 
           <div className="flex w-full h-full">
@@ -160,7 +173,13 @@ export default function EquipmentProductCard({
             </div>
             <div
               className="w-full h-full relative bg-center bg-cover"
-              style={{ backgroundImage: `url("fan.png")` }}
+              style={{
+                backgroundImage: `url(${
+                  product.images?.[0]
+                    ? product.images[0]
+                    : medicalImages[Math.floor(Math.random() * medicalImages.length)]
+                })`
+              }}
             >
               <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
                 <button onClick={handleToggleWishlist} className="hover:scale-110 transition-transform">
@@ -201,16 +220,16 @@ export default function EquipmentProductCard({
 
       <Link to={`/product/${product._id}`} className="flex flex-col gap-2 w-full h-full">
         <div className={imgClass}>
-          <img
-            src="image60.png"
-            alt={product.name}
-            className="object-contain max-h-full max-w-full"
-          />
+         <img
+  src={medicalImages[Math.floor(Math.random() * medicalImages.length)]}
+  alt={product.name}
+  className="object-contain max-h-full max-w-full"
+/>
         </div>
 
         <div className={infoClass}>
           <h3 className="text-xs font-medium text-[#1C170D] mb-1 break-words max-w-[180px] font-montserrat">
-            Women's pleated short sleeve scrubs
+            {product.name}
           </h3>
 
           {variant === "default" && (

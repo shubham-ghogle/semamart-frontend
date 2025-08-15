@@ -4,7 +4,7 @@ import {
   IoIosArrowDropleftCircle,
 } from "react-icons/io";
 
-const sliderImages = ["/banner_Equipment.png"]; // path relative to /public
+const sliderImages = ["/frontend/public/banner_home", "/frontend/public/banner_Equipment.png", "/frontend/public/banner_Consumables.png"]; // path relative to /public
 
 type ImageSliderProps = {
   image: string;

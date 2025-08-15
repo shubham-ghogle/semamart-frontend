@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import {
   AiOutlineShoppingCart,
   AiOutlineArrowRight,
   AiOutlineQuestionCircle,
+  AiOutlineCheckCircle,
 } from "react-icons/ai";
 
 import { getProductDetail } from "./ProductDetails.HooksUtils";
@@ -13,10 +14,18 @@ import offer from "../../../public/offer.png";
 import RelatedProducts from "../../components/UI/RelatedProductCard";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import ProductImage from "../../components/UI/ProductImage";
+// import ProductImage from "../../components/UI/ProductImage";
+
+// Fixed images for demo showcase
+const demoImages = [
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+  "https://images.unsplash.com/photo-1519494080410-f9aa8df0e4c7?auto=format&fit=crop&w=600&q=80",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
+  "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=600&q=80",
+  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80",
+];
 
 export default function ProductCard() {
-  
   const { id } = useParams();
   const {
     data: product,
@@ -26,7 +35,31 @@ export default function ProductCard() {
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
   });
-  const images = product?.images || [];
+
+  // Image gallery state
+  const [activeImg, setActiveImg] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  // For dynamic height calculation
+  const infoRef = useRef<HTMLDivElement>(null);
+  const [imgSectionHeight, setImgSectionHeight] = useState(600);
+
+  useEffect(() => {
+    if (infoRef.current) {
+      setImgSectionHeight(infoRef.current.offsetHeight);
+    }
+  }, [product]);
+
+  const handleThumbClick = (idx: number) => {
+    if (activeImg !== idx) {
+      setAnimating(true);
+      setTimeout(() => {
+        setActiveImg(idx);
+        setAnimating(false);
+      }, 250); // Animation duration
+    }
+  };
+
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
 
@@ -35,6 +68,8 @@ export default function ProductCard() {
     title: string;
     details: string;
   } | null>(null);
+
+  const [cartAnimation, setCartAnimation] = useState(false);
 
   const packs = ["100 Pack", "500 Pack", "1000 Pack"];
   const offers = [
@@ -59,9 +94,9 @@ export default function ProductCard() {
   // ✅ LOADING
   if (isPending || !product) {
     return (
-      <div className="text-center mt-20 text-lg text-gray-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600 mx-auto mb-2"></div>
-        Loading product...
+      <div className="flex items-center justify-center h-[80vh] w-full">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1C647C] mr-4"></div>
+        <span className="text-xl text-gray-500">Loading product...</span>
       </div>
     );
   }
@@ -78,6 +113,8 @@ export default function ProductCard() {
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addToCart({ product, qty: 1 });
+    setCartAnimation(true);
+    setTimeout(() => setCartAnimation(false), 1500);
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -86,26 +123,74 @@ export default function ProductCard() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto font-sans mt-5">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Image */}
-       
-          <div className="w-full lg:w-[40%] space-y-4">
-          {/* Product Image Placeholder */}
-          <div className=" aspect-square rounded-sm flex items-center justify-center">
-            
-            <ProductImage images={images} />
+    <div className="w-full min-h-screen bg-white font-sans pt-8 pb-12 px-0">
+      <div className="flex flex-col lg:flex-row gap-8 w-full max-w-[1600px] mx-auto">
+        {/* Image & Media Section */}
+        <div
+          className="w-full lg:w-[40%] flex flex-col items-center justify-start"
+          style={{
+            minHeight: imgSectionHeight,
+            alignSelf: "flex-start",
+            paddingTop: "32px",
+            paddingBottom: "32px",
+          }}
+        >
+          <div className="w-full flex flex-col items-center">
+            {/* Big Image with animation */}
+            <div
+              className="w-full max-w-[480px] h-[480px] rounded-xl bg-gray-50 flex items-center justify-center shadow-lg overflow-hidden relative mb-6"
+              style={{
+                minHeight: "600px",
+                maxHeight: "600px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              <img
+                src={demoImages[activeImg]}
+                alt={`Product ${activeImg + 1}`}
+                className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${
+                  animating ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                }`}
+                style={{ position: "absolute", top: 0, left: 0 }}
+              />
+            </div>
+            {/* Thumbnails */}
+            <div className="flex gap-4 mt-2 justify-center">
+              {demoImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleThumbClick(idx)}
+                  className={`w-20 h-20 rounded-lg border-2 transition-all duration-200 overflow-hidden shadow ${
+                    activeImg === idx
+                      ? "border-[#1C647C] scale-105"
+                      : "border-gray-200 opacity-80 hover:opacity-100"
+                  }`}
+                  style={{ background: "#fff" }}
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="object-cover w-full h-full"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Info + Purchase Panel */}
-        <div className="w-full lg:w-[60%] space-y-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="w-full lg:w-[60%] flex flex-col gap-8">
+          <div className="flex flex-col lg:flex-row gap-8 w-full">
             {/* Product Info */}
-            <div className="w-full lg:w-1/2 bg-white rounded-sm p-4 overflow-y-auto space-y-6" style={{ height: "534px" }}>
+            <div
+              ref={infoRef}
+              className="w-full lg:w-1/2 bg-white rounded-lg p-6 shadow-lg overflow-y-auto space-y-6"
+              style={{ minHeight: "540px", maxHeight: "700px" }}
+            >
               <div>
-                <h2 className="text-[21.4px] font-semibold font-inter">{product.name}</h2>
-                <div className="flex items-center text-sm text-gray-500 mb-2 gap-2">
+                <h2 className="text-2xl font-bold font-inter text-[#1C647C]">{product.name}</h2>
+                <div className="flex items-center text-base text-gray-500 mb-2 gap-2">
                   <div style={{ color: "#FB9573" }}>
                     {"★".repeat(product?.ratings || 0)}{"☆".repeat(5 - (product?.ratings || 0))}
                   </div>
@@ -118,11 +203,11 @@ export default function ProductCard() {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       {product.originalPrice && (
-                        <span className="line-through text-gray-400 text-sm">
+                        <span className="line-through text-gray-400 text-base">
                           ₹{product.originalPrice}
                         </span>
                       )}
-                      <span className="text-white px-2 py-1 rounded-sm font-medium text-[24px]" style={{ color: "#FB9573" }}>
+                      <span className="px-2 py-1 rounded font-bold text-[28px]" style={{ color: "#FB9573" }}>
                         ₹{product.discountPrice}
                       </span>
                     </div>
@@ -135,16 +220,16 @@ export default function ProductCard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-[20px]">
-                <img src={offer} alt="Offer Icon" className="w-6 h-6" />
-                <span className="text-base font-medium">Offers</span>
+              <div className="flex items-center gap-3 mt-4">
+                <img src={offer} alt="Offer Icon" className="w-7 h-7" />
+                <span className="text-base font-semibold text-[#1C647C]">Offers</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mt-2">
                 {offers.map((offer) => (
                   <div
                     key={offer.title}
-                    className="flex flex-col justify-between w-[142px] h-[76px] rounded-[8px] border border-gray-300 px-[10px] py-[10px] text-sm"
+                    className="flex flex-col justify-between w-[160px] h-[80px] rounded-lg border border-gray-300 px-3 py-2 text-sm bg-gray-50"
                   >
                     <strong>{offer.title}</strong>
                     <div className="text-xs text-gray-600 truncate">
@@ -179,16 +264,16 @@ export default function ProductCard() {
             </div>
 
             {/* Purchase Panel */}
-            <div className="w-full lg:w-1/2 bg-gray-50 p-3 rounded-sm shadow-md space-y-4 overflow-y-auto" style={{ height: "537px" }}>
+            <div className="w-full lg:w-1/2 bg-gray-50 p-6 rounded-lg shadow-lg space-y-5 overflow-y-auto" style={{ minHeight: "540px", maxHeight: "700px" }}>
               <div>
-                <label className="text-sm font-medium">Delivery</label>
-                <div className="flex items-center mt-1">
+                <label className="text-base font-semibold text-[#1C647C]">Delivery</label>
+                <div className="flex items-center mt-2">
                   <input
                     type="text"
                     placeholder="Pin Code"
-                    className="grow border-0 border-b border-gray-400 focus:border-black focus:outline-hidden py-1 mr-4"
+                    className="grow border-0 border-b border-gray-400 focus:border-[#1C647C] focus:outline-none py-2 mr-4 text-base"
                   />
-                  <button className="text-blue-500">Check</button>
+                  <button className="text-blue-500 font-semibold">Check</button>
                 </div>
               </div>
 
@@ -212,14 +297,14 @@ export default function ProductCard() {
                       />
                       <div className="flex flex-col w-full gap-1">
                         <div className="flex justify-between items-center">
-                          <strong className="text-sm font-medium">{pack}</strong>
-                          <span className="text-white text-[10px] px-4 py-[2px] rounded-full" style={{ backgroundColor: "#006666", border: "1px solid #1C647C" }}>
+                          <strong className="text-base font-semibold">{pack}</strong>
+                          <span className="text-white text-xs px-4 py-[2px] rounded-full" style={{ backgroundColor: "#006666", border: "1px solid #1C647C" }}>
                             You save 10%
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                           <p className="text-xs text-gray-600">@ ₹4.99/piece</p>
-                          <p className="text-orange-500 font-semibold text-sm">₹499.00</p>
+                          <p className="text-orange-500 font-semibold text-base">₹499.00</p>
                         </div>
                       </div>
                     </div>
@@ -230,34 +315,39 @@ export default function ProductCard() {
               <label className="flex justify-between items-center p-3 rounded-xl border border-gray-300 cursor-pointer">
                 <AiOutlineQuestionCircle className="text-3xl text-[#1C647C] mb-5" />
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm text-dark font-medium">For bulk order</p>
-                  <p className="text-sm">Contact Semarmart Admin</p>
+                  <p className="text-base text-dark font-semibold">For bulk order</p>
+                  <p className="text-base">Contact Semamart Admin</p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ml-4">
                   <AiOutlineArrowRight className="text-blue-600 text-lg" />
                 </div>
               </label>
 
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={handleAddCart}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl"
-                  style={{ backgroundColor: "#ECFBFF", color: "#1C647C", border: "1px solid #1C647C" }}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl py-2 font-semibold text-[#1C647C] bg-[#ECFBFF] border border-[#1C647C] transition-all relative"
+                  style={{ position: "relative" }}
                 >
-                  <AiOutlineShoppingCart size={18} />
+                  <AiOutlineShoppingCart size={20} />
                   Add to Cart
+                  {cartAnimation && (
+                    <span className="absolute left-1/2 -translate-x-1/2 -top-10 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce z-50">
+                      <AiOutlineCheckCircle size={20} />
+                      Added to Cart!
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={handleToggleWishlist}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-1 text-black"
-                  style={{ border: "1px solid #1C647C" }}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-black border border-[#1C647C] font-semibold"
                 >
                   {inWishlist ? "Remove Wishlist" : "Add to Wish List"}
                 </button>
               </div>
 
               <button
-                className="w-full text-white py-2 rounded-2xl font-semibold text-lg"
+                className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2"
                 style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}
               >
                 Buy Now
@@ -266,29 +356,29 @@ export default function ProductCard() {
           </div>
 
           {/* Bottom Sections */}
-          <div className="space-y-6">
-            <select className="w-full px-4 py-2 border rounded-sm text-gray-700 text-base mt-2">
+          <div className="space-y-8 mt-8">
+            <select className="w-full px-4 py-3 border rounded-lg text-gray-700 text-base mt-2 bg-gray-50">
               <option value="product-description">Product Description</option>
             </select>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Product Highlights</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
+              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Product Highlights</h3>
+              <ul className="space-y-1 text-base text-gray-700">
                 <li className="flex justify-between items-center">
                   <span>{product?.shortdescription || "No highlights available."}</span>
-                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-green-500 text-white text-xs">✓</span>
+                  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-green-500 text-white text-base">✓</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Full Description</h3>
-              <p className="text-sm text-gray-700">{product?.description || "No description available."}</p>
+              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Full Description</h3>
+              <p className="text-base text-gray-700">{product?.description || "No description available."}</p>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Technical Details</h3>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Technical Details</h3>
+              <ul className="text-base text-gray-700 space-y-1">
                 <li className="flex justify-between"><span className="font-semibold">Brand:</span> <span>{product?.manufacturerName || "N/A"}</span></li>
                 <li className="flex justify-between"><span className="font-semibold">SKU:</span> <span>{product?.sku || "N/A"}</span></li>
                 <li className="flex justify-between"><span className="font-semibold">Weight:</span> <span>{product?.weight || "N/A"}</span></li>
@@ -297,16 +387,16 @@ export default function ProductCard() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Customer reviews</h3>
+              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Customer reviews</h3>
               {product?.reviews?.length === 0 ? (
-                <p className="text-sm text-gray-500">No reviews yet.</p>
+                <p className="text-base text-gray-500">No reviews yet.</p>
               ) : (
                 <div className="flex gap-4 items-center mb-1">
-                  <img src="https://i.pravatar.cc/40" alt="avatar" className="w-10 h-10 rounded-full" />
+                  <img src="https://i.pravatar.cc/40" alt="avatar" className="w-12 h-12 rounded-full" />
                   <div>
                     <div className="font-semibold">User</div>
                     <div className="text-orange-500">★★★★★</div>
-                    <p className="text-sm text-gray-700 mt-1">Review goes here...</p>
+                    <p className="text-base text-gray-700 mt-1">Review goes here...</p>
                   </div>
                 </div>
               )}
@@ -316,9 +406,9 @@ export default function ProductCard() {
       </div>
 
       {/* Related Products */}
-      <div className="space-y-6 mt-6">
+      <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto">
         <hr className="border-t border-gray-400" />
-        <h1 className="font-medium text-[17.6px] mt-6 ml-2">Related Products</h1>
+        <h1 className="font-bold text-2xl mt-6 ml-2 text-[#1C647C]">Related Products</h1>
         <div className="flex flex-wrap justify-around mt-8">
           {product && (
             <RelatedProducts productType={product.productType} productId={product._id} />

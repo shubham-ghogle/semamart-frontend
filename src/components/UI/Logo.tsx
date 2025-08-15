@@ -4,7 +4,7 @@ export function Logo() {
   return (
     <figure>
       <Link to="/">
-        <img src="/logo.svg" alt="brand logo" width={250} />
+        <img src="/logo.svg" alt="brand logo" width={300} />
       </Link>
     </figure>
   );
