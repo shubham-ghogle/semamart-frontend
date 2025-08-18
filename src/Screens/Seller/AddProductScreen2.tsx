@@ -4,10 +4,11 @@ import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import AddProductForm from "@/components/Seller/AddProductForm";
 import { API_URL } from "@/data";
 import { CategoryApiRes } from "@/Types/types";
+import ProductDetailsForm from "@/components/Seller/ProductDetailsForm";
 
 // const categoriesData = [{ title: "edible" }];
 
-export default function AddProductScreen2() {
+export default function AddProductScreen2({ newForm }: { newForm?: boolean }) {
 
   const { data, status } = useQuery({
     queryKey: ["categories"],
@@ -17,8 +18,11 @@ export default function AddProductScreen2() {
 
   return (
     <SellerMainWrapper heading="Add Product" status="success">
-      {/* <ProductDetailsForm mode="add" /> */}
-      <AddProductForm categories={data ?? []} />
+      {newForm ? (
+        <AddProductForm categories={data ?? []} />
+      ) : (
+        <ProductDetailsForm mode="add" />
+      )}
     </SellerMainWrapper >
   );
 }

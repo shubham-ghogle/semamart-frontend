@@ -22,7 +22,7 @@ export function Autocomplete({ listItems, placeholder, value, setValue }: Autoco
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-full justify-between"
         >
           {value
             ? listItems.find((item) => item.value === value)?.label
@@ -30,10 +30,10 @@ export function Autocomplete({ listItems, placeholder, value, setValue }: Autoco
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[400px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandList>
+          <CommandInput placeholder={placeholder} />
+          <CommandList className="w-full">
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
               {listItems.map((item) => (

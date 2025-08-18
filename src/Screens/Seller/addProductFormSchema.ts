@@ -2,7 +2,75 @@ import { z } from "zod"
 
 const addProductFormSchema = z.object({
   name: z.string().min(1),
-  category: z.string()
+  category: z.string(),
+  subCategory: z.string(),
+  tags: z.array(z.string()).min(1, {
+    error: "Please select at least one item"
+  }),
+  intendedUse: z.string().min(1),
+  sku: z.string().min(1),
+  gtin: z.string().min(1),
+  hsn: z.string().min(1),
+  unspsc: z.string(),
+  upsells: z.string().optional(),
+  crosssells: z.string().optional(),
+  manufacturerName: z.string().min(1),
+  email: z.string().min(1),
+  phone: z.string().min(1),
+  origin: z.string().min(1),
+  shortdescription: z.string().min(1),
+  description: z.string().min(1),
+  attributes: z.array(z.record(z.string(), z.string())).min(3, { error: "Add atleast three" }),
+  productWgt: z.number({ error: "add product weight" }).min(0),
+  productWgtUnit: z.string().min(1),
+  dimension_l: z.number().min(0),
+  dimension_w: z.number().min(0),
+  dimension_h: z.number().min(0),
+  dimensionUnit: z.string().min(1),
+  colorOptions: z.string().optional(),
+  sterileString: z.string(),// TODO: convert to boolean
+  singleUseString: z.string(),// TODO: convert to boolean
+  expiry: z.date(), // TODO: aonly for valid products
+  productCompilance: z.instanceof(File).optional(),
+  msds_ifu_leaflet: z.instanceof(File).optional(),
+  originalPrice: z.number().min(0),
+  discountPrice: z.number().min(0),
+  institutePrice: z.number().optional(),
+  minmaxrule: z.object({
+    minQty: z.number().min(1, "Min qty must be at least 1"),
+    maxQty: z.number().min(1, "Max qty must be at least 1"),
+  }).refine((data) => data.maxQty >= data.minQty, {
+    message: "Max qty must be greater than or equal to min qty",
+    path: ["maxQty"],
+  }),
+  taxStatus: z.string().min(1),
+  taxClass: z.number().min(0),
+  stocks: z.number().min(0),
+  unitOfMeasure: z.string().min(1),
+  stockStatus: z.string().min(1),
+  deliveryLeadTime: z.string().min(1),
+  warranty: z.string().min(1),
+  amc_cms: z.instanceof(File).optional(),
+  rma: z.string(),
+  dispatchLocation: z.string().min(1),
+  dispatchPinCode: z.number().min(100000),
+  unitsPerCarton: z.number().min(0),
+  shippingWeight: z.number().min(1),
+  packagingType: z.string().min(1),
+  deliveryPartner: z.string(),
+  shelfing_storage_req: z.string().min(1),
+  purchaseNote: z.string().optional(),
+  certificate: z.instanceof(File),
+  oemLetter: z.instanceof(File),
+  productComparisionSheet: z.instanceof(File).optional(),
+  // "allowSingleQuantity": true,
+  // "discountOptions": null,
+  // "productStatus": "active",
+  // "visibility": "public",
+  // "thumbnail": "gloves_thumbnail.jpg",
+  // "images": ["glove1.jpg", "glove2.jpg"],
+  // "shortVideo": "demo_video.mp4",
+
 });
 
 export { addProductFormSchema }

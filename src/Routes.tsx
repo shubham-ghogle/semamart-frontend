@@ -42,10 +42,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
-      { 
-        path: "checkout", 
-        loader: checkoutScreenLoader, 
-        element: <CheckoutScreen /> 
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />
       },
     ],
   },
@@ -60,29 +60,29 @@ export const router = createBrowserRouter([
   },
 
   // Consumables section
-{
-  path: "/equipments",
-  element: <RootLayout />,
-  children: [
-    { index: true, element: <Equipment /> },
-    { path: "product", element: <ProductsScreen /> },
-    {
-      path: "product/:id",
-      element: <ProductLayout />,
-      children: [
-        {
-          index: true,
-          element: <ProductDetails />,
-        },
-      ],
-    },
-    {
-      path: "checkout",
-      loader: checkoutScreenLoader,
-      element: <CheckoutScreen />,
-    },
-  ],
-},
+  {
+    path: "/equipments",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Equipment /> },
+      { path: "product", element: <ProductsScreen /> },
+      {
+        path: "product/:id",
+        element: <ProductLayout />,
+        children: [
+          {
+            index: true,
+            element: <ProductDetails />,
+          },
+        ],
+      },
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />,
+      },
+    ],
+  },
 
 
   // Pharmaceutical section
@@ -92,23 +92,23 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Pharmaceutical /> },
       { path: "product", element: <ProductsScreen /> },
-      { 
-        path: "product/:id", 
-        element: <ProductLayout />, 
-        children: [{ index: true, element: <ProductDetails /> }] 
+      {
+        path: "product/:id",
+        element: <ProductLayout />,
+        children: [{ index: true, element: <ProductDetails /> }]
       },
-      { 
-        path: "checkout", 
-        loader: checkoutScreenLoader, 
-        element: <CheckoutScreen /> 
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />
       },
     ],
   },
   {
     path: "/",
-    element: <RootLayout/>,
+    element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables/> },
+      { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
@@ -116,9 +116,9 @@ export const router = createBrowserRouter([
   },
   {
     path: "/pharmaceutical",
-    element: <RootLayout/>,
+    element: <RootLayout />,
     children: [
-      { index: true, element: <Pharmaceutical/> },
+      { index: true, element: <Pharmaceutical /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
@@ -159,6 +159,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
+      { path: "add-product2", element: <AddProductScreen2 newForm={true} /> },
       {
         path: "products", children: [
           { index: true, element: <SellerAllProductsScreen /> },

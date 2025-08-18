@@ -5,10 +5,21 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Autocomplete } from "../ui/autocomplete"
-import { CategoryApiRes } from "@/Types/types"
-import { useEffect } from "react"
+import { CategoryApiRes, CategoryDetailApiRes, SubCategory } from "@/Types/types"
+import { ChangeEvent, useEffect, useState } from "react"
 import { API_URL } from "@/data"
 import { useMutation } from "@tanstack/react-query"
+import { TagsInput } from "../ui/tags-input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Textarea } from "../ui/textarea"
+import { Button } from "../ui/button"
+import { IoRemoveCircle } from "react-icons/io5"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { Calendar } from "../ui/calendar"
+import { CalendarIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { AiOutlinePlusCircle } from "react-icons/ai"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -16,25 +27,79 @@ type AddProductFormProps = {
 
 export default function AddProductForm({ categories }: AddProductFormProps) {
 
+  const [subCatList, setSubCatList] = useState<SubCategory[]>([])
+  const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" })
+
   const categoryDropDownList = categories.map(c => ({ label: c.name, value: c._id }))
 
   const form = useForm<z.infer<typeof addProductFormSchema>>({
     resolver: zodResolver(addProductFormSchema),
+    defaultValues: {
+      expiry: new Date(),
+      tags: [],
+      attributes: [],
+    }
   })
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
     console.log(values)
   }
 
-  const { mutate, status } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: (categoryId: string) => fetchSubcategories(categoryId),
     onSuccess: (data) => {
-      console.log(data)
+      setSubCatList(data?.subcategories || [])
     }
   })
   useEffect(() => {
     mutate(form.getValues("category"))
   }, [form.watch("category")])
+
+  const subCatDropDownList = subCatList.map(el => ({ label: el.name, value: el._id }))
+
+  useEffect(() => {
+    const subCatId = form.getValues("subCategory")
+    const subCatSelected = subCatList.find(el => el._id === subCatId)
+    form.setValue("tags", subCatSelected?.tags || [])
+  }, [form.watch("subCategory")])
+
+  function addAddtri(attri: Record<string, string>) {
+    const currentAttri = form.getValues("attributes")
+    const newAttris = [...currentAttri, attri]
+    form.setValue("attributes", newAttris)
+    setCurrentAttri({ key: "", val: "" })
+  }
+
+  function removeAttri(idx: number) {
+    const attributes = [...form.getValues("attributes")]
+    attributes.splice(idx, 1)
+    form.setValue('attributes', attributes)
+  }
+
+  //media
+
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    if (file) setThumbnail(file);
+  };
+
+  const [images, setImages] = useState<File[]>([]);
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    e.preventDefault();
+    if (!e.target.files) return
+    const file = e.target.files[0];
+    if (file) {
+      const updatedImages = [...images];
+      updatedImages[index] = file;
+      setImages(updatedImages);
+    }
+  };
+
+  const [shortVideo, setShortVideo] = useState<File | null>(null);
+
+
 
   return (
     <Form {...form} >
@@ -56,18 +121,262 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           )}
         />
 
+        <section className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Name</FormLabel>
+                <FormControl>
+                  <Autocomplete
+                    listItems={categoryDropDownList}
+                    placeholder="Select category..."
+                    value={field.value}
+                    setValue={(value) => {
+                      form.setValue("category", value)
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="subCategory"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Name</FormLabel>
+                <FormControl>
+                  <Autocomplete
+                    listItems={subCatDropDownList}
+                    placeholder="Select subcategory..."
+                    value={field.value}
+                    setValue={(value) => { form.setValue("subCategory", value) }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
         <FormField
           control={form.control}
-          name="category"
+          name="tags"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Name</FormLabel>
+              <FormLabel>Tags</FormLabel>
               <FormControl>
-                <Autocomplete
-                  listItems={categoryDropDownList}
-                  placeholder="Select category..."
+                <TagsInput
                   value={field.value}
-                  setValue={(value) => { form.setValue("category", value) }}
+                  onValueChange={field.onChange}
+                  placeholder="Enter your tags"
+                />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="intendedUse"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Intended Use</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Diagnostic">Diagnostic</SelectItem>
+                  <SelectItem value="Clinical">Clinical</SelectItem>
+                  <SelectItem value="Surgical">Surgical</SelectItem>
+                  <SelectItem value="Support">Support</SelectItem>
+                  <SelectItem value="Non medical">Non medical</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sku"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product SKU</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="gtin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>GTIN</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="hsn"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>HSN Code</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="unspsc"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>UNSPSC Code</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="upsells"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Upsells Products URL</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="crosssells"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cross sells Products URL</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="manufacturerName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Manufacturer Name</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Manufacturer email</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Manufacturer Phone</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="origin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Origin</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="shortdescription"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Short Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="resize-none"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -75,6 +384,836 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="attributes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Custom Attributes</FormLabel>
+              <FormControl>
+                <>
+                  {field.value.map((e, i) => (
+                    <div className="flex gap-8" key={i}>
+                      <Input value={Object.keys(e)[0]} />
+                      <Input value={Object.values(e)[0]} />
+                      <Button type="button" variant="destructive" onClick={() => { removeAttri(i) }}><IoRemoveCircle /></Button>
+                    </div>
+                  ))}
+                  <div className="flex gap-8">
+                    <Input placeholder="Attribute name" value={currentAttri.key} onChange={(e) => { setCurrentAttri((p) => ({ ...p, key: e.target.value })) }} />
+                    <Input placeholder="Attribute value" value={currentAttri.val} onChange={(e) => { setCurrentAttri((p) => ({ ...p, val: e.target.value })) }} />
+                    <Button type="button" variant="ghost" onClick={() => addAddtri({ [currentAttri.key]: currentAttri.val })}>Add</Button>
+                  </div>
+                </>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <section className="grid grid-cols-2 items-end gap-4">
+          <FormField
+            control={form.control}
+            name="productWgt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Weight</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="productWgtUnit"
+            render={({ field }) => (
+              <FormItem>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select weight unit" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="kg">Kg</SelectItem>
+                    <SelectItem value="grams">Grams</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
+        <section className="grid grid-cols-4 gap-4 items-end">
+          <FormField
+            control={form.control}
+            name="dimension_l"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product dimensions (LxHxW)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dimension_h"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dimension_w"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dimensionUnit"
+            render={({ field }) => (
+              <FormItem>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select dimension unit" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="cm">cm</SelectItem>
+                    <SelectItem value="meter">meter</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
+        <FormField
+          control={form.control}
+          name="colorOptions"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Color Options</FormLabel>
+              <FormControl>
+                <Input
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sterileString"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sterile Product</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="true">Yes</SelectItem>
+                  <SelectItem value="false">No</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="singleUseString"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Single Use Product</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="true">Yes</SelectItem>
+                  <SelectItem value="false">No</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+
+        <FormField
+          control={form.control}
+          name="expiry"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Expiry Date/ Shelf life</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {field.value ? (
+                      format(field.value, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="productCompilance"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Compilance Documents</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="msds_ifu_leaflet"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="originalPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>MRP ()</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="discountPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Selling Price</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="institutePrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dealer / Institutional Pric</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <section className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="minmaxrule.minQty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Minimum Order Quantity</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="minmaxrule.maxQty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Maximum Order Quantity</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
+        <section className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="taxStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tax Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="taxable">taxable</SelectItem>
+                    <SelectItem value="shipping only">shipping only</SelectItem>
+                    <SelectItem value="none">none</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="taxClass"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tax Class</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="10">10%</SelectItem>
+                    <SelectItem value="12 only">12%</SelectItem>
+                    <SelectItem value="18">18%</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
+        <FormField
+          control={form.control}
+          name="stocks"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Stocks Available</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="unitOfMeasure"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Unit of Measure</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="stockStatus"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Stock Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="In stock"></SelectItem>
+                  <SelectItem value="Out of stock">Out of stock</SelectItem>
+                  <SelectItem value="On backorder">On backorder</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="deliveryLeadTime"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Delivery Leading Time (in days)</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="warranty"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Warranty (in year)</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="amc_cms"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>AMC / CMS Available</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="rma"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>RMA Policy</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dispatchLocation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dispatch Location</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dispatchPinCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dispatch Location</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="unitsPerCarton"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>No. of units per master carton</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="shippingWeight"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Shipping Weight (in kgs)</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="packagingType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Packaging Type</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="deliveryPartner"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Delivery partner</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Bluedart">Bluedart</SelectItem>
+                  <SelectItem value="Delhivery">Delhivery</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="shelfing_storage_req"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Shelfing / Storage requiremnts</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="purchaseNote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Purchase Note</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="certificate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Certifications / Test Reports </FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="oemLetter"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>OEM Authorization Letter</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="productComparisionSheet"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Comparison Sheet</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      field.onChange(Array.from(e.target.files));
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+
+
+
+        {/* media */}
+        <div>
+          <FormLabel>
+            Upload Thumbnail Image
+          </FormLabel>
+          <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+            <label
+              htmlFor="uploadThumbnail"
+              className="cursor-pointer w-full h-full grid place-items-center"
+            >
+              {
+                thumbnail ? (
+                  <img
+                    src={URL.createObjectURL(thumbnail)}
+                    alt="Thumbnail"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <AiOutlinePlusCircle size={30} color="#555" />
+                )}
+            </label>
+          </div>
+          <input
+            type="file"
+            id="uploadThumbnail"
+            className="hidden"
+            onChange={handleThumbnailChange}
+          />
+        </div>
+
+        <div>
+          <FormLabel>Upload other images</FormLabel>
+          <div className="flex gap-4 flex-wrap mt-2">
+            {
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                >
+                  <label
+                    htmlFor={`uploadImage-${index}`}
+                    className="cursor-pointer"
+                  >
+                    {images[index] ? (
+                      <img
+                        src={URL.createObjectURL(images[index])}
+                        alt={`Image-${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AiOutlinePlusCircle size={30} color="#555" />
+                    )}
+                  </label>
+                  <input
+                    type="file"
+                    id={`uploadImage-${index}`}
+                    className="hidden"
+                    onChange={(e) => handleImageChange(e, index)}
+                  />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div>
+          <FormLabel>
+            Upload Product Video
+          </FormLabel>
+          <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+            <label
+              htmlFor="uploadThumbnail"
+              className="cursor-pointer w-full h-full grid place-items-center"
+            >
+              {
+                shortVideo ? (
+                  <video
+                    controls
+                    src={URL.createObjectURL(shortVideo)}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <AiOutlinePlusCircle size={30} color="#555" />
+                )}
+            </label>
+          </div>
+          <input
+            type="file"
+            id="uploadShortVideo"
+            accept="video/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && file.size > 2 * 1024 * 1024) {
+                alert("Video size should not exceed 2MB.");
+                return;
+              }
+              if (file) {
+                setShortVideo(file); // Update state for short video
+              }
+            }}
+          />
+        </div>
+
+        <Button type="submit">Submit</Button>
       </form>
     </Form>
   )
@@ -85,6 +1224,6 @@ async function fetchSubcategories(categoryId: string) {
   const url = API_URL + "category/" + categoryId
   const res = await fetch(url)
   if (!res.ok) throw new Error()
-  const data = await res.json()
+  const data = await res.json() as CategoryDetailApiRes
   return data
 }
