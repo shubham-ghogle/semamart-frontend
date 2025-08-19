@@ -18,11 +18,14 @@ import { useWishlistStore } from "../../store/wishlistStore";
 
 // Fixed images for demo showcase
 const demoImages = [
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1519494080410-f9aa8df0e4c7?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80",
+ "/MedicalImages/imagea.png",
+  "/MedicalImages/imageb.png",
+  "/MedicalImages/imagec.png",
+    "/MedicalImages/imaged.jpg",
+        "/MedicalImages/imaged.png",
+
+  "/MedicalImages/imagef.png",
+
 ];
 
 export default function ProductCard() {

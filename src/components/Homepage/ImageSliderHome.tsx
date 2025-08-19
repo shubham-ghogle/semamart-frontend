@@ -26,7 +26,7 @@ export default function ImageSliderHome() {
   return (
     <section className="overflow-hidden relative">
       <article
-        className="flex transition-transform duration-500"
+        className="flex transition-transform duration-100"
         style={{
           transform: `translateX(-${currentSlide * 100}%)`,
         }}
