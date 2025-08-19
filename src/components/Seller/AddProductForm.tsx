@@ -20,6 +20,7 @@ import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { AiOutlinePlusCircle } from "react-icons/ai"
+import { useSellerStore } from "@/store/sellerStore"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -29,6 +30,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
   const [subCatList, setSubCatList] = useState<SubCategory[]>([])
   const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" })
+  const seller = useSellerStore((state) => state.seller);
+
 
   const categoryDropDownList = categories.map(c => ({ label: c.name, value: c._id }))
 
@@ -40,10 +43,6 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
       attributes: [],
     }
   })
-
-  function onSubmit(values: z.infer<typeof addProductFormSchema>) {
-    console.log(values)
-  }
 
   const { mutate } = useMutation({
     mutationFn: (categoryId: string) => fetchSubcategories(categoryId),
@@ -99,7 +98,114 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
+  function onSubmit(values: z.infer<typeof addProductFormSchema>) {
+    const newForm = new FormData();
 
+    newForm.append("shopId", seller?._id || "")
+    newForm.append("name", values.name)
+    newForm.append("category", values.category)
+    newForm.append("subCategory", values.subCategory)
+    newForm.append("tags", JSON.stringify(values.tags))
+    newForm.append("productType", values.productType)
+    newForm.append("intendedUse", values.intendedUse)
+    newForm.append("sku", values.sku)
+    newForm.append("gtin", values.gtin)
+    newForm.append("hsn", values.hsn)
+    newForm.append("unspsc", values.unspsc)
+
+    if (values.crosssells) {
+      newForm.append("crosssells", values.unspsc)
+    }
+    if (values.upsells) {
+      newForm.append("upsells", values.upsells)
+    }
+
+    newForm.append("manufacturerName", values.manufacturerName)
+    newForm.append("email", values.email)
+    newForm.append("phone", values.phone)
+    newForm.append("origin", values.origin)
+    newForm.append("shortdescription", values.shortdescription)
+    newForm.append("description", values.description)
+    newForm.append("attributes", JSON.stringify(values.attributes))
+    newForm.append("weight", values.productWgt + values.productWgtUnit)
+    newForm.append("dimension", `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`)
+
+    if (values.colorOptions) {
+      newForm.append("colorOptions", values.colorOptions)
+    }
+
+    newForm.append("sterile", values.sterileString)
+    newForm.append("singleUse", values.singleUseString)
+    newForm.append("expiry", values.expiry.toISOString())
+    newForm.append("originalPrice", values.originalPrice.toString())
+    newForm.append("discountPrice", values.discountPrice.toString())
+
+    if (values.institutePrice) {
+      newForm.append("institutePrice", values.institutePrice.toString())
+    }
+
+    newForm.append("minmaxrule", JSON.stringify({
+      minQty: values.minmaxrule.minQty,
+      maxQty: values.minmaxrule.maxQty
+    }))
+    newForm.append("taxStatus", values.taxStatus)
+    newForm.append("taxClass", values.taxClass.toString())
+    newForm.append("stock", values.stocks.toString())
+    newForm.append("unitOfMeasure", values.unitOfMeasure)
+    newForm.append("stockStatus", values.stockStatus)
+    newForm.append("deliveryLeadTime", values.deliveryLeadTime.toString())
+
+    if (values.warranty) {
+      newForm.append("warranty", values.stockStatus)
+    }
+
+    newForm.append("rma", values.rma)
+    newForm.append("dispatchLocation", values.dispatchLocation)
+    newForm.append("dispatchPinCode", values.dispatchPinCode.toString())
+    newForm.append("unitsPerCarton", values.unitsPerCarton.toString())
+    newForm.append("shippingWeight", values.shippingWeight.toString())
+    newForm.append("packagingType", values.packagingType)
+
+    if (values.deliveryPartner) {
+      newForm.append("deliveryPartner", values.deliveryPartner)
+    }
+
+    newForm.append("shelfing_storage_req", values.shelfing_storage_req)
+
+    if (values.purchaseNote) {
+      newForm.append("purchaseNote", values.purchaseNote)
+    }
+
+    if (values.amc_cms) {
+      newForm.append("amc_cms", values.amc_cms)
+    }
+    if (values.productCompilance) {
+      newForm.append("productCompilance", values.productCompilance)
+    }
+    if (values.msds_ifu_leaflet) {
+      newForm.append("msds_ifu_leaflet", values.msds_ifu_leaflet)
+    }
+    values.certificate.forEach(c => {
+      newForm.append("certificate", c)
+    })
+    if (values.oemLetter) {
+      newForm.append("oemLetter", values.oemLetter)
+    }
+    if (values.productComparisionSheet) {
+      newForm.append("productComparisionSheet", values.productComparisionSheet)
+    }
+    if (thumbnail) {
+      newForm.append("thumbnail", thumbnail)
+    }
+    images.forEach(i => {
+      newForm.append("images", i)
+    })
+    if (shortVideo) {
+      newForm.append("shortVideo", shortVideo)
+    }
+
+    postProduct(newForm)
+  }
 
   return (
     <Form {...form} >
@@ -127,7 +233,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel>Primary category</FormLabel>
                 <FormControl>
                   <Autocomplete
                     listItems={categoryDropDownList}
@@ -148,7 +254,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
             name="subCategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel>Subcategory</FormLabel>
                 <FormControl>
                   <Autocomplete
                     listItems={subCatDropDownList}
@@ -181,6 +287,30 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="productType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="Used">Used</SelectItem>
+                  <SelectItem value="Refurbished">Refurbished</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
         <FormField
           control={form.control}
@@ -411,8 +541,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 <>
                   {field.value.map((e, i) => (
                     <div className="flex gap-8" key={i}>
-                      <Input value={Object.keys(e)[0]} />
-                      <Input value={Object.values(e)[0]} />
+                      <Input value={Object.keys(e)[0]} readOnly />
+                      <Input value={Object.values(e)[0]} readOnly />
                       <Button type="button" variant="destructive" onClick={() => { removeAttri(i) }}><IoRemoveCircle /></Button>
                     </div>
                   ))}
@@ -477,7 +607,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 <FormControl>
                   <Input
                     type="number"
-                    {...field} />
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -638,10 +769,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
               <FormControl>
                 <Input
                   type="file"
-                  multiple
                   onChange={(e) => {
-                    if (e.target.files) {
-                      field.onChange(Array.from(e.target.files));
+                    if (e.target.files?.[0]) {
+                      field.onChange(e.target.files[0]);
                     }
                   }}
                 />
@@ -662,8 +792,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   type="file"
                   multiple
                   onChange={(e) => {
-                    if (e.target.files) {
-                      field.onChange(Array.from(e.target.files));
+                    if (e.target.files?.[0]) {
+                      field.onChange(e.target.files[0]);
                     }
                   }}
                 />
@@ -678,7 +808,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           name="originalPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>MRP ()</FormLabel>
+              <FormLabel>MRP (₹)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -838,7 +968,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="In stock"></SelectItem>
+                  <SelectItem value="In stock">In Stock</SelectItem>
                   <SelectItem value="Out of stock">Out of stock</SelectItem>
                   <SelectItem value="On backorder">On backorder</SelectItem>
                 </SelectContent>
@@ -887,7 +1017,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   type="file"
                   onChange={(e) => {
                     if (e.target.files) {
-                      field.onChange(Array.from(e.target.files));
+                      field.onChange(e.target.files[0]);
                     }
                   }}
                 />
@@ -935,7 +1065,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           name="dispatchPinCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dispatch Location</FormLabel>
+              <FormLabel>Pincode of Dispatch</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -1075,7 +1205,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   type="file"
                   onChange={(e) => {
                     if (e.target.files) {
-                      field.onChange(Array.from(e.target.files));
+                      field.onChange(e.target.files[0]);
                     }
                   }}
                 />
@@ -1096,7 +1226,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   type="file"
                   onChange={(e) => {
                     if (e.target.files) {
-                      field.onChange(Array.from(e.target.files));
+                      field.onChange(e.target.files[0]);
                     }
                   }}
                 />
@@ -1213,7 +1343,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           />
         </div>
 
-        <Button type="submit">Submit</Button>
+        <div className="flex justify-end">
+          <Button type="submit" variant="outline">Submit</Button>
+        </div>
       </form>
     </Form>
   )
@@ -1226,4 +1358,14 @@ async function fetchSubcategories(categoryId: string) {
   if (!res.ok) throw new Error()
   const data = await res.json() as CategoryDetailApiRes
   return data
+}
+
+async function postProduct(formData: FormData) {
+  const res = await fetch(API_URL + "product/create-product-v2", {
+    method: "post",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error();
+
 }
