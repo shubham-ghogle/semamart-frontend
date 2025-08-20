@@ -101,7 +101,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
-  useMutation({
+  const { mutate: mutateProduct } = useMutation({
     mutationFn: (formData: any) => postProduct(formData),
     onSuccess: () => {
       toast.done("Product added successfully")
@@ -205,14 +205,14 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
       newForm.append("shortVideo", shortVideo)
     }
 
-    postProduct(newForm)
+    mutateProduct(newForm)
   }
 
   return (
     <Form {...form} >
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl mx-auto py-10 bg-white p-4 rounded shadow">
 
-        <Accordion type="single" collapsible defaultValue="1">
+        <Accordion type="multiple" defaultValue={["1"]}>
 
           <AccordionItem value="1">
             <AccordionTrigger className="text-lg">Product Identification & Classification</AccordionTrigger>
@@ -840,7 +840,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 name="discountPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Selling Price</FormLabel>
+                    <FormLabel>Selling Price (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -856,7 +856,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 name="institutePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dealer / Institutional Pric</FormLabel>
+                    <FormLabel>Dealer / Institutional Price (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
