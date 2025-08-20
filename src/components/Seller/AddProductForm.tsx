@@ -44,6 +44,58 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
       expiry: new Date(),
       tags: [],
       attributes: [],
+      name: "",
+      category: "",
+      subCategory: "",
+      productType: "",
+      intendedUse: "",
+      sku: "",
+      gtin: "",
+      hsn: "",
+      unspsc: "",
+      upsells: "",
+      crosssells: "",
+      manufacturerName: "",
+      email: "",
+      phone: "",
+      origin: "",
+      shortdescription: "",
+      description: "",
+      productWgt: "",
+      productWgtUnit: "",
+      dimensionUnit: "",
+      dimension_h: "",
+      dimension_l: "",
+      dimension_w: "",
+      colorOptions: "",
+      sterileString: "",
+      singleUseString: "",
+      productCompilance: undefined,
+      msds_ifu_leaflet: undefined,
+      originalPrice: "",
+      discountPrice: "",
+      institutePrice: "",
+      minmaxrule: { maxQty: "", minQty: "" },
+      taxClass: "",
+      taxStatus: "",
+      stocks: "",
+      unitOfMeasure: "",
+      stockStatus: "",
+      deliveryLeadTime: "",
+      warranty: "",
+      amc_cms: undefined,
+      rma: "",
+      dispatchLocation: "",
+      dispatchPinCode: "",
+      unitsPerCarton: "",
+      shippingWeight: "",
+      packagingType: "",
+      deliveryPartner: "",
+      shelfing_storage_req: "",
+      purchaseNote: "",
+      certificate: [],
+      oemLetter: undefined,
+      productComparisionSheet: undefined
     }
   })
 
@@ -216,7 +268,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
           <AccordionItem value="1">
             <AccordionTrigger className="text-lg">Product Identification & Classification</AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 space-y-4">
+            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -280,12 +332,12 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 name="tags"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tags</FormLabel>
+                    <FormLabel>Product Tags</FormLabel>
                     <FormControl>
                       <TagsInput
                         value={field.value}
                         onValueChange={field.onChange}
-                        placeholder="Enter your tags"
+                        placeholder="Enter product tags"
                       />
                     </FormControl>
 
@@ -294,118 +346,121 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="productType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="productType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select product type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="New">New</SelectItem>
+                          <SelectItem value="Used">Used</SelectItem>
+                          <SelectItem value="Refurbished">Refurbished</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="intendedUse"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Intended Use of Product</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select intended use of product" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Diagnostic">Diagnostic</SelectItem>
+                          <SelectItem value="Clinical">Clinical</SelectItem>
+                          <SelectItem value="Surgical">Surgical</SelectItem>
+                          <SelectItem value="Support">Support</SelectItem>
+                          <SelectItem value="Non medical">Non medical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product SKU</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
+                        <Input
+                          type="text"
+                          {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="New">New</SelectItem>
-                        <SelectItem value="Used">Used</SelectItem>
-                        <SelectItem value="Refurbished">Refurbished</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-
-              <FormField
-                control={form.control}
-                name="intendedUse"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Intended Use</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormField
+                  control={form.control}
+                  name="gtin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GTIN</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
+                        <Input
+                          type="text"
+                          {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Diagnostic">Diagnostic</SelectItem>
-                        <SelectItem value="Clinical">Clinical</SelectItem>
-                        <SelectItem value="Surgical">Surgical</SelectItem>
-                        <SelectItem value="Support">Support</SelectItem>
-                        <SelectItem value="Non medical">Non medical</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="sku"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product SKU</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="hsn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>HSN Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="gtin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GTIN</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="hsn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>HSN Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="unspsc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>UNSPSC Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="unspsc"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UNSPSC Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -443,7 +498,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
           <AccordionItem value="2">
             <AccordionTrigger className="text-lg"> Product Description & Specifications </AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 space-y-4">
+            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="manufacturerName"
@@ -818,7 +873,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
           <AccordionItem value="3">
             <AccordionTrigger className="text-lg"> Pricing & Commercials</AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 space-y-4">
+            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="originalPrice"
@@ -1064,7 +1119,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
           <AccordionItem value="4">
             <AccordionTrigger className="text-lg"> Logistics & Fulfillment</AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 space-y-4">
+            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="dispatchLocation"
@@ -1197,7 +1252,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
 
           <AccordionItem value="5">
             <AccordionTrigger className="text-lg">Media Uploads</AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 space-y-4">
+            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="certificate"
