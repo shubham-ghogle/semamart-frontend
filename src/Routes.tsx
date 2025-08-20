@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-   {
+  {
     path: "/search",
     element: <SearchLayout />,
     children: [
@@ -170,8 +170,8 @@ export const router = createBrowserRouter([
     element: <SellerLayout />,
     children: [
       { index: true, element: <SellerDashboard /> },
-      { path: "add-product", element: <AddProductScreen2 /> },
-      { path: "add-product2", element: <AddProductScreen2 newForm={true} /> },
+      { path: "add-product-old", element: <AddProductScreen2 /> },
+      { path: "add-product", element: <AddProductScreen2 newForm={true} /> },
       {
         path: "products", children: [
           { index: true, element: <SellerAllProductsScreen /> },
@@ -205,6 +205,6 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  {path:"/account", element: <AccountPage/>},
-  {path:"/account/orders", element: <MyOrders/>}
+  { path: "/account", element: <AccountPage /> },
+  { path: "/account/orders", element: <MyOrders /> }
 ]);
