@@ -2,8 +2,18 @@ import { z } from "zod"
 
 const addProductFormSchema = z.object({
   name: z.string().min(1),
-  category: z.string(),
-  subCategory: z.string(),
+  category: z.array(
+    z.object({
+      name: z.string().min(1, "Category name required"),
+      val: z.string().min(1, "Category value required"),
+    })
+  ).min(1),
+  subCategory: z.array(
+    z.object({
+      name: z.string().min(1, "Category name required"),
+      val: z.string().min(1, "Category value required"),
+    })
+  ).min(1),
   tags: z.array(z.string()).min(1, {
     error: "Please select at least one item"
   }),
@@ -29,9 +39,9 @@ const addProductFormSchema = z.object({
   dimension_h: z.string().min(0),
   dimensionUnit: z.string().min(1),
   colorOptions: z.string().optional(),
-  sterileString: z.string(),// TODO: convert to boolean
-  singleUseString: z.string(),// TODO: convert to boolean
-  expiry: z.date(), // TODO: aonly for valid products
+  sterileString: z.string(),
+  singleUseString: z.string(),
+  expiry: z.date(),
   productCompilance: z.instanceof(File).optional(),
   msds_ifu_leaflet: z.instanceof(File).optional(),
   originalPrice: z.string().min(0),
