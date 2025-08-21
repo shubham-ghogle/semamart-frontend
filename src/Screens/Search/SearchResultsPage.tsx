@@ -3,8 +3,9 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Product } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react"; // Make sure to install @headlessui/react
-//const BASE_URL = "http://localhost:8000";
+
+import { ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/UI/collapsible";
 
 export default function SearchResultsPage() {
   const [params] = useSearchParams();
@@ -71,81 +72,52 @@ export default function SearchResultsPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">
-
         {/* Sidebar Filters */}
         <aside className="w-full lg:w-64 bg-white p-4 rounded-xl shadow space-y-4 transition-all">
-          <Disclosure defaultOpen>
-            {({ open }) => (
-              <div className="transition-all">
-                <DisclosureButton className="w-full flex justify-between items-center text-left font-semibold text-gray-700 py-2 hover:text-blue-600 transition">
-                  <span>Category</span>
-                  <svg
-                    className={`w-4 h-4 transform transition-transform duration-300 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M19 9l-7 7-7-7" />
-                  </svg>
-                </DisclosureButton>
-                <DisclosurePanel className="pt-1">
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </DisclosurePanel>
-              </div>
-            )}
-          </Disclosure>
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger className="w-full flex justify-between items-center text-left font-semibold text-gray-700 py-2 hover:text-blue-600 transition">
+              <span>Category</span>
+              <ChevronDown className="w-4 h-4 transition-transform duration-300 data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-1">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </CollapsibleContent>
+          </Collapsible>
 
-          <Disclosure defaultOpen>
-            {({ open }) => (
-              <div className="transition-all">
-                <DisclosureButton className="w-full flex justify-between items-center text-left font-semibold text-gray-700 py-2 hover:text-blue-600 transition">
-                  <span>Price Range</span>
-                  <svg
-                    className={`w-4 h-4 transform transition-transform duration-300 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M19 9l-7 7-7-7" />
-                  </svg>
-                </DisclosureButton>
-                <DisclosurePanel className="pt-1">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(+e.target.value)}
-                      className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                      placeholder="Min"
-                    />
-                    <input
-                      type="number"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(+e.target.value)}
-                      className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                      placeholder="Max"
-                    />
-                  </div>
-                </DisclosurePanel>
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger className="w-full flex justify-between items-center text-left font-semibold text-gray-700 py-2 hover:text-blue-600 transition">
+              <span>Price Range</span>
+              <ChevronDown className="w-4 h-4 transition-transform duration-300 data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-1">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(+e.target.value)}
+                  className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  placeholder="Min"
+                />
+                <input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(+e.target.value)}
+                  className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  placeholder="Max"
+                />
               </div>
-            )}
-          </Disclosure>
+            </CollapsibleContent>
+          </Collapsible>
 
           <div className="pt-4">
             <button
@@ -169,11 +141,10 @@ export default function SearchResultsPage() {
           ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filtered.map((p) => {
-                // const imgUrl =
-                //   p.images?.[0] ? `${BASE_URL}/${p.images[0]}` : "/image60.png";
                 const discount = p.originalPrice
                   ? Math.round(
-                      ((p.originalPrice - p.discountPrice) / p.originalPrice) * 100
+                      ((p.originalPrice - p.discountPrice) / p.originalPrice) *
+                        100
                     )
                   : null;
                 const inWishlist = wishlist.some((w) => w._id === p._id);
