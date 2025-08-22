@@ -25,6 +25,7 @@ import { toast } from "react-toastify"
 import { Accordion, AccordionItem, AccordionTrigger } from "../ui/accordion"
 import { AccordionContent } from "@radix-ui/react-accordion"
 import { addProductFormDefaultValues } from "@/Screens/Seller/seller.hooksUtils"
+import SpecialityDropdown from "./SpecialityDropdown"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -138,6 +139,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     if (values.upsells) {
       newForm.append("upsells", values.upsells)
     }
+    newForm.append("specialityPackage", values.specialityPackage)
+    newForm.append("specialityPackageType", values.specialityPackageType)
     newForm.append("manufacturerName", values.manufacturerName)
     newForm.append("email", values.email)
     newForm.append("phone", values.phone)
@@ -483,6 +486,30 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="specialityPackage"
+                render={({ }) => (
+                  <FormItem>
+                    <FormLabel>Speciality Package</FormLabel>
+                    <FormControl>
+                      <SpecialityDropdown
+                        value={form.getValues("specialityPackage")}
+                        setValue={(v) => {
+                          form.setValue("specialityPackage", v)
+                        }}
+                        packageTypeValue={form.getValues("specialityPackageType")}
+                        setPackageValue={v => {
+                          form.setValue("specialityPackageType", v)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
             </AccordionContent>
           </AccordionItem>
 

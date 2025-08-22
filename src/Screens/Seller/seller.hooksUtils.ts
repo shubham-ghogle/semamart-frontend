@@ -53,5 +53,7 @@ export const addProductFormDefaultValues = {
   purchaseNote: "",
   certificate: [],
   oemLetter: undefined,
-  productComparisionSheet: undefined
+  productComparisionSheet: undefined,
+  specialityPackage: "",
+  specialityPackageType: ""
 }

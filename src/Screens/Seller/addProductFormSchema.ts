@@ -25,6 +25,8 @@ const addProductFormSchema = z.object({
   unspsc: z.string(),
   upsells: z.string().optional(),
   crosssells: z.string().optional(),
+  specialityPackage: z.string().min(1),
+  specialityPackageType: z.string().min(1),
   manufacturerName: z.string().min(1),
   email: z.string().min(1),
   phone: z.string().min(1),
