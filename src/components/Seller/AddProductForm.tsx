@@ -24,6 +24,8 @@ import { useSellerStore } from "@/store/sellerStore"
 import { toast } from "react-toastify"
 import { Accordion, AccordionItem, AccordionTrigger } from "../ui/accordion"
 import { AccordionContent } from "@radix-ui/react-accordion"
+import { addProductFormDefaultValues } from "@/Screens/Seller/seller.hooksUtils"
+import SpecialityDropdown from "./SpecialityDropdown"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -34,69 +36,14 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
   const [subCatList, setSubCatList] = useState<SubCategory[]>([])
   const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" })
   const seller = useSellerStore((state) => state.seller);
-
+  const [currCategory, setCurrCategory] = useState({ name: "", val: "" })
+  const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" })
 
   const categoryDropDownList = categories.map(c => ({ label: c.name, value: c._id }))
 
   const form = useForm<z.infer<typeof addProductFormSchema>>({
     resolver: zodResolver(addProductFormSchema),
-    defaultValues: {
-      expiry: new Date(),
-      tags: [],
-      attributes: [],
-      name: "",
-      category: "",
-      subCategory: "",
-      productType: "",
-      intendedUse: "",
-      sku: "",
-      gtin: "",
-      hsn: "",
-      unspsc: "",
-      upsells: "",
-      crosssells: "",
-      manufacturerName: "",
-      email: "",
-      phone: "",
-      origin: "",
-      shortdescription: "",
-      description: "",
-      productWgt: "",
-      productWgtUnit: "",
-      dimensionUnit: "",
-      dimension_h: "",
-      dimension_l: "",
-      dimension_w: "",
-      colorOptions: "",
-      sterileString: "",
-      singleUseString: "",
-      productCompilance: undefined,
-      msds_ifu_leaflet: undefined,
-      originalPrice: "",
-      discountPrice: "",
-      institutePrice: "",
-      minmaxrule: { maxQty: "", minQty: "" },
-      taxClass: "",
-      taxStatus: "",
-      stocks: "",
-      unitOfMeasure: "",
-      stockStatus: "",
-      deliveryLeadTime: "",
-      warranty: "",
-      amc_cms: undefined,
-      rma: "",
-      dispatchLocation: "",
-      dispatchPinCode: "",
-      unitsPerCarton: "",
-      shippingWeight: "",
-      packagingType: "",
-      deliveryPartner: "",
-      shelfing_storage_req: "",
-      purchaseNote: "",
-      certificate: [],
-      oemLetter: undefined,
-      productComparisionSheet: undefined
-    }
+    defaultValues: addProductFormDefaultValues,
   })
 
   const { mutate } = useMutation({
@@ -106,15 +53,16 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     }
   })
   useEffect(() => {
-    mutate(form.getValues("category"))
-  }, [form.watch("category")])
+    if (currCategory.name.length === 0) return
+    mutate(currCategory.val)
+  }, [currCategory])
 
   const subCatDropDownList = subCatList.map(el => ({ label: el.name, value: el._id }))
 
   useEffect(() => {
-    const subCatId = form.getValues("subCategory")
+    const subCatId = currSubcategory.val
     const subCatSelected = subCatList.find(el => el._id === subCatId)
-    form.setValue("tags", subCatSelected?.tags || [])
+    form.setValue("tags", [...form.getValues("tags"), ...subCatSelected?.tags || []])
   }, [form.watch("subCategory")])
 
   function addAddtri(attri: Record<string, string>) {
@@ -130,8 +78,17 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     form.setValue('attributes', attributes)
   }
 
-  //media
+  function addCaategory() {
+    if (currCategory.val === "" || currSubcategory.val === "") return
+    const categories = form.getValues("category")
+    const subCaategories = form.getValues("subCategory")
+    form.setValue("category", [...categories, currCategory])
+    form.setValue("subCategory", [...subCaategories, currSubcategory])
+    setCurrCategory({ name: "", val: "" })
+    setCurrSubcategory({ name: "", val: "" })
+  }
 
+  //media
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -157,7 +114,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     mutationFn: (formData: any) => postProduct(formData),
     onSuccess: () => {
       toast.done("Product added successfully")
-      // TODO: clear form
+      form.reset()
     },
     onError: () => {
       toast.error("Something went wrong!!")
@@ -167,8 +124,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     const newForm = new FormData();
     newForm.append("shopId", seller?._id || "")
     newForm.append("name", values.name)
-    newForm.append("category", values.category)
-    newForm.append("subCategory", values.subCategory)
+    newForm.append("category", JSON.stringify(values.category.map(el => el.val)))
+    newForm.append("subCategory", JSON.stringify(values.subCategory.map(el => el.val)))
     newForm.append("tags", JSON.stringify(values.tags))
     newForm.append("productType", values.productType)
     newForm.append("intendedUse", values.intendedUse)
@@ -182,6 +139,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     if (values.upsells) {
       newForm.append("upsells", values.upsells)
     }
+    newForm.append("specialityPackage", values.specialityPackage)
+    newForm.append("specialityPackageType", values.specialityPackageType)
     newForm.append("manufacturerName", values.manufacturerName)
     newForm.append("email", values.email)
     newForm.append("phone", values.phone)
@@ -260,6 +219,16 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     mutateProduct(newForm)
   }
 
+  function deleteCategory(i: number) {
+    const cats = [...form.getValues("category")]
+    const subCats = [...form.getValues("subCategory")]
+    cats.splice(i, 1)
+    subCats.splice(i, 1)
+    form.setValue("category", cats)
+    form.setValue("subCategory", subCats)
+  }
+
+
   return (
     <Form {...form} >
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl mx-auto py-10 bg-white p-4 rounded shadow">
@@ -289,18 +258,26 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 <FormField
                   control={form.control}
                   name="category"
-                  render={({ field }) => (
+                  render={({ }) => (
                     <FormItem>
                       <FormLabel>Primary category</FormLabel>
                       <FormControl>
-                        <Autocomplete
-                          listItems={categoryDropDownList}
-                          placeholder="Select category..."
-                          value={field.value}
-                          setValue={(value) => {
-                            form.setValue("category", value)
-                          }}
-                        />
+                        <>
+                          {
+                            form.getValues("category").map(el => (
+                              <Input value={el.name} key={el.val} readOnly />
+                            ))
+                          }
+                          <Autocomplete
+                            listItems={categoryDropDownList}
+                            placeholder="Select category..."
+                            value={currCategory.val}
+                            setValue={(value) => {
+                              const catName = categoryDropDownList.find(el => el.value === value)?.label || ""
+                              setCurrCategory({ name: catName, val: value })
+                            }}
+                          />
+                        </>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -310,16 +287,32 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 <FormField
                   control={form.control}
                   name="subCategory"
-                  render={({ field }) => (
+                  render={({ }) => (
                     <FormItem>
                       <FormLabel>Subcategory</FormLabel>
                       <FormControl>
-                        <Autocomplete
-                          listItems={subCatDropDownList}
-                          placeholder="Select subcategory..."
-                          value={field.value}
-                          setValue={(value) => { form.setValue("subCategory", value) }}
-                        />
+                        <>
+                          {
+                            form.getValues("subCategory").map((el, i) => (
+                              <article className="grid grid-cols-[1fr_50px] items-center gap-4">
+                                <Input value={el.name} readOnly key={el.val} />
+                                <Button type="button" size="sm" variant="destructive" onClick={() => deleteCategory(i)}><IoRemoveCircle /></Button>
+                              </article>
+                            ))
+                          }
+                          <article className="grid grid-cols-[1fr_50px] items-center gap-4">
+                            <Autocomplete
+                              listItems={subCatDropDownList}
+                              placeholder="Select subcategory..."
+                              value={currSubcategory.val}
+                              setValue={(value) => {
+                                const subCatName = subCatDropDownList.find(el => el.value === value)?.label || ""
+                                setCurrSubcategory({ name: subCatName, val: value })
+                              }}
+                            />
+                            <Button variant="secondary" size="sm" type="button" onClick={addCaategory}>Add</Button>
+                          </article>
+                        </>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -493,6 +486,30 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="specialityPackage"
+                render={({ }) => (
+                  <FormItem>
+                    <FormLabel>Speciality Package</FormLabel>
+                    <FormControl>
+                      <SpecialityDropdown
+                        value={form.getValues("specialityPackage")}
+                        setValue={(v) => {
+                          form.setValue("specialityPackage", v)
+                        }}
+                        packageTypeValue={form.getValues("specialityPackageType")}
+                        setPackageValue={v => {
+                          form.setValue("specialityPackageType", v)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
             </AccordionContent>
           </AccordionItem>
 

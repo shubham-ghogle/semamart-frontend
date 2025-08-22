@@ -6,6 +6,7 @@ import { useWishlistStore } from "../../store/wishlistStore";
 
 import { ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/UI/collapsible";
+//const BASE_URL = "http://localhost:8000";
 
 export default function SearchResultsPage() {
   const [params] = useSearchParams();
@@ -143,9 +144,9 @@ export default function SearchResultsPage() {
               {filtered.map((p) => {
                 const discount = p.originalPrice
                   ? Math.round(
-                      ((p.originalPrice - p.discountPrice) / p.originalPrice) *
-                        100
-                    )
+                    ((p.originalPrice - p.discountPrice) / p.originalPrice) *
+                    100
+                  )
                   : null;
                 const inWishlist = wishlist.some((w) => w._id === p._id);
 
