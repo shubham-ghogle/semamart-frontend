@@ -84,6 +84,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     const subCaategories = form.getValues("subCategory")
     form.setValue("category", [...categories, currCategory])
     form.setValue("subCategory", [...subCaategories, currSubcategory])
+    const subCatId = currSubcategory.val
+    const subCatSelected = subCatList.find(el => el._id === subCatId)
+    form.setValue("tags", [...form.getValues("tags"), ...subCatSelected?.tags || []])
     setCurrCategory({ name: "", val: "" })
     setCurrSubcategory({ name: "", val: "" })
   }
@@ -113,7 +116,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
   const { mutate: mutateProduct } = useMutation({
     mutationFn: (formData: any) => postProduct(formData),
     onSuccess: () => {
-      toast.done("Product added successfully")
+      toast.success("Product added successfully")
       form.reset()
     },
     onError: () => {
@@ -124,8 +127,12 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     const newForm = new FormData();
     newForm.append("shopId", seller?._id || "")
     newForm.append("name", values.name)
-    newForm.append("category", JSON.stringify(values.category.map(el => el.val)))
-    newForm.append("subCategory", JSON.stringify(values.subCategory.map(el => el.val)))
+    values.category.forEach(el => {
+      newForm.append("category", el.val)
+    })
+    values.subCategory.forEach(el => {
+      newForm.append("subCategory", el.val)
+    })
     newForm.append("tags", JSON.stringify(values.tags))
     newForm.append("productType", values.productType)
     newForm.append("intendedUse", values.intendedUse)

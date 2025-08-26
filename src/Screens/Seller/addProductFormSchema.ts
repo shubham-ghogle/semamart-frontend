@@ -67,7 +67,7 @@ const addProductFormSchema = z.object({
   rma: z.string(),
   dispatchLocation: z.string().min(1),
   dispatchPinCode: z.string().min(1),
-  unitsPerCarton: z.string().min(0),
+  unitsPerCarton: z.string().min(1),
   shippingWeight: z.string().min(1),
   packagingType: z.string().min(1),
   deliveryPartner: z.string().optional(),
