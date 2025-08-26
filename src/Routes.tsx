@@ -38,6 +38,7 @@ import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import AccountPage from "./components/Account/AccountPage";
 import MyOrders from "./components/Account/MyOrders";
+import PaymentScreen from "./Screens/Payment/PaymentScreen";
 
 export const router = createBrowserRouter([
   {
@@ -51,9 +52,14 @@ export const router = createBrowserRouter([
         loader: checkoutScreenLoader,
         element: <CheckoutScreen />
       },
+      {
+        path: "checkout/payment",
+        loader: checkoutScreenLoader, // reuse same loader if you need cart + user data
+        element: <PaymentScreen/>
+     },
     ],
   },
-
+  
   {
     path: "/search",
     element: <SearchLayout />,
