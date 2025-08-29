@@ -39,6 +39,7 @@ import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import AccountPage from "./components/Account/AccountPage";
 import MyOrders from "./components/Account/MyOrders";
 import PaymentScreen from "./Screens/Payment/PaymentScreen";
+import AdminLogin from "./Screens/Admin/AdminLogin";
 
 export const router = createBrowserRouter([
   {
@@ -152,6 +153,10 @@ export const router = createBrowserRouter([
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
   // Admin Routes
+  {
+  path: "/admin-login",
+  element: <AdminLogin />,
+  },
   {
     path: "/admin",
     loader: getAdminFromLocalLoader,
