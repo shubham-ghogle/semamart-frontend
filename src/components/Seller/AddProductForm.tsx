@@ -1,5 +1,5 @@
 import { addProductFormSchema } from "@/Screens/Seller/addProductFormSchema"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
@@ -16,16 +16,16 @@ import { Button } from "../ui/button"
 import { IoRemoveCircle } from "react-icons/io5"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Calendar } from "../ui/calendar"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, MinusCircleIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { AiOutlinePlusCircle } from "react-icons/ai"
 import { useSellerStore } from "@/store/sellerStore"
 import { toast } from "react-toastify"
-import { Accordion, AccordionItem, AccordionTrigger } from "../ui/accordion"
-import { AccordionContent } from "@radix-ui/react-accordion"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../ui/accordion"
 import { addProductFormDefaultValues } from "@/Screens/Seller/seller.hooksUtils"
 import SpecialityDropdown from "./SpecialityDropdown"
+import { Checkbox } from "../ui/checkbox"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -38,6 +38,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
   const seller = useSellerStore((state) => state.seller);
   const [currCategory, setCurrCategory] = useState({ name: "", val: "" })
   const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" })
+  const [isMultiVariant, setIsMultiVariant] = useState(false)
 
   const categoryDropDownList = categories.map(c => ({ label: c.name, value: c._id }))
 
@@ -45,6 +46,22 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     resolver: zodResolver(addProductFormSchema),
     defaultValues: addProductFormDefaultValues,
   })
+
+  const { fields: variantFields, append, remove } = useFieldArray({
+    name: "variants",
+    control: form.control
+  })
+
+  function addVariant() {
+    append({
+      originalPrice: "",
+      institutePrice: undefined,
+      stocks: "",
+      size: null,
+      colorOption: null,
+      discountPrice: ""
+    })
+  }
 
   const { mutate } = useMutation({
     mutationFn: (categoryId: string) => fetchSubcategories(categoryId),
@@ -92,11 +109,15 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
   }
 
   //media
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const [thumbnail, setThumbnail] = useState<File[]>([]);
+  const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>, i: number) => {
     e.preventDefault();
     const file = e.target.files?.[0];
-    if (file) setThumbnail(file);
+    if (file) setThumbnail(p => {
+      const img = [...p]
+      img.splice(i + 1, 0, file)
+      return img
+    });
   };
 
   const [images, setImages] = useState<File[]>([]);
@@ -157,24 +178,24 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     newForm.append("attributes", JSON.stringify(values.attributes))
     newForm.append("weight", values.productWgt + values.productWgtUnit)
     newForm.append("dimension", `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`)
-    if (values.colorOptions) {
-      newForm.append("colorOptions", values.colorOptions)
-    }
+    // if (values.colorOptions) {
+    //   newForm.append("colorOptions", values.colorOptions)
+    // }
     newForm.append("sterile", values.sterileString)
     newForm.append("singleUse", values.singleUseString)
     newForm.append("expiry", values.expiry.toISOString())
-    newForm.append("originalPrice", values.originalPrice.toString())
-    newForm.append("discountPrice", values.discountPrice.toString())
-    if (values.institutePrice) {
-      newForm.append("institutePrice", values.institutePrice.toString())
-    }
+    // newForm.append("originalPrice", values.originalPrice.toString())
+    // newForm.append("discountPrice", values.discountPrice.toString())
+    // if (values.institutePrice) {
+    //   newForm.append("institutePrice", values.institutePrice.toString())
+    // }
     newForm.append("minmaxrule", JSON.stringify({
       minQty: values.minmaxrule.minQty,
       maxQty: values.minmaxrule.maxQty
     }))
     newForm.append("taxStatus", values.taxStatus)
     newForm.append("taxClass", values.taxClass.toString())
-    newForm.append("stock", values.stocks.toString())
+    // newForm.append("stock", values.stocks.toString())
     newForm.append("unitOfMeasure", values.unitOfMeasure)
     newForm.append("stockStatus", values.stockStatus)
     newForm.append("deliveryLeadTime", values.deliveryLeadTime.toString())
@@ -213,9 +234,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     if (values.productComparisionSheet) {
       newForm.append("productComparisionSheet", values.productComparisionSheet)
     }
-    if (thumbnail) {
-      newForm.append("thumbnail", thumbnail)
-    }
+    // if (thumbnail) {
+    //   newForm.append("thumbnail", thumbnail)
+    // }
     images.forEach(i => {
       newForm.append("images", i)
     })
@@ -235,6 +256,18 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     form.setValue("subCategory", subCats)
   }
 
+  function switchMultiVarianMode() {
+    setIsMultiVariant(p => !p)
+    form.setValue("variants", [{
+      size: null,
+      colorOption: null,
+      originalPrice: "",
+      discountPrice: "",
+      institutePrice: "",
+      stocks: ""
+    }])
+    setThumbnail([])
+  }
 
   return (
     <Form {...form} >
@@ -754,20 +787,20 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="colorOptions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color Options</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* <FormField */}
+              {/*   control={form.control} */}
+              {/*   name="colorOptions" */}
+              {/*   render={({ field }) => ( */}
+              {/*     <FormItem> */}
+              {/*       <FormLabel>Color Options</FormLabel> */}
+              {/*       <FormControl> */}
+              {/*         <Input */}
+              {/*           {...field} /> */}
+              {/*       </FormControl> */}
+              {/*       <FormMessage /> */}
+              {/*     </FormItem> */}
+              {/*   )} */}
+              {/* /> */}
 
               <FormField
                 control={form.control}
@@ -896,55 +929,55 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           </AccordionItem>
 
           <AccordionItem value="3">
-            <AccordionTrigger className="text-lg"> Pricing & Commercials</AccordionTrigger>
+            <AccordionTrigger className="text-lg">Commercials</AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
-              <FormField
-                control={form.control}
-                name="originalPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>MRP (₹)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="discountPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Selling Price (₹)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="institutePrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dealer / Institutional Price (₹)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* <FormField */}
+              {/*   control={form.control} */}
+              {/*   name="originalPrice" */}
+              {/*   render={({ field }) => ( */}
+              {/*     <FormItem> */}
+              {/*       <FormLabel>MRP (₹)</FormLabel> */}
+              {/*       <FormControl> */}
+              {/*         <Input */}
+              {/*           type="number" */}
+              {/*           {...field} /> */}
+              {/*       </FormControl> */}
+              {/*       <FormMessage /> */}
+              {/*     </FormItem> */}
+              {/*   )} */}
+              {/* /> */}
+              {/**/}
+              {/* <FormField */}
+              {/*   control={form.control} */}
+              {/*   name="discountPrice" */}
+              {/*   render={({ field }) => ( */}
+              {/*     <FormItem> */}
+              {/*       <FormLabel>Selling Price (₹)</FormLabel> */}
+              {/*       <FormControl> */}
+              {/*         <Input */}
+              {/*           type="number" */}
+              {/*           {...field} /> */}
+              {/*       </FormControl> */}
+              {/*       <FormMessage /> */}
+              {/*     </FormItem> */}
+              {/*   )} */}
+              {/* /> */}
+              {/**/}
+              {/* <FormField */}
+              {/*   control={form.control} */}
+              {/*   name="institutePrice" */}
+              {/*   render={({ field }) => ( */}
+              {/*     <FormItem> */}
+              {/*       <FormLabel>Dealer / Institutional Price (₹)</FormLabel> */}
+              {/*       <FormControl> */}
+              {/*         <Input */}
+              {/*           type="number" */}
+              {/*           {...field} /> */}
+              {/*       </FormControl> */}
+              {/*       <FormMessage /> */}
+              {/*     </FormItem> */}
+              {/*   )} */}
+              {/* /> */}
 
               <section className="grid grid-cols-2 gap-4">
                 <FormField
@@ -1022,19 +1055,19 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="stocks"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stocks Available</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* <FormField */}
+              {/*   control={form.control} */}
+              {/*   name="stocks" */}
+              {/*   render={({ field }) => ( */}
+              {/*     <FormItem> */}
+              {/*       <FormLabel>Stocks Available</FormLabel> */}
+              {/*       <FormControl> */}
+              {/*         <Input type="number" {...field} /> */}
+              {/*       </FormControl> */}
+              {/*       <FormMessage /> */}
+              {/*     </FormItem> */}
+              {/*   )} */}
+              {/* /> */}
 
               <FormField
                 control={form.control}
@@ -1275,7 +1308,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           </AccordionItem>
 
           <AccordionItem value="5">
-            <AccordionTrigger className="text-lg">Media Uploads</AccordionTrigger>
+            <AccordionTrigger className="text-lg">Documents Uploads</AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
@@ -1342,110 +1375,348 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
               />
 
               {/* media */}
-              <div>
-                <FormLabel>
-                  Upload Thumbnail Image
-                </FormLabel>
-                <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
-                  <label
-                    htmlFor="uploadThumbnail"
-                    className="cursor-pointer w-full h-full grid place-items-center"
-                  >
-                    {
-                      thumbnail ? (
-                        <img
-                          src={URL.createObjectURL(thumbnail)}
-                          alt="Thumbnail"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <AiOutlinePlusCircle size={30} color="#555" />
-                      )}
-                  </label>
-                </div>
-                <input
-                  type="file"
-                  id="uploadThumbnail"
-                  className="hidden"
-                  onChange={handleThumbnailChange}
-                />
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="6">
+            <AccordionTrigger className="text-lg">Pricing and Media</AccordionTrigger>
+            <AccordionContent className="px-4 pt-2 pb-6">
+              <div className="flex items-center gap-2 mb-8">
+                <FormLabel className="text-[16px] font-normal">Does this product have multiple variants (sizes/colors)?</FormLabel>
+                <Checkbox checked={isMultiVariant} onCheckedChange={switchMultiVarianMode} className="bg-light-blue! text-blue-800!" />
               </div>
 
-              <div>
-                <FormLabel>Upload other images</FormLabel>
-                <div className="flex gap-4 flex-wrap mt-2">
-                  {
-                    Array.from({ length: 4 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+              {!isMultiVariant && (
+                <section className="space-y-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`variants.0.originalPrice`}
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>MRP (₹)</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...form.register(`variants.${0}.originalPrice`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`variants.${0}.discountPrice`}
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>Selling Price (₹)</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...form.register(`variants.${0}.discountPrice`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`variants.${0}.institutePrice`}
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>institute Price (₹)</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...form.register(`variants.${0}.institutePrice`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`variants.${0}.stocks`}
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>Stocks</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...form.register(`variants.${0}.stocks`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <FormLabel>
+                      Upload Thumbnail Image
+                    </FormLabel>
+                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                      <label
+                        htmlFor="uploadThumbnail"
+                        className="cursor-pointer w-full h-full grid place-items-center"
                       >
-                        <label
-                          htmlFor={`uploadImage-${index}`}
-                          className="cursor-pointer"
-                        >
-                          {images[index] ? (
+                        {
+                          thumbnail[0] ? (
                             <img
-                              src={URL.createObjectURL(images[index])}
-                              alt={`Image-${index + 1}`}
+                              src={URL.createObjectURL(thumbnail[0])}
+                              alt="Thumbnail"
                               className="h-full w-full object-cover"
                             />
                           ) : (
                             <AiOutlinePlusCircle size={30} color="#555" />
                           )}
-                        </label>
-                        <input
-                          type="file"
-                          id={`uploadImage-${index}`}
-                          className="hidden"
-                          onChange={(e) => handleImageChange(e, index)}
-                        />
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
+                      </label>
+                    </div>
+                    <input
+                      type="file"
+                      id="uploadThumbnail"
+                      className="hidden"
+                      onChange={(e) => handleThumbnailChange(e, 0)}
+                    />
+                  </div>
 
-              <div>
-                <FormLabel>
-                  Upload Product Video
-                </FormLabel>
-                <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
-                  <label
-                    htmlFor="uploadThumbnail"
-                    className="cursor-pointer w-full h-full grid place-items-center"
-                  >
-                    {
-                      shortVideo ? (
-                        <video
-                          controls
-                          src={URL.createObjectURL(shortVideo)}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <AiOutlinePlusCircle size={30} color="#555" />
-                      )}
-                  </label>
+                </section>
+              )}
+
+              {/* //variants of products */}
+              {isMultiVariant && (
+                <div className="my-6 space-y-4">
+                  {
+                    variantFields.map((field, i) => (
+                      <section key={field.id} className="relative space-y-4 py-2 px-4 border rounded-xl">
+                        <Button
+                          className="absolute right-2 top-2"
+                          variant="ghost"
+                          type="button"
+                          size="icon"
+                          disabled={i === 0}
+                          onClick={() => remove(i)}
+                        >
+                          <MinusCircleIcon className="text-red-500" />
+                        </Button>
+                        <p className="text-sm font-semibold text-gray-500">Variant {i + 1}</p>
+                        <div className="grid grid-cols-3 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`variants.${i}.originalPrice`}
+                            render={() => (
+                              <FormItem>
+                                <FormLabel>MRP (₹)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...form.register(`variants.${i}.originalPrice`)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`variants.${i}.discountPrice`}
+                            render={() => (
+                              <FormItem>
+                                <FormLabel>Selling Price (₹)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...form.register(`variants.${i}.discountPrice`)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`variants.${i}.institutePrice`}
+                            render={() => (
+                              <FormItem>
+                                <FormLabel>institute Price (₹)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...form.register(`variants.${i}.institutePrice`)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="flex items-center gap-8">
+                          <article className="space-y-2 w-2/3">
+                            <FormField
+                              control={form.control}
+                              name={`variants.${i}.colorOption`}
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel>Color</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...form.register(`variants.${i}.colorOption`)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`variants.${i}.size`}
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel>Size</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...form.register(`variants.${i}.size`)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`variants.${i}.stocks`}
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel>Stocks</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...form.register(`variants.${i}.stocks`)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </article>
+                          <div>
+                            <FormLabel>
+                              Upload Thumbnail Image
+                            </FormLabel>
+                            <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                              <label
+                                htmlFor="uploadThumbnail"
+                                className="cursor-pointer w-full h-full grid place-items-center"
+                              >
+                                {
+                                  thumbnail[i] ? (
+                                    <img
+                                      src={URL.createObjectURL(thumbnail[i])}
+                                      alt="Thumbnail"
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    <AiOutlinePlusCircle size={30} color="#555" />
+                                  )}
+                              </label>
+                            </div>
+                            <input
+                              type="file"
+                              id="uploadThumbnail"
+                              className="hidden"
+                              onChange={e => handleThumbnailChange(e, i)}
+                            />
+                          </div>
+
+                        </div>
+                      </section>
+                    ))}
+                  <article className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      className="bg-green-100 cursor-pointer"
+                      onClick={addVariant}
+                    >
+                      <AiOutlinePlusCircle className="text-green-500" />
+                    </Button>
+                  </article>
                 </div>
-                <input
-                  type="file"
-                  id="uploadShortVideo"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && file.size > 2 * 1024 * 1024) {
-                      alert("Video size should not exceed 2MB.");
-                      return;
+              )}
+              <section className="space-y-4 mt-4">
+                <div>
+                  <FormLabel>Upload other images</FormLabel>
+                  <div className="flex gap-4 flex-wrap mt-2">
+                    {
+                      Array.from({ length: 4 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                        >
+                          <label
+                            htmlFor={`uploadImage-${index}`}
+                            className="cursor-pointer"
+                          >
+                            {images[index] ? (
+                              <img
+                                src={URL.createObjectURL(images[index])}
+                                alt={`Image-${index + 1}`}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <AiOutlinePlusCircle size={30} color="#555" />
+                            )}
+                          </label>
+                          <input
+                            type="file"
+                            id={`uploadImage-${index}`}
+                            className="hidden"
+                            onChange={(e) => handleImageChange(e, index)}
+                          />
+                        </div>
+                      ))
                     }
-                    if (file) {
-                      setShortVideo(file); // Update state for short video
-                    }
-                  }}
-                />
-              </div>
+                  </div>
+                </div>
+
+                <div>
+                  <FormLabel>
+                    Upload Product Video
+                  </FormLabel>
+                  <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                    <label
+                      htmlFor="uploadThumbnail"
+                      className="cursor-pointer w-full h-full grid place-items-center"
+                    >
+                      {
+                        shortVideo ? (
+                          <video
+                            controls
+                            src={URL.createObjectURL(shortVideo)}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <AiOutlinePlusCircle size={30} color="#555" />
+                        )}
+                    </label>
+                  </div>
+                  <input
+                    type="file"
+                    id="uploadShortVideo"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && file.size > 2 * 1024 * 1024) {
+                        alert("Video size should not exceed 2MB.");
+                        return;
+                      }
+                      if (file) {
+                        setShortVideo(file); // Update state for short video
+                      }
+                    }}
+                  />
+                </div>
+              </section>
             </AccordionContent>
           </AccordionItem>
+
         </Accordion>
 
         <div className="flex justify-end">

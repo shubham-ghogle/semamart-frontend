@@ -1,5 +1,14 @@
 import { z } from "zod"
 
+export const variantSchema = z.object({
+  size: z.string().optional().nullable(),
+  colorOption: z.string().optional().nullable(),
+  originalPrice: z.string().min(1, "originalPrice required"),
+  discountPrice: z.string().min(1),
+  institutePrice: z.string().optional(),
+  stocks: z.string().min(1, "Stock required"),
+});
+
 const addProductFormSchema = z.object({
   name: z.string().min(1),
   category: z.array(
@@ -40,15 +49,15 @@ const addProductFormSchema = z.object({
   dimension_w: z.string().min(0),
   dimension_h: z.string().min(0),
   dimensionUnit: z.string().min(1),
-  colorOptions: z.string().optional(),
+  // colorOptions: z.string().optional(),
   sterileString: z.string(),
   singleUseString: z.string(),
   expiry: z.date(),
-  productCompilance: z.instanceof(File).optional(),
-  msds_ifu_leaflet: z.instanceof(File).optional(),
-  originalPrice: z.string().min(0),
-  discountPrice: z.string().min(0),
-  institutePrice: z.string().optional(),
+  productCompilance: z.instanceof(File).optional().nullable(),
+  msds_ifu_leaflet: z.instanceof(File).optional().nullable(),
+  // originalPrice: z.string().min(0),
+  // discountPrice: z.string().min(0),
+  // institutePrice: z.string().optional(),
   minmaxrule: z.object({
     minQty: z.string().min(1, "Min qty must be at least 1"),
     maxQty: z.string().min(1, "Max qty must be at least 1"),
@@ -58,12 +67,12 @@ const addProductFormSchema = z.object({
   }),
   taxStatus: z.string().min(1),
   taxClass: z.string().min(0),
-  stocks: z.string().min(0),
+  // stocks: z.string().min(0),
   unitOfMeasure: z.string().min(1),
   stockStatus: z.string().min(1),
   deliveryLeadTime: z.string().min(1),
   warranty: z.string().optional(),
-  amc_cms: z.instanceof(File).optional(),
+  amc_cms: z.instanceof(File).optional().nullable(),
   rma: z.string(),
   dispatchLocation: z.string().min(1),
   dispatchPinCode: z.string().min(1),
@@ -74,16 +83,9 @@ const addProductFormSchema = z.object({
   shelfing_storage_req: z.string().min(1),
   purchaseNote: z.string().optional(),
   certificate: z.array(z.instanceof(File)),
-  oemLetter: z.instanceof(File),
-  productComparisionSheet: z.instanceof(File).optional(),
-  // "allowSingleQuantity": true,
-  // "discountOptions": null,
-  // "productStatus": "active",
-  // "visibility": "public",
-  // "thumbnail": "gloves_thumbnail.jpg",
-  // "images": ["glove1.jpg", "glove2.jpg"],
-  // "shortVideo": "demo_video.mp4",
-
+  oemLetter: z.instanceof(File).nullable(),
+  productComparisionSheet: z.instanceof(File).optional().nullable(),
+  variants: z.array(variantSchema).min(1)
 });
 
 export { addProductFormSchema }
