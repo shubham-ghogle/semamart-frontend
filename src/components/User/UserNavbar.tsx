@@ -1,5 +1,5 @@
 import { RxDashboard } from "react-icons/rx";
-import SidebarNavlinks from "../UI/SidebarNavlinks";
+import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
 import { FaRegAddressBook } from "react-icons/fa";
 import { CiDeliveryTruck } from "react-icons/ci";
 

@@ -9,20 +9,20 @@ import {
 } from "react-icons/ai";
 
 import { getProductDetail } from "./ProductDetails.HooksUtils";
-import { CashOnDelivery } from "../../components/UI/CashOnDelivery";
+import { CashOnDelivery } from "../../components/UIComponents/CashOnDelivery";
 import offer from "../../../public/offer.png";
-import RelatedProducts from "../../components/UI/RelatedProductCard";
+import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 // import ProductImage from "../../components/UI/ProductImage";
 
 // Fixed images for demo showcase
 const demoImages = [
- "/MedicalImages/imagea.png",
+  "/MedicalImages/imagea.png",
   "/MedicalImages/imageb.png",
   "/MedicalImages/imagec.png",
-    "/MedicalImages/imaged.jpg",
-        "/MedicalImages/imaged.png",
+  "/MedicalImages/imaged.jpg",
+  "/MedicalImages/imaged.png",
 
   "/MedicalImages/imagef.png",
 
@@ -152,9 +152,8 @@ export default function ProductCard() {
               <img
                 src={demoImages[activeImg]}
                 alt={`Product ${activeImg + 1}`}
-                className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${
-                  animating ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                }`}
+                className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${animating ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                  }`}
                 style={{ position: "absolute", top: 0, left: 0 }}
               />
             </div>
@@ -164,11 +163,10 @@ export default function ProductCard() {
                 <button
                   key={idx}
                   onClick={() => handleThumbClick(idx)}
-                  className={`w-20 h-20 rounded-lg border-2 transition-all duration-200 overflow-hidden shadow ${
-                    activeImg === idx
-                      ? "border-[#1C647C] scale-105"
-                      : "border-gray-200 opacity-80 hover:opacity-100"
-                  }`}
+                  className={`w-20 h-20 rounded-lg border-2 transition-all duration-200 overflow-hidden shadow ${activeImg === idx
+                    ? "border-[#1C647C] scale-105"
+                    : "border-gray-200 opacity-80 hover:opacity-100"
+                    }`}
                   style={{ background: "#fff" }}
                 >
                   <img

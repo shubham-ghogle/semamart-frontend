@@ -1,7 +1,7 @@
 import { Link } from "react-router"
 import { Order } from "../../Types/types"
-import { formatDate } from "../UI/Inputs"
-import { TableBodyCell, TableHeader, TableWrapper } from "../UI/Table"
+import { formatDate } from "../UIComponents/Inputs"
+import { TableBodyCell, TableHeader, TableWrapper } from "../UIComponents/Table"
 import { AiOutlineEye } from "react-icons/ai"
 
 type UserOrderTableProps = {

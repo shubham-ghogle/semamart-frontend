@@ -5,7 +5,7 @@ import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 
 import { ChevronDown } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/UI/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/UIComponents/collapsible";
 //const BASE_URL = "http://localhost:8000";
 
 export default function SearchResultsPage() {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
 import { getVerifiedSellers } from "./Admin.HooksAndUtils";
-import { TableBodyCell, TableHeader } from "../../components/UI/Table";
+import { TableBodyCell, TableHeader } from "../../components/UIComponents/Table";
 
 const headers = [
   "Joined on",

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ProductDetailsRows } from "../UI/Table";
+import { ProductDetailsRows } from "../UIComponents/Table";
 import { Product, User } from "../../Types/types";
 import { Link } from "react-router";
-import { SecondryBtn } from "../UI/Buttons";
-import RatingStarView from "../UI/RatingStarView";
+import { SecondryBtn } from "../UIComponents/Buttons";
+import RatingStarView from "../UIComponents/RatingStarView";
 
 type ProductDetailsInfoProps = {
   product: Product

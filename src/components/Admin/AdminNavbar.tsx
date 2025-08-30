@@ -1,7 +1,7 @@
 import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
-import SidebarNavlinks from "../UI/SidebarNavlinks";
+import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
 import { MdOutlineShoppingBag } from "react-icons/md";
 
 export default function AdminNavbar() {

@@ -1,7 +1,7 @@
 import { AiOutlineMoneyCollect } from "react-icons/ai";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
-import { DashboardCard } from "../../components/UI/Dashboard";
+import { DashboardCard } from "../../components/UIComponents/Dashboard";
 import { AiOutlineProduct } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";

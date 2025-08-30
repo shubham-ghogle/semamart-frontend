@@ -5,7 +5,7 @@ import Input, {
   InputChips,
   SelectInput,
   Textarea,
-} from "../UI/Inputs";
+} from "../UIComponents/Inputs";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import { Product } from "../../Types/types";

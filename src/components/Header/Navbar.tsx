@@ -1,5 +1,5 @@
-import  { useRef, useEffect, useState } from "react";
-import { NavbarIcons } from "../UI/NavbarIcons";
+import { useRef, useEffect, useState } from "react";
+import { NavbarIcons } from "../UIComponents/NavbarIcons";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Navbar() {

@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
-import { Logo } from "@/components/UI/Logo";
-import { loginFailureToast } from "@/components/UI/Toasts";
+import { Logo } from "@/components/UIComponents/Logo";
+import { loginFailureToast } from "@/components/UIComponents/Toasts";
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");

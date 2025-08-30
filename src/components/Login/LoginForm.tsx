@@ -5,8 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useUserStore } from "../../store/userStore";
 import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
 import { useSellerStore } from "../../store/sellerStore";
-import { loginFailureToast } from "../UI/Toasts";
-import { Logo } from "../UI/Logo"; // Import Logo component
+import { loginFailureToast } from "../UIComponents/Toasts";
+import { Logo } from "../UIComponents/Logo";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -54,8 +54,8 @@ export default function LoginForm() {
     <>
       <section className="mx-auto w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-            <Logo /> {/* Use Logo component here */}
-          
+          <Logo /> {/* Use Logo component here */}
+
           <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center">
             Welcome to Semamart
           </h2>
@@ -194,6 +194,6 @@ export default function LoginForm() {
           </div>
         </form>
       </section>
-      </>
+    </>
   );
 }
