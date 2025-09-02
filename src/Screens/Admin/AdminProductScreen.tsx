@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
-import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UI/Table";
-import { formatDate } from "../../components/UI/Inputs";
+import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UIComponents/Table";
+import { formatDate } from "../../components/UIComponents/Inputs";
 import { getAdminProducts } from "./Admin.HooksAndUtils";
 import { toast } from "react-toastify";
 import { Link } from "react-router";

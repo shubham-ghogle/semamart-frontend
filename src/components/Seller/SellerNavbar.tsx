@@ -1,6 +1,6 @@
 import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
-import SidebarNavlinks from "../UI/SidebarNavlinks";
+import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
 import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck } from "react-icons/ci";
 

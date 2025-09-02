@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ProductDetailsIcons } from "../UI/ProductDetailsIcons";
+import { ProductDetailsIcons } from "../UIComponents/ProductDetailsIcons";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById } from "../../Screens/ProductDetailScreen/GetAllProduct.Hooks";
@@ -107,9 +107,8 @@ export default function Navbar() {
                   const route = nameToRoute[name];
                   navigate(route);
                 }}
-                className={`flex items-center justify-center rounded-full transition-colors duration-200 focus:outline-hidden focus:ring-2 ${
-                  selectedName === name ? "text-white" : "hover:bg-gray-100"
-                }`}
+                className={`flex items-center justify-center rounded-full transition-colors duration-200 focus:outline-hidden focus:ring-2 ${selectedName === name ? "text-white" : "hover:bg-gray-100"
+                  }`}
                 style={{
                   width: "200px",
                   height: "44px",
@@ -157,7 +156,7 @@ export default function Navbar() {
                   {/* Dropdown */}
                   <select
                     value=""
-                    onChange={() => {}}
+                    onChange={() => { }}
                     className="pl-10 pr-4 py-2 text-white"
                     style={{
                       backgroundColor: getBackgroundColor(selectedName),

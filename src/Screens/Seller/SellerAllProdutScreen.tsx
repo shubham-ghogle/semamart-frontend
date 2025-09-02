@@ -1,11 +1,11 @@
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Product } from "../../Types/types";
-import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UI/Table";
+import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UIComponents/Table";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router";
 import { getProductsForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
-import { formatDate } from "../../components/UI/Inputs";
+import { formatDate } from "../../components/UIComponents/Inputs";
 
 const headers = [
   "Product Name",

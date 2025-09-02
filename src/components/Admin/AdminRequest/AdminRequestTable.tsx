@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Seller } from "../../../Types/types";
-import { TableBodyCell, TableHeader, TableWrapper } from "../../UI/Table";
+import { TableBodyCell, TableHeader, TableWrapper } from "../../UIComponents/Table";
 
 const headers = ["Seller Name", "Business Name", "Email", "Actions"];
 type AdminRequestTableParams = {

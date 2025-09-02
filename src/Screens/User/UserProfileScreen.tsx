@@ -3,9 +3,9 @@ import { useUserStore } from "../../store/userStore";
 import { useMutation } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { User } from "../../Types/types";
-import { ScreenOverlayLoaderUi } from "../../components/UI/LoaderUi";
-import Input from "../../components/UI/Inputs";
-import { ActionBtn } from "../../components/UI/Buttons";
+import { ScreenOverlayLoaderUi } from "../../components/UIComponents/LoaderUi";
+import Input from "../../components/UIComponents/Inputs";
+import { ActionBtn } from "../../components/UIComponents/Buttons";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function UserProfileScreen() {
@@ -97,31 +97,31 @@ export default function UserProfileScreen() {
               label="First name"
               type="text"
               value={user?.firstName || ""}
-              onChange={() => {}}
+              onChange={() => { }}
             />
             <Input
               label="Last name"
               type="text"
               value={user?.lastName || ""}
-              onChange={() => {}}
+              onChange={() => { }}
             />
             <Input
               label="Institute name"
               type="text"
               value={user?.instituteName || ""}
-              onChange={() => {}}
+              onChange={() => { }}
             />
             <Input
               label="Email"
               type="email"
               value={user?.email || ""}
-              onChange={() => {}}
+              onChange={() => { }}
             />
             <Input
               label="Phone number"
               type="number"
               value={user?.phoneNumber || ""}
-              onChange={() => {}}
+              onChange={() => { }}
             />
           </section>
           <ActionBtn disabled>Update</ActionBtn>

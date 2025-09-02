@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "../../components/Product/ProductCard";
 import { getProducts } from "../Homepage/Homepage.Hooks";
-import LoaderUi from "../../components/UI/LoaderUi";
+import LoaderUi from "../../components/UIComponents/LoaderUi";
 
 export default function ProductsScreen() {
   const { status, data: products } = useQuery({

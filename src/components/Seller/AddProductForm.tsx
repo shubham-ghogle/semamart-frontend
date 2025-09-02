@@ -139,6 +139,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     onSuccess: () => {
       toast.success("Product added successfully")
       form.reset()
+      setImages([])
+      setThumbnail([])
+      setShortVideo(null)
     },
     onError: () => {
       toast.error("Something went wrong!!")
@@ -146,6 +149,21 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
   })
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
     const newForm = new FormData();
+
+    newForm.append(
+      "variants",
+      JSON.stringify(
+        values.variants.map(el => ({
+          size: el.size,
+          colorOption: el.colorOption,
+          originalPrice: el.originalPrice,
+          discountPrice: el.discountPrice,
+          institutePrice: el.institutePrice,
+          stock: el.stocks,
+        }))
+      )
+    );
+
     newForm.append("shopId", seller?._id || "")
     newForm.append("name", values.name)
     values.category.forEach(el => {
@@ -234,9 +252,11 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     if (values.productComparisionSheet) {
       newForm.append("productComparisionSheet", values.productComparisionSheet)
     }
-    // if (thumbnail) {
-    //   newForm.append("thumbnail", thumbnail)
-    // }
+    if (thumbnail) {
+      thumbnail.forEach(el => {
+        newForm.append("thumbnail", el)
+      })
+    }
     images.forEach(i => {
       newForm.append("images", i)
     })
@@ -305,7 +325,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                         <>
                           {
                             form.getValues("category").map(el => (
-                              <Input value={el.name} key={el.val} readOnly />
+                              <Input value={el.name} key={"cat-" + el.val} readOnly />
                             ))
                           }
                           <Autocomplete
@@ -334,9 +354,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                         <>
                           {
                             form.getValues("subCategory").map((el, i) => (
-                              <article className="grid grid-cols-[1fr_50px] items-center gap-4">
-                                <Input value={el.name} readOnly key={el.val} />
-                                <Button type="button" size="sm" variant="destructive" onClick={() => deleteCategory(i)}><IoRemoveCircle /></Button>
+                              <article className="grid grid-cols-[1fr_50px] items-center gap-4" key={"subcat-" + el.val}>
+                                <Input value={el.name} readOnly />
+                                <Button key={el.val} type="button" size="sm" variant="destructive" onClick={() => deleteCategory(i)}><IoRemoveCircle /></Button>
                               </article>
                             ))
                           }
@@ -1045,7 +1065,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="10">10%</SelectItem>
-                          <SelectItem value="12 only">12%</SelectItem>
+                          <SelectItem value="12">12%</SelectItem>
                           <SelectItem value="18">18%</SelectItem>
                         </SelectContent>
                       </Select>

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Input from "../UI/Inputs";
+import Input from "../UIComponents/Inputs";
 import { Address } from "../../Types/types";
-import { ActionBtn } from "../UI/Buttons";
+import { ActionBtn } from "../UIComponents/Buttons";
 import { useAddAddress, useEditAddress } from "../../Screens/User/User.HooksUtils";
 
 type AddressFormProps = {

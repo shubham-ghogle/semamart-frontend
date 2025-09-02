@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import { TableBodyCell, TableHeader, TableWrapper } from "../UI/Table";
+import { TableBodyCell, TableHeader, TableWrapper } from "../UIComponents/Table";
 import { AiOutlineEye } from "react-icons/ai";
-import { formatDate } from "../UI/Inputs";
+import { formatDate } from "../UIComponents/Inputs";
 import { Order } from "../../Types/types";
 
 type SellerOrderTableProps = {

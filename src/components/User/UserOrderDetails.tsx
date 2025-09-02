@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Order } from "../../Types/types";
 import OrderDetailsField from "../Seller/OrderDetailsFields";
-import { formatDate } from "../UI/Inputs";
+import { formatDate } from "../UIComponents/Inputs";
 import ReviewModal from "./ReviewModal";
 
 type UserOrderDetailsProps = {

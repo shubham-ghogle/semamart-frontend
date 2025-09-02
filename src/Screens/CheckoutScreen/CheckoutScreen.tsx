@@ -4,15 +4,14 @@ import AddressCard from "../../components/User/AddressCard";
 import { useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { Seller } from "../../Types/types";
+import { useNavigate } from "react-router-dom"; 
 
 export default function CheckoutScreen() {
   const { user } = useUserStore(state => state);
   const { cart } = useCartStore(state => state);
+  const navigate = useNavigate(); // <-- instead of useRouter()
 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -20,9 +19,7 @@ export default function CheckoutScreen() {
   });
 
   const address =
-    selectedAddressIndex !== null
-      ? user?.addresses[selectedAddressIndex]
-      : null;
+    selectedAddressIndex !== null ? user?.addresses[selectedAddressIndex] : null;
 
   const cartToApi = cart.map(el => ({
     shopId: (el.product.shopId as Seller)._id,
@@ -40,33 +37,7 @@ export default function CheckoutScreen() {
     shippingAddress: address,
     user: user?._id,
     totalPrice,
-    paymentInfo: {
-      id: "test_payment",
-      status: "Pending",
-      type: paymentMethod === "cod" ? "Cash on Delivery" : "Other",
-    },
   };
-
-  async function orderHandler() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/v2/order/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order),
-      });
-
-      if (!res.ok) throw new Error("Failed to place order");
-
-      alert("Order placed successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-      setShowConfirm(false);
-    }
-  }
 
   if (!cart.length) {
     return (
@@ -133,7 +104,6 @@ export default function CheckoutScreen() {
                   )}
                 </article>
               ))}
-
               <button
                 className="border border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100"
                 onClick={() => alert("Add address flow")}
@@ -170,67 +140,24 @@ export default function CheckoutScreen() {
             Estimated delivery: 3–5 business days
           </p>
 
-          {/* Payment Method */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Payment Method</h3>
-            <label className="flex items-center gap-2 border p-3 rounded-lg cursor-pointer hover:border-yellow-500 transition">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={() => setPaymentMethod("cod")}
-              />
-              <span>Cash on Delivery</span>
-            </label>
-          </div>
-
-          {/* Place Order Button */}
+          {/* Proceed Button */}
           <button
-            onClick={() => setShowConfirm(true)}
+            onClick={() =>
+              navigate(
+                `/checkout/payment?order=${encodeURIComponent(
+                  JSON.stringify(order)
+                )}`
+              )
+            }
             className="w-full py-3 bg-red-500 rounded-lg text-white text-lg mt-6 disabled:bg-gray-400"
-            disabled={selectedAddressIndex === null || loading}
+            disabled={selectedAddressIndex === null}
           >
-            {loading
-              ? "Placing order..."
-              : selectedAddressIndex !== null
-              ? "Place Order"
+            {selectedAddressIndex !== null
+              ? "Proceed to Payment"
               : "Select Address to Continue"}
           </button>
         </aside>
       </div>
-
-      {/* Confirmation Modal */}
-      {showConfirm && (
-  <div className="fixed inset-0 flex items-center justify-center z-50">
-    {/* Background blur */}
-    <div className="absolute inset-0 backdrop-blur-sm bg-black/20"></div>
-
-    {/* Modal */}
-    <div className="relative bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
-      <h3 className="text-lg font-semibold mb-4">Confirm Your Order</h3>
-      <p className="text-gray-600 mb-6">
-        You are about to place an order totaling <strong>{formatter.format(totalPrice)}</strong> with <strong>Cash on Delivery</strong> as the payment method.
-      </p>
-      <div className="flex justify-end gap-3">
-        <button
-          className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
-          onClick={() => setShowConfirm(false)}
-        >
-          Cancel
-        </button>
-        <button
-          className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
-          onClick={orderHandler}
-          disabled={loading}
-        >
-          {loading ? "Placing..." : "Confirm Order"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
     </div>
   );
 }
