@@ -3,7 +3,7 @@ import {
   AiOutlineHeart,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { ActionBtn } from "../UI/Buttons";
+import { ActionBtn } from "../UIComponents/Buttons";
 
 type ProductPageBtnsProps = {
   decrementCount: () => void;
@@ -44,9 +44,9 @@ export default function ProductPageBtns({
         </button>
       </article>
       <ActionBtn onClick={() => {
-    console.log("🟡 ActionBtn clicked");
-    addToCartHandler();
-  }}>
+        console.log("🟡 ActionBtn clicked");
+        addToCartHandler();
+      }}>
         Add to Cart <AiOutlineShoppingCart className="ml-1" />
       </ActionBtn>
       <figure className="ml-auto">

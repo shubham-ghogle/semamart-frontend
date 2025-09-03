@@ -39,10 +39,13 @@ import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import MyProfile from "./components/Account/MyProfile";
 import MyOrders from "./components/Order/MyOrders";
+import PaymentScreen from "./Screens/Payment/PaymentScreen";
+import AdminLogin from "./Screens/Admin/AdminLogin";
 import OrderSummary from "./components/Order/OrderSummary";
 import ManageAddress from "./components/Account/ManageAddress";
 import PanCardForm from "./components/Account/PanCardForm";
 import WishlistProduct from "./components/Account/WishlistProduct";
+import AccountNavbar from "./components/Account/AccountNavbar";
 
 export const router = createBrowserRouter([
   {
@@ -51,15 +54,20 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
-      { 
-        path: "checkout", 
-        loader: checkoutScreenLoader, 
-        element: <CheckoutScreen /> 
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />
       },
+      {
+        path: "checkout/payment",
+        loader: checkoutScreenLoader, // reuse same loader if you need cart + user data
+        element: <PaymentScreen/>
+     },
     ],
   },
-
-   {
+  
+  {
     path: "/search",
     element: <SearchLayout />,
     children: [
@@ -77,29 +85,29 @@ export const router = createBrowserRouter([
   },
 
   // Consumables section
-{
-  path: "/equipments",
-  element: <RootLayout />,
-  children: [
-    { index: true, element: <Equipment /> },
-    { path: "product", element: <ProductsScreen /> },
-    {
-      path: "product/:id",
-      element: <ProductLayout />,
-      children: [
-        {
-          index: true,
-          element: <ProductDetails />,
-        },
-      ],
-    },
-    {
-      path: "checkout",
-      loader: checkoutScreenLoader,
-      element: <CheckoutScreen />,
-    },
-  ],
-},
+  {
+    path: "/equipments",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Equipment /> },
+      { path: "product", element: <ProductsScreen /> },
+      {
+        path: "product/:id",
+        element: <ProductLayout />,
+        children: [
+          {
+            index: true,
+            element: <ProductDetails />,
+          },
+        ],
+      },
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />,
+      },
+    ],
+  },
 
 
   // Pharmaceutical section
@@ -109,23 +117,23 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Pharmaceutical /> },
       { path: "product", element: <ProductsScreen /> },
-      { 
-        path: "product/:id", 
-        element: <ProductLayout />, 
-        children: [{ index: true, element: <ProductDetails /> }] 
+      {
+        path: "product/:id",
+        element: <ProductLayout />,
+        children: [{ index: true, element: <ProductDetails /> }]
       },
-      { 
-        path: "checkout", 
-        loader: checkoutScreenLoader, 
-        element: <CheckoutScreen /> 
+      {
+        path: "checkout",
+        loader: checkoutScreenLoader,
+        element: <CheckoutScreen />
       },
     ],
   },
   {
     path: "/",
-    element: <RootLayout/>,
+    element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables/> },
+      { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
@@ -133,9 +141,9 @@ export const router = createBrowserRouter([
   },
   {
     path: "/pharmaceutical",
-    element: <RootLayout/>,
+    element: <RootLayout />,
     children: [
-      { index: true, element: <Pharmaceutical/> },
+      { index: true, element: <Pharmaceutical /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
       { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
@@ -151,6 +159,10 @@ export const router = createBrowserRouter([
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
   // Admin Routes
+  {
+  path: "/admin-login",
+  element: <AdminLogin />,
+  },
   {
     path: "/admin",
     loader: getAdminFromLocalLoader,
@@ -175,7 +187,8 @@ export const router = createBrowserRouter([
     element: <SellerLayout />,
     children: [
       { index: true, element: <SellerDashboard /> },
-      { path: "add-product", element: <AddProductScreen2 /> },
+      { path: "add-product-old", element: <AddProductScreen2 /> },
+      { path: "add-product", element: <AddProductScreen2 newForm={true} /> },
       {
         path: "products", children: [
           { index: true, element: <SellerAllProductsScreen /> },
@@ -222,7 +235,8 @@ export const router = createBrowserRouter([
   },
 
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  {path:"/account/orders", element: <MyOrders/>},
+  { path: "/account", element: <AccountNavbar /> },
+  { path: "/account/orders", element: <MyOrders /> },
   {path: "account/orders/:productId", element: <OrderSummary/>},
   { path: "wishlist", element: <WishlistProduct /> },
 ]);

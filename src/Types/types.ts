@@ -165,3 +165,30 @@ export type Order = {
   createdAt?: Date;
   shop?: string;
 };
+
+export type CategoryApiRes = {
+  _id: string;
+  name: string;
+  subcategories: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SubCategory {
+  _id: string;
+  name: string;
+  category: string;
+  tags: string[];
+  createdAt: string; // ISO Date string
+  updatedAt: string; // ISO Date string
+  __v: number;
+}
+
+export type CategoryDetailApiRes = {
+  _id: string;
+  name: string;
+  subcategories: SubCategory[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+

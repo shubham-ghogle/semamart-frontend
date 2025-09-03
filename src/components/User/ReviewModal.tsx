@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react"
-import { ActionBtn } from "../UI/Buttons"
-import Input, { Textarea } from "../UI/Inputs"
+import { ActionBtn } from "../UIComponents/Buttons"
+import Input, { Textarea } from "../UIComponents/Inputs"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-toastify"
 

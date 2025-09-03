@@ -4,7 +4,7 @@ import AddressForm from "../../components/User/AddressForm";
 import UserScreenMainWrapper from "../../components/User/UserScreenMainWrapper";
 import { useUserStore } from "../../store/userStore";
 import { IoAdd } from "react-icons/io5";
-import { ScreenOverlayLoaderUi } from "../../components/UI/LoaderUi";
+import { ScreenOverlayLoaderUi } from "../../components/UIComponents/LoaderUi";
 import { useRemoveAddress } from "./User.HooksUtils";
 
 export default function UserAddressScreen() {

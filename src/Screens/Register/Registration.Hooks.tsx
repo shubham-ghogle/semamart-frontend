@@ -3,7 +3,7 @@ import {
   registerFailureToast,
   sellerRegisterSuccessToast,
   userRegisterSuccessToast,
-} from "../../components/UI/Toasts";
+} from "../../components/UIComponents/Toasts";
 
 export function useRegisterSeller() {
   const { mutateAsync: mutateSeller, status } = useMutation({

@@ -351,7 +351,7 @@ export default function SellerRegisterScreen() {
                       name="banner"
                       id="banner"
                       onChange={handleFileInputChange}
-                      // className="sr-only"
+                    // className="sr-only"
                     />
                   </label>
                 </div>

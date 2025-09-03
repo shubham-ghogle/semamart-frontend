@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { AiOutlineLoading } from "react-icons/ai";
-import { SecondryBtn } from "../../components/UI/Buttons";
+import { SecondryBtn } from "../../components/UIComponents/Buttons";
 
 export default function UserActivationScreen() {
   const { token } = useParams();

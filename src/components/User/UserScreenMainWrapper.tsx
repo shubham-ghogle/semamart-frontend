@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import LoaderUi from "../UI/LoaderUi";
+import LoaderUi from "../UIComponents/LoaderUi";
 
 type MainWrapperProps = {
   status: "error" | "pending" | "success";

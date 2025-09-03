@@ -3,7 +3,7 @@ import { useSellerOrderMutation } from "../../Screens/Seller/Seller.Hooks";
 import { useState } from "react";
 import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
-import { formatDate } from "../UI/Inputs";
+import { formatDate } from "../UIComponents/Inputs";
 
 type SellerOrderDetailProps = {
   data: Order
