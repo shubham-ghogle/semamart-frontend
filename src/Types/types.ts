@@ -141,6 +141,7 @@ type PaymentInfo = {
   id?: string;
   status?: string;
   type?: string;
+  paidAt?: string;
 };
 
 export type Order = {

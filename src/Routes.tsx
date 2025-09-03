@@ -17,6 +17,7 @@ import AddProductScreen2 from "./Screens/Seller/AddProductScreen2";
 import UserActivationScreen from "./Screens/User/UserActivationScreen";
 import ProductsScreen from "./Screens/Products/ProductsScreen";
 import UserLayout from "./components/Layouts/UserLayout";
+import AccountLayout from "./components/Layouts/AccountLayout";
 import UserProfileScreen from "./Screens/User/UserProfileScreen";
 import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
@@ -36,8 +37,12 @@ import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
 import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
-import AccountPage from "./components/Account/AccountPage";
-import MyOrders from "./components/Account/MyOrders";
+import MyProfile from "./components/Account/MyProfile";
+import MyOrders from "./components/Order/MyOrders";
+import OrderSummary from "./components/Order/OrderSummary";
+import ManageAddress from "./components/Account/ManageAddress";
+import PanCardForm from "./components/Account/PanCardForm";
+import WishlistProduct from "./components/Account/WishlistProduct";
 
 export const router = createBrowserRouter([
   {
@@ -203,7 +208,21 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  
+  {
+    path: "/account",
+    // loader: getAdminFromLocalLoader,
+    element: <AccountLayout />,
+    children: [
+      { index: true, element: <MyProfile /> },
+      { path: "address", element: <ManageAddress /> },
+      { path: "pan-card-information", element: <PanCardForm /> },
+      { path: "wishlist", element: <WishlistProduct /> },
+    ],
+  },
+
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  {path:"/account", element: <AccountPage/>},
-  {path:"/account/orders", element: <MyOrders/>}
+  {path:"/account/orders", element: <MyOrders/>},
+  {path: "account/orders/:productId", element: <OrderSummary/>},
+  { path: "wishlist", element: <WishlistProduct /> },
 ]);
