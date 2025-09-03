@@ -8,7 +8,7 @@ export default function Navbar() {
 
   const pathToNameMap: Record<string, string> = {
     "/equipments": "Equipment",
-    "/": "Consumables",
+    "/": "Consumables", 
     "/pharmaceutical": "Pharmaceutical",
   };
   const selectedName = pathToNameMap[location.pathname] || "Consumables";

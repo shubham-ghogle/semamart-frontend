@@ -10,7 +10,7 @@ export default function WishlistPage() {
   const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
   const addToCart = useCartStore((s) => s.addToCart);
 
-  return (
+  return ( 
     <main className="flex-1 p-6 bg-white shadow-lg font-montserrat m-6 ">
       <div className="bg-white shadow-sm rounded-md overflow-hidden">
         {/* Header */}

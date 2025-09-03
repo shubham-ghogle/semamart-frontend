@@ -332,7 +332,7 @@ export default function Header() {
   return (
 <header className="w-full bg-white shadow-sm border-b font-inter">
   <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto font-inter">
-    
+     
     {/* Logo (Left) */}
     <div className="flex items-center h-10 pr-4 flex-shrink-0">
       <Logo />

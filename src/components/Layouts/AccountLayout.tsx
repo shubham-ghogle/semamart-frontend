@@ -9,7 +9,7 @@ export default function AccountLayout() {
       <section className="container mx-auto grid grid-cols-1 md:grid-cols-[250px_1fr] min-h-[calc(100vh-80px)]">
         <AccountNavbar />
         <main className="bg-bg-gray">
-          <Outlet />
+          <Outlet /> 
         </main>
       </section>
     </>

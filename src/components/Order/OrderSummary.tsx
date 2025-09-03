@@ -21,7 +21,7 @@ const OrderSummary = () => {
         const orderRes = await fetch(`/api/v2/order/get-order/${user._id}`);
         const orderData = await orderRes.json();
 
-        if (!orderData) {
+        if (!orderData) { 
           setError("No order found for this user");
           return;
         }

@@ -83,7 +83,7 @@ const AccountNavbar = () => {
               <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
                 <span className="flex items-center gap-2">
                    Saved UPI
-                </span>
+                </span> 
               </li>
               <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
                 <span className="flex items-center gap-2">

@@ -109,7 +109,7 @@ const PanCardForm = () => {
               className="bg-gray-100 text-sm px-4 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-200"
             >
               Choose File
-            </button>
+            </button> 
             <span className="text-sm text-gray-500 truncate max-w-[200px]">{fileName}</span>
 
             {/* Hidden input */}

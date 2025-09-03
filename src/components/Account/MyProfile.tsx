@@ -53,7 +53,7 @@ useEffect(() => {
   const handleEmailSave = () => {
     updateUser({
       email: profile.email,
-    });
+    }); 
     setIsEditingEmail(false);
   };
 

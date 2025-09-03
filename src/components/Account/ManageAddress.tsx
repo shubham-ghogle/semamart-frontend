@@ -93,7 +93,7 @@ const ManageAddress: React.FC = () => {
     return;
   }
 
-  try {
+  try { 
     const userId = user?._id;
     console.log("my user:",userId);
     const addressToSend = {

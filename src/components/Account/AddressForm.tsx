@@ -14,7 +14,7 @@ export interface Address {
   instituteAddress1: string;
   instituteAddress2?: string;
   district: string;
-  state: string;
+  state: string; 
   landmark?: string;
   addressType: AddressType;
   _id: string;

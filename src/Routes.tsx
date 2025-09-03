@@ -239,4 +239,4 @@ export const router = createBrowserRouter([
   { path: "/account/orders", element: <MyOrders /> },
   {path: "account/orders/:productId", element: <OrderSummary/>},
   { path: "wishlist", element: <WishlistProduct /> },
-]);
+]); 
