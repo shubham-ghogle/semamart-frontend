@@ -46,6 +46,7 @@ import ManageAddress from "./components/Account/ManageAddress";
 import PanCardForm from "./components/Account/PanCardForm";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
+import AddToCart from "./components/Account/AddToCart";
 
 export const router = createBrowserRouter([
   {
@@ -61,9 +62,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "checkout/payment",
-        loader: checkoutScreenLoader, // reuse same loader if you need cart + user data
+        loader: checkoutScreenLoader, 
         element: <PaymentScreen/>
      },
+      { path: "wishlist", element: <WishlistProduct /> },
+      { path: "add-to-cart", element: <AddToCart /> },
     ],
   },
   
@@ -231,6 +234,7 @@ export const router = createBrowserRouter([
       { path: "address", element: <ManageAddress /> },
       { path: "pan-card-information", element: <PanCardForm /> },
       { path: "wishlist", element: <WishlistProduct /> },
+
     ],
   },
 
@@ -238,5 +242,5 @@ export const router = createBrowserRouter([
   { path: "/account", element: <AccountNavbar /> },
   { path: "/account/orders", element: <MyOrders /> },
   {path: "account/orders/:productId", element: <OrderSummary/>},
-  { path: "wishlist", element: <WishlistProduct /> },
+ 
 ]); 

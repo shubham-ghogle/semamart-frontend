@@ -567,7 +567,7 @@ export default function Header() {
                       <AiOutlineHeart size={14} />
                       <span>Wishlist</span>
                     </Link>
-                    <Link to="/cart" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
+                    <Link to="/add-to-cart" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
                       <AiOutlineShoppingCart size={14} />
                       <span>Cart</span>
                     </Link>

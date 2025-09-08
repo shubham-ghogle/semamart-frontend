@@ -97,7 +97,7 @@ function WishlistItem({ product }: WishlistItemProps) {
         className="flex items-center gap-4 flex-1"
       >
         <img
-          src="/girl_dress.png"
+          src="product.variants[0].thumbnail}"
           alt={product.name}
           className="w-20 h-20 object-cover rounded-lg border"
         />
@@ -106,8 +106,9 @@ function WishlistItem({ product }: WishlistItemProps) {
             {product.name}
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            ₹{product.discountPrice.toLocaleString()}
+            ₹{product.variants[0].discountPrice ? product.variants[0].discountPrice.toLocaleString() : "N/A"}
           </p>
+
         </div>
       </Link>
 

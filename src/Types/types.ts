@@ -80,6 +80,15 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
   attributes?: Record<string, string>[];
+  variants: {
+  colorOption: string | null;
+  thumbnail: string;
+  originalPrice: number;
+  discountPrice: number;
+  institutePrice: number;
+  stock: number;
+}[];
+
 }
 
 export type Address = {
