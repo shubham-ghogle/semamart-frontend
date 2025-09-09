@@ -33,6 +33,7 @@ export interface Variant {
   discountPrice?: number
   institutePrice?: number
   stock: number
+  _id: string;
 }
 
 export interface Product {

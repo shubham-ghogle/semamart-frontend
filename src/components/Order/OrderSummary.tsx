@@ -77,7 +77,7 @@ const OrderSummary = () => {
                 <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
                 <p className="text-sm text-gray-500 mt-1">Sold by: {product.manufacturerName || "Unknown Seller"}</p>
                 <div className="mt-2 flex items-center gap-2">
-                  <p className="text-xl font-bold text-green-700">₹{product.discountPrice}</p>
+                  <p className="text-xl font-bold text-green-700">₹{product.variants[0].discountPrice}</p>
                   <span className="text-sm text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded">
                     {product.tags?.join(", ") || "No offers"}
                   </span>

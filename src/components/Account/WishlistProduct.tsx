@@ -42,7 +42,7 @@ export default function WishlistPage() {
         ) : (
           wishlist.map((product) => {
             const discount = Math.round(
-              ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
+              ((product.variants[0].originalPrice - product.variants[0].discountPrice) / product.variants[0].originalPrice) * 100
             );
 
             return (
@@ -53,7 +53,7 @@ export default function WishlistPage() {
                 {/* Product Image */}
                 <Link to={`/product/${product._id}`} className="w-24 h-24 shrink-0">
                   <img
-                    src={product.images[0] || "/placeholder.png"}
+                   src={product.variants[0].thumbnail || "/placeholder.png"}
                     alt={product.name}
                     className="w-full h-full object-cover rounded border"
                   />
@@ -70,23 +70,23 @@ export default function WishlistPage() {
                   {/* Price Info */}
                   <div className="mt-1 flex items-center gap-2">
                     <span className="text-lg font-semibold text-gray-900">
-                      ₹{product.discountPrice}
+                      ₹{product.variants[0].discountPrice ? product.variants[0].discountPrice.toLocaleString() : "N/A"}
                     </span>
                     <span className="line-through text-gray-500 text-sm">
-                      ₹{product.originalPrice}
+                       ₹{product.variants[0].originalPrice ? product.variants[0].originalPrice.toLocaleString() : "N/A"}
                     </span>
                     <span className="text-green-600 text-sm font-medium">{discount}% off</span>
                   </div>
 
                   {/* Availability */}
-                  {!product.stock && (
+                  {!product.variants[0].stock && (
                     <p className="text-sm text-red-500 font-medium mt-1">
                       Currently unavailable
                     </p>
                   )}
 
                   {/* Add to Cart Button */}
-                  {product.stock && (
+                  {product.variants[0].stock && (
                     <button
                       onClick={() => {
                         addToCart({ product, qty: 1 });
