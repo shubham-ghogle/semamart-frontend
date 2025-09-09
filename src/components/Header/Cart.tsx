@@ -20,7 +20,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   const navigate = useNavigate();
 
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.qty * item.product.discountPrice,
+    (acc, item) => acc + item.qty * item.product.variants[0].discountPrice,
     0
   );
 
@@ -117,7 +117,7 @@ type CartSingleProps = {
 
 const CartSingle = ({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
-  const totalPrice = data.product.discountPrice * data.qty;
+  const totalPrice = data.product.variants[0].discountPrice * data.qty;
 
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
@@ -137,7 +137,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
             {data.product.name}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
-            ₹{data.product.discountPrice.toLocaleString()} × {data.qty}
+            ₹{data.product.variants[0].discountPrice.toLocaleString()} × {data.qty}
           </p>
           <p className="text-sm font-bold text-red-600 mt-1">
             ₹{totalPrice.toLocaleString()}
