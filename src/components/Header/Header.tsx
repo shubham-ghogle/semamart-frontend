@@ -10,7 +10,7 @@ import { TbFileInvoice } from "react-icons/tb";
 import { RiShoppingBag4Line } from "react-icons/ri";
 import { MdOutlineSupportAgent } from "react-icons/md";
 import { IoGiftSharp } from "react-icons/io5";
-import { FaSignOutAlt, } from "react-icons/fa";
+import { FaSignOutAlt } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
 import { Logo } from "../UIComponents/Logo";
 import placeholderImg from "../../../public/image60.png";
@@ -22,6 +22,16 @@ import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
+
+// near top of Header.tsx (below imports)
+const PLACEHOLDER_IMG = placeholderImg; // imported at top of file
+
+function toImageUrl(value?: string | null) {
+  if (!value) return PLACEHOLDER_IMG;
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  if (value.startsWith("/")) return value; // already a root-relative path
+  return `/images/${value}`; // backend filename -> public path
+}
 
 
 const categories = [
@@ -35,7 +45,6 @@ const categories = [
   "Hospital IT & Software",
   "Kits & Bundles",
   "Facility & Utilities",
-  // "Specialty Packages",
 ];
 
 const consumablesSubcategories = [
@@ -173,7 +182,6 @@ export default function Header() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-
   const categoryRef = useRef<HTMLDivElement | null>(null);
   const categoryItemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -184,7 +192,6 @@ export default function Header() {
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef<number | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-
 
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -220,7 +227,8 @@ export default function Header() {
         }
         const data = await res.json().catch(() => ({}));
         const products = (data && (data.products || data.items || data.results)) || [];
-        setSuggestions(products);
+        // Defensive: ensure array of objects
+        setSuggestions(Array.isArray(products) ? products : []);
         setShowSug(Array.isArray(products) && products.length > 0);
       } catch (err) {
         console.error(err);
@@ -327,22 +335,16 @@ export default function Header() {
     setIsWishlistOpen((prev) => !prev);
   }
 
-
-
   return (
-<header className="w-full bg-white shadow-sm border-b font-inter">
-  <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto font-inter">
-     
-    {/* Logo (Left) */}
-    <div className="flex items-center h-10 pr-4 flex-shrink-0">
-      <Logo />
-    </div>
-
-
+    <header className="w-full bg-white shadow-sm border-b font-inter">
+      <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto font-inter">
+        {/* Logo (Left) */}
+        <div className="flex items-center h-10 pr-4 flex-shrink-0">
+          <Logo />
+        </div>
 
         {/* Categories + Search */}
         <div className="flex flex-1 items-center h-full ">
-
           {/* Categories Button */}
           <div ref={categoryRef} className="relative h-full flex items-center">
             <button
@@ -356,7 +358,6 @@ export default function Header() {
               All
               <IoIosArrowForward className="rotate-90 transition-transform duration-200" size={18} />
             </button>
-
 
             {/* Category Dropdown */}
             {isCategoryOpen && (
@@ -383,10 +384,7 @@ export default function Header() {
                       onMouseLeave={() => setHoveredCategory(null)}
                     >
                       {getSubcategories(hoveredCategory).map((sub) => (
-                        <div
-                          key={sub}
-                          className="text-sm text-gray-700 hover:underline cursor-pointer p-2"
-                        >
+                        <div key={sub} className="text-sm text-gray-700 hover:underline cursor-pointer p-2">
                           {sub}
                         </div>
                       ))}
@@ -398,10 +396,7 @@ export default function Header() {
           </div>
 
           {/* Search Input */}
-          <div
-            className="flex items-center h-full relative w-[350px] sm:w-[450px]"
-            ref={containerRef}
-          >
+          <div className="flex items-center h-full relative w-[350px] sm:w-[450px]" ref={containerRef}>
             <input
               type="text"
               placeholder="Search for products, brands and more"
@@ -435,43 +430,61 @@ export default function Header() {
               <AiOutlineSearch size={28} color="white" />
             </button>
 
-            {/* Search Suggestions */}
-            {showSug && suggestions.length > 0 && (
-              <ul
-                id="search-suggestion-list"
-                role="listbox"
-                className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200"
-              >
-                {suggestions.map((p, i) => {
-                  const id = p._id;
-                  return (
-                    <li
-                      key={id || `${p.name}-${i}`}
-                      onMouseDown={() => {
-                        if (id) navigate(`/product/${id}`);
-                        setShowSug(false);
-                        setQuery("");
-                        setActiveIdx(-1);
-                      }}
-                      className={`flex items-center gap-3 p-3 cursor-pointer ${i === activeIdx ? "bg-gray-100" : "hover:bg-gray-50"
-                        }`}
-                      role="option"
-                      aria-selected={i === activeIdx}
-                    >
-                      <img
-                        src={placeholderImg}
-                        alt={p.name}
-                        className="w-12 h-12 object-contain bg-gray-100 rounded"
-                      />
-                      <div className="flex flex-col text-sm">
-                        <span className="font-semibold text-gray-800 line-clamp-1">{p.name}</span>
-                        <span className="text-gray-500 text-xs">{p.category}</span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+{showSug && suggestions.length > 0 && (
+  <ul
+    id="search-suggestion-list"
+    role="listbox"
+    className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200"
+  >
+    {suggestions.map((p, i) => {
+      const id = (p as any)._id;
+      // Defensive: category may be string or populated object
+      const rawCategory = (p as any).category;
+      const categoryLabel =
+        typeof rawCategory === "string" ? rawCategory : (rawCategory && (rawCategory.name || rawCategory.label)) || "";
+
+      // Choose image: prefer product.images[0], fallback to variant thumbnail, otherwise placeholder
+      const imgCandidate =
+        Array.isArray((p as any).images) && (p as any).images.length > 0
+          ? (p as any).images[0]
+          : Array.isArray((p as any).variants) && (p as any).variants.length > 0
+          ? (p as any).variants[0].thumbnail
+          : undefined;
+
+      const imgSrc = toImageUrl(imgCandidate);
+
+      return (
+        <li
+          key={id || `${(p as any).name}-${i}`}
+          onMouseDown={() => {
+            if (id) navigate(`/product/${id}`);
+            setShowSug(false);
+            setQuery("");
+            setActiveIdx(-1);
+          }}
+          className={`flex items-center gap-3 p-3 cursor-pointer ${i === activeIdx ? "bg-gray-100" : "hover:bg-gray-50"}`}
+          role="option"
+          aria-selected={i === activeIdx}
+        >
+          <img
+            src={imgSrc}
+            alt={(p as any).name || "product"}
+            className="w-12 h-12 object-contain bg-gray-100 rounded"
+            onError={(e) => {
+              // fall back to placeholder if image fails to load
+              (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_IMG;
+            }}
+          />
+          <div className="flex flex-col text-sm">
+            <span className="font-semibold text-gray-800 line-clamp-1">{(p as any).name}</span>
+            <span className="text-gray-500 text-xs">{categoryLabel}</span>
+          </div>
+        </li>
+      );
+    })}
+  </ul>
+)}
+
           </div>
         </div>
 
@@ -479,15 +492,8 @@ export default function Header() {
         <div className="flex flex-wrap sm:flex-nowrap items-center text-[11px] ml-0 sm:ml-2 gap-1 flex-shrink-0 justify-center sm:justify-start w-full sm:w-auto">
           {/* Specialty and Get Quote */}
           <div className="flex items-center gap-2 font-montserrat text-[#1C647C]">
-            <div
-              className="relative inline-block text-left"
-              onMouseEnter={() => setIsOpen(true)}
-              onMouseLeave={() => setIsOpen(false)}
-            >
-              <Link
-                to="/specialty"
-                className="px-2 py-1 rounded-md flex"
-              >
+            <div className="relative inline-block text-left" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
+              <Link to="/specialty" className="px-2 py-1 rounded-md flex">
                 <FaUserDoctor size={16} />
                 <span> By Specialty</span>
               </Link>
@@ -497,10 +503,7 @@ export default function Header() {
                   <ul className="py-1">
                     {specialtyPackagesSubcategories.map((item, index) => (
                       <li key={index}>
-                        <Link
-                          to={`/specialty/${item.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                          className="block px-3 py-1 text-[11px] text-gray-700 hover:bg-gray-100"
-                        >
+                        <Link to={`/specialty/${item.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="block px-3 py-1 text-[11px] text-gray-700 hover:bg-gray-100">
                           {item}
                         </Link>
                       </li>
@@ -510,47 +513,25 @@ export default function Header() {
               )}
             </div>
 
-            <Link
-              to="/get-quote"
-              className="px-2 py-1 rounded-md transition flex"
-            >
+            <Link to="/get-quote" className="px-2 py-1 rounded-md transition flex">
               <TbFileInvoice size={16} />
               Get Quote
             </Link>
           </div>
 
           {/* Login/Profile */}
-          <div
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {user ? (
-              <button
-                className={`flex items-center cursor-pointer gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
-                  }`}
-              >
+              <button className={`flex items-center cursor-pointer gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
                 <FaRegCircleUser size={16} />
                 <span>{user.firstName?.split(" ")[0] || "Profile"}</span>
-                <IoIosArrowForward
-                  className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"
-                    }`}
-                  size={12}
-                />
+                <IoIosArrowForward className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
               </button>
             ) : (
-              <Link
-                to="/user"
-                className={`flex items-center gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
-                  }`}
-              >
+              <Link to="/user" className={`flex items-center gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
                 <FaRegCircleUser size={16} />
                 <span>Login</span>
-                <IoIosArrowForward
-                  className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"
-                    }`}
-                  size={12}
-                />
+                <IoIosArrowForward className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
               </Link>
             )}
 
@@ -581,10 +562,7 @@ export default function Header() {
                       <span>Support</span>
                     </Link>
                     <hr className="my-1" />
-                    <button
-                      onClick={logoutHandler}
-                      className="flex items-center gap-2 px-3 py-1 w-full cursor-pointer hover:bg-gray-100 text-red-600"
-                    >
+                    <button onClick={logoutHandler} className="flex items-center gap-2 px-3 py-1 w-full cursor-pointer hover:bg-gray-100 text-red-600">
                       <FaSignOutAlt size={14} />
                       Logout
                     </button>
@@ -606,7 +584,9 @@ export default function Header() {
                     <Link to="/wishlist" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
                       <AiOutlineHeart size={14} />  Wishlist
                     </Link>
-                    <Link to="/rewards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">  <IoGiftSharp size={14} /> Rewards</Link>
+                    <Link to="/rewards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
+                      <IoGiftSharp size={14} /> Rewards
+                    </Link>
                     <Link to="/gift-cards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
                       <BsCashStack size={14} />
                       Gift Cards
@@ -618,14 +598,9 @@ export default function Header() {
           </div>
 
           {/* Become a Seller */}
-          <Link
-            to="/signup-seller"
-            className="px-2 py-1 rounded-md font-montserrat text-[#1C647C]"
-          >
+          <Link to="/signup-seller" className="px-2 py-1 rounded-md font-montserrat text-[#1C647C]">
             Become a Seller
           </Link>
-
-
 
           {/* Wishlist Button */}
           <button
@@ -642,6 +617,7 @@ export default function Header() {
               )}
             </div>
           </button>
+
           {/* Cart Button */}
           <button
             onClick={openCartHandler}
@@ -657,8 +633,6 @@ export default function Header() {
               )}
             </div>
           </button>
-
-
         </div>
       </div>
 
@@ -666,6 +640,5 @@ export default function Header() {
       {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
       {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
     </header>
-
   );
 }

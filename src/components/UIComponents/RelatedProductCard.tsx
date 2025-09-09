@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../Screens/ProductDetailScreen/GetAllProduct.Hooks";
-import ProductCard from "../Product/EquipmentProductCard"; // Update path if needed
+import ProductCard from "../Homepage/ProductCard";
+
 
 
 type RelatedProductsProps = {

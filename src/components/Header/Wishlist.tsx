@@ -12,7 +12,7 @@ type WishlistProps = {
 };
 
 export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
-  const wishlist      = useWishlistStore((s) => s.wishlist);
+  const wishlist = useWishlistStore((s) => s.wishlist);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
   return (
@@ -69,10 +69,7 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
         ) : (
           <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 p-4 space-y-4">
             {wishlist.map((product) => (
-              <WishlistItem
-                key={product._id}
-                product={product}
-              />
+              <WishlistItem key={product._id} product={product} />
             ))}
           </div>
         )}
@@ -87,7 +84,18 @@ type WishlistItemProps = {
 
 function WishlistItem({ product }: WishlistItemProps) {
   const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
-  const addToCart           = useCartStore((s) => s.addToCart);
+  const addToCart = useCartStore((s) => s.addToCart);
+
+  // ✅ Image from backend
+  const imageUrl =
+    product.images?.[0] ? `/images/${product.images[0]}` : "/placeholder.png";
+
+  // ✅ Handle price (fallback to first variant)
+  const firstVariant = product.variants?.[0];
+  const price =
+    firstVariant?.discountPrice ??
+    firstVariant?.originalPrice ??
+    0;
 
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
@@ -97,7 +105,7 @@ function WishlistItem({ product }: WishlistItemProps) {
         className="flex items-center gap-4 flex-1"
       >
         <img
-          src="/girl_dress.png"
+          src={imageUrl}
           alt={product.name}
           className="w-20 h-20 object-cover rounded-lg border"
         />
@@ -106,7 +114,7 @@ function WishlistItem({ product }: WishlistItemProps) {
             {product.name}
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            ₹{product.discountPrice.toLocaleString()}
+            ₹{price.toLocaleString()}
           </p>
         </div>
       </Link>
@@ -120,7 +128,6 @@ function WishlistItem({ product }: WishlistItemProps) {
             e.stopPropagation();
             addToCart({ product, qty: 1 });
             removeFromWishlist(product._id);
-            // no longer calling wishlistOpenHandler()
           }}
           className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition"
         >
@@ -137,7 +144,10 @@ function WishlistItem({ product }: WishlistItemProps) {
           className="p-2 rounded-full hover:bg-gray-100 transition"
           aria-label="Remove from wishlist"
         >
-          <RxCross1 size={20} className="text-gray-500 hover:text-red-500 transition" />
+          <RxCross1
+            size={20}
+            className="text-gray-500 hover:text-red-500 transition"
+          />
         </button>
       </div>
     </div>
