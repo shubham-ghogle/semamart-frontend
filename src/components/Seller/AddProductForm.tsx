@@ -471,7 +471,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   name="gtin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>GTIN</FormLabel>
+                      <FormLabel>GSTIN</FormLabel>
                       <FormControl>
                         <Input
                           type="text"

@@ -62,14 +62,14 @@ export const router = createBrowserRouter([
       },
       {
         path: "checkout/payment",
-        loader: checkoutScreenLoader, 
-        element: <PaymentScreen/>
-     },
+        loader: checkoutScreenLoader,
+        element: <PaymentScreen />
+      },
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "add-to-cart", element: <AddToCart /> },
     ],
   },
-  
+
   {
     path: "/search",
     element: <SearchLayout />,
@@ -163,8 +163,8 @@ export const router = createBrowserRouter([
   { path: "/signup", element: <UserRegistrationScreen /> },
   // Admin Routes
   {
-  path: "/admin-login",
-  element: <AdminLogin />,
+    path: "/admin-login",
+    element: <AdminLogin />,
   },
   {
     path: "/admin",
@@ -190,8 +190,7 @@ export const router = createBrowserRouter([
     element: <SellerLayout />,
     children: [
       { index: true, element: <SellerDashboard /> },
-      { path: "add-product-old", element: <AddProductScreen2 /> },
-      { path: "add-product", element: <AddProductScreen2 newForm={true} /> },
+      { path: "add-product", element: <AddProductScreen2 /> },
       {
         path: "products", children: [
           { index: true, element: <SellerAllProductsScreen /> },
@@ -224,7 +223,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  
+
   {
     path: "/account",
     // loader: getAdminFromLocalLoader,
@@ -241,6 +240,6 @@ export const router = createBrowserRouter([
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
   { path: "/account", element: <AccountNavbar /> },
   { path: "/account/orders", element: <MyOrders /> },
-  {path: "account/orders/:productId", element: <OrderSummary/>},
- 
+  { path: "account/orders/:productId", element: <OrderSummary /> },
+
 ]); 

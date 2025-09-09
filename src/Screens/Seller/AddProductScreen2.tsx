@@ -4,12 +4,11 @@ import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import AddProductForm from "@/components/Seller/AddProductForm";
 import { API_URL } from "@/data";
 import { CategoryApiRes } from "@/Types/types";
-import ProductDetailsForm from "@/components/Seller/ProductDetailsForm";
 import { LoaderIcon } from "lucide-react";
 
 // const categoriesData = [{ title: "edible" }];
 
-export default function AddProductScreen2({ newForm }: { newForm?: boolean }) {
+export default function AddProductScreen2() {
 
   const { data, status } = useQuery({
     queryKey: ["categories"],
@@ -26,11 +25,7 @@ export default function AddProductScreen2({ newForm }: { newForm?: boolean }) {
 
   return (
     <SellerMainWrapper heading="Add Product" status="success">
-      {newForm ? (
-        <AddProductForm categories={data ?? []} />
-      ) : (
-        <ProductDetailsForm mode="add" />
-      )}
+      <AddProductForm categories={data ?? []} />
     </SellerMainWrapper >
   );
 }

@@ -25,70 +25,78 @@ export interface Review {
 //   transections: any[];
 // }
 
-export interface Product {
-  _id: string;
-  name: string;
-  hsn: string;
-  productType: string;
-  originalPrice: number;
-  discountPrice: number;
-  category: string;
-  tags: string[];
-  shortdescription: string;
-  description: string;
-  stock: number;
-  sku: string;
-  stockStatus: string;
-  enableStockManagement: boolean;
-  allowSingleQuantity: boolean;
-  taxStatus?: string;
-  taxClass?: string;
-  upSells?: string[];
-  crossSells?: string[];
-  discountOptions?: { minimumQty: number; percent: number };
-  rma?: {
-    label: string
-    type: string
-    refundReason: {
-      damagedProduct: boolean
-      wrongProduct: boolean
-    }
-    rmaPolicy: string
-  };
-  minmaxrule?: {
-    minimumQty: number,
-    maximumQty: number,
-    minimumAmt: number,
-    maximumAmt: number
-  };
-  productStatus: "offline" | "online";
-  visibility: "visible" | "hidden";
-  purchaseNote?: string;
-  allowproductreviews: boolean;
-  weight: string;
-  dimension: string;
-  manufacturerName: string;
-  email: string;
-  phone: string;
-  origin: string;
-  images: string[];
-  shortVideo?: string;
-  reviews?: Review[];
-  ratings?: number;
-  shopId: string | Seller;
-  sold_out: number;
-  createdAt: Date;
-  updatedAt: Date;
-  attributes?: Record<string, string>[];
-  variants: {
+interface ProductVariant {
+  size: string | null;
   colorOption: string | null;
   thumbnail: string;
   originalPrice: number;
   discountPrice: number;
   institutePrice: number;
   stock: number;
-}[];
+  _id: string;
+}
 
+export interface Product {
+  _id: string;
+  name: string;
+  category: string[];
+  subCategory: string[];
+  tags: string[]; // looks like you’re storing JSON-stringified arrays, but ideally should be string[]
+  productType: string;
+  intendedUse: string;
+  sku: string;
+  gtin: string;
+  hsn: string;
+  unspsc: string;
+  upsells: string;
+  crosssells: string;
+  specialityPackage: string;
+  specialityPackageType: string;
+  manufacturerName: string;
+  email: string;
+  phone: string;
+  origin: string;
+  shortdescription: string;
+  description: string;
+  attributes: Array<Record<string, string>>; // parsed from JSON string
+  weight: string;
+  dimension: string;
+  variants: ProductVariant[];
+  sterile: boolean;
+  singleUse: boolean;
+  expiry: string; // ISO date string
+  msds_ifu_leaflet: string;
+  minmaxrule: {
+    minQty: string;
+    maxQty: string;
+  };
+  taxStatus: string;
+  taxClass: number;
+  unitOfMeasure: string;
+  stockStatus: string;
+  deliveryLeadTime: string;
+  warranty: string;
+  amc_cms: string;
+  rma: string;
+  dispatchLocation: string;
+  dispatchPinCode: number;
+  unitsPerCarton: number;
+  shippingWeight: number;
+  packagingType: string;
+  deliveryPartner: string;
+  shelfing_storage_req: string;
+  visibility: string;
+  purchaseNote: string;
+  images: string[];
+  certificate: string[];
+  oemLetter: string;
+  allowProductReviews: boolean;
+  reviews: any[]; // could refine if you have a review schema
+  shopId: string;
+  sold_out: number;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
 }
 
 export type Address = {

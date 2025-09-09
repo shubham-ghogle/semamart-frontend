@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useParams } from "react-router";
 import { getProductDetail } from "../ProductDetailScreen/ProductDetails.HooksUtils";
-import ProductDetailsForm from "../../components/Seller/ProductDetailsForm";
 
 export default function ViewProductScreen() {
   const { id } = useParams();
@@ -16,7 +15,7 @@ export default function ViewProductScreen() {
   return (
     <SellerMainWrapper status={status} errorMeassage={error?.message} heading="Product Detail">
       {status === "success" && product && (
-        <ProductDetailsForm mode="views" product={product} media={product.images} />
+        <div>TODO</div>
       )}
     </SellerMainWrapper>
   )
