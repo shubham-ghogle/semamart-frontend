@@ -10,7 +10,7 @@ export default function AddToCart() {
 
   // Sum only discounted prices × quantity
   const totalPayable = cart.reduce(
-    (acc, item) => acc + item.qty * item.product.discountPrice,
+    (acc, item) => acc + item.qty * item.product.variants[0].discountPrice,
     0
   );
 
@@ -82,9 +82,9 @@ const CartSingle = ({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
   const product = data.product;
 
-  const originalPrice = product.originalPrice ?? product.discountPrice;
+  const originalPrice = product.variants[0].originalPrice ?? product.variants[0].discountPrice;
   const discountPercent = originalPrice
-    ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
+    ? Math.round(((originalPrice - product.variants[0].discountPrice) / originalPrice) * 100)
     : 0;
 
   return (
@@ -116,7 +116,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
           </p>
           <div className="flex items-center gap-3 mt-1">
             <span className="line-through text-gray-400">₹{originalPrice}</span>
-            <span className="font-semibold text-lg text-gray-900">₹{product.discountPrice}</span>
+            <span className="font-semibold text-lg text-gray-900">₹{product.variants[0].discountPrice}</span>
             {discountPercent > 0 && (
               <span className="text-green-600 font-semibold">{discountPercent}% OFF</span>
             )}

@@ -42,7 +42,7 @@ export default function WishlistPage() {
         ) : (
           wishlist.map((product) => {
             const discount = Math.round(
-              ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
+              ((product.variants[0].originalPrice - product.variants[0].discountPrice) / product.variants[0].originalPrice) * 100
             );
 
             return (
@@ -86,7 +86,7 @@ export default function WishlistPage() {
                   )}
 
                   {/* Add to Cart Button */}
-                  {product.stock && (
+                  {product.variants[0].stock && (
                     <button
                       onClick={() => {
                         addToCart({ product, qty: 1 });
