@@ -33,37 +33,37 @@ export interface Variant {
   discountPrice?: number
   institutePrice?: number
   stock: number
-  _id: string;
+  _id: string
 }
 
 export interface Product {
   _id: string
   name: string
-  category: string
-  subCategory?: string
+  category: string[]   // fixed
+  subCategory: string[]   // fixed
   tags: string[]
   productType: string
-  intendedUse?: string
+  intendedUse: string   // fixed (required)
   sku: string
-  gtin?: string
+  gtin: string
   hsn: string
   unspsc?: string
   upsells?: string
   crosssells?: string
-  specialityPackage?: string
-  specialityPackageType?: string
-  manufacturerName: string
-  email: string
-  phone: string
-  origin: string
+  specialityPackage: string   // fixed (required)
+  specialityPackageType: string   // fixed (required)
+  manufacturerName?: string   // fixed
+  email?: string
+  phone?: string
+  origin?: string
   shortdescription: string
   description: string
   attributes?: Record<string, string>[]
   weight: string
   dimension: string
-  variants: Variant[]   // 👈 NEW FIELD
-  sterile: boolean
-  singleUse: boolean
+  variants: Variant[]
+  sterile?: boolean   // fixed
+  singleUse?: boolean // fixed
   expiry?: Date
   productCompilance?: string
   msds_ifu_leaflet?: string
@@ -71,10 +71,10 @@ export interface Product {
   taxStatus?: string
   taxClass?: number
   unitOfMeasure: string
-  stockStatus: string
+  stockStatus?: string // fixed
   deliveryLeadTime?: string
   warranty?: string
-  enableStockManagement: boolean
+  enableStockManagement?: boolean
   amc_cms?: string
   rma?: string
   dispatchLocation: string
@@ -84,9 +84,9 @@ export interface Product {
   packagingType: string
   deliveryPartner?: string
   shelfing_storage_req?: string
-  allowSingleQuantity: boolean
+  allowSingleQuantity?: boolean
   discountOptions?: string
-  productStatus: string
+  productStatus?: string
   visibility: "public" | "hidden"
   purchaseNote?: string
   images: string[]
@@ -95,14 +95,13 @@ export interface Product {
   oemLetter?: string
   productComparisionSheet?: string
   allowProductReviews: boolean
-  reviews?: Review[]
+  reviews?: string[] | Review[] // fixed
   ratings?: number
   shopId: string | Seller
   sold_out: number
   createdAt: Date
   updatedAt: Date
 }
-
 
 export type Address = {
   state: string;
