@@ -24,6 +24,14 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/baseUrl/, ""),
       },
+      "/images": {
+      target: "http://localhost:8000",
+      changeOrigin: true,
+    },
+     "/videos": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
     },
   },
 });

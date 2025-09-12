@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Product } from "../../Types/types";
-import EquipmentProductCard from "../Product/EquipmentProductCard.tsx";
+//import EquipmentProductCard from "../Product/EquipmentProductCard.tsx";
+import ProductCard from "./ProductCard.tsx";
 
 type ProductShowcaseProps = {
   status: "error" | "success" | "pending";
@@ -102,7 +103,7 @@ export default function ProductShowcase({
                 key={product._id}
                 className="min-w-[200px] max-w-[240px] flex-shrink-0"
               >
-                <EquipmentProductCard product={product} variant="default" />
+                <ProductCard product={product}/>
               </div>
             ))}
 

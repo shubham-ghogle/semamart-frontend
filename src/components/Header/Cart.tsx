@@ -14,15 +14,20 @@ type CartProps = {
 };
 
 export default function Cart({ cartOpenHandler }: CartProps) {
-   const cart      = useCartStore(state => state.cart);
-  const clearCart = useCartStore(state => state.clearCart);
+  const cart = useCartStore((state) => state.cart);
+  const clearCart = useCartStore((state) => state.clearCart);
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  const totalPrice = cart.reduce(
-    (acc, item) => acc + item.qty * item.product.variants[0].discountPrice,
-    0
-  );
+  // ✅ calculate total price from variants
+  const totalPrice = cart.reduce((acc, item) => {
+    const firstVariant = item.product.variants?.[0];
+    const price =
+      firstVariant?.discountPrice ??
+      firstVariant?.originalPrice ??
+      0;
+    return acc + item.qty * price;
+  }, 0);
 
   function checkoutHandler() {
     if (!user) {
@@ -117,7 +122,19 @@ type CartSingleProps = {
 
 const CartSingle = ({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
-  const totalPrice = data.product.variants[0].discountPrice * data.qty;
+
+  // ✅ backend image
+  const imageUrl =
+    data.product.images?.[0] ? `/images/${data.product.images[0]}` : "/placeholder.png";
+
+  // ✅ price from variants
+  const firstVariant = data.product.variants?.[0];
+  const unitPrice =
+    firstVariant?.discountPrice ??
+    firstVariant?.originalPrice ??
+    0;
+
+  const totalPrice = unitPrice * data.qty;
 
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
@@ -127,7 +144,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
         className="flex items-center gap-3 flex-1"
       >
         <img
-          src="/girl_dress.png"
+          src={imageUrl}
           alt={data.product.name}
           className="w-20 h-20 object-cover rounded-lg border"
         />
@@ -137,7 +154,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
             {data.product.name}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
-            ₹{data.product.variants[0].discountPrice.toLocaleString()} × {data.qty}
+            ₹{unitPrice.toLocaleString()} × {data.qty}
           </p>
           <p className="text-sm font-bold text-red-600 mt-1">
             ₹{totalPrice.toLocaleString()}
