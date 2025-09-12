@@ -58,11 +58,6 @@ const AccountNavbar = () => {
                   Manage Addresses
                 </li>
               </Link>
-              <Link to="/account/pan-card-information">
-                <li className={`p-2 ${isActive("/account/pan-card-information") ? "bg-blue-100 text-blue-500" : ""}`}>
-                  PAN Card Information
-                </li>
-              </Link>
               
             </ul>
 

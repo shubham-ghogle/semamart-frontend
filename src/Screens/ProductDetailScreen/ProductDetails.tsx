@@ -14,6 +14,7 @@ import offer from "../../../public/offer.png";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
+import { useNavigate } from "react-router-dom";
 
 // Fixed images for demo showcase (public folder)
 const demoImages = [
@@ -50,6 +51,7 @@ function toVideoUrl(value?: string | null) {
 }
 
 export default function ProductCard() {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   // keep name isPending like original by mapping isLoading -> isPending
@@ -415,7 +417,7 @@ export default function ProductCard() {
                 </button>
               </div>
 
-              <button className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2" style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}>
+              <button className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2" style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}  onClick={() => navigate("/checkout")}>
                 Buy Now
               </button>
             </div>

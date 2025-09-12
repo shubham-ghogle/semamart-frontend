@@ -9,10 +9,12 @@ export default function AddToCart() {
   const navigate = useNavigate();
 
   // Sum only discounted prices × quantity
-  const totalPayable = cart.reduce(
-    (acc, item) => acc + item.qty * item.product.variants[0].discountPrice,
-    0
-  );
+ const totalPayable = cart.reduce(
+  (acc, item) =>
+    acc + item.qty * (item.product?.variants?.[0]?.discountPrice ?? 0),
+  0
+);
+
 
   function checkoutHandler() {
     if (!user) {
@@ -83,9 +85,11 @@ const CartSingle = ({ data }: CartSingleProps) => {
   const product = data.product;
 
   const originalPrice = product.variants[0].originalPrice ?? product.variants[0].discountPrice;
-  const discountPercent = originalPrice
-    ? Math.round(((originalPrice - product.variants[0].discountPrice) / originalPrice) * 100)
-    : 0;
+
+  const discountPercent = (originalPrice && product?.variants?.[0]?.discountPrice !== undefined)
+  ? Math.round(((originalPrice - product.variants[0].discountPrice!) / originalPrice) * 100)
+  : 0;
+
 
   return (
     <div className="flex gap-4 py-6 border-b border-gray-200">

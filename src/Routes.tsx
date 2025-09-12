@@ -44,7 +44,6 @@ import PaymentScreen from "./Screens/Payment/PaymentScreen";
 import AdminLogin from "./Screens/Admin/AdminLogin";
 import OrderSummary from "./components/Order/OrderSummary";
 import ManageAddress from "./components/Account/ManageAddress";
-import PanCardForm from "./components/Account/PanCardForm";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
@@ -234,7 +233,6 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <MyProfile /> },
       { path: "address", element: <ManageAddress /> },
-      { path: "pan-card-information", element: <PanCardForm /> },
       { path: "wishlist", element: <WishlistProduct /> },
 
     ],
