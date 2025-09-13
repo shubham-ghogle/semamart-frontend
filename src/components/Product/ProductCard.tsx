@@ -9,10 +9,6 @@ type DefaultProductCardProps = {
 };
 
 export default function DefaultProductCard({ product }: DefaultProductCardProps) {
-  const discountPct = Math.floor(
-    ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
-  );
-
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
   const inWishlist = wishlist.some((p) => p._id === product._id);
@@ -30,6 +26,17 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
   const imageSrc = product.images?.[0]
     ? `/baseUrl/${product.images[0]}`
     : "/image60.png";
+
+  // ✅ Pick the first variant (if available)
+  const firstVariant = product.variants[0];
+  const discountPct =
+    firstVariant && firstVariant.discountPrice
+      ? Math.floor(
+          ((firstVariant.originalPrice - firstVariant.discountPrice) /
+            firstVariant.originalPrice) *
+            100
+        )
+      : 0;
 
   return (
     <article className="relative border rounded-xl bg-white shadow-xs transition hover:shadow-md overflow-hidden flex p-3 w-[215px] h-[350px] flex-col">
@@ -63,12 +70,20 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
 
           <div className="flex items-center justify-between mt-1">
             <div className="flex flex-col">
-              <span className="text-xs text-gray-400 line-through font-montserrat">
-                ₹{product.originalPrice}
-              </span>
-              <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
-                ₹{product.discountPrice}
-              </span>
+              {firstVariant?.discountPrice ? (
+                <>
+                  <span className="text-xs text-gray-400 line-through font-montserrat">
+                    ₹{firstVariant.originalPrice}
+                  </span>
+                  <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                    ₹{firstVariant.discountPrice}
+                  </span>
+                </>
+              ) : (
+                <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                  ₹{firstVariant?.originalPrice ?? "N/A"}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <button onClick={handleToggleWishlist}>

@@ -21,22 +21,23 @@ type VariantRow = {
 type SellerProductTableProps = {
   products: Product[]
 }
+
 export default function SellerProductTable({ products }: SellerProductTableProps) {
 
   const rows: VariantRow[] = products.flatMap(pro =>
-    pro.variants.map(v => ({
-      id: v._id,
-      productName: pro.name,
-      thumbnail: BASE_URL + "images/" + v.thumbnail,
-      colorOption: v.colorOption || "-",
-      size: v.size || "-",
-      stock: v.stock,
-      originalPrice: v.originalPrice,
-      discountPrice: v.discountPrice,
-      createdAt: pro.createdAt,
-      productId: pro._id,
-    }))
-  )
+  pro.variants.map(v => ({
+    id: v._id,
+    productName: pro.name,
+    thumbnail: BASE_URL + "images/" + v.thumbnail,
+    colorOption: v.colorOption || "-",
+    size: v.size || "-",
+    stock: v.stock,
+    originalPrice: v.originalPrice,
+    discountPrice: v.discountPrice ?? 0, // fallback to 0
+    createdAt: pro.createdAt.toISOString(), // convert Date to string
+    productId: pro._id,
+  }))
+)
 
   const columns: ColumnDef<VariantRow>[] = [
     {
@@ -44,9 +45,7 @@ export default function SellerProductTable({ products }: SellerProductTableProps
       header: ({ table }) => (
         <input
           type="checkbox"
-          checked={
-            table.getIsAllPageRowsSelected()
-          }
+          checked={table.getIsAllPageRowsSelected()}
           onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
         />
       ),
@@ -60,10 +59,7 @@ export default function SellerProductTable({ products }: SellerProductTableProps
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "productName",
-      header: "Product Name",
-    },
+    { accessorKey: "productName", header: "Product Name" },
     {
       accessorKey: "thumbnail",
       header: "Image",
@@ -75,30 +71,17 @@ export default function SellerProductTable({ products }: SellerProductTableProps
         />
       ),
     },
-    {
-      accessorKey: "colorOption",
-      header: "Color",
-    },
-    {
-      accessorKey: "size",
-      header: "Size",
-    },
-    {
-      accessorKey: "stock",
-      header: "Stock",
-    },
-    {
-      accessorKey: "originalPrice",
-      header: "Price",
-    },
-    {
-      accessorKey: "discountPrice",
-      header: "Discount Price",
-    },
+    { accessorKey: "colorOption", header: "Color" },
+    { accessorKey: "size", header: "Size" },
+    { accessorKey: "stock", header: "Stock" },
+    { accessorKey: "originalPrice", header: "Price" },
+    { accessorKey: "discountPrice", header: "Discount Price" },
     {
       accessorKey: "createdAt",
       header: "Created On",
-      cell: ({ row }) => (<p>{new Date(row.original.createdAt).toLocaleDateString("en-IN")}</p>)
+      cell: ({ row }) => (
+        <p>{new Date(row.original.createdAt).toLocaleDateString("en-IN")}</p>
+      ),
     },
     {
       id: "actions",
@@ -112,5 +95,4 @@ export default function SellerProductTable({ products }: SellerProductTableProps
   ]
 
   return <DataTable data={rows} columns={columns} docName="" />
-
 }

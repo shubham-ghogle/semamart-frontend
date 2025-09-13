@@ -9,17 +9,14 @@ const uploadedImages = [
   "/MedicalImages/imagea.png",
   "/MedicalImages/imageb.png",
   "/MedicalImages/imagec.png",
-    "/MedicalImages/imaged.jpg",
-        "/MedicalImages/imaged.png",
-
+  "/MedicalImages/imaged.jpg",
+  "/MedicalImages/imaged.png",
   "/MedicalImages/imagef.png",
-    "/MedicalImages/imageg.png",
+  "/MedicalImages/imageg.png",
   "/MedicalImages/imageh.png",
   "/MedicalImages/imagej.png",
-    "/MedicalImages/imagek.png",
+  "/MedicalImages/imagek.png",
   "/MedicalImages/imagel.png",
-  
-  
 ];
 
 export type ProductCardVariant = "default" | "square" | "tall" | "wide";
@@ -31,11 +28,16 @@ type ProductCardProps = {
 
 export default function EquipmentProductCard({
   product,
-  // variant = "default",
 }: ProductCardProps) {
-  const discountPct = Math.floor(
-    ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
-  );
+  // pick first variant safely
+  const variant = product.variants?.[0];
+  const originalPrice = variant?.originalPrice ?? 0;
+  const discountPrice = variant?.discountPrice ?? originalPrice;
+
+  const discountPct =
+    originalPrice > 0
+      ? Math.floor(((originalPrice - discountPrice) / originalPrice) * 100)
+      : 0;
 
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
@@ -51,12 +53,8 @@ export default function EquipmentProductCard({
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
   };
 
-  // // Pick image from uploadedImages array for demo (use product index if available)
-  // const imageSrc =
-  //   product.images?.[0] ||
-  //   uploadedImages[Math.floor(Math.random() * uploadedImages.length)];
-  
-  const imageSrc = uploadedImages[Math.floor(Math.random() * uploadedImages.length)];
+  const imageSrc =
+    uploadedImages[Math.floor(Math.random() * uploadedImages.length)];
 
   return (
     <article
@@ -90,11 +88,13 @@ export default function EquipmentProductCard({
 
         <div className="flex items-end justify-between mt-auto">
           <div className="flex flex-col">
-            <span className="text-xs text-gray-400 line-through font-montserrat">
-              ₹{product.originalPrice}
-            </span>
+            {discountPct > 0 && (
+              <span className="text-xs text-gray-400 line-through font-montserrat">
+                ₹{originalPrice}
+              </span>
+            )}
             <span className="font-bold text-lg font-montserrat text-[#2F3B54]">
-              ₹{product.discountPrice}
+              ₹{discountPrice}
             </span>
           </div>
           <div className="flex items-center gap-2">

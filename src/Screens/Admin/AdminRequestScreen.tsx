@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllSellers } from "./Admin.HooksAndUtils";
 import AdminRequestTable from "../../components/Admin/AdminRequest/AdminRequestTable";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
+import { Seller } from "../../Types/types"; // use the existing Seller type
 
 export default function AdminRequestScreen() {
   const { data, error, status } = useQuery({
@@ -12,11 +13,11 @@ export default function AdminRequestScreen() {
   return (
     <AdminMainWrapper
       status={status}
-      heading="Seller Regitration Requests"
+      heading="Seller Registration Requests"
       errorMeassage={error?.message}
     >
       {status === "success" && data && (
-        <AdminRequestTable sellers={data.sellers} />
+        <AdminRequestTable sellers={data.sellers as Seller[]} /> 
       )}
     </AdminMainWrapper>
   );

@@ -92,14 +92,18 @@ export default function SearchResultsPage() {
     })();
   }, [q]);
 
-  // Filtering
-  let filtered = results.filter((p) => {
-    // category: using productType (matches your interface)
-    const inCat = category === "All" || p.productType === category || p.category === category;
-    const displayPrice = getDisplayDiscountPrice(p);
-    const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;
-    return inCat && inPrice;
-  });
+// Filtering
+let filtered = results.filter((p) => {
+  // category: using productType (matches your interface)
+  const inCat =
+    category === "All" ||
+    p.productType === category ||
+    (Array.isArray(p.category) ? p.category.includes(category) : p.category === category);
+
+  const displayPrice = getDisplayDiscountPrice(p);
+  const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;
+  return inCat && inPrice;
+});
 
   // Sorting
   if (sort === "lowToHigh") {
