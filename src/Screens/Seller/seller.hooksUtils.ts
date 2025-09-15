@@ -1,10 +1,10 @@
 export const addProductFormDefaultValues = {
   expiry: new Date(),
-  tags: [],
-  attributes: [],
+  tags: [] as any[],
+  attributes: [] as any[],
   name: "",
-  category: [],
-  subCategory: [],
+  category: [] as any[],
+  subCategory: [] as any[],
   productType: "",
   intendedUse: "",
   sku: "",
@@ -57,11 +57,13 @@ export const addProductFormDefaultValues = {
   specialityPackage: "",
   specialityPackageType: "",
   variants: [{
-    size: null,
-    colorOption: null,
+    size: null as string | null,
+    colorOption: null as string | null,
     originalPrice: "",
     discountPrice: "",
     institutePrice: "",
     stocks: ""
   }]
 }
+
+export type FormProduct = typeof addProductFormDefaultValues

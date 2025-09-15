@@ -7,7 +7,7 @@ import { Input } from "../ui/input"
 import { Autocomplete } from "../ui/autocomplete"
 import { CategoryApiRes, CategoryDetailApiRes, SubCategory } from "@/Types/types"
 import { ChangeEvent, useEffect, useState } from "react"
-import { API_URL } from "@/data"
+import { API_URL, BASE_URL } from "@/data"
 import { useMutation } from "@tanstack/react-query"
 import { TagsInput } from "../ui/tags-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
@@ -23,28 +23,38 @@ import { AiOutlinePlusCircle } from "react-icons/ai"
 import { useSellerStore } from "@/store/sellerStore"
 import { toast } from "react-toastify"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../ui/accordion"
-import { addProductFormDefaultValues } from "@/Screens/Seller/seller.hooksUtils"
+import { addProductFormDefaultValues, FormProduct } from "@/Screens/Seller/seller.hooksUtils"
 import SpecialityDropdown from "./SpecialityDropdown"
 import { Checkbox } from "../ui/checkbox"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
+  product?: undefined,
+  images?: undefined
+  multiVariant?: undefined
+  thumbnails?: undefined
+} | {
+  categories: CategoryApiRes[];
+  product: FormProduct;
+  // images: string[];
+  multiVariant: boolean
+  thumbnails: any[]
 }
 
-export default function AddProductForm({ categories }: AddProductFormProps) {
+export default function AddProductForm({ thumbnails, multiVariant = false, categories, product }: AddProductFormProps) {
 
   const [subCatList, setSubCatList] = useState<SubCategory[]>([])
   const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" })
   const seller = useSellerStore((state) => state.seller);
   const [currCategory, setCurrCategory] = useState({ name: "", val: "" })
   const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" })
-  const [isMultiVariant, setIsMultiVariant] = useState(false)
+  const [isMultiVariant, setIsMultiVariant] = useState(multiVariant)
 
   const categoryDropDownList = categories.map(c => ({ label: c.name, value: c._id }))
 
   const form = useForm<z.infer<typeof addProductFormSchema>>({
     resolver: zodResolver(addProductFormSchema),
-    defaultValues: addProductFormDefaultValues,
+    defaultValues: product ? product : addProductFormDefaultValues,
   })
 
   const { fields: variantFields, append, remove } = useFieldArray({
@@ -194,7 +204,7 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
     newForm.append("shortdescription", values.shortdescription)
     newForm.append("description", values.description)
     newForm.append("attributes", JSON.stringify(values.attributes))
-    newForm.append("weight", values.productWgt + values.productWgtUnit)
+    newForm.append("weight", values.productWgt + " " + values.productWgtUnit)
     newForm.append("dimension", `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`)
     // if (values.colorOptions) {
     //   newForm.append("colorOptions", values.colorOptions)
@@ -555,11 +565,12 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                     <FormLabel>Speciality Package</FormLabel>
                     <FormControl>
                       <SpecialityDropdown
-                        value={form.getValues("specialityPackage")}
+                        viewMode={product ? true : false}
+                        value={form.watch("specialityPackage")}
                         setValue={(v) => {
                           form.setValue("specialityPackage", v)
                         }}
-                        packageTypeValue={form.getValues("specialityPackageType")}
+                        packageTypeValue={form.watch("specialityPackageType")}
                         setPackageValue={v => {
                           form.setValue("specialityPackageType", v)
                         }}
@@ -1064,9 +1075,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="5">5%</SelectItem>
                           <SelectItem value="10">10%</SelectItem>
-                          <SelectItem value="12">12%</SelectItem>
-                          <SelectItem value="18">18%</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -1401,10 +1411,12 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
           <AccordionItem value="6">
             <AccordionTrigger className="text-lg">Pricing and Media</AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6">
-              <div className="flex items-center gap-2 mb-8">
-                <FormLabel className="text-[16px] font-normal">Does this product have multiple variants (sizes/colors)?</FormLabel>
-                <Checkbox checked={isMultiVariant} onCheckedChange={switchMultiVarianMode} className="bg-light-blue! text-blue-800!" />
-              </div>
+              {!product && (
+                <div className="flex items-center gap-2 mb-8">
+                  <FormLabel className="text-[16px] font-normal">Does this product have multiple variants (sizes/colors)?</FormLabel>
+                  <Checkbox checked={isMultiVariant} onCheckedChange={switchMultiVarianMode} className="bg-light-blue! text-blue-800!" />
+                </div>
+              )}
 
               {!isMultiVariant && (
                 <section className="space-y-4">
@@ -1479,7 +1491,13 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                         htmlFor="uploadThumbnail"
                         className="cursor-pointer w-full h-full grid place-items-center"
                       >
-                        {
+                        {product ? (
+                          <img
+                            src={BASE_URL + "/images/" + thumbnails[0]}
+                            alt="Thumbnail"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
                           thumbnail[0] ? (
                             <img
                               src={URL.createObjectURL(thumbnail[0])}
@@ -1488,7 +1506,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                             />
                           ) : (
                             <AiOutlinePlusCircle size={30} color="#555" />
-                          )}
+                          )
+                        )}
                       </label>
                     </div>
                     <input
@@ -1623,7 +1642,13 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                                 htmlFor="uploadThumbnail"
                                 className="cursor-pointer w-full h-full grid place-items-center"
                               >
-                                {
+                                {product ? (
+                                  <img
+                                    src={BASE_URL + "/images/" + thumbnails[i]}
+                                    alt="Thumbnail"
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
                                   thumbnail[i] ? (
                                     <img
                                       src={URL.createObjectURL(thumbnail[i])}
@@ -1632,7 +1657,8 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                                     />
                                   ) : (
                                     <AiOutlinePlusCircle size={30} color="#555" />
-                                  )}
+                                  ))}
+
                               </label>
                             </div>
                             <input

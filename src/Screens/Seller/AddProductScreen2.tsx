@@ -31,7 +31,7 @@ export default function AddProductScreen2() {
 }
 
 
-async function fetchProductCategories() {
+export async function fetchProductCategories() {
   const url = API_URL + "category"
   const res = await fetch(url)
   if (!res.ok) throw new Error()

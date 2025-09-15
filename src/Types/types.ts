@@ -62,29 +62,29 @@ export interface Product {
   weight: string
   dimension: string
   variants: Variant[]
-  sterile?: boolean   // fixed
-  singleUse?: boolean // fixed
-  expiry?: Date
-  productCompilance?: string
-  msds_ifu_leaflet?: string
-  minmaxrule?: Record<string, any>
-  taxStatus?: string
-  taxClass?: number
+  sterile: boolean   // fixed
+  singleUse: boolean // fixed
+  expiry: Date
+  productCompilance: string
+  msds_ifu_leaflet: string
+  minmaxrule: Record<string, any>
+  taxStatus: string
+  taxClass: number
   unitOfMeasure: string
-  stockStatus?: string // fixed
-  deliveryLeadTime?: string
-  warranty?: string
-  enableStockManagement?: boolean
-  amc_cms?: string
-  rma?: string
+  stockStatus: string // fixed
+  deliveryLeadTime: string
+  warranty: string
+  enableStockManagement: boolean
+  amc_cms: string
+  rma: string
   dispatchLocation: string
   dispatchPinCode: number
   unitsPerCarton: number
   shippingWeight: number
   packagingType: string
-  deliveryPartner?: string
-  shelfing_storage_req?: string
-  allowSingleQuantity?: boolean
+  deliveryPartner: string
+  shelfing_storage_req: string
+  // allowSingleQuantity?: boolean
   discountOptions?: string
   productStatus?: string
   visibility: "public" | "hidden"
