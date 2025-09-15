@@ -42,7 +42,7 @@ export default function ViewProductScreen() {
     )
   }
 
-  const category = data.filter(el => product.category.includes(el._id)).map(c => ({ name: c.name, value: c._id }))
+  const category = data.filter(el => product.category.includes(el._id)).map(c => ({ name: c.name, val: c._id }))
   const subCategory = subCats.filter((el: any) => product.subCategory.includes(el._id)).map((el: any) => ({ name: el.name, val: el._id }))
 
   const minmaxrule = product?.minmaxrule

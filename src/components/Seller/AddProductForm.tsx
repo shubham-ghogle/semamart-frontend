@@ -26,6 +26,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "..
 import { addProductFormDefaultValues, FormProduct } from "@/Screens/Seller/seller.hooksUtils"
 import SpecialityDropdown from "./SpecialityDropdown"
 import { Checkbox } from "../ui/checkbox"
+import DocumentsDisplay from "./DocumentsDisplay"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -158,6 +159,7 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
     }
   })
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
+    //TODO: api end point for edit product
     const newForm = new FormData();
 
     newForm.append(
@@ -1164,26 +1166,6 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="amc_cms"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>AMC / CMS Available</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <FormField
                 control={form.control}
@@ -1337,76 +1319,99 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="5">
-            <AccordionTrigger className="text-lg">Documents Uploads</AccordionTrigger>
-            <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
-              <FormField
-                control={form.control}
-                name="certificate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Certifications / Test Reports </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(Array.from(e.target.files));
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {!product && (
 
-              <FormField
-                control={form.control}
-                name="oemLetter"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>OEM Authorization Letter</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <AccordionItem value="5">
+              <AccordionTrigger className="text-lg">Documents Uploads</AccordionTrigger>
+              <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
+                <FormField
+                  control={form.control}
+                  name="amc_cms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>AMC / CMS Available</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              field.onChange(e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="productComparisionSheet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Comparison Sheet</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="certificate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Certifications / Test Reports </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          multiple
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              field.onChange(Array.from(e.target.files));
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* media */}
-            </AccordionContent>
-          </AccordionItem>
+                <FormField
+                  control={form.control}
+                  name="oemLetter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>OEM Authorization Letter</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              field.onChange(e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="productComparisionSheet"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Comparison Sheet</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              field.onChange(e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* media */}
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
           <AccordionItem value="6">
             <AccordionTrigger className="text-lg">Pricing and Media</AccordionTrigger>
@@ -1764,6 +1769,10 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
           </AccordionItem>
 
         </Accordion>
+
+        {product && (
+          <DocumentsDisplay />
+        )}
 
         <div className="flex justify-end">
           <Button type="submit" variant="outline">Submit</Button>
