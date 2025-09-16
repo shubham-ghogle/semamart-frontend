@@ -27,6 +27,7 @@ import { addProductFormDefaultValues, FormProduct } from "@/Screens/Seller/selle
 import SpecialityDropdown from "./SpecialityDropdown"
 import { Checkbox } from "../ui/checkbox"
 import DocumentsDisplay from "./DocumentsDisplay"
+import MediaDisplay from "./MediaDisplay"
 
 type AddProductFormProps = {
   categories: CategoryApiRes[]
@@ -1691,79 +1692,85 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
                 </div>
               )}
               <section className="space-y-4 mt-4">
-                <div>
-                  <FormLabel>Upload other images</FormLabel>
-                  <div className="flex gap-4 flex-wrap mt-2">
-                    {
-                      Array.from({ length: 4 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                {product ? (
+                  <MediaDisplay />
+                ) : (
+                  <>
+                    <div>
+                      <FormLabel>Upload other images</FormLabel>
+                      <div className="flex gap-4 flex-wrap mt-2">
+                        {
+                          Array.from({ length: 4 }).map((_, index) => (
+                            <div
+                              key={index}
+                              className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                            >
+                              <label
+                                htmlFor={`uploadImage-${index}`}
+                                className="cursor-pointer"
+                              >
+                                {images[index] ? (
+                                  <img
+                                    src={URL.createObjectURL(images[index])}
+                                    alt={`Image-${index + 1}`}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <AiOutlinePlusCircle size={30} color="#555" />
+                                )}
+                              </label>
+                              <input
+                                type="file"
+                                id={`uploadImage-${index}`}
+                                className="hidden"
+                                onChange={(e) => handleImageChange(e, index)}
+                              />
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
+                    <div>
+                      <FormLabel>
+                        Upload Product Video
+                      </FormLabel>
+                      <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                        <label
+                          htmlFor="uploadThumbnail"
+                          className="cursor-pointer w-full h-full grid place-items-center"
                         >
-                          <label
-                            htmlFor={`uploadImage-${index}`}
-                            className="cursor-pointer"
-                          >
-                            {images[index] ? (
-                              <img
-                                src={URL.createObjectURL(images[index])}
-                                alt={`Image-${index + 1}`}
+                          {
+                            shortVideo ? (
+                              <video
+                                controls
+                                src={URL.createObjectURL(shortVideo)}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
                               <AiOutlinePlusCircle size={30} color="#555" />
                             )}
-                          </label>
-                          <input
-                            type="file"
-                            id={`uploadImage-${index}`}
-                            className="hidden"
-                            onChange={(e) => handleImageChange(e, index)}
-                          />
-                        </div>
-                      ))
-                    }
-                  </div>
-                </div>
-
-                <div>
-                  <FormLabel>
-                    Upload Product Video
-                  </FormLabel>
-                  <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
-                    <label
-                      htmlFor="uploadThumbnail"
-                      className="cursor-pointer w-full h-full grid place-items-center"
-                    >
-                      {
-                        shortVideo ? (
-                          <video
-                            controls
-                            src={URL.createObjectURL(shortVideo)}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <AiOutlinePlusCircle size={30} color="#555" />
-                        )}
-                    </label>
-                  </div>
-                  <input
-                    type="file"
-                    id="uploadShortVideo"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && file.size > 2 * 1024 * 1024) {
-                        alert("Video size should not exceed 2MB.");
-                        return;
-                      }
-                      if (file) {
-                        setShortVideo(file); // Update state for short video
-                      }
-                    }}
-                  />
-                </div>
+                        </label>
+                      </div>
+                      <input
+                        type="file"
+                        id="uploadShortVideo"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file && file.size > 2 * 1024 * 1024) {
+                            alert("Video size should not exceed 2MB.");
+                            return;
+                          }
+                          if (file) {
+                            setShortVideo(file); // Update state for short video
+                          }
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
               </section>
             </AccordionContent>
           </AccordionItem>
