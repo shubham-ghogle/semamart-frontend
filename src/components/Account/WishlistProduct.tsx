@@ -41,9 +41,12 @@ export default function WishlistPage() {
           </div>
         ) : (
           wishlist.map((product) => {
-            const discount = Math.round(
-              ((product.variants[0].originalPrice - product.variants[0].discountPrice) / product.variants[0].originalPrice) * 100
-            );
+            const variant = product.variants?.[0];
+            if (!variant) return null;
+
+            const discount = variant.originalPrice && variant.discountPrice
+              ? Math.round(((variant.originalPrice - variant.discountPrice) / variant.originalPrice) * 100)
+              : 0;
 
             return (
               <div

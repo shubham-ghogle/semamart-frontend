@@ -7,6 +7,7 @@ import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
+
 // import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
@@ -46,6 +47,7 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
+import AllUserScreen from "./Screens/Admin/AllUserScreen";
 
 export const router = createBrowserRouter([
   {
@@ -173,6 +175,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen />, },
       { path: "sellers", element: <AllSellerScreen />, },
+       { path: "users", element: <AllUserScreen/> },
       {
         path: "products", children: [
           { index: true, element: <AdminProductRequestScreen /> },

@@ -161,6 +161,9 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
   })
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
     //TODO: api end point for edit product
+
+    if (product) return
+
     const newForm = new FormData();
 
     newForm.append(
@@ -1781,9 +1784,11 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
           <DocumentsDisplay />
         )}
 
-        <div className="flex justify-end">
-          <Button type="submit" variant="outline">Submit</Button>
-        </div>
+        {!product && (
+          <div className="flex justify-end">
+            <Button type="submit" variant="outline">Submit</Button>
+          </div>
+        )}
       </form>
     </Form>
   )
