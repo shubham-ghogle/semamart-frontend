@@ -242,9 +242,12 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
     newForm.append("unitsPerCarton", values.unitsPerCarton.toString())
     newForm.append("shippingWeight", values.shippingWeight.toString())
     newForm.append("packagingType", values.packagingType)
-    if (values.deliveryPartner) {
-      newForm.append("deliveryPartner", values.deliveryPartner)
+    if (values.deliveryInstruction) {
+      newForm.append("deliveryInstruction", values.deliveryInstruction)
     }
+    // if (values.deliveryPartner) {
+    //   newForm.append("deliveryPartner", values.deliveryPartner)
+    // }
     newForm.append("shelfing_storage_req", values.shelfing_storage_req)
     if (values.purchaseNote) {
       newForm.append("purchaseNote", values.purchaseNote)
@@ -968,53 +971,6 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
           <AccordionItem value="3">
             <AccordionTrigger className="text-lg">Commercials</AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
-              {/* <FormField */}
-              {/*   control={form.control} */}
-              {/*   name="originalPrice" */}
-              {/*   render={({ field }) => ( */}
-              {/*     <FormItem> */}
-              {/*       <FormLabel>MRP (₹)</FormLabel> */}
-              {/*       <FormControl> */}
-              {/*         <Input */}
-              {/*           type="number" */}
-              {/*           {...field} /> */}
-              {/*       </FormControl> */}
-              {/*       <FormMessage /> */}
-              {/*     </FormItem> */}
-              {/*   )} */}
-              {/* /> */}
-              {/**/}
-              {/* <FormField */}
-              {/*   control={form.control} */}
-              {/*   name="discountPrice" */}
-              {/*   render={({ field }) => ( */}
-              {/*     <FormItem> */}
-              {/*       <FormLabel>Selling Price (₹)</FormLabel> */}
-              {/*       <FormControl> */}
-              {/*         <Input */}
-              {/*           type="number" */}
-              {/*           {...field} /> */}
-              {/*       </FormControl> */}
-              {/*       <FormMessage /> */}
-              {/*     </FormItem> */}
-              {/*   )} */}
-              {/* /> */}
-              {/**/}
-              {/* <FormField */}
-              {/*   control={form.control} */}
-              {/*   name="institutePrice" */}
-              {/*   render={({ field }) => ( */}
-              {/*     <FormItem> */}
-              {/*       <FormLabel>Dealer / Institutional Price (₹)</FormLabel> */}
-              {/*       <FormControl> */}
-              {/*         <Input */}
-              {/*           type="number" */}
-              {/*           {...field} /> */}
-              {/*       </FormControl> */}
-              {/*       <FormMessage /> */}
-              {/*     </FormItem> */}
-              {/*   )} */}
-              {/* /> */}
 
               <section className="grid grid-cols-2 gap-4">
                 <FormField
@@ -1090,20 +1046,6 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
                   )}
                 />
               </section>
-
-              {/* <FormField */}
-              {/*   control={form.control} */}
-              {/*   name="stocks" */}
-              {/*   render={({ field }) => ( */}
-              {/*     <FormItem> */}
-              {/*       <FormLabel>Stocks Available</FormLabel> */}
-              {/*       <FormControl> */}
-              {/*         <Input type="number" {...field} /> */}
-              {/*       </FormControl> */}
-              {/*       <FormMessage /> */}
-              {/*     </FormItem> */}
-              {/*   )} */}
-              {/* /> */}
 
               <FormField
                 control={form.control}
@@ -1265,27 +1207,26 @@ export default function AddProductForm({ thumbnails, multiVariant = false, categ
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="deliveryPartner"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery partner</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Bluedart">Bluedart</SelectItem>
-                        <SelectItem value="Delhivery">Delhivery</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="deliveryInstruction"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Delivery Instructions</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select special delivery instrucitons." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Fragile">Fragile</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
               <FormField
                 control={form.control}

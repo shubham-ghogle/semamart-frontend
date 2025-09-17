@@ -82,7 +82,8 @@ export interface Product {
   unitsPerCarton: number
   shippingWeight: number
   packagingType: string
-  deliveryPartner: string
+  // deliveryPartner: string
+  deliveryInstruction: string
   shelfing_storage_req: string
   // allowSingleQuantity?: boolean
   discountOptions?: string
