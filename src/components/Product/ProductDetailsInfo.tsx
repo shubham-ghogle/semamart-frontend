@@ -6,8 +6,9 @@ import { SecondryBtn } from "../UIComponents/Buttons";
 import RatingStarView from "../UIComponents/RatingStarView";
 
 type ProductDetailsInfoProps = {
-  product: Product
-}
+  product: Product;
+};
+
 export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps) {
   const [activeTab, setActiveTab] = useState(1);
 
@@ -34,59 +35,79 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
           </h5>
         ))}
       </article>
-      {activeTab === 1 &&
-        <section className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line  ">
+
+      {/* --- Product Details --- */}
+      {activeTab === 1 && (
+        <section className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
           <table className="w-full mt-6 table-fixed">
             <tbody>
               <ProductDetailsRows
                 label="Product Dimensions"
-                value={product.dimension + "; " + product.weight}
+                value={`${product.dimension ?? ""}; ${product.weight ?? ""}`}
               />
               <ProductDetailsRows
                 label="Date first available"
-                value={new Date(product.createdAt).toLocaleDateString()}
+                value={
+                  product.createdAt
+                    ? new Date(product.createdAt).toLocaleDateString()
+                    : "N/A"
+                }
               />
               <ProductDetailsRows
                 label="Manufacturer"
-                value={product.manufacturerName}
+                value={product.manufacturerName ?? "N/A"}
               />
               <ProductDetailsRows
                 label="Country of origin"
-                value={product.origin}
+                value={product.origin ?? "N/A"}
               />
-              <ProductDetailsRows label="Category" value={product.category} />
-              {product.attributes && product.attributes.map((el, i) => {
-                const [label, value] = Object.entries(el)[0]
-                return <ProductDetailsRows key={i} label={label} value={value} />
-              })}
+              <ProductDetailsRows
+                label="Category"
+                value={Array.isArray(product.category) ? product.category.join(", ") : (product.category ?? "N/A")}
+              />
+              {product.attributes &&
+                product.attributes.map((el, i) => {
+                  const [label, value] = Object.entries(el)[0];
+                  return (
+                    <ProductDetailsRows
+                      key={i}
+                      label={label}
+                      value={String(value)}
+                    />
+                  );
+                })}
             </tbody>
           </table>
         </section>
-      }
-      {activeTab === 2 &&
+      )}
+
+      {/* --- Description --- */}
+      {activeTab === 2 && (
         <div className="w-full min-h-[40vh] py-3 pt-6">
           <p className="font-Poppins text-lg text-dark-gray">
-            {product.description}
+            {product.description ?? "No description available"}
           </p>
         </div>
-      }
+      )}
+
+      {/* --- Seller Information --- */}
       {activeTab === 4 && typeof product.shopId !== "string" && (
         <div className="w-full flex mt-6">
           <div className="flex items-center">
             <Link to="#">
               <div className="flex items-center">
                 <img
-                  src={product.shopId.profilePic ? "/baseUrl" + "/" + product.shopId.profilePic : "/placeholder.png"}
+                  src={
+                    product.shopId?.profilePic
+                      ? "/baseUrl/" + product.shopId.profilePic
+                      : "/placeholder.png"
+                  }
                   className="w-[50px] h-[50px] rounded-full"
                   alt=""
                 />
                 <div className="pl-3">
-                  <h3 className="">
-                    {product.shopId.businessName}
-                  </h3>
-                  <h5 className="pb-3 text-[15px]">
-                    (1/5) Ratings
-                  </h5>
+                  <h3>{product.shopId?.businessName ?? "Unknown Seller"}</h3>
+                  <h5 className="pb-3 text-[15px]">(1/5) Ratings</h5>
                 </div>
               </div>
             </Link>
@@ -95,36 +116,42 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
             <h5 className="font-semibold">
               Joined on:{" "}
               <span className="font-medium">
-                {product.shopId?.createdAt?.slice(0, 10)}
+                {product.shopId?.createdAt
+                  ? product.shopId.createdAt.slice(0, 10)
+                  : "N/A"}
               </span>
             </h5>
           </div>
           <Link to="#">
-            <SecondryBtn>
-              Visit Shop
-            </SecondryBtn>
+            <SecondryBtn>Visit Shop</SecondryBtn>
           </Link>
         </div>
       )}
+
+      {/* --- Reviews --- */}
       {activeTab === 3 && (
         <div className="space-y-4 pt-4 min-h-[40vh]">
-          {(product.reviews && product.reviews.length > 0) ? (
-            product.reviews.map(review => (
-              <div key={review._id}>
-                <h3 className="text-lg font-semibold">
-                  {(review.user as User).firstName} {(review.user as User).lastName}
-                </h3>
-                <RatingStarView rating={review.rating} />
-                <p className="text-gray-700 mt-2">{review.comment}</p>
-              </div>
-            ))
-          ) :
-            (
-              <p className="text-dark-gray text-center text-lg">No reviews</p>
-            )}
+          {product.reviews && product.reviews.length > 0 ? (
+            product.reviews.map((review, idx) => {
+              if (typeof review === "string") {
+                return null; // skip string IDs
+              }
+              return (
+                <div key={review._id ?? idx}>
+                  <h3 className="text-lg font-semibold">
+                    {(review.user as User)?.firstName}{" "}
+                    {(review.user as User)?.lastName}
+                  </h3>
+                  <RatingStarView rating={review.rating ?? 0} />
+                  <p className="text-gray-700 mt-2">{review.comment ?? ""}</p>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-dark-gray text-center text-lg">No reviews</p>
+          )}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }

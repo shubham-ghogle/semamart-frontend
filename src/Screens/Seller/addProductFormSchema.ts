@@ -5,7 +5,6 @@ export const variantSchema = z.object({
   colorOption: z.string().optional().nullable(),
   originalPrice: z.string().min(1, "originalPrice required"),
   discountPrice: z.string().min(1),
-  institutePrice: z.string().optional(),
   stocks: z.string().min(1, "Stock required"),
 });
 
@@ -79,7 +78,8 @@ const addProductFormSchema = z.object({
   unitsPerCarton: z.string().min(1),
   shippingWeight: z.string().min(1),
   packagingType: z.string().min(1),
-  deliveryPartner: z.string().optional(),
+  // deliveryPartner: z.string().optional(),
+   deliveryInstruction: z.string().optional(),
   shelfing_storage_req: z.string().min(1),
   purchaseNote: z.string().optional(),
   certificate: z.array(z.instanceof(File)),

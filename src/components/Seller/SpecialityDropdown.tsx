@@ -8,9 +8,10 @@ type SpecialityDropdownProps = {
   setValue: (v: string) => void;
   packageTypeValue: string;
   setPackageValue: (v: string) => void;
+  viewMode?: boolean
 
 }
-export default function SpecialityDropdown({ value, setValue, packageTypeValue, setPackageValue }: SpecialityDropdownProps) {
+export default function SpecialityDropdown({ viewMode, value, setValue, packageTypeValue, setPackageValue }: SpecialityDropdownProps) {
 
   const [packageTypes, setPackageTypes] = useState<{ label: string; value: string }[]>([])
 
@@ -27,9 +28,13 @@ export default function SpecialityDropdown({ value, setValue, packageTypeValue, 
     }
   })
 
+
   useEffect(() => {
     if (value === "") return
     mutate(value)
+    if (!viewMode) {
+      setPackageValue("")
+    }
   }, [value])
 
   return (

@@ -10,7 +10,7 @@ export default function SellerAllProductsScreen() {
   const { data, status } = useCustomEnsureQuerty<Product[]>(["seller-products", seller?._id], () => getProductsForSeller(seller?._id), seller?._id)
 
   const errMess = "Something went wrong"
-
+console.log(data)
 
   return <SellerMainWrapper status={status} errorMeassage={errMess} heading="Products">
     {data ? (
