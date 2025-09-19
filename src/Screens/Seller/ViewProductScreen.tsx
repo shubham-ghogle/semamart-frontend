@@ -107,7 +107,7 @@ export default function ViewProductScreen() {
       colorOption: el.colorOption || null,
       originalPrice: el?.originalPrice?.toString() || "",
       discountPrice: el?.discountPrice?.toString() || "",
-      institutePrice: el.institutePrice?.toString() || "",
+      // institutePrice: el.institutePrice?.toString() || "",
       stocks: el.stock.toString() || ""
     })) || [],
     specialityPackageType: product?.specialityPackageType || ""

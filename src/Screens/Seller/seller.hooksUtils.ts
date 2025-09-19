@@ -62,7 +62,6 @@ export const addProductFormDefaultValues = {
     colorOption: null as string | null,
     originalPrice: "",
     discountPrice: "",
-    institutePrice: "",
     stocks: ""
   }]
 }

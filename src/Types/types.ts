@@ -167,7 +167,7 @@ type PaymentInfo = {
 
 export type Order = {
   _id: string
-  cart: { productId: string|Product;variantId:string | Variant; qty: number; shopId: string }[];
+  cart: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;
