@@ -1,3 +1,5 @@
+// Header.tsx
+
 import { Link, useNavigate } from "react-router-dom";
 import {
   AiOutlineHeart,
@@ -12,205 +14,117 @@ import { MdOutlineSupportAgent } from "react-icons/md";
 import { IoGiftSharp } from "react-icons/io5";
 import { FaSignOutAlt } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
+
+import { useState, useEffect, useRef } from "react";
 import { Logo } from "../UIComponents/Logo";
-import placeholderImg from "../../../public/image60.png";
 import Wishlist from "./Wishlist";
 import Cart from "./Cart";
-import { useState, useRef, useEffect } from "react";
+
+import placeholderImg from "../../../public/image60.png";
 import { Product } from "@/Types/types";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
 
-// near top of Header.tsx (below imports)
-const PLACEHOLDER_IMG = placeholderImg; // imported at top of file
-
+// Utility for image fallback
+const PLACEHOLDER_IMG = placeholderImg;
 function toImageUrl(value?: string | null) {
   if (!value) return PLACEHOLDER_IMG;
   if (value.startsWith("http://") || value.startsWith("https://")) return value;
-  if (value.startsWith("/")) return value; // already a root-relative path
-  return `/images/${value}`; // backend filename -> public path
+  if (value.startsWith("/")) return value;
+  return `/images/${value}`;
 }
 
+type Category = {
+  _id: string;
+  name: string;
+};
 
-const categories = [
-  "Consumables",
-  "Instruments",
-  "Medical Equipment",
-  "Advanced & Robotic Systems",
-  "Diagnostics",
-  "Hospital Furniture",
-  "Pharmaceuticals & Therapeutics",
-  "Hospital IT & Software",
-  "Kits & Bundles",
-  "Facility & Utilities",
-];
-
-const consumablesSubcategories = [
-  "Surgical & Examination Gloves",
-  "Syringes & Needles",
-  "IV Sets & Infusion Supplies",
-  "Catheters & Tubes",
-  "Drapes, Sheets & Underpads",
-  "Wound Care & Dressings",
-  "Respiratory Consumables",
-  "Infection Control & Cleaning",
-  "Diagnostic Consumables",
-  "General Use Disposables",
-  "Masks & Personal Protective Equipment (PPE)",
-];
-
-const instrumentsSubcategories = [
-  "General Surgical Instruments",
-  "ENT Instruments",
-  "Orthopaedic Instruments",
-  "Ophthalmic Instruments",
-  "Dental Instruments",
-  "Diagnostic Instruments",
-  "Minor OT / OPD Sets",
-  "Paediatric & Neonatal Instruments",
-  "Gynaecology & Obstetrics Instruments",
-];
-const medicalEquipmentSubcategories = [
-  "Patient Monitoring Equipment",
-  "ICU & Emergency Equipment",
-  "Operation Theatre Equipment",
-  "Diagnostic Imaging Equipment",
-  "Anesthesia & Airway Equipment",
-  "Surgical Equipment",
-  "Sterilization & Disinfection Equipment",
-  "Hospital Utility Equipment",
-  "Respiratory & Oxygen Therapy Equipment",
-  "Rehabilitation & Physiotherapy Equipment",
-];
-
-const advancedRoboticSystemsSubcategories = [
-  "Robotic Surgery Systems",
-  "Smart OT Integration Systems",
-  "Endoscopy & Image-Guided Systems",
-  "Telemedicine & Virtual Care Platforms",
-  "AI-Enabled Diagnostic Platforms",
-  "Navigation & Intra-Operative Systems",
-  "Robotic Rehabilitation & Assistive Devices",
-  "Smart ICU & Remote Monitoring Systems",
-  "Robotic Pharmacy & Laboratory Automation",
-];
-const diagnosticsSubcategories = [
-  "Laboratory Equipment",
-  "Hematology & Blood Analyzers",
-  "Biochemistry & Immunoassay",
-  "Microbiology Equipment",
-  "Molecular Diagnostics",
-  "Diagnostic Kits & Strips",
-  "Point-of-Care Testing Devices",
-  "Sample Collection & Processing",
-  "Imaging Diagnostics (Basic Equipment)",
-  "Laboratory IT & Reporting Tools",
-];
-const hospitalFurnitureSubcategories = [
-  "Hospital Beds",
-  "Examination & OPD Furniture",
-  "ICU & Patient Room Furniture",
-  "OT & Procedure Room Furniture",
-  "Ward Furniture",
-  "Stretchers & Trolleys",
-  "Pediatric & Neonatal Furniture",
-  "Reception & Administrative Furniture",
-  "Cafeteria & Utility Furniture",
-  "Specialized Furniture",
-];
-const hospitalITSubcategories = [
-  "Hospital Information Systems (HIS)",
-  "Laboratory Information Systems (LIS)",
-  "Telemedicine & Virtual Care Platforms",
-  "Queue & Token Management Systems",
-  "Billing, Inventory & Pharmacy Software",
-  "HR, Payroll & Roster Systems",
-  "Nursing & Clinical Workflow Tools",
-  "Security, Access & Backup Systems",
-  "Hospital Analytics & Dashboard Systems",
-  "Radiology & Imaging Software (PACS & RIS)",
-  "Electronic Medical Records (EMR) Systems",
-];
-const kitsAndBundlesSubcategories = [
-  "Surgical Procedure Kits",
-  "Dressing & Wound Care Kits",
-  "Catheterization Kits",
-  "Delivery & Obstetric Kits",
-  "Sampling & Collection Kits",
-  "IV Infusion & Injection Kits",
-  "Anesthesia & Airway Management Kits",
-  "Emergency & Trauma Kits",
-  "Isolation & Infection Control Kits",
-  "Diagnostic Bundles",
-];
-const facilityAndUtilitiesSubcategories = [
-  "Housekeeping & Cleaning Equipment",
-  "Stationery & Patient Band",
-  "Laundry & Linen Management",
-  "Water Supply & Plumbing",
-  "Electrical & Power Backup Systems",
-  "Fire Safety & Disaster Management",
-  "Air Conditioning, Ventilation & HVAC",
-  "Signage & Wayfinding",
-  "Maintenance Tools & Engineering Services",
-  "Biomedical Waste (BMW) Management",
-];
-const specialtyPackagesSubcategories = [
-  "ICU Setup Packages",
-  "Operation Theatre Setup Packages",
-  "OPD & Consultation Room Packages",
-  "Diagnostic Lab Packages",
-  "Radiology & Imaging Packages",
-  "Dental Clinic Setup Packages",
-  "Dialysis Centre Packages",
-  "Emergency & Trauma Room Packages",
-  "Mobile Clinic & PHC/CHC Kits",
-  "Chemotherapy & Oncology Daycare Packages",
-  "Labour Room & Maternity Ward Packages",
-];
+type Subcategory = {
+  _id: string;
+  name: string;
+};
 
 export default function Header() {
-  const cart = useCartStore((state) => state.cart) || [];
+ const cart = useCartStore((state) => state.cart) || [];
   const wishlist = useWishlistStore((state) => state.wishlist) || [];
   const { user, removeUser } = useUserStore((state) => state);
   const { seller, removeSeller } = useSellerStore((state) => state);
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+
+  const [subcategoryMap, setSubcategoryMap] = useState<Record<string, Subcategory[]>>({});
+
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-  const categoryRef = useRef<HTMLDivElement | null>(null);
-  const categoryItemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // Hovered category object or null
+  const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
+
+  const [isUserHovered, setIsUserHovered] = useState(false);
 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSug, setShowSug] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
-  const [isHovered, setIsHovered] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const categoryRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const [isSpecialtyHovered, setIsSpecialtyHovered] = useState(false);
 
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setIsHovered(true);
-  };
+  
 
-  const handleMouseLeave = () => {
-    timeoutRef.current = window.setTimeout(() => {
-      setIsHovered(false);
-      timeoutRef.current = null;
-    }, 300);
-  };
+  useEffect(() => {
+    // fetch categories from your API
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const res = await fetch("/api/v2/category/categoryName");
+        if (!res.ok) {
+          throw new Error(`Failed to fetch categories: ${res.status}`);
+        }
+        const data: Category[] = await res.json();
+        setCategories(data || []);
+      } catch (err: any) {
+        console.error("Error fetching categories:", err);
+        setCategories([]);
+        setCategoriesError(err.message || "Unknown error");
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
+    const handleMouseEnter = (category: Category) => {
+  setHoveredCategory(category);
+
+  if (!subcategoryMap[category._id]) {
+    fetch(`/api/v2/category/${category._id}/subcategories`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch subcategories");
+        return res.json();
+      })
+      .then((data: Subcategory[]) => {
+        setSubcategoryMap((prev) => ({
+          ...prev,
+          [category._id]: data,
+        }));
+      })
+      .catch((err) => {
+        console.error("Failed to fetch subcategories:", err);
+        setSubcategoryMap((prev) => ({ ...prev, [category._id]: [] }));
+      });
+  }
+};
+
+  // Search effect
   useEffect(() => {
     if (!query.trim()) {
       setSuggestions([]);
@@ -225,20 +139,21 @@ export default function Header() {
           setShowSug(false);
           return;
         }
-        const data = await res.json().catch(() => ({}));
-        const products = (data && (data.products || data.items || data.results)) || [];
-        // Defensive: ensure array of objects
+        const data = await res.json();
+        const products = data.products || data.items || data.results || [];
         setSuggestions(Array.isArray(products) ? products : []);
         setShowSug(Array.isArray(products) && products.length > 0);
       } catch (err) {
-        console.error(err);
+        console.error("Search error:", err);
         setSuggestions([]);
         setShowSug(false);
       }
     }, 300);
+
     return () => clearTimeout(handler);
   }, [query]);
 
+  // Close suggestion dropdown on outside clicks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -246,11 +161,10 @@ export default function Header() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close category dropdown on outside clicks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
@@ -262,47 +176,15 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getSubcategories = (category: string): string[] => {
-    switch (category) {
-      case "Consumables":
-        return consumablesSubcategories;
-      case "Instruments":
-        return instrumentsSubcategories;
-      case "Medical Equipment":
-        return medicalEquipmentSubcategories;
-      case "Advanced & Robotic Systems":
-        return advancedRoboticSystemsSubcategories;
-      case "Diagnostics":
-        return diagnosticsSubcategories;
-      case "Hospital Furniture":
-        return hospitalFurnitureSubcategories;
-      case "Hospital IT & Software":
-        return hospitalITSubcategories;
-      case "Specialty Packages":
-        return specialtyPackagesSubcategories;
-      case "Kits & Bundles":
-        return kitsAndBundlesSubcategories;
-      case "Facility & Utilities":
-        return facilityAndUtilitiesSubcategories;
-      case "Pharmaceuticals & Therapeutics":
-        return [];
-      default:
-        return [];
-    }
-  };
-
   async function logoutHandler() {
     try {
-      let url = "/api/v2/user/logout";
-      if (seller) {
-        url = "/api/v2/shop/logout";
-      }
+      const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
       const res = await fetch(url);
       if (!res.ok) throw new Error("Something went wrong");
       removeUser();
       removeSeller();
     } catch (err) {
-      console.log(err);
+      console.error("Logout error:", err);
     }
   }
 
@@ -315,7 +197,12 @@ export default function Header() {
       setActiveIdx((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (query.trim()) {
+      if (activeIdx >= 0 && suggestions[activeIdx]) {
+        const sel = suggestions[activeIdx];
+        if ((sel as any)._id) {
+          navigate(`/product/${(sel as any)._id}`);
+        }
+      } else if (query.trim()) {
         navigate(`/search?q=${encodeURIComponent(query)}`);
       }
       setShowSug(false);
@@ -337,16 +224,16 @@ export default function Header() {
 
   return (
     <header className="w-full bg-white shadow-sm border-b font-inter">
-      <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto font-inter">
-        {/* Logo (Left) */}
+      <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto">
+        {/* Logo */}
         <div className="flex items-center h-10 pr-4 flex-shrink-0">
           <Logo />
         </div>
 
         {/* Categories + Search */}
-        <div className="flex flex-1 items-center h-full ">
-          {/* Categories Button */}
-          <div ref={categoryRef} className="relative h-full flex items-center">
+          <div className="flex flex-1 items-center h-full">
+          {/* Category Button */}
+          <div ref={categoryRef} className="relative flex items-center h-full">
             <button
               onClick={() => {
                 setIsCategoryOpen((prev) => !prev);
@@ -359,184 +246,231 @@ export default function Header() {
               <IoIosArrowForward className="rotate-90 transition-transform duration-200" size={18} />
             </button>
 
-            {/* Category Dropdown */}
-            {isCategoryOpen && (
-              <div className="absolute left-0 top-full mt-2 z-50 flex">
-                <div className="relative bg-white shadow-lg border w-60">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat}
-                      ref={(el) => (categoryItemRefs.current[cat] = el)}
-                      onMouseEnter={() => setHoveredCategory(cat)}
-                      className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {cat}
-                      <IoIosArrowForward />
-                    </div>
-                  ))}
+           
+          {isCategoryOpen && (
+              <div
+                className="absolute left-0 top-full mt-2 z-50 flex"
+                onMouseLeave={() => setHoveredCategory(null)}
+              >
+                {/* Category List */}
+                <div className="bg-white shadow-lg border w-60 max-h-[85vh] overflow-auto text-xs">
+                  {isLoadingCategories ? (
+                    <div className="p-4">Loading...</div>
+                  ) : categoriesError ? (
+                    <div className="p-4 text-red-600">{categoriesError}</div>
+                  ) : (
+                   <ul className="text-sm font-medium text-gray-800">
+                    {categories.map((category) => (
+                      <li
+                        key={category._id}
+                        className={`group flex justify-between items-center cursor-pointer px-4 py-3  hover:bg-gray-100 ${
+                          hoveredCategory?._id === category._id ? "bg-gray-100" : ""
+                        }`}
+                        onMouseEnter={() => handleMouseEnter(category)}
+                        onClick={() => {
+                          setIsCategoryOpen(false);
+                          navigate(
+                            `/category/${category.name
+                              .toLowerCase()
+                              .replace(/[^a-z0-9]+/g, "-")}`
+                          );
+                        }}
+                      >
+                        <span>{category.name}</span>
 
-                  {/* Subcategories */}
-                  {hoveredCategory && (
-                    <div
-                      className="absolute left-full  bg-white shadow-lg border w-[90vw] sm:w-[350px] p-4 gap-4"
-                      style={{ top: 0 }}
-                      onMouseEnter={() => setHoveredCategory(hoveredCategory)}
-                      onMouseLeave={() => setHoveredCategory(null)}
-                    >
-                      {getSubcategories(hoveredCategory).map((sub) => (
-                        <div key={sub} className="text-sm text-gray-700 hover:underline cursor-pointer p-2">
-                          {sub}
-                        </div>
-                      ))}
-                    </div>
+                        {/* Always-visible arrow */}
+                        <IoIosArrowForward
+                          size={16}
+                          className={`text-gray-500 transition-transform duration-200`}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+
                   )}
                 </div>
+
+                {/* Subcategory Panel */}
+               {hoveredCategory &&
+                subcategoryMap[hoveredCategory._id] &&
+                subcategoryMap[hoveredCategory._id].length > 0 && (
+                  <div
+                    className="bg-white shadow-lg border w-[280px] max-h-[80vh] overflow-auto p-2 text-sm"
+                    onMouseEnter={() => setHoveredCategory(hoveredCategory)}
+                  >
+                    {subcategoryMap[hoveredCategory._id].map((sub: Subcategory) => (
+                      <div
+                        key={sub._id}
+                        className="text-gray-700 cursor-pointer p-2 hover:bg-gray-100"
+                        onClick={() => {
+                          navigate(`/get-products-by-subcategory/${sub._id}`);
+                          setIsCategoryOpen(false);
+                          setHoveredCategory(null);
+                        }}
+                      >
+                        {sub.name}
+                      </div>
+                    ))}
+                  </div>
+              )}
+
               </div>
             )}
           </div>
 
-          {/* Search Input */}
+          {/* Search input */}
           <div className="flex items-center h-full relative w-[350px] sm:w-[450px]" ref={containerRef}>
             <input
               type="text"
               placeholder="Search for products, brands and more"
               className="flex-1 px-4 text-sm outline-none bg-white text-[#1C647C] placeholder:text-xs placeholder-[#1C647C] h-8 border border-gray-200 rounded-none"
+              style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
                 setActiveIdx(-1);
               }}
               onKeyDown={handleSearchKeyDown}
-              aria-autocomplete="list"
-              aria-expanded={showSug}
-              aria-controls="search-suggestion-list"
-              style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
             />
             <button
               className="flex items-center justify-center px-3 bg-[#006666] hover:bg-[#005555] h-8 rounded-r-full"
               onClick={() => {
-                if (suggestions.length > 0 && activeIdx >= 0) {
+                if (activeIdx >= 0 && suggestions[activeIdx]) {
                   const sel = suggestions[activeIdx];
-                  const id = sel._id;
-                  if (id) navigate(`/product/${id}`);
+                  if ((sel as any)._id) {
+                    navigate(`/product/${(sel as any)._id}`);
+                  }
                 } else if (query.trim()) {
                   navigate(`/search?q=${encodeURIComponent(query)}`);
                 }
                 setShowSug(false);
-                setActiveIdx(-1);
                 setQuery("");
+                setActiveIdx(-1);
               }}
             >
               <AiOutlineSearch size={28} color="white" />
             </button>
 
-{showSug && suggestions.length > 0 && (
-  <ul
-    id="search-suggestion-list"
-    role="listbox"
-    className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200"
-  >
-    {suggestions.map((p, i) => {
-      const id = (p as any)._id;
-      // Defensive: category may be string or populated object
-      const rawCategory = (p as any).category;
-      const categoryLabel =
-        typeof rawCategory === "string" ? rawCategory : (rawCategory && (rawCategory.name || rawCategory.label)) || "";
+            {showSug && suggestions.length > 0 && (
+              <ul
+                className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200"
+              >
+                {suggestions.map((p, i) => {
+                  const id = (p as any)._id;
+                  const rawCategory = (p as any).category;
+                  const categoryLabel =
+                    typeof rawCategory === "string"
+                      ? rawCategory
+                      : rawCategory?.name || "";
 
-      // Choose image: prefer product.images[0], fallback to variant thumbnail, otherwise placeholder
-      const imgCandidate =
-        Array.isArray((p as any).images) && (p as any).images.length > 0
-          ? (p as any).images[0]
-          : Array.isArray((p as any).variants) && (p as any).variants.length > 0
-          ? (p as any).variants[0].thumbnail
-          : undefined;
+                  const imgCandidate =
+                    Array.isArray((p as any).images) && (p as any).images.length > 0
+                      ? (p as any).images[0]
+                      : Array.isArray((p as any).variants) && (p as any).variants.length > 0
+                      ? (p as any).variants[0].thumbnail
+                      : undefined;
 
-      const imgSrc = toImageUrl(imgCandidate);
+                  const imgSrc = toImageUrl(imgCandidate);
 
-      return (
-        <li
-          key={id || `${(p as any).name}-${i}`}
-          onMouseDown={() => {
-            if (id) navigate(`/product/${id}`);
-            setShowSug(false);
-            setQuery("");
-            setActiveIdx(-1);
-          }}
-          className={`flex items-center gap-3 p-3 cursor-pointer ${i === activeIdx ? "bg-gray-100" : "hover:bg-gray-50"}`}
-          role="option"
-          aria-selected={i === activeIdx}
-        >
-          <img
-            src={imgSrc}
-            alt={(p as any).name || "product"}
-            className="w-12 h-12 object-contain bg-gray-100 rounded"
-            onError={(e) => {
-              // fall back to placeholder if image fails to load
-              (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_IMG;
-            }}
-          />
-          <div className="flex flex-col text-sm">
-            <span className="font-semibold text-gray-800 line-clamp-1">{(p as any).name}</span>
-            <span className="text-gray-500 text-xs">{categoryLabel}</span>
-          </div>
-        </li>
-      );
-    })}
-  </ul>
-)}
-
+                  return (
+                    <li
+                      key={id || `${(p as any).name}-${i}`}
+                      onMouseDown={() => {
+                        if (id) navigate(`/product/${id}`);
+                        setShowSug(false);
+                        setQuery("");
+                        setActiveIdx(-1);
+                      }}
+                      className={`flex items-center gap-3 p-3 cursor-pointer ${
+                        i === activeIdx ? "bg-gray-100" : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={(p as any).name || "product"}
+                        className="w-12 h-12 object-contain bg-gray-100 rounded"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_IMG;
+                        }}
+                      />
+                      <div className="flex flex-col text-sm">
+                        <span className="font-semibold text-gray-800 line-clamp-1">
+                          {(p as any).name}
+                        </span>
+                        <span className="text-gray-500 text-xs">{categoryLabel}</span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
 
-        {/* Right Side Links */}
+        {/* Right Side: user / cart / wishlist / etc */}
         <div className="flex flex-wrap sm:flex-nowrap items-center text-[11px] ml-0 sm:ml-2 gap-1 flex-shrink-0 justify-center sm:justify-start w-full sm:w-auto">
-          {/* Specialty and Get Quote */}
+          {/* Specialty & Get Quote */}
           <div className="flex items-center gap-2 font-montserrat text-[#1C647C]">
-            <div className="relative inline-block text-left" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
-              <Link to="/specialty" className="px-2 py-1 rounded-md flex">
+            <div
+              className="relative inline-block text-left"
+              onMouseEnter={() => setIsSpecialtyHovered(true)}
+              onMouseLeave={() => setIsSpecialtyHovered(false)}
+
+            >
+              <Link to="/specialty" className="px-2 py-1 rounded-md flex items-center">
                 <FaUserDoctor size={16} />
                 <span> By Specialty</span>
               </Link>
 
-              {isOpen && (
+              {isSpecialtyHovered && (
                 <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                   <ul className="py-1">
-                    {specialtyPackagesSubcategories.map((item, index) => (
-                      <li key={index}>
-                        <Link to={`/specialty/${item.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="block px-3 py-1 text-[11px] text-gray-700 hover:bg-gray-100">
-                          {item}
-                        </Link>
-                      </li>
+                    {Object.entries(subcategoryMap).map(([catName, subs]) => (
+                      catName && subs.length > 0 ? (
+                        <li key={catName}>
+                          <Link
+                            to={`/specialty/${catName
+                              .toLowerCase()
+                              .replace(/[^a-z0-9]+/g, "-")}`}
+                            className="block px-3 py-1 text-[11px] text-gray-700 hover:bg-gray-100"
+                          >
+                            {catName}
+                          </Link>
+                        </li>
+                      ) : null
                     ))}
                   </ul>
                 </div>
               )}
             </div>
 
-            <Link to="/get-quote" className="px-2 py-1 rounded-md transition flex">
+            <Link to="/get-quote" className="px-2 py-1 rounded-md transition flex items-center">
               <TbFileInvoice size={16} />
-              Get Quote
+              <span> Get Quote</span>
             </Link>
           </div>
 
-          {/* Login/Profile */}
-          <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          {/* User / Profile Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setIsUserHovered(true)}
+            onMouseLeave={() => setIsUserHovered(false)}
+          >
             {user ? (
-              <button className={`flex items-center cursor-pointer gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
+              <button className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors duration-200 ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
                 <FaRegCircleUser size={16} />
                 <span>{user.firstName?.split(" ")[0] || "Profile"}</span>
-                <IoIosArrowForward className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
+                <IoIosArrowForward className={`transition-transform duration-200 ${isUserHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
               </button>
             ) : (
-              <Link to="/user" className={`flex items-center gap-1 px-2 py-1 rounded-full font-montserrat transition-colors duration-200 ${isHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
+              <Link to="/user" className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors duration-200 ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
                 <FaRegCircleUser size={16} />
                 <span>Login</span>
-                <IoIosArrowForward className={`transition-transform duration-200 ${isHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
+                <IoIosArrowForward className={`transition-transform duration-200 ${isUserHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
               </Link>
             )}
 
-            {/* Hover Dropdown */}
-            {isHovered && (
+            {isUserHovered && (
               <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-200 rounded shadow-md z-50 text-[11px] text-gray-800">
                 {user ? (
                   <>
@@ -562,34 +496,39 @@ export default function Header() {
                       <span>Support</span>
                     </Link>
                     <hr className="my-1" />
-                    <button onClick={logoutHandler} className="flex items-center gap-2 px-3 py-1 w-full cursor-pointer hover:bg-gray-100 text-red-600">
+                    <button onClick={logoutHandler} className="flex items-center gap-2 px-3 py-1 w-full text-red-600 hover:bg-gray-100">
                       <FaSignOutAlt size={14} />
-                      Logout
+                      <span>Logout</span>
                     </button>
                   </>
                 ) : (
                   <>
                     <div className="flex justify-between items-center px-3 py-1">
                       <span>New customer?</span>
-                      <Link to="/signup" className="text-blue-600 text-[10px]">Sign Up</Link>
+                      <Link to="/signup" className="text-blue-600 text-[10px]">
+                        Sign Up
+                      </Link>
                     </div>
                     <hr />
                     <Link to="/user" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <FaRegCircleUser size={14} /> My Profile
+                      <FaRegCircleUser size={14} />
+                      <span>My Profile</span>
                     </Link>
                     <Link to="/user/orders" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
                       <RiShoppingBag4Line size={14} />
-                      Orders
+                      <span>Orders</span>
                     </Link>
                     <Link to="/wishlist" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <AiOutlineHeart size={14} />  Wishlist
+                      <AiOutlineHeart size={14} />
+                      <span>Wishlist</span>
                     </Link>
                     <Link to="/rewards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <IoGiftSharp size={14} /> Rewards
+                      <IoGiftSharp size={14} />
+                      <span>Rewards</span>
                     </Link>
                     <Link to="/gift-cards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
                       <BsCashStack size={14} />
-                      Gift Cards
+                      <span>Gift Cards</span>
                     </Link>
                   </>
                 )}
@@ -598,40 +537,36 @@ export default function Header() {
           </div>
 
           {/* Become a Seller */}
-          <Link to="/signup-seller" className="px-2 py-1 rounded-md font-montserrat text-[#1C647C]">
+          <Link to="/signup-seller" className="px-2 py-1 rounded-md text-[#1C647C]">
             Become a Seller
           </Link>
 
-          {/* Wishlist Button */}
+          {/* Wishlist button */}
           <button
             onClick={openWishlistHandler}
             aria-label="Open Wishlist"
             className="relative flex items-center px-2 py-1 cursor-pointer rounded-full text-[11px] text-[#1C647C] hover:bg-[#155d72] hover:text-white transition-colors duration-200"
           >
-            <div className="relative">
-              <AiOutlineHeart size={16} />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-2 cursor-pointer -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center shadow-md ring-2 ring-white">
-                  {wishlist.length}
-                </span>
-              )}
-            </div>
+            <AiOutlineHeart size={16} />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                {wishlist.length}
+              </span>
+            )}
           </button>
 
-          {/* Cart Button */}
+          {/* Cart button */}
           <button
             onClick={openCartHandler}
             aria-label="Open Cart"
-            className="relative flex items-center px-2 cursor-pointer py-1 rounded-full text-[11px] text-[#1C647C] hover:bg-[#155d72] hover:text-white transition-colors duration-200"
+            className="relative flex items-center px-2 py-1 cursor-pointer rounded-full text-[11px] text-[#1C647C] hover:bg-[#155d72] hover:text-white transition-colors duration-200"
           >
-            <div className="relative">
-              <AiOutlineShoppingCart size={16} />
-              {cart.length > 0 && (
-                <span className="absolute -top-2 cursor-pointer -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center shadow-md ring-2 ring-white">
-                  {cart.length}
-                </span>
-              )}
-            </div>
+            <AiOutlineShoppingCart size={16} />
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                {cart.length}
+              </span>
+            )}
           </button>
         </div>
       </div>

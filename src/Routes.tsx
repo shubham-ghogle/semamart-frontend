@@ -46,6 +46,7 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
+import ProductBasedOnType from "./components/UI/ProductBasedOnType";
 
 export const router = createBrowserRouter([
   {
@@ -239,5 +240,7 @@ export const router = createBrowserRouter([
   { path: "/account", element: <AccountNavbar /> },
   { path: "/account/orders", element: <MyOrders /> },
   { path: "account/orders/:productId", element: <OrderSummary /> },
+  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType/> },
+
 
 ]); 
