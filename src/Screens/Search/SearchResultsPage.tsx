@@ -277,7 +277,14 @@ let filtered = results.filter((p) => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              addToCart({ product: p, qty: 1 });
+addToCart({
+  product: p,
+  qty: 1,
+  productId: p._id,
+  shopId: typeof p.shopId === "string" ? p.shopId : p.shopId._id,
+  variantId: p.variants?.[0]?._id ?? null,
+  variant: p.variants?.[0], // optional
+});
                             }}
                             className="bg-[#005B5D] text-white text-xs px-3 py-1 rounded-full hover:bg-[#004C4D]"
                           >

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import ImageSliderHome from "../../components/Homepage/ImageSliderHome";
+// import ImageSliderHome from "../../components/Homepage/ImageSliderHome";
 import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 
 // ✅ Define Variant type
@@ -31,8 +31,8 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  // const [searchInput] = useState("");
+  const [search] = useState("");
   const [sort, setSort] = useState("popularity");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<string[]>([]);
@@ -93,9 +93,7 @@ useEffect(() => {
     }
   };
 
-  const handleSearchClick = () => {
-    setSearch(searchInput);
-  };
+ 
 
   // Filter and sort
   const filteredProducts = products

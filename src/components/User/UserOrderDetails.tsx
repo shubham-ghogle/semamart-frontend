@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Order } from "../../Types/types";
+import { Order, Product, Variant } from "../../Types/types";
 import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { formatDate } from "../UIComponents/Inputs";
 import ReviewModal from "./ReviewModal";
@@ -24,6 +24,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
   return (
     <>
       <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
+        {/* Order Info */}
         <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
           <OrderDetailsField label="Order ID:" value={data?._id} />
           <OrderDetailsField
@@ -34,47 +35,56 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
 
         {/* Order Items */}
         <section className="mt-4 bg-white border-b">
-          {data &&
-            data?.cart.map((item) => {
-              const variant = item.product.variants?.[0]; // ✅ get first variant
-              const price = variant ? variant.originalPrice : 0;
+          {data?.cart.map((item) => {
+            // Handle product (may be ID or populated object)
+            const product: Product | null =
+              typeof item.productId === "string" ? null : item.productId;
 
-              return (
-                <article
-                  key={item.product._id}
-                  className="w-full grid grid-cols-[7fr_1fr] gap-4 items-center mb-5"
-                >
-                  <section className="w-full flex items-center gap-2">
-                    <img
-                      src={"/baseUrl" + "/" + item.product.images[0]}
-                      alt="Product item order img"
-                      className="w-[80x] h-[80px]"
-                    />
-                    <div className="w-full">
-                      <h5 className="pl-3 text-lg">{item.product.name}</h5>
-                      <h5 className="pl-3 text-lg text-dark-gray">
-                        US${item.qty} x {price}
-                      </h5>
-                    </div>
-                    <OrderDetailsField
-                      label="Total:"
-                      value={item.qty * price}
-                    />
-                  </section>
+            // Handle variant (may be ID or populated object)
+            const variant: Variant | null =
+              typeof item.variantId === "string" ? null : item.variantId;
 
-                  {data.status === "Delivered" && !item.isReviewed && (
-                    <div className="mr-4">
-                      <button
-                        onClick={() => handleAddReview(item.product._id)}
-                        className="bg-accent-yellow text-white text-sm rounded-md p-1"
-                      >
-                        Add Review
-                      </button>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
+            const price = variant ? variant.originalPrice : 0;
+
+            return (
+              <article
+                key={product?._id || String(item.productId)}
+                className="w-full grid grid-cols-[7fr_1fr] gap-4 items-center mb-5"
+              >
+                <section className="w-full flex items-center gap-2">
+                  <img
+                    src={
+                      product?.images && product.images.length > 0
+                        ? "/baseUrl/" + product.images[0]
+                        : "/placeholder.png"
+                    }
+                    alt="Product item order img"
+                    className="w-[80px] h-[80px]"
+                  />
+                  <div className="w-full">
+                    <h5 className="pl-3 text-lg">{product?.name || "Product"}</h5>
+                    <h5 className="pl-3 text-lg text-dark-gray">
+                      US${item.qty} x {price}
+                    </h5>
+                  </div>
+                  <OrderDetailsField label="Total:" value={item.qty * price} />
+                </section>
+
+                {data.status === "Delivered" && !item.isReviewed && (
+                  <div className="mr-4">
+                    <button
+                      onClick={() =>
+                        handleAddReview(product?._id || String(item.productId))
+                      }
+                      className="bg-accent-yellow text-white text-sm rounded-md p-1"
+                    >
+                      Add Review
+                    </button>
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </section>
 
         {/* Payment Info */}
