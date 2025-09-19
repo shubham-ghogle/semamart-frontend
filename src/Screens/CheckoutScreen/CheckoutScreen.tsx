@@ -57,7 +57,7 @@ export default function CheckoutScreen(): JSX.Element {
     const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
     return {
       shopId: typeof el.product.shopId === "string" ? el.product.shopId : (el.product.shopId as Seller)._id,
-      _id: el.product._id,
+      productId: el.product._id,
       variantId: el.variant?._id ?? fallbackVariantId,
       qty: el.qty,
     };

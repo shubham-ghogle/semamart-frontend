@@ -5,7 +5,6 @@ export const variantSchema = z.object({
   colorOption: z.string().optional().nullable(),
   originalPrice: z.string().min(1, "originalPrice required"),
   discountPrice: z.string().min(1),
-  institutePrice: z.string().optional(),
   stocks: z.string().min(1, "Stock required"),
 });
 

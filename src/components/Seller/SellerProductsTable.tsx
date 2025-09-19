@@ -34,7 +34,7 @@ export default function SellerProductTable({ products }: SellerProductTableProps
       stock: v.stock,
       originalPrice: v.originalPrice,
       discountPrice: v.discountPrice ?? 0,
-      createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"), // convert Date to string
+      createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
     }))
   )
@@ -79,12 +79,9 @@ export default function SellerProductTable({ products }: SellerProductTableProps
     {
       accessorKey: "createdAt",
       header: "Created On",
-      cell: ({ row }) => (
-        <p>{new Date(row.original.createdAt).toLocaleDateString("en-IN")}</p>
-      ),
     },
     {
-      id: "actions",
+      id: "action",
       header: "Actions",
       cell: ({ row }) => (
         <Link to={`view/${row.original.productId}`}>
@@ -94,5 +91,5 @@ export default function SellerProductTable({ products }: SellerProductTableProps
     },
   ]
 
-  return <DataTable data={rows} columns={columns} docName="" />
+  return <DataTable data={rows} columns={columns} docName="products" />
 }

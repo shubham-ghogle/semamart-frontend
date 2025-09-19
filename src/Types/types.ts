@@ -31,7 +31,6 @@ export interface Variant {
   thumbnail?: string | null
   originalPrice: number
   discountPrice?: number
-  institutePrice?: number
   stock: number
   _id: string
 }
@@ -168,7 +167,7 @@ type PaymentInfo = {
 
 export type Order = {
   _id: string
-  cart: { product: Product; qty: number; isReviewed: boolean }[];
+  cart: { productId: string|Product;variantId:string | Variant; qty: number; shopId: string }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;

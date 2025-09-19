@@ -50,10 +50,9 @@ export async function getOrderDetails(orderId?: string) {
     throw new Error(errMessage.message);
   }
 
-  const data = (await res.json()) as { message: string, success: boolean, order: Order };
+  const data = (await res.json()) as Order;
 
-  if (!data.success) throw new Error(data.message);
-  return data.order;
+  return data;
 }
 
 
