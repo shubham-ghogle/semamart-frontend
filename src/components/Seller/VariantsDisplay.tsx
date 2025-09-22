@@ -8,47 +8,43 @@ import { Button } from "../ui/button";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import EditVariantDialog from "./EditVariantDialog";
 
-type VariantsDisplayProps = {
-  isMultiVariant: boolean;
-};
+// type VariantsDisplayProps = {
+//   isMultiVariant: boolean;
+// };
 
-export default function VariantsDisplay({
-  isMultiVariant,
-}: VariantsDisplayProps) {
+export default function VariantsDisplay( ) {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const product = queryClient.getQueryData(["product", id]) as Product;
   const variants = product.variants;
 
   return (
-    <div>
-      {variants.map((el, i) => (
+    <div className="space-y-4">
+      {variants.map((el) => (
         <article
           key={el._id}
-          className="border rounded-lg p-6 grid grid-cols-[3fr_2fr] gap-4 items-start relative"
+          className="border rounded-lg p-6 grid grid-cols-[3fr_2fr] gap-4 relative items-start"
         >
           <section className="w-full space-y-2">
-            {isMultiVariant && <h3>Variant-{i}</h3>}
             <ReadOnlyField label="Original Price" value={el.originalPrice} />
             <ReadOnlyField label="Available Stock" value={el.stock} />
             <ReadOnlyField label="Size" value={el.size ?? "-"} />
             <ReadOnlyField label="Color" value={el.colorOption ?? "-"} />
           </section>
-          <section className="space-y-2 w-full">
+          <section className="space-y-2 w-72 grid grid-rows-[70px_1fr]">
             <ReadOnlyField
               label="Discount Price"
               value={el.discountPrice ?? 0}
             />
-            <img
-              className="rounded object-cover w-full"
-              src={BASE_URL + "images/" + el.thumbnail}
-            />
+            <div>
+              <img
+                className="rounded object-fill max-h-40"
+                src={BASE_URL + "images/" + el.thumbnail}
+              />
+            </div>
           </section>
-          {/* <Button className="absolute right-2 bottom-2" variant="outline">
-            Edit Variant
-          </Button> */}
-          <article className="absolute right-2 bottom-2">
-            <EditVariantDialog/>
+          <article className="absolute right-1 top-1">
+            <EditVariantDialog variant={el}/>
           </article>
         </article>
       ))}

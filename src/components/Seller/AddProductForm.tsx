@@ -204,7 +204,7 @@ export default function AddProductForm({
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
-  const { mutate: mutateProduct } = useMutation({
+  const { mutate: mutateProduct, status: postProductStatus } = useMutation({
     mutationFn: (formData: any) => postProduct(formData),
     onSuccess: () => {
       toast.success("Product added successfully");
@@ -218,7 +218,7 @@ export default function AddProductForm({
     },
   });
 
-  const { mutate: putProduct } = useMutation({
+  const { mutate: putProduct, status: putProductStatus } = useMutation({
     mutationFn: (v: { formData: any; productId: string }) =>
       editProduct(v.formData, v.productId),
     onSuccess: async () => {
@@ -231,8 +231,11 @@ export default function AddProductForm({
   });
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
-    const newForm = new FormData();
+    if (putProductStatus === "pending" || postProductStatus === "pending") {
+      return;
+    }
 
+    const newForm = new FormData();
     newForm.append(
       "variants",
       JSON.stringify(
@@ -952,21 +955,6 @@ export default function AddProductForm({
                   )}
                 />
               </section>
-
-              {/* <FormField */}
-              {/*   control={form.control} */}
-              {/*   name="colorOptions" */}
-              {/*   render={({ field }) => ( */}
-              {/*     <FormItem> */}
-              {/*       <FormLabel>Color Options</FormLabel> */}
-              {/*       <FormControl> */}
-              {/*         <Input */}
-              {/*           {...field} /> */}
-              {/*       </FormControl> */}
-              {/*       <FormMessage /> */}
-              {/*     </FormItem> */}
-              {/*   )} */}
-              {/* /> */}
 
               <FormField
                 control={form.control}
@@ -1833,8 +1821,16 @@ export default function AddProductForm({
         {product && <DocumentsDisplay />}
 
         <div className="flex justify-end">
-          <Button type="submit" variant="outline">
-            Submit
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={
+              putProductStatus === "pending" || postProductStatus === "pending"
+            }
+          >
+            {putProductStatus === "pending" || postProductStatus === "pending"
+              ? "Submit"
+              : "Loading..."}
           </Button>
         </div>
       </form>
