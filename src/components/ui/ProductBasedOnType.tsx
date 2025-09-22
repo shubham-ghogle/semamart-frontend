@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+<<<<<<< HEAD
+=======
+// import ImageSliderHome from "../../components/Homepage/ImageSliderHome";
+>>>>>>> c50d47d3653c1088671a8e694ed052bbb9566d5b
 import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 
 
@@ -30,8 +34,8 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  // const [searchInput] = useState("");
+  const [search] = useState("");
   const [sort, setSort] = useState("popularity");
   const [selectedmanufacturerName, setSelectedmanufacturerName] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number | "">("");

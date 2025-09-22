@@ -3,6 +3,7 @@ import { Star } from "lucide-react"
 import { useCartStore } from "@/store/cartStore"
 import { useWishlistStore } from "@/store/wishlistStore"
 import { Link } from "react-router"
+import { toast } from "react-toastify"
 
 interface Props {
   product: Product
@@ -30,12 +31,34 @@ export default function ProductCard({ product }: Props) {
   const inWishlist = wishlist.some((p) => p._id === product._id)
 
   const handleAddCart = (e: React.MouseEvent) => {
-    e.preventDefault() // stop Link navigation
-    addToCart({ product, qty: 1 })
+    e.preventDefault()
+    if (!variant || !stock || stock <= 0) return
+
+    addToCart({
+      productId: product._id,
+      variantId: variant._id,
+      product,
+      variant,
+      qty: 1,
+      shopId: (product as any).shopId?._id || (product as any).shopId,
+    })
+
+    if (inWishlist) removeFromWishlist(product._id)
+
+    // ✅ Toast popup
+    toast.success(`${product.name} added to cart!`, {
+      position: "top-center",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    })
   }
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault() // stop Link navigation
+    e.preventDefault()
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product)
   }
 
@@ -132,13 +155,15 @@ export default function ProductCard({ product }: Props) {
               </span>
             )}
 
-            <button
-              onClick={handleAddCart}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D] text-white font-bold text-lg"
-              title="Add to Cart"
-            >
-              <img src="/st_icon.png" alt="Cart" className="w-4 h-4" />
-            </button>
+            {stock && stock > 0 && (
+              <button
+                onClick={handleAddCart}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D] text-white font-bold text-lg"
+                title="Add to Cart"
+              >
+                <img src="/st_icon.png" alt="Cart" className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </Link>

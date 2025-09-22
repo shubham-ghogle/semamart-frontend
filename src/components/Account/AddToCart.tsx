@@ -8,13 +8,16 @@ export default function AddToCart() {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // Sum only discounted prices × quantity
- const totalPayable = cart.reduce(
-  (acc, item) =>
-    acc + item.qty * (item.product?.variants?.[0]?.discountPrice ?? 0),
-  0
-);
-
+  // ✅ Sum variant or fallback product price × qty
+  const totalPayable = cart.reduce((acc, item) => {
+    const price =
+      item.variant?.discountPrice ??
+      item.variant?.originalPrice ??
+      item.product?.variants?.[0]?.discountPrice ??
+      item.product?.variants?.[0]?.originalPrice ??
+      0;
+    return acc + item.qty * price;
+  }, 0);
 
   function checkoutHandler() {
     if (!user) {
@@ -35,24 +38,31 @@ export default function AddToCart() {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
         {/* Cart Items */}
         <div className="flex-1 bg-white rounded-lg shadow p-4">
-          <h2 className="text-xl font-semibold mb-4">My Cart ({cart.length})</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            My Cart ({cart.length})
+          </h2>
 
           {cart.length === 0 ? (
             <div className="text-center text-gray-500 mt-16">
               <div className="text-6xl mb-4">🛒</div>
-              <h3 className="text-xl font-semibold mb-2">Your cart is empty!</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Your cart is empty!
+              </h3>
               <p>Browse our products and add something to your cart.</p>
             </div>
           ) : (
             <>
               {cart.map((item) => (
-                <CartSingle key={item.product._id} data={item} />
+                <CartSingle
+                  key={`${item.productId}-${item.variantId ?? "no-variant"}`}
+                  data={item}
+                />
               ))}
             </>
           )}
         </div>
 
-        {/* Price Summary - Only total */}
+        {/* Price Summary */}
         {cart.length > 0 && (
           <div className="w-full md:w-80 bg-white rounded-lg shadow p-4 h-fit sticky top-6">
             <h3 className="text-lg font-semibold mb-4">PRICE DETAILS</h3>
@@ -82,21 +92,50 @@ type CartSingleProps = {
 
 const CartSingle = ({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
+
   const product = data.product;
+  const variant = data.variant;
 
-  const originalPrice = product.variants[0].originalPrice ?? product.variants[0].discountPrice;
+  if (!product) return null; // safeguard
 
-  const discountPercent = (originalPrice && product?.variants?.[0]?.discountPrice !== undefined)
-  ? Math.round(((originalPrice - product.variants[0].discountPrice!) / originalPrice) * 100)
-  : 0;
+  // ✅ safe image
+  const imageUrl =
+    variant?.thumbnail
+      ? `/images/${variant.thumbnail}`
+      : product.images?.[0]
+      ? `/images/${product.images[0]}`
+      : "/default-image.png";
 
+  // ✅ safe prices
+  const originalPrice =
+    variant?.originalPrice ??
+    variant?.discountPrice ??
+    product.variants?.[0]?.originalPrice ??
+    product.variants?.[0]?.discountPrice ??
+    0;
+
+  const discountPrice =
+    variant?.discountPrice ??
+    product.variants?.[0]?.discountPrice ??
+    originalPrice;
+
+  const discountPercent =
+    originalPrice && discountPrice
+      ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100)
+      : 0;
+
+  // ✅ safe IDs
+  const productId =
+    typeof data.productId === "string" ? data.productId : data.productId?._id;
+  const variantId =
+    typeof data.variantId === "string" ? data.variantId : data.variantId?._id;
 
   return (
     <div className="flex gap-4 py-6 border-b border-gray-200">
       {/* Left: Product Image */}
       <div className="w-28 flex-shrink-0">
         <img
-          src={product.images?.[0] || "/default-image.png"}
+          src={imageUrl}
           alt={product.name}
           className="w-24 h-24 object-cover rounded border"
         />
@@ -104,38 +143,46 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
       {/* Right: Product Info */}
       <div className="flex flex-col flex-1 justify-between">
-        {/* Top Row: Name + Delivery */}
         <div className="flex justify-between items-center mb-1">
-          <h4 className="text-base font-semibold text-gray-900">{product.name}</h4>
+          <h4 className="text-base font-semibold text-gray-900">
+            {product.name}
+          </h4>
           <span className="text-xs text-gray-500 whitespace-nowrap">
             Delivery in 4 - 5 days
           </span>
         </div>
 
-        {/* Seller, Price, Discount */}
         <div className="text-sm text-gray-600 mb-2">
-          <p>For Men &amp; Women, Black</p>
           <p>
-            Seller: <span className="font-medium text-gray-800">Good Friend</span>
+            {variant?.colorOption ? `${variant.colorOption}` : ""}
+            {variant?.size ? ` | Size: ${variant.size}` : ""}
           </p>
           <div className="flex items-center gap-3 mt-1">
-            <span className="line-through text-gray-400">₹{originalPrice}</span>
-            <span className="font-semibold text-lg text-gray-900">₹{product.variants[0].discountPrice}</span>
+            {originalPrice > discountPrice && (
+              <span className="line-through text-gray-400">
+                ₹{originalPrice}
+              </span>
+            )}
+            <span className="font-semibold text-lg text-gray-900">
+              ₹{discountPrice}
+            </span>
             {discountPercent > 0 && (
-              <span className="text-green-600 font-semibold">{discountPercent}% OFF</span>
+              <span className="text-green-600 font-semibold">
+                {discountPercent}% OFF
+              </span>
             )}
           </div>
         </div>
 
-        {/* Divider */}
         <hr className="border-gray-300 mb-2" />
 
-        {/* Bottom Row: Quantity + Save & Remove */}
+        {/* Quantity + Actions */}
         <div className="flex items-center gap-6">
-          {/* Quantity Controls */}
           <div className="flex items-center gap-2 border rounded-md overflow-hidden">
             <button
-              onClick={() => changeQyt(product._id, -1)}
+              onClick={() =>
+                productId && changeQyt(productId, variantId ?? null, -1)
+              }
               disabled={data.qty === 1}
               className={`w-8 h-8 text-lg font-bold ${
                 data.qty === 1
@@ -147,19 +194,19 @@ const CartSingle = ({ data }: CartSingleProps) => {
             </button>
             <div className="px-3 text-sm font-medium">{data.qty}</div>
             <button
-              onClick={() => changeQyt(product._id, 1)}
+              onClick={() =>
+                productId && changeQyt(productId, variantId ?? null, 1)
+              }
               className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
             >
               +
             </button>
           </div>
 
-          {/* Save For Later */}
-          <button className="text-sm text-gray-700 cursor-pointer">SAVE FOR LATER</button>
-
-          {/* Remove */}
           <button
-            onClick={() => removeFromCart(product._id)}
+            onClick={() =>
+              productId && removeFromCart(productId, variantId ?? null)
+            }
             className="text-sm text-red-600 cursor-pointer"
           >
             REMOVE

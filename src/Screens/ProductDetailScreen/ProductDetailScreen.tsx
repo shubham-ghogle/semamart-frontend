@@ -21,17 +21,41 @@ export default function ProductDetailsScreen() {
 
   //adding to cart and persisting it in localStorage
   const { addToCart, cart } = useCartStore((state) => state);
-  function addToCartHandler() {
-    console.log("chico")
-    if (!product) return;
-    const isItemInCart = cart.some((el) => el.product._id === product._id);
-    if (isItemInCart) {
-      alert("Item already in the cart");
-      return;
-    }
-    const item = { product, qty: count };
-    addToCart(item);
+ function addToCartHandler() {
+  if (!product) return;
+
+  // pick variant (defaultVariant fallback to first)
+  const variant = (product as any).defaultVariant || product.variants?.[0];
+  if (!variant) {
+    alert("No variant available for this product");
+    return;
   }
+
+  // check if already in cart (match productId + variantId)
+  const isItemInCart = cart.some(
+    (el) =>
+      el.productId === product._id &&
+      el.variantId === variant._id
+  );
+
+  if (isItemInCart) {
+    alert("Item already in the cart");
+    return;
+  }
+
+  const item = {
+    productId: product._id,
+    variantId: variant._id,
+    product,
+    qty: count,
+    shopId:
+      (product.shopId as any)?._id ||
+      (product.shopId as string),
+  };
+
+  addToCart(item);
+}
+
 
   //wishlist handlers
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlistStore(
