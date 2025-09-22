@@ -2,10 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-<<<<<<< HEAD
-=======
-// import ImageSliderHome from "../../components/Homepage/ImageSliderHome";
->>>>>>> c50d47d3653c1088671a8e694ed052bbb9566d5b
 import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 
 
