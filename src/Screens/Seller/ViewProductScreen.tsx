@@ -124,6 +124,7 @@ export default function ViewProductScreen() {
             product={formProduct}
             multiVariant={product.variants.length > 1}
             thumbnails={thumbnails}
+            productId={product._id}
           />
         </>
       )}

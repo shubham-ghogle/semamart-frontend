@@ -19,7 +19,7 @@ import {
 } from "@/Types/types";
 import { ChangeEvent, useEffect, useState } from "react";
 import { API_URL, BASE_URL } from "@/data";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TagsInput } from "../ui/tags-input";
 import {
   Select,
@@ -62,13 +62,14 @@ type AddProductFormProps =
       images?: undefined;
       multiVariant?: undefined;
       thumbnails?: undefined;
+      productId?: undefined;
     }
   | {
       categories: CategoryApiRes[];
       product: FormProduct;
-      // images: string[];
       multiVariant: boolean;
       thumbnails: any[];
+      productId: string;
     };
 
 export default function AddProductForm({
@@ -76,6 +77,7 @@ export default function AddProductForm({
   multiVariant = false,
   categories,
   product,
+  productId,
 }: AddProductFormProps) {
   const [subCatList, setSubCatList] = useState<SubCategory[]>([]);
   const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" });
@@ -83,6 +85,8 @@ export default function AddProductForm({
   const [currCategory, setCurrCategory] = useState({ name: "", val: "" });
   const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" });
   const [isMultiVariant, setIsMultiVariant] = useState(multiVariant);
+
+  const qc = useQueryClient();
 
   const categoryDropDownList = categories.map((c) => ({
     label: c.name,
@@ -213,11 +217,20 @@ export default function AddProductForm({
       toast.error("Something went wrong!!");
     },
   });
+
+  const { mutate: putProduct } = useMutation({
+    mutationFn: (v: { formData: any; productId: string }) =>
+      editProduct(v.formData, v.productId),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["product", productId] });
+      toast.success("Product updated");
+    },
+    onError: () => {
+      toast.error("Something went wrong!");
+    },
+  });
+
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
-    //TODO: api end point for edit product
-
-    if (product) return;
-
     const newForm = new FormData();
 
     newForm.append(
@@ -340,6 +353,12 @@ export default function AddProductForm({
     });
     if (shortVideo) {
       newForm.append("shortVideo", shortVideo);
+    }
+
+    if (product) {
+      newForm.delete("variants");
+      putProduct({ formData: newForm, productId: productId });
+      return;
     }
 
     mutateProduct(newForm);
@@ -1481,11 +1500,11 @@ export default function AddProductForm({
 
           <AccordionItem value="6">
             <AccordionTrigger className="text-lg">
-              {product?"Media and Variants":"Pricing and Media"}
+              {product ? "Media and Variants" : "Pricing and Media"}
             </AccordionTrigger>
             {product ? (
               <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
-                <VariantsDisplay isMultiVariant={isMultiVariant}/>
+                <VariantsDisplay />
                 <MediaDisplay />
               </AccordionContent>
             ) : (
@@ -1737,74 +1756,74 @@ export default function AddProductForm({
                   </div>
                 )}
                 <section className="space-y-4 mt-4">
-                      <div>
-                        <FormLabel>Upload other images</FormLabel>
-                        <div className="flex gap-4 flex-wrap mt-2">
-                          {Array.from({ length: 4 }).map((_, index) => (
-                            <div
-                              key={index}
-                              className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
-                            >
-                              <label
-                                htmlFor={`uploadImage-${index}`}
-                                className="cursor-pointer"
-                              >
-                                {images[index] ? (
-                                  <img
-                                    src={URL.createObjectURL(images[index])}
-                                    alt={`Image-${index + 1}`}
-                                    className="h-full w-full object-cover"
-                                  />
-                                ) : (
-                                  <AiOutlinePlusCircle size={30} color="#555" />
-                                )}
-                              </label>
-                              <input
-                                type="file"
-                                id={`uploadImage-${index}`}
-                                className="hidden"
-                                onChange={(e) => handleImageChange(e, index)}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <FormLabel>Upload Product Video</FormLabel>
-                        <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                  <div>
+                    <FormLabel>Upload other images</FormLabel>
+                    <div className="flex gap-4 flex-wrap mt-2">
+                      {Array.from({ length: 4 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                        >
                           <label
-                            htmlFor="uploadThumbnail"
-                            className="cursor-pointer w-full h-full grid place-items-center"
+                            htmlFor={`uploadImage-${index}`}
+                            className="cursor-pointer"
                           >
-                            {shortVideo ? (
-                              <video
-                                controls
-                                src={URL.createObjectURL(shortVideo)}
+                            {images[index] ? (
+                              <img
+                                src={URL.createObjectURL(images[index])}
+                                alt={`Image-${index + 1}`}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
                               <AiOutlinePlusCircle size={30} color="#555" />
                             )}
                           </label>
+                          <input
+                            type="file"
+                            id={`uploadImage-${index}`}
+                            className="hidden"
+                            onChange={(e) => handleImageChange(e, index)}
+                          />
                         </div>
-                        <input
-                          type="file"
-                          id="uploadShortVideo"
-                          accept="video/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file && file.size > 2 * 1024 * 1024) {
-                              alert("Video size should not exceed 2MB.");
-                              return;
-                            }
-                            if (file) {
-                              setShortVideo(file); // Update state for short video
-                            }
-                          }}
-                        />
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <FormLabel>Upload Product Video</FormLabel>
+                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                      <label
+                        htmlFor="uploadThumbnail"
+                        className="cursor-pointer w-full h-full grid place-items-center"
+                      >
+                        {shortVideo ? (
+                          <video
+                            controls
+                            src={URL.createObjectURL(shortVideo)}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <AiOutlinePlusCircle size={30} color="#555" />
+                        )}
+                      </label>
+                    </div>
+                    <input
+                      type="file"
+                      id="uploadShortVideo"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && file.size > 2 * 1024 * 1024) {
+                          alert("Video size should not exceed 2MB.");
+                          return;
+                        }
+                        if (file) {
+                          setShortVideo(file); // Update state for short video
+                        }
+                      }}
+                    />
+                  </div>
                 </section>
               </AccordionContent>
             )}
@@ -1813,13 +1832,11 @@ export default function AddProductForm({
 
         {product && <DocumentsDisplay />}
 
-        {!product && (
-          <div className="flex justify-end">
-            <Button type="submit" variant="outline">
-              Submit
-            </Button>
-          </div>
-        )}
+        <div className="flex justify-end">
+          <Button type="submit" variant="outline">
+            Submit
+          </Button>
+        </div>
       </form>
     </Form>
   );
@@ -1837,6 +1854,15 @@ async function fetchSubcategories(categoryId: string) {
 async function postProduct(formData: FormData) {
   const res = await fetch(API_URL + "product/create-product-v2", {
     method: "post",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error();
+}
+
+async function editProduct(formData: FormData, productId: string) {
+  const res = await fetch(API_URL + "product/update-product/" + productId, {
+    method: "PUT",
     body: formData,
   });
 
