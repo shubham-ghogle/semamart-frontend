@@ -47,7 +47,7 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
-import ProductBasedOnType from "./components/ui/ProductBasedOnType";
+import ProductBasedOnType from "./components/UI/ProductBasedOnType";
 import AllUserScreen from "./Screens/Admin/AllUserScreen";
 
 export const router = createBrowserRouter([
