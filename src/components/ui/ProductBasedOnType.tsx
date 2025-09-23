@@ -25,7 +25,7 @@ type Product = {
   variants: Variant[];
 };
 
-export default function ProductPage() {
+export default function ProductBasedOnType() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -2,8 +2,6 @@ import { useUserStore } from "@/store/userStore";
 import {
   FaClipboardList,
   FaUser,
-  FaWallet,
-  FaTags,
   FaSignOutAlt,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";

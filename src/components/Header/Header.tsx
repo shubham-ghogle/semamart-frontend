@@ -90,7 +90,7 @@ export default function Header() {
     const fetchCategories = async () => {
       setIsLoadingCategories(true);
       try {
-        const res = await fetch("/api/v2/category/categoryName");
+        const res = await fetch("/api/v2/category/");
         if (!res.ok) {
           throw new Error(`Failed to fetch categories: ${res.status}`);
         }
