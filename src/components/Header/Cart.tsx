@@ -1,5 +1,4 @@
 // Cart.tsx
-
 import { Link } from "react-router-dom";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { RxCross1 } from "react-icons/rx";
@@ -19,13 +18,14 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // ✅ calculate total price from variants
+  // ✅ calculate total price using variant OR fallback product price
   const totalPrice = cart.reduce((acc, item) => {
-    const firstVariant = item.product.variants?.[0];
     const price =
-      firstVariant?.discountPrice ??
-      firstVariant?.originalPrice ??
-      0;
+      item.variant?.discountPrice ??
+      item.variant?.originalPrice ??
+      (item.product?.variants?.[0]?.discountPrice ??
+        item.product?.variants?.[0]?.originalPrice ??
+        0);
     return acc + item.qty * price;
   }, 0);
 
@@ -88,7 +88,10 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             {/* Items List */}
             <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 p-4 space-y-4">
               {cart.map((item) => (
-                <CartSingle key={item.product._id} data={item} />
+                <CartSingle
+                  key={`${item.productId}-${item.variantId ?? "no-variant"}`}
+                  data={item}
+                />
               ))}
             </div>
 
@@ -123,35 +126,51 @@ type CartSingleProps = {
 const CartSingle = ({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
 
-  // ✅ backend image
-  const imageUrl =
-    data.product.images?.[0] ? `/images/${data.product.images[0]}` : "/placeholder.png";
+  const product = data.product;
+  const variant = data.variant;
 
-  // ✅ price from variants
-  const firstVariant = data.product.variants?.[0];
+  if (!product) return null; // safeguard
+
+  // ✅ image handling
+  const imageUrl =
+    variant?.thumbnail
+      ? `/images/${variant.thumbnail}`
+      : product.images?.[0]
+      ? `/images/${product.images[0]}`
+      : "/placeholder.png";
+
+  // ✅ price handling
   const unitPrice =
-    firstVariant?.discountPrice ??
-    firstVariant?.originalPrice ??
+    variant?.discountPrice ??
+    variant?.originalPrice ??
+    product.variants?.[0]?.discountPrice ??
+    product.variants?.[0]?.originalPrice ??
     0;
 
   const totalPrice = unitPrice * data.qty;
+
+  // ✅ safe IDs
+  const productId =
+    typeof data.productId === "string" ? data.productId : data.productId?._id;
+  const variantId =
+    typeof data.variantId === "string" ? data.variantId : data.variantId?._id;
 
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
       {/* Product Link & Image */}
       <Link
-        to={`/product/${data.product._id}`}
+        to={`/product/${productId}`}
         className="flex items-center gap-3 flex-1"
       >
         <img
           src={imageUrl}
-          alt={data.product.name}
+          alt={product.name}
           className="w-20 h-20 object-cover rounded-lg border"
         />
 
         <div className="flex flex-col flex-1">
           <h3 className="text-base font-semibold text-gray-900 line-clamp-1">
-            {data.product.name}
+            {product.name}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
             ₹{unitPrice.toLocaleString()} × {data.qty}
@@ -168,7 +187,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            changeQyt(data.product._id, 1);
+            if (productId) changeQyt(productId, variantId ?? null, 1);
           }}
           className="w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded-full grid place-items-center transition"
         >
@@ -179,7 +198,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            changeQyt(data.product._id, -1);
+            if (productId) changeQyt(productId, variantId ?? null, -1);
           }}
           className="w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded-full grid place-items-center transition"
         >
@@ -192,7 +211,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          removeFromCart(data.product._id);
+          if (productId) removeFromCart(productId, variantId ?? null);
         }}
         className="text-gray-400 hover:text-red-500 transition ml-2"
         aria-label="Remove item"

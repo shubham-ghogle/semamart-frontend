@@ -64,7 +64,7 @@ const AccountNavbar = () => {
           </div>
 
           {/* PAYMENTS */}
-          <div className="mb-4 pb-4 border-b">
+          {/* <div className="mb-4 pb-4 border-b">
             <h3 className="font-semibold text-gray-500 flex items-center gap-2">
               <FaWallet className="text-blue-500" /> PAYMENTS
             </h3>
@@ -86,10 +86,10 @@ const AccountNavbar = () => {
                 </span>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* MY STUFF */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <h3 className="font-semibold text-gray-500 flex items-center gap-2">
               <FaTags className="text-blue-500" /> MY STUFF
             </h3>
@@ -115,10 +115,10 @@ const AccountNavbar = () => {
                 </li>
               </Link>
             </ul>
-          </div>
+          </div> */}
 
           {/* LOGOUT */}
-          <div className="mt-6 border-t pt-4">
+          <div className="mt-6  pt-4">
             <button className="flex items-center gap-2 hover:text-blue-500 text-gray-500 cursor-pointer font-medium">
               <FaSignOutAlt className="text-blue-500" /> Logout
             </button>

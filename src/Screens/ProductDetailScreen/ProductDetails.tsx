@@ -122,15 +122,17 @@ export default function ProductCard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, productMedia.length]);
 
-  const handleThumbClick = (idx: number) => {
-    if (activeIdx !== idx) {
-      setAnimating(true);
-      setTimeout(() => {
-        setActiveIdx(idx);
-        setAnimating(false);
-      }, 250);
-    }
-  };
+const handleThumbClick = (idx: number) => {
+  if (activeIdx !== idx) {
+    setIsVariantActive(false); // go back to gallery mode
+    setAnimating(true);
+    setTimeout(() => {
+      setActiveIdx(idx);
+      setAnimating(false);
+    }, 250);
+  }
+};
+
 
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
@@ -138,6 +140,19 @@ export default function ProductCard() {
   const [selectedPack, setSelectedPack] = useState("100 Pack");
   const [selectedOffer, setSelectedOffer] = useState<{ title: string; details: string } | null>(null);
   const [cartAnimation, setCartAnimation] = useState(false);
+  // ✅ Selected variant state (default from API)
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+const [isVariantActive, setIsVariantActive] = useState(false);
+
+useEffect(() => {
+  if ((product as any)?.defaultVariant) {
+    setSelectedVariant((product as any).defaultVariant);
+  } else if ((product as any)?.variants?.length) {
+    setSelectedVariant((product as any).variants[0]);
+  }
+  setIsVariantActive(false); // ensure gallery mode on first load
+}, [product]);
+
 
   const packs = ["100 Pack", "500 Pack", "1000 Pack"];
   const offers = [
@@ -167,8 +182,14 @@ export default function ProductCard() {
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
     // keep original behaviour: add product with qty 1
-    addToCart({ product, qty: 1 });
-    setCartAnimation(true);
+    addToCart({
+      productId: (product as any)._id,
+      variantId: selectedVariant?._id,
+      product,
+      variant: selectedVariant,
+      qty: 1,
+      shopId: (product as any).shopId?._id || (product as any).shopId,
+    }); setCartAnimation(true);
     setTimeout(() => setCartAnimation(false), 1500);
   };
 
@@ -177,24 +198,8 @@ export default function ProductCard() {
     inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
   };
 
-  // Attempt to derive selectedVariant:
-  // 1) If the active media matches a variant.thumbnail, select that variant
-  // 2) Otherwise fallback to first variant (if exists)
-  const selectedVariant = (() => {
-    const variants = (product as any).variants;
-    if (Array.isArray(variants) && variants.length > 0) {
-      const activeMedia = productMedia[activeIdx];
-      if (activeMedia && activeMedia.type === "image") {
-        const match = variants.find((v: any) => {
-          const thumb = toImageUrl(v?.thumbnail);
-          return thumb === activeMedia.src;
-        });
-        if (match) return match;
-      }
-      return variants[0];
-    }
-    return undefined;
-  })();
+
+
 
   // Price display falls back to product top-level fields if variants not present
   const displayOriginalPrice = selectedVariant?.originalPrice ?? (product as any).originalPrice;
@@ -216,6 +221,7 @@ export default function ProductCard() {
           }}
         >
           <div className="w-full flex flex-col items-center">
+
             {/* Big Media with animation */}
             <div
               className="w-full max-w-[480px] h-[480px] rounded-xl bg-gray-50 flex items-center justify-center shadow-lg overflow-hidden relative mb-6"
@@ -227,17 +233,23 @@ export default function ProductCard() {
               }}
             >
               {productMedia[activeIdx]?.type === "image" ? (
-                <img
-                  src={productMedia[activeIdx].src}
-                  alt={`${product.name} - ${activeIdx + 1}`}
-                  className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${
-                    animating ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                  }`}
-                  style={{ position: "absolute", top: 0, left: 0 }}
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                  }}
-                />
+  <img
+  src={
+    isVariantActive && selectedVariant?.thumbnail
+      ? toImageUrl(selectedVariant.thumbnail) // show variant image
+      : productMedia[activeIdx]?.src || PLACEHOLDER // show gallery image
+  }
+  alt={`${product.name} - main`}
+  className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${
+    animating ? "opacity-0 scale-95" : "opacity-100 scale-100"
+  }`}
+  style={{ position: "absolute", top: 0, left: 0 }}
+  onError={(e) => {
+    (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
+  }}
+/>
+
+
               ) : (
                 <video
                   src={productMedia[activeIdx].src}
@@ -259,12 +271,12 @@ export default function ProductCard() {
                   style={{ background: "#fff", position: "relative" }}
                 >
                   {m.type === "image" ? (
-                    <img
-                      src={m.src ?? PLACEHOLDER}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="object-cover w-full h-full"
-                      onError={(e) => ((e.currentTarget as HTMLImageElement).src = PLACEHOLDER)}
-                    />
+                   <img
+  src={m.src || PLACEHOLDER}
+  alt={`Thumbnail ${idx + 1}`}
+  className="object-cover w-full h-full"
+  onError={(e) => ((e.currentTarget as HTMLImageElement).src = PLACEHOLDER)}
+/>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-black text-white text-xs relative">
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -277,9 +289,39 @@ export default function ProductCard() {
                   )}
                 </button>
               ))}
+
             </div>
+
+
           </div>
+          {/* ✅ Variant Selector */}
+          {(product as any)?.variants?.length > 0 && (
+<div className="mt-6 w-full flex flex-col items-center">
+              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Choose Variant</h3>
+              <div className="flex flex-wrap gap-3">
+                {(product as any).variants.map((v: any) => (
+                  <button
+                    key={v._id}
+onClick={() => {
+  setSelectedVariant(v);
+  setIsVariantActive(true); // switch to variant image
+}}                    className={`px-4 py-2 border rounded-lg text-sm transition ${selectedVariant?._id === v._id
+                        ? "bg-[#1C647C] text-white"
+                        : "bg-white text-gray-700 border-gray-300"
+                      }`}
+                  >
+                    {v.colorOption ? v.colorOption : ""}
+                    {v.size ? ` | Size: ${v.size}` : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
+
+
+
 
         {/* Info + Purchase Panel */}
         <div className="w-full lg:w-[60%] flex flex-col gap-8">
@@ -417,66 +459,124 @@ export default function ProductCard() {
                 </button>
               </div>
 
-              <button className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2" style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}  onClick={() => navigate("/checkout")}>
+              <button className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2" style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }} onClick={() => navigate("/checkout")}>
                 Buy Now
               </button>
             </div>
           </div>
 
-          {/* Bottom Sections */}
-          <div className="space-y-8 mt-8">
-            <select className="w-full px-4 py-3 border rounded-lg text-gray-700 text-base mt-2 bg-gray-50">
-              <option value="product-description">Product Description</option>
-            </select>
-
+         {/* Bottom Sections */}
+<div className="space-y-4 mt-8">
+  {[
+    {
+      title: "Product Highlights",
+      content: (
+        <ul className="space-y-1 text-base text-gray-700">
+          <li className="flex justify-between items-center">
+            <span>
+              {(product as any)?.shortdescription || "No highlights available."}
+            </span>
+            <span className="w-6 h-6 flex items-center justify-center rounded-full bg-green-500 text-white text-base">
+              ✓
+            </span>
+          </li>
+        </ul>
+      ),
+    },
+    {
+      title: "Full Description",
+      content: (
+        <p className="text-base text-gray-700">
+          {(product as any)?.description || "No description available."}
+        </p>
+      ),
+    },
+    {
+      title: "Technical Details",
+      content: (
+        <ul className="text-base text-gray-700 space-y-1">
+          <li className="flex justify-between">
+            <span className="font-semibold">Brand:</span>{" "}
+            <span>{(product as any)?.manufacturerName || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">SKU:</span>{" "}
+            <span>{(product as any)?.sku || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">HSN:</span>{" "}
+            <span>{(product as any)?.hsn || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Product Type:</span>{" "}
+            <span>{(product as any)?.productType || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Weight:</span>{" "}
+            <span>{(product as any)?.weight || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Dimensions:</span>{" "}
+            <span>{(product as any)?.dimension || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Unit:</span>{" "}
+            <span>{(product as any)?.unitOfMeasure || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Stock:</span>{" "}
+            <span>{displayStock ?? "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Delivery Lead Time:</span>{" "}
+            <span>{(product as any)?.deliveryLeadTime || "N/A"}</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="font-semibold">Expiry:</span>{" "}
+            <span>
+              {(product as any)?.expiry
+                ? new Date((product as any).expiry).toLocaleDateString()
+                : "N/A"}
+            </span>
+          </li>
+        </ul>
+      ),
+    },
+    {
+      title: "Customer Reviews",
+      content:
+        (product as any)?.reviews?.length === 0 ? (
+          <p className="text-base text-gray-500">No reviews yet.</p>
+        ) : (
+          <div className="flex gap-4 items-center mb-1">
+            <img
+              src="https://i.pravatar.cc/40"
+              alt="avatar"
+              className="w-12 h-12 rounded-full"
+            />
             <div>
-              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Product Highlights</h3>
-              <ul className="space-y-1 text-base text-gray-700">
-                <li className="flex justify-between items-center">
-                  <span>{(product as any)?.shortdescription || "No highlights available."}</span>
-                  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-green-500 text-white text-base">✓</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Full Description</h3>
-              <p className="text-base text-gray-700">{(product as any)?.description || "No description available."}</p>
-            </div>
-
-            {/* Customer-facing Technical Details */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Technical Details</h3>
-              <ul className="text-base text-gray-700 space-y-1">
-                <li className="flex justify-between"><span className="font-semibold">Brand:</span> <span>{(product as any)?.manufacturerName || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">SKU:</span> <span>{(product as any)?.sku || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">HSN:</span> <span>{(product as any)?.hsn || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Product Type:</span> <span>{(product as any)?.productType || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Weight:</span> <span>{(product as any)?.weight || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Dimensions:</span> <span>{(product as any)?.dimension || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Unit:</span> <span>{(product as any)?.unitOfMeasure || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Stock:</span> <span>{displayStock ?? "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Delivery Lead Time:</span> <span>{(product as any)?.deliveryLeadTime || "N/A"}</span></li>
-                <li className="flex justify-between"><span className="font-semibold">Expiry:</span> <span>{(product as any)?.expiry ? new Date((product as any).expiry).toLocaleDateString() : "N/A"}</span></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">Customer reviews</h3>
-              {(product as any)?.reviews?.length === 0 ? (
-                <p className="text-base text-gray-500">No reviews yet.</p>
-              ) : (
-                <div className="flex gap-4 items-center mb-1">
-                  <img src="https://i.pravatar.cc/40" alt="avatar" className="w-12 h-12 rounded-full" />
-                  <div>
-                    <div className="font-semibold">User</div>
-                    <div className="text-orange-500">★★★★★</div>
-                    <p className="text-base text-gray-700 mt-1">Review goes here...</p>
-                  </div>
-                </div>
-              )}
+              <div className="font-semibold">User</div>
+              <div className="text-orange-500">★★★★★</div>
+              <p className="text-base text-gray-700 mt-1">
+                Review goes here...
+              </p>
             </div>
           </div>
+        ),
+    },
+  ].map((section, idx) => (
+    <details
+      key={idx}
+      className="border rounded-lg bg-gray-50 shadow-sm open:shadow-md"
+    >
+      <summary className="cursor-pointer px-4 py-3 text-lg font-semibold text-[#1C647C] select-none">
+        {section.title}
+      </summary>
+      <div className="px-4 pb-4">{section.content}</div>
+    </details>
+  ))}
+</div>
+
         </div>
       </div>
 

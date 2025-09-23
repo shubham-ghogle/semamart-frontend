@@ -169,7 +169,8 @@ type PaymentInfo = {
 
 export type Order = {
   _id: string
-  cart: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string }[];
+  cart: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string;   isReviewed?: boolean; // ✅ add this
+ }[];
   shippingAddress: Address;
   user: User;
   totalPrice: number;

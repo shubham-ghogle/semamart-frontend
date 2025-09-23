@@ -45,7 +45,27 @@ export default function EquipmentProductCard({
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart({ product, qty: 1 });
+   {/* Add to Cart Button */}
+{product.variants[0].stock && (
+  <button
+    onClick={() => {
+      const variant = product.variants[0];
+      addToCart({
+        productId: product._id,
+        variantId: variant._id,
+        product,
+        variant,
+        qty: 1,
+        shopId: (product as any).shopId?._id || (product as any).shopId,
+      });
+      removeFromWishlist(product._id);
+    }}
+    className="mt-3 inline-block bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded hover:bg-green-600 transition"
+  >
+    Add to Cart
+  </button>
+)}
+
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
