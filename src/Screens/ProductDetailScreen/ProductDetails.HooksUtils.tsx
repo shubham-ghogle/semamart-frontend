@@ -7,13 +7,7 @@ export async function getProductDetail(id: string | undefined) {
     throw new Error("something went wrong");
   }
 
-  const json = await res.json();
-
-  const product = json.product as Product;
-
-  // Attach defaultVariant so frontend can access product.defaultVariant
-  (product as any).defaultVariant =
-    json.defaultVariant || product.variants?.[0] || null;
+  const product = await res.json() as Product;
 
   return product;
 }
