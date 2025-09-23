@@ -46,6 +46,8 @@ type Subcategory = {
   name: string;
 };
 
+
+
 export default function Header() {
  const cart = useCartStore((state) => state.cart) || [];
   const wishlist = useWishlistStore((state) => state.wishlist) || [];
@@ -77,6 +79,9 @@ export default function Header() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const [isSpecialtyHovered, setIsSpecialtyHovered] = useState(false);
+  const [specialties, setSpecialties] = useState<Subcategory[]>([]);
+  const [isLoadingSpecialties, setIsLoadingSpecialties] = useState(false);
+  const [specialtiesFetched, setSpecialtiesFetched] = useState(false);
 
   
 
@@ -112,9 +117,11 @@ export default function Header() {
         return res.json();
       })
       .then((data: Subcategory[]) => {
+        console.log("Fetched subcategories:", data);
         setSubcategoryMap((prev) => ({
           ...prev,
           [category._id]: data,
+          
         }));
       })
       .catch((err) => {
@@ -123,6 +130,32 @@ export default function Header() {
       });
   }
 };
+  const handleSpecialtyMouseEnter = () => {
+  setIsSpecialtyHovered(true);
+  if (!specialtiesFetched) {
+    setIsLoadingSpecialties(true);
+    fetch("/api/v2/special-package")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch specialties");
+        return res.json();
+      })
+      .then((data: Subcategory[]) => {
+        console.log("my speciality")
+        setSpecialties(data || []);
+        setSpecialtiesFetched(true);
+      })
+      .catch((err) => {
+        console.error("Error fetching specialties:", err);
+        setSpecialties([]);
+      })
+      .finally(() => {
+        setIsLoadingSpecialties(false);
+      });
+  }
+};
+
+
+
 
   // Search effect
   useEffect(() => {
@@ -175,6 +208,8 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  
 
   async function logoutHandler() {
     try {
@@ -413,7 +448,7 @@ export default function Header() {
           <div className="flex items-center gap-2 font-montserrat text-[#1C647C]">
             <div
               className="relative inline-block text-left"
-              onMouseEnter={() => setIsSpecialtyHovered(true)}
+              onMouseEnter={handleSpecialtyMouseEnter}
               onMouseLeave={() => setIsSpecialtyHovered(false)}
 
             >
@@ -422,26 +457,30 @@ export default function Header() {
                 <span> By Specialty</span>
               </Link>
 
-              {isSpecialtyHovered && (
-                <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <ul className="py-1">
-                    {Object.entries(subcategoryMap).map(([catName, subs]) => (
-                      catName && subs.length > 0 ? (
-                        <li key={catName}>
-                          <Link
-                            to={`/specialty/${catName
-                              .toLowerCase()
-                              .replace(/[^a-z0-9]+/g, "-")}`}
-                            className="block px-3 py-1 text-[11px] text-gray-700 hover:bg-gray-100"
-                          >
-                            {catName}
-                          </Link>
-                        </li>
-                      ) : null
-                    ))}
-                  </ul>
-                </div>
-              )}
+{isSpecialtyHovered && (
+  <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+    <ul className="py-1 text-sm">
+      {isLoadingSpecialties ? (
+        <li className="px-3 py-2 text-gray-500">Loading...</li>
+      ) : specialties.length === 0 ? (
+        <li className="px-3 py-2 text-red-500">No specialties found</li>
+      ) : (
+        specialties.map((specialty) => (
+          <li key={specialty._id}>
+            <Link
+              to={`/specialty/${specialty.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-100"
+              onClick={() => setIsSpecialtyHovered(false)}
+            >
+              {specialty.name}
+            </Link>
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
+)}
+
             </div>
 
             <Link to="/get-quote" className="px-2 py-1 rounded-md transition flex items-center">
