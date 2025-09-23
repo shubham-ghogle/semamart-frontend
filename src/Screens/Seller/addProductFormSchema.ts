@@ -6,6 +6,15 @@ export const variantSchema = z.object({
   originalPrice: z.string().min(1, "originalPrice required"),
   discountPrice: z.string().min(1),
   stocks: z.string().min(1, "Stock required"),
+  bulkOrders: z
+    .array(
+      z.object({
+        qty: z.number().min(1, "Quantity required"),
+        price: z.number().min(1, "Price required"),
+      })
+    )
+    .max(3, "You can define at most 3 bulk order options")
+    .optional(),
 });
 
 const addProductFormSchema = z.object({

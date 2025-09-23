@@ -34,6 +34,7 @@ export interface Variant {
   stock: number
   _id: string
   productId:string
+  bulkOrders:{qty:number,price:number,_id:string}[]
 }
 
 export interface Product {

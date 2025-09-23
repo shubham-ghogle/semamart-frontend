@@ -94,7 +94,6 @@ export default function ViewProductScreen() {
     unitsPerCarton: product?.unitsPerCarton.toString() || "",
     shippingWeight: product?.shippingWeight.toString() || "",
     packagingType: product?.packagingType || "",
-    // deliveryPartner: product?.deliveryPartner || "",
     deliveryInstruction: product?.deliveryInstruction || "",
     shelfing_storage_req: product?.shelfing_storage_req || "",
     purchaseNote: product?.purchaseNote || "",
@@ -107,13 +106,12 @@ export default function ViewProductScreen() {
       colorOption: el.colorOption || null,
       originalPrice: el?.originalPrice?.toString() || "",
       discountPrice: el?.discountPrice?.toString() || "",
-      // institutePrice: el.institutePrice?.toString() || "",
-      stocks: el.stock.toString() || ""
+      stocks: el.stock.toString() || "",
+      bulkOrders:el.bulkOrders
     })) || [],
     specialityPackageType: product?.specialityPackageType || ""
   }
 
-  const thumbnails = product.variants.map(el => el.thumbnail)
 
   return (
     <SellerMainWrapper status={status} errorMeassage="Something went wrong" heading="Product Detail">
@@ -123,7 +121,6 @@ export default function ViewProductScreen() {
             categories={data}
             product={formProduct}
             multiVariant={product.variants.length > 1}
-            thumbnails={thumbnails}
             productId={product._id}
           />
         </>

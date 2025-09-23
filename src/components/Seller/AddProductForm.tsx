@@ -18,7 +18,7 @@ import {
   SubCategory,
 } from "@/Types/types";
 import { ChangeEvent, useEffect, useState } from "react";
-import { API_URL, BASE_URL } from "@/data";
+import { API_URL  } from "@/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TagsInput } from "../ui/tags-input";
 import {
@@ -61,19 +61,16 @@ type AddProductFormProps =
       product?: undefined;
       images?: undefined;
       multiVariant?: undefined;
-      thumbnails?: undefined;
       productId?: undefined;
     }
   | {
       categories: CategoryApiRes[];
       product: FormProduct;
       multiVariant: boolean;
-      thumbnails: any[];
       productId: string;
     };
 
 export default function AddProductForm({
-  thumbnails,
   multiVariant = false,
   categories,
   product,
@@ -101,7 +98,7 @@ export default function AddProductForm({
   const {
     fields: variantFields,
     append,
-    remove,
+    remove:removeVariant,
   } = useFieldArray({
     name: "variants",
     control: form.control,
@@ -245,6 +242,7 @@ export default function AddProductForm({
           originalPrice: el.originalPrice,
           discountPrice: el.discountPrice,
           stock: el.stocks,
+          bulkOrders: el.bulkOrders ?? [],
         }))
       )
     );
@@ -1508,115 +1506,35 @@ export default function AddProductForm({
                   />
                 </div>
 
-                {!isMultiVariant && (
-                  <section className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`variants.0.originalPrice`}
-                        render={() => (
-                          <FormItem>
-                            <FormLabel>MRP (₹)</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...form.register(
-                                  `variants.${0}.originalPrice`
-                                )}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`variants.${0}.discountPrice`}
-                        render={() => (
-                          <FormItem>
-                            <FormLabel>Selling Price (₹)</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...form.register(
-                                  `variants.${0}.discountPrice`
-                                )}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`variants.${0}.stocks`}
-                        render={() => (
-                          <FormItem>
-                            <FormLabel>Stocks</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...form.register(`variants.${0}.stocks`)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>Upload Thumbnail Image</FormLabel>
-                      <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
-                        <label
-                          htmlFor="uploadThumbnail"
-                          className="cursor-pointer w-full h-full grid place-items-center"
-                        >
-                          {product ? (
-                            <img
-                              src={BASE_URL + "/images/" + thumbnails[0]}
-                              alt="Thumbnail"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : thumbnail[0] ? (
-                            <img
-                              src={URL.createObjectURL(thumbnail[0])}
-                              alt="Thumbnail"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <AiOutlinePlusCircle size={30} color="#555" />
-                          )}
-                        </label>
-                      </div>
-                      <input
-                        type="file"
-                        id="uploadThumbnail"
-                        className="hidden"
-                        onChange={(e) => handleThumbnailChange(e, 0)}
-                      />
-                    </div>
-                  </section>
-                )}
-
                 {/* //variants of products */}
-                {isMultiVariant && (
-                  <div className="my-6 space-y-4">
-                    {variantFields.map((field, i) => (
+                <div className="my-6 space-y-4">
+                  {variantFields.map((field, i) => {
+                    const { fields, append, remove } = useFieldArray({
+                      control: form.control,
+                      name: `variants.${i}.bulkOrders`,
+                    });
+
+                    return (
                       <section
                         key={field.id}
                         className="relative space-y-4 py-2 px-4 border rounded-xl"
                       >
-                        <Button
-                          className="absolute right-2 top-2"
-                          variant="ghost"
-                          type="button"
-                          size="icon"
-                          disabled={i === 0}
-                          onClick={() => remove(i)}
-                        >
-                          <MinusCircleIcon className="text-red-500" />
-                        </Button>
+                        {isMultiVariant && (
+                          <Button
+                            className="absolute right-2 top-2"
+                            variant="ghost"
+                            type="button"
+                            size="icon"
+                            disabled={i === 0}
+                            onClick={() => remove(i)}
+                          >
+                            <MinusCircleIcon className="text-red-500" />
+                          </Button>
+                        )}
                         <p className="text-sm font-semibold text-gray-500">
                           Variant {i + 1}
                         </p>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
                             name={`variants.${i}.originalPrice`}
@@ -1652,8 +1570,8 @@ export default function AddProductForm({
                             )}
                           />
                         </div>
-                        <div className="flex items-center gap-8">
-                          <article className="space-y-2 w-2/3">
+                        <div className="flex items-start gap-8">
+                          <article className="space-y-2 w-1/2">
                             <FormField
                               control={form.control}
                               name={`variants.${i}.colorOption`}
@@ -1704,7 +1622,7 @@ export default function AddProductForm({
                           </article>
                           <div>
                             <FormLabel>Upload Thumbnail Image</FormLabel>
-                            <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                            <div className="border border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
                               <label
                                 htmlFor="uploadThumbnail"
                                 className="cursor-pointer w-full h-full grid place-items-center"
@@ -1728,8 +1646,54 @@ export default function AddProductForm({
                             />
                           </div>
                         </div>
+
+                        <div className="space-y-2 mt-4">
+                          <FormLabel>Bulk Orders (max 3)</FormLabel>
+                          {fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="flex items-center gap-2"
+                            >
+                              <Input
+                                placeholder="Qty"
+                                {...form.register(
+                                  `variants.${i}.bulkOrders.${index}.qty`
+                                )}
+                                className="w-20"
+                              />
+                              <Input
+                                placeholder="Price"
+                                {...form.register(
+                                  `variants.${i}.bulkOrders.${index}.price`
+                                )}
+                                className="w-28"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeVariant(index)}
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          ))}
+
+                          {fields.length < 3 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => append({ qty: 0, price: 0 })}
+                            >
+                              + Add Bulk Order
+                            </Button>
+                          )}
+                        </div>
                       </section>
-                    ))}
+                    );
+                  })}
+                  {isMultiVariant && (
                     <article className="flex justify-end">
                       <Button
                         type="button"
@@ -1741,8 +1705,8 @@ export default function AddProductForm({
                         <AiOutlinePlusCircle className="text-green-500" />
                       </Button>
                     </article>
-                  </div>
-                )}
+                  )}
+                </div>
                 <section className="space-y-4 mt-4">
                   <div>
                     <FormLabel>Upload other images</FormLabel>
@@ -1829,8 +1793,8 @@ export default function AddProductForm({
             }
           >
             {putProductStatus === "pending" || postProductStatus === "pending"
-              ? "Submit"
-              : "Loading..."}
+              ? "Wait..."
+              : "Submit"}
           </Button>
         </div>
       </form>

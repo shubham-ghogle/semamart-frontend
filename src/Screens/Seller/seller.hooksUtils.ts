@@ -62,7 +62,8 @@ export const addProductFormDefaultValues = {
     colorOption: null as string | null,
     originalPrice: "",
     discountPrice: "",
-    stocks: ""
+    stocks: "",
+    bulkOrders:[] as {qty?:number|undefined,price?:number|undefined}[]
   }]
 }
 

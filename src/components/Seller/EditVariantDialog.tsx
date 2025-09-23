@@ -14,26 +14,42 @@ import { Input } from "../ui/input";
 import { Variant } from "@/Types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 
-type EditVariantDialogProps = {
-  variant?: Variant;
-};
+type EditVariantDialogProps =
+  | {
+      variant: Variant;
+      addNew: false;
+      productId?: undefined;
+    }
+  | {
+      addNew: true;
+      variant?: undefined;
+      productId: string;
+    };
 
-export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
+export default function EditVariantDialog({
+  variant,
+  addNew,
+  productId,
+}: EditVariantDialogProps) {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
 
+  const [open, setOpen] = useState(false);
   const [originalPrice, setOriginalPrice] = useState(
-    variant?.originalPrice.toString()||""
+    variant?.originalPrice.toString() || ""
   );
   const [discountPrice, setDiscountPrice] = useState(
     variant?.discountPrice?.toString() ?? ""
   );
-  const [stock, setStock] = useState(variant?.stock.toString()|| "");
+  const [stock, setStock] = useState(variant?.stock.toString() || "");
   const [size, setSize] = useState(variant?.size ?? "");
   const [color, setColor] = useState(variant?.colorOption ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [bulkOders, setBulkOrders] = useState(
+    variant?.bulkOrders.map((v) => ({ qty: v.qty, price: v.price })) ?? []
+  );
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -58,6 +74,17 @@ export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
     },
   });
 
+  const { mutate: addVariant } = useMutation({
+    mutationFn: (v: FormData) => postVariant(v),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["product", productId] });
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong!");
+    },
+  });
+
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     e.stopPropagation();
@@ -65,6 +92,7 @@ export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
     formData.append("originalPrice", originalPrice);
     formData.append("discountPrice", discountPrice);
     formData.append("stock", stock);
+    formData.append("bulkOrders", JSON.stringify(bulkOders));
     if (size.trim() !== "") {
       formData.append("size", size);
     }
@@ -76,15 +104,32 @@ export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
       formData.append("thumbnail", file);
     }
 
-    mutate({ formData: formData, variantId: variant?._id||"" });
+    if (addNew) {
+      formData.append("productId", productId);
+      addVariant(formData);
+    } else {
+      mutate({ formData: formData, variantId: variant?._id || "" });
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost">
-          <EditIcon className="text-green-600" />
-        </Button>
+        {addNew ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-green-100 text-green-700 cursor-pointer"
+            onClick={() => {}}
+          >
+            <AiOutlinePlusCircle />
+            Add Variant
+          </Button>
+        ) : (
+          <Button size="icon" variant="ghost">
+            <EditIcon className="text-green-600" />
+          </Button>
+        )}
       </DialogTrigger>
       {open && (
         <DialogContent className="min-w-[650px]!">
@@ -121,12 +166,27 @@ export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
                   value={discountPrice}
                   onChange={(e) => setDiscountPrice(e.target.value)}
                 />
-                <div>
-                  <label htmlFor="variant-thumbnail">
-                    <img
-                      className="rounded object-fill max-h-40"
-                      src={preview || thumbnailSrc}
-                    />
+                <div className="h-40">
+                  <label
+                    htmlFor="variant-thumbnail"
+                    className="grid h-full place-items-center border rounded"
+                  >
+                    {addNew ? (
+                      preview ? (
+                        <img
+                          src={preview}
+                          alt="Thumbnail"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <AiOutlinePlusCircle size={30} color="#555" />
+                      )
+                    ) : (
+                      <img
+                        className="rounded object-fill max-h-40"
+                        src={preview || thumbnailSrc}
+                      />
+                    )}
                   </label>
                   <input
                     id="variant-thumbnail"
@@ -137,6 +197,51 @@ export default function EditVariantDialog({ variant }: EditVariantDialogProps) {
                     onChange={handleFileChange}
                   />
                 </div>
+              </section>
+              <section className="space-y-4">
+                <p className="text-lg">Bulk Orders</p>
+                {bulkOders.map((v, i) => (
+                  <article key={i} className="flex gap-2">
+                    <InputField
+                      label="Quantity"
+                      value={v.qty}
+                      onChange={(e) =>
+                        setBulkOrders((p) => {
+                          const newP = [...p];
+                          newP[i].qty = Number(e.target.value);
+                          return newP;
+                        })
+                      }
+                    />
+                    <InputField
+                      label="Price"
+                      value={v.price}
+                      onChange={(e) =>
+                        setBulkOrders((p) => {
+                          const newP = [...p];
+                          newP[i].price = Number(e.target.value);
+                          return newP;
+                        })
+                      }
+                    />
+                  </article>
+                ))}
+                {bulkOders.length < 3 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-green-600 bg-green-200"
+                    type="button"
+                    onClick={() => {
+                      setBulkOrders((p) => {
+                        const newP = [...p, { qty: 0, price: 0 }];
+                        return newP;
+                      });
+                    }}
+                  >
+                    +
+                  </Button>
+                )}
               </section>
             </div>
             <div className="flex justify-end ">
@@ -172,5 +277,14 @@ async function putVariant(variantId: string, formData: FormData) {
       body: formData,
     }
   );
+  if (!res.ok) throw new Error();
+}
+
+async function postVariant(formData: FormData) {
+  const res = await fetch(API_URL + "product-variant/post-variant/", {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
   if (!res.ok) throw new Error();
 }
