@@ -4,10 +4,11 @@ import { useState } from "react";
 import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
 import { formatDate } from "../UIComponents/Inputs";
+import { BASE_URL } from "@/data";
 
 type SellerOrderDetailProps = {
-  data: Order
-}
+  data: Order;
+};
 
 export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const { orderId } = useParams();
@@ -38,11 +39,43 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
         <OrderDetailsField label="Order ID:" value={data?._id} />
-        <OrderDetailsField label="Placed on:" value={formatDate(data?.createdAt)} />
+        <OrderDetailsField
+          label="Placed on:"
+          value={formatDate(data?.createdAt)}
+        />
       </section>
 
       {/* Order Items */}
       <section className="mt-4 bg-white border-b">
+        {data && typeof data.variant !== "string" && (
+          <article
+            key={data.variant._id}
+            className="w-full flex items-center gap-2 mb-5"
+          >
+            <img
+              src={BASE_URL + "/images/" + data.variant.thumbnail}
+              alt="Product item order img"
+              className="w-[80x] h-[80px]"
+            />
+            <div className="w-full">
+              <h5 className="pl-3 text-lg">
+                {typeof data.variant.productId === "object"
+                  ? data.variant.productId.name
+                  : "-"}
+              </h5>
+              <h5 className="pl-3 text-lg text-darkGray">
+                US${data.qty} x {data.variant.discountPrice}
+              </h5>
+            </div>
+            <OrderDetailsField
+              label="Total:"
+              value={
+                data.qty *
+                (data.variant?.discountPrice ?? data.variant.originalPrice)
+              }
+            />
+          </article>
+        )}
       </section>
 
       <section className="mt-6 flex justify-between border-b pb-4">
@@ -51,11 +84,15 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
           <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
           <OrderDetailsField
             label="Status:"
-            value={data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"}
+            value={
+              data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
+            }
           />
           <OrderDetailsField
-            label="Type:"
-            value={data?.paymentInfo?.type ? data?.paymentInfo?.type : "Not Paid"}
+            label="Method:"
+            value={
+              data?.paymentInfo?.method ? data?.paymentInfo?.method : "Not Paid"
+            }
           />
         </div>
       </section>
@@ -98,29 +135,29 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   );
 }
 
-        // TODO:
-        // {data &&
-        //   data?.cart.map((item) => {
-        //     const variant = item.product.variants?.[0];
-        //     const price =
-        //       variant?.discountPrice ??
-        //       variant?.originalPrice ??
-        //       0;
+// TODO:
+// {data &&
+//   data?.cart.map((item) => {
+//     const variant = item.product.variants?.[0];
+//     const price =
+//       variant?.discountPrice ??
+//       variant?.originalPrice ??
+//       0;
 
-        //     return (
-        //       <article key={item.product._id} className="w-full flex items-center gap-2 mb-5">
-        //         <img
-        //           src={"/baseUrl" + "/" + item.product.images[0]}
-        //           alt="Product item order img"
-        //           className="w-[80x] h-[80px]"
-        //         />
-        //         <div className="w-full">
-        //           <h5 className="pl-3 text-lg">{item.product.name}</h5>
-        //           <h5 className="pl-3 text-lg text-dark-gray">
-        //             US${item.qty} x {price}
-        //           </h5>
-        //         </div>
-        //         <OrderDetailsField label="Total:" value={item.qty * price} />
-        //       </article>
-        //     );
-        //   })}
+//     return (
+//       <article key={item.product._id} className="w-full flex items-center gap-2 mb-5">
+//         <img
+//           src={"/baseUrl" + "/" + item.product.images[0]}
+//           alt="Product item order img"
+//           className="w-[80x] h-[80px]"
+//         />
+//         <div className="w-full">
+//           <h5 className="pl-3 text-lg">{item.product.name}</h5>
+//           <h5 className="pl-3 text-lg text-dark-gray">
+//             US${item.qty} x {price}
+//           </h5>
+//         </div>
+//         <OrderDetailsField label="Total:" value={item.qty * price} />
+//       </article>
+//     );
+//   })}

@@ -33,7 +33,7 @@ export interface Variant {
   discountPrice?: number
   stock: number
   _id: string
-  productId:string
+  productId:string | Product
   bulkOrders:{qty:number,price:number,_id:string}[]
 }
 
@@ -163,16 +163,16 @@ export type Seller = {
 type PaymentInfo = {
   id?: string;
   status?: string;
-  type?: string;
-  paidAt?: string;
+  method?: string;
+  // paidAt?: string;
 };
 
 export type Order = {
   _id: string
-  cart: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string;   isReviewed?: boolean; // ✅ add this
+  cart?: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string;   isReviewed?: boolean; // ✅ add this
  }[];
   shippingAddress: Address;
-  user: User;
+  user:string | User;
   totalPrice: number;
   status?:
   "Processing"
@@ -188,6 +188,8 @@ export type Order = {
   deliveredAt?: Date;
   createdAt?: Date;
   shop?: string;
+  variant:string|Variant;
+  qty:number
 };
 
 export type CategoryApiRes = {

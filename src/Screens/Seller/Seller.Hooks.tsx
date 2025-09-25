@@ -43,7 +43,7 @@ export async function getProductsForSeller(id?: string) {
 export async function getOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong")
 
-  const res = await fetch("/api/v2/order/get-order-details/" + orderId)
+  const res = await fetch("/api/v2/order/get-order-details-seller/" + orderId)
 
   if (!res.ok) {
     const errMessage = await res.json();

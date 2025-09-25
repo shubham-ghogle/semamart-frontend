@@ -14,6 +14,7 @@ export default function OrderDetailsScreen() {
     enabled: !!orderId
   })
 
+  console.log(data)
 
   return (
     <SellerMainWrapper status={orderStatus} heading="Order Details" errorMeassage={error?.message}>
