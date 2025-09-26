@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Order, Product, Variant } from "../../Types/types";
+import { Order  } from "../../Types/types";
 import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { formatDate } from "../UIComponents/Inputs";
 import ReviewModal from "./ReviewModal";
@@ -10,12 +10,12 @@ type UserOrderDetailsProps = {
 
 export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [reviewingProdutId, setReviewingProductId] = useState("");
+  const [reviewingProdutId, _setReviewingProductId] = useState("");
 
-  function handleAddReview(productId: string) {
-    setIsReviewModalOpen(true);
-    setReviewingProductId(productId);
-  }
+  // function handleAddReview(productId: string) {
+  //   setIsReviewModalOpen(true);
+  //   setReviewingProductId(productId);
+  // }
 
   function closeReviewModal() {
     setIsReviewModalOpen(false);
@@ -35,42 +35,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
 
         {/* Order Items */}
         <section className="mt-4 bg-white border-b">
-          {data?.cart.map((item) => {
-            // Handle product (may be ID or populated object)
-            const product: Product | null =
-              typeof item.productId === "string" ? null : item.productId;
-
-            // Handle variant (may be ID or populated object)
-            const variant: Variant | null =
-              typeof item.variantId === "string" ? null : item.variantId;
-
-            const price = variant ? variant.originalPrice : 0;
-
-            return (
-              <article
-                key={product?._id || String(item.productId)}
-                className="w-full grid grid-cols-[7fr_1fr] gap-4 items-center mb-5"
-              >
-                <section className="w-full flex items-center gap-2">
-                  <img
-                    src={
-                      product?.images && product.images.length > 0
-                        ? "/baseUrl/" + product.images[0]
-                        : "/placeholder.png"
-                    }
-                    alt="Product item order img"
-                    className="w-[80px] h-[80px]"
-                  />
-                  <div className="w-full">
-                    <h5 className="pl-3 text-lg">{product?.name || "Product"}</h5>
-                    <h5 className="pl-3 text-lg text-dark-gray">
-                      US${item.qty} x {price}
-                    </h5>
-                  </div>
-                  <OrderDetailsField label="Total:" value={item.qty * price} />
-                </section>
-
-                {data.status === "Delivered" && !item.isReviewed && (
+                {/* {data.status === "Delivered" && !item.isReviewed && (
                   <div className="mr-4">
                     <button
                       onClick={() =>
@@ -84,7 +49,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
                 )}
               </article>
             );
-          })}
+          })} */}
         </section>
 
         {/* Payment Info */}
@@ -98,12 +63,12 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
                 data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
               }
             />
-            <OrderDetailsField
+            {/* <OrderDetailsField
               label="Type:"
               value={
                 data?.paymentInfo?.type ? data?.paymentInfo?.type : "Not Paid"
               }
-            />
+            /> */}
           </div>
         </section>
 

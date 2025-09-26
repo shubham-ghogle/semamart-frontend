@@ -138,13 +138,13 @@ const OrderSummary = () => {
               <h3 className="text-lg font-semibold mb-2">Payment Information</h3>
               {order.paymentInfo ? (
                 <>
-                  <p>Payment Type: <span className="font-medium">{order.paymentInfo.type}</span></p>
+                  <p>Payment Type: <span className="font-medium">{order.paymentInfo.method}</span></p>
                   <p>Payment Status: <span className="font-medium">{order.paymentInfo.status}</span></p>
                   <p>
                     Paid At:{" "}
                     <span className="font-medium">
-                      {order.paymentInfo.paidAt
-                        ? new Date(order.paymentInfo.paidAt).toLocaleString()
+                      {order.paidAt
+                        ? new Date(order.paidAt).toLocaleString()
                         : "N/A"}
                     </span>
                   </p>

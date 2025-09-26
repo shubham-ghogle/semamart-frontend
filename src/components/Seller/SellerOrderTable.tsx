@@ -25,7 +25,7 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
   const rows: Row[] = orders.map((el) => ({
     id: el._id,
     status: el.status || "-",
-    customer: el.user.firstName,
+    customer: typeof el.user ==="string"?"-": el.user.firstName,
     totalPrice: el.totalPrice.toString(),
     orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
     viewOrder: (orderId: string) => {
