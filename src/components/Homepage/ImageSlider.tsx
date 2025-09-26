@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   IoIosArrowDroprightCircle,
   IoIosArrowDropleftCircle,
 } from "react-icons/io";
 
-const sliderImages = ["/frontend/public/banner_home", "/frontend/public/banner_Equipment.png", "/frontend/public/banner_Consumables.png"]; // path relative to /public
+const sliderImages = [
+  "/banner_home.png",
+  "/banner_Equipment.png",
+  "/banner_Consumables.png",
+]; // put these inside /public
 
-type ImageSliderProps = {
-  image: string;
-};
-
-export default function ImageSlider({image}:ImageSliderProps){
+export default function ImageSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = sliderImages.length;
 
@@ -22,29 +22,31 @@ export default function ImageSlider({image}:ImageSliderProps){
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   }
 
+  // Auto-slide effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 3000); // change every 3 seconds
+
+    return () => clearInterval(timer); // cleanup
+  }, [totalSlides]);
+
   return (
     <section className="overflow-hidden relative">
       <article
-        className="flex transition-transform duration-500"
+        className="flex transition-transform duration-700 ease-in-out"
         style={{
           transform: `translateX(-${currentSlide * 100}%)`,
         }}
       >
-        {/* {sliderImages.map((image, index) => (
+        {sliderImages.map((image, index) => (
           <img
             key={index}
             src={image}
             alt={`banner-${index}`}
             className="min-w-full h-[45vh] object-cover"
           />
-          
-        ))} */}
-        <img
-            src={image}
-            alt={'banner'}
-            className="min-w-full h-[45vh] object-cover"
-          />
-          
+        ))}
       </article>
 
       {/* Only show arrows if more than 1 image */}
@@ -55,8 +57,6 @@ export default function ImageSlider({image}:ImageSliderProps){
               size={40}
               color="white"
               className="drop-shadow-lg"
-              strokeWidth={1}
-              stroke="black"
             />
           </button>
           <button onClick={nextSlide}>
@@ -64,12 +64,23 @@ export default function ImageSlider({image}:ImageSliderProps){
               size={40}
               color="white"
               className="drop-shadow-lg"
-              strokeWidth={1}
-              stroke="black"
             />
           </button>
         </article>
       )}
+
+      {/* Slide indicators */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+        {sliderImages.map((_, index) => (
+          <span
+            key={index}
+            className={`w-3 h-3 rounded-full cursor-pointer ${
+              currentSlide === index ? "bg-[#1C647C]" : "bg-gray-300"
+            }`}
+            onClick={() => setCurrentSlide(index)}
+          />
+        ))}
+      </div>
     </section>
   );
 }

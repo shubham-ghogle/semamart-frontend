@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   IoIosArrowDroprightCircle,
   IoIosArrowDropleftCircle,
 } from "react-icons/io";
 
-const sliderImages = ["/banner_home.png", "/banner_Equipment.png", "/banner_Consumables.png"];
-
-
-
-// Remove the ImageSliderProps type and the image prop from the component
-// Use the sliderImages array for rendering all images
+const sliderImages = [
+  "/banner_home.png",
+  "/banner_Equipment.png",
+  "/banner_Consumables.png",
+];
 
 export default function ImageSliderHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -23,10 +22,19 @@ export default function ImageSliderHome() {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   }
 
+  // ✅ Auto-slide
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 3000); // 3s interval
+    return () => clearInterval(timer);
+  }, [totalSlides]);
+
   return (
     <section className="overflow-hidden relative">
+      {/* Slides */}
       <article
-        className="flex transition-transform duration-100"
+        className="flex transition-transform duration-700 ease-in-out"
         style={{
           transform: `translateX(-${currentSlide * 100}%)`,
         }}
@@ -41,6 +49,7 @@ export default function ImageSliderHome() {
         ))}
       </article>
 
+      {/* Arrows */}
       {totalSlides > 1 && (
         <article className="absolute inset-0 flex items-center justify-between px-4">
           <button onClick={prevSlide}>
@@ -48,8 +57,6 @@ export default function ImageSliderHome() {
               size={40}
               color="white"
               className="drop-shadow-lg"
-              strokeWidth={1}
-              stroke="black"
             />
           </button>
           <button onClick={nextSlide}>
@@ -57,12 +64,23 @@ export default function ImageSliderHome() {
               size={40}
               color="white"
               className="drop-shadow-lg"
-              strokeWidth={1}
-              stroke="black"
             />
           </button>
         </article>
       )}
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+        {sliderImages.map((_, index) => (
+          <span
+            key={index}
+            className={`w-3 h-3 rounded-full cursor-pointer ${
+              currentSlide === index ? "bg-[#1C647C]" : "bg-gray-300"
+            }`}
+            onClick={() => setCurrentSlide(index)}
+          />
+        ))}
+      </div>
     </section>
   );
 }

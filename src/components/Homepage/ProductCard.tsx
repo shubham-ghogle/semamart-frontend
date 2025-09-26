@@ -10,20 +10,25 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const variant = product.variants?.[0] // Pick first variant for now
+  // ✅ Always pick first variant (or best variant logic later)
+  const variant = product.variants?.[0]
 
-  const originalPrice = variant?.originalPrice
-  const discountPrice = variant?.discountPrice
-  const stock = variant?.stock
+  const originalPrice = variant?.originalPrice ?? null
+  const discountPrice = variant?.discountPrice ?? null
+  const stock = variant?.stock ?? 0
 
   const discountPercent =
     originalPrice && discountPrice
       ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100)
       : 0
 
-  const imageUrl = product.images?.[0]
-    ? `/images/${product.images[0]}`
-    : "/placeholder.png"
+  // ✅ new (prefer product.images)
+const imageUrl = product.images?.[0]
+  ? `/images/${product.images[0]}`
+  : variant?.thumbnail
+  ? `/images/${variant.thumbnail}`
+  : "/placeholder.png"
+
 
   // Zustand stores
   const addToCart = useCartStore((s) => s.addToCart)
@@ -32,7 +37,7 @@ export default function ProductCard({ product }: Props) {
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (!variant || !stock || stock <= 0) return
+    if (!variant || stock <= 0) return
 
     addToCart({
       productId: product._id,
@@ -45,7 +50,6 @@ export default function ProductCard({ product }: Props) {
 
     if (inWishlist) removeFromWishlist(product._id)
 
-    // ✅ Toast popup
     toast.success(`${product.name} added to cart!`, {
       position: "top-center",
       autoClose: 2000,
@@ -109,7 +113,7 @@ export default function ProductCard({ product }: Props) {
             {product.name}
           </h3>
 
-          {/* Ratings */}
+          {/* Ratings
           {product.ratings ? (
             <div className="flex items-center gap-2 text-xs">
               <span className="bg-green-600 text-white px-1.5 py-0.5 rounded-sm flex items-center gap-0.5 font-medium">
@@ -122,7 +126,7 @@ export default function ProductCard({ product }: Props) {
             </div>
           ) : (
             <span className="text-xs text-gray-500">No ratings</span>
-          )}
+          )} */}
 
           {/* Price */}
           <div className="flex items-center gap-2 mt-1">
@@ -155,7 +159,7 @@ export default function ProductCard({ product }: Props) {
               </span>
             )}
 
-            {stock && stock > 0 && (
+            {stock > 0 && (
               <button
                 onClick={handleAddCart}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D] text-white font-bold text-lg"

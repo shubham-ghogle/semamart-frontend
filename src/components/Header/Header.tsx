@@ -46,10 +46,8 @@ type Subcategory = {
   name: string;
 };
 
-
-
 export default function Header() {
- const cart = useCartStore((state) => state.cart) || [];
+  const cart = useCartStore((state) => state.cart) || [];
   const wishlist = useWishlistStore((state) => state.wishlist) || [];
   const { user, removeUser } = useUserStore((state) => state);
   const { seller, removeSeller } = useSellerStore((state) => state);
@@ -58,8 +56,9 @@ export default function Header() {
   const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  const [subcategoryMap, setSubcategoryMap] = useState<Record<string, Subcategory[]>>({});
-
+  const [subcategoryMap, setSubcategoryMap] = useState<
+    Record<string, Subcategory[]>
+  >({});
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
@@ -83,17 +82,13 @@ export default function Header() {
   const [isLoadingSpecialties, setIsLoadingSpecialties] = useState(false);
   const [specialtiesFetched, setSpecialtiesFetched] = useState(false);
 
-  
-
+  // Fetch categories
   useEffect(() => {
-    // fetch categories from your API
     const fetchCategories = async () => {
       setIsLoadingCategories(true);
       try {
         const res = await fetch("/api/v2/category/");
-        if (!res.ok) {
-          throw new Error(`Failed to fetch categories: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
         const data: Category[] = await res.json();
         setCategories(data || []);
       } catch (err: any) {
@@ -107,57 +102,51 @@ export default function Header() {
     fetchCategories();
   }, []);
 
-    const handleMouseEnter = (category: Category) => {
-  setHoveredCategory(category);
+  const handleMouseEnter = (category: Category) => {
+    setHoveredCategory(category);
 
-  if (!subcategoryMap[category._id]) {
-    fetch(`/api/v2/category/${category._id}/subcategories`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch subcategories");
-        return res.json();
-      })
-      .then((data: Subcategory[]) => {
-        console.log("Fetched subcategories:", data);
-        setSubcategoryMap((prev) => ({
-          ...prev,
-          [category._id]: data,
-          
-        }));
-      })
-      .catch((err) => {
-        console.error("Failed to fetch subcategories:", err);
-        setSubcategoryMap((prev) => ({ ...prev, [category._id]: [] }));
-      });
-  }
-};
+    if (!subcategoryMap[category._id]) {
+      fetch(`/api/v2/category/${category._id}/subcategories`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch subcategories");
+          return res.json();
+        })
+        .then((data: Subcategory[]) => {
+          setSubcategoryMap((prev) => ({
+            ...prev,
+            [category._id]: data,
+          }));
+        })
+        .catch((err) => {
+          console.error("Failed to fetch subcategories:", err);
+          setSubcategoryMap((prev) => ({ ...prev, [category._id]: [] }));
+        });
+    }
+  };
+
   const handleSpecialtyMouseEnter = () => {
-  setIsSpecialtyHovered(true);
-  if (!specialtiesFetched) {
-    setIsLoadingSpecialties(true);
-    fetch("/api/v2/special-package")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch specialties");
-        return res.json();
-      })
-      .then((data: Subcategory[]) => {
-        console.log("my speciality")
-        setSpecialties(data || []);
-        setSpecialtiesFetched(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching specialties:", err);
-        setSpecialties([]);
-      })
-      .finally(() => {
-        setIsLoadingSpecialties(false);
-      });
-  }
-};
-
-
-
-
-  // Search effect
+    setIsSpecialtyHovered(true);
+    if (!specialtiesFetched) {
+      setIsLoadingSpecialties(true);
+      fetch("/api/v2/special-package")
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch specialties");
+          return res.json();
+        })
+        .then((data: Subcategory[]) => {
+          setSpecialties(data || []);
+          setSpecialtiesFetched(true);
+        })
+        .catch((err) => {
+          console.error("Error fetching specialties:", err);
+          setSpecialties([]);
+        })
+        .finally(() => {
+          setIsLoadingSpecialties(false);
+        });
+    }
+  };
+  // 🔎 Search effect
   useEffect(() => {
     if (!query.trim()) {
       setSuggestions([]);
@@ -166,7 +155,9 @@ export default function Header() {
     }
     const handler = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/v2/product/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(
+          `/api/v2/product/search?q=${encodeURIComponent(query)}`
+        );
         if (!res.ok) {
           setSuggestions([]);
           setShowSug(false);
@@ -189,7 +180,10 @@ export default function Header() {
   // Close suggestion dropdown on outside clicks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setShowSug(false);
       }
     }
@@ -200,7 +194,10 @@ export default function Header() {
   // Close category dropdown on outside clicks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+      if (
+        categoryRef.current &&
+        !categoryRef.current.contains(event.target as Node)
+      ) {
         setIsCategoryOpen(false);
         setHoveredCategory(null);
       }
@@ -208,8 +205,6 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  
 
   async function logoutHandler() {
     try {
@@ -234,9 +229,7 @@ export default function Header() {
       e.preventDefault();
       if (activeIdx >= 0 && suggestions[activeIdx]) {
         const sel = suggestions[activeIdx];
-        if ((sel as any)._id) {
-          navigate(`/product/${(sel as any)._id}`);
-        }
+        if ((sel as any)._id) navigate(`/product/${(sel as any)._id}`);
       } else if (query.trim()) {
         navigate(`/search?q=${encodeURIComponent(query)}`);
       }
@@ -258,15 +251,15 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full bg-white shadow-sm border-b font-inter">
-      <div className="w-full max-w-screen-xl flex flex-col sm:flex-row items-center h-auto sm:h-20 px-4 sm:px-8 gap-2 sm:gap-0 mx-auto">
+    <header className="w-full bg-white shadow-sm border-b font-sans text-sm">
+      <div className="w-full max-w-screen-2xl flex flex-col sm:flex-row items-center justify-between px-6 lg:px-12 h-auto sm:h-20 gap-2 mx-auto">
         {/* Logo */}
-        <div className="flex items-center h-10 pr-4 flex-shrink-0">
+        <div className="flex items-center h-12 pr-6 flex-shrink-0">
           <Logo />
         </div>
 
         {/* Categories + Search */}
-          <div className="flex flex-1 items-center h-full">
+        <div className="flex flex-1 items-center h-full">
           {/* Category Button */}
           <div ref={categoryRef} className="relative flex items-center h-full">
             <button
@@ -274,91 +267,79 @@ export default function Header() {
                 setIsCategoryOpen((prev) => !prev);
                 setHoveredCategory(null);
               }}
-              className="flex items-center px-3 bg-[#f5f5f5] text-xs font-medium gap-1 border-r h-8 rounded-l-full hover:bg-gray-100 w-[60px] justify-between"
-              style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+              className="flex items-center px-4 bg-gray-100 text-sm font-medium gap-2 border-r h-10 rounded-l-full hover:bg-gray-200 min-w-[70px] justify-between"
             >
               All
-              <IoIosArrowForward className="rotate-90 transition-transform duration-200" size={18} />
+              <IoIosArrowForward className="rotate-90 transition-transform" size={18} />
             </button>
 
-           
-          {isCategoryOpen && (
-              <div
-                className="absolute left-0 top-full mt-2 z-50 flex"
-                onMouseLeave={() => setHoveredCategory(null)}
-              >
+            {isCategoryOpen && (
+              <div className="absolute left-0 top-full mt-2 z-50 flex">
                 {/* Category List */}
-                <div className="bg-white shadow-lg border w-60 max-h-[85vh] overflow-auto text-xs">
+                <div className="bg-white shadow-lg border w-64 max-h-[80vh] overflow-auto text-sm">
                   {isLoadingCategories ? (
                     <div className="p-4">Loading...</div>
                   ) : categoriesError ? (
                     <div className="p-4 text-red-600">{categoriesError}</div>
                   ) : (
-                   <ul className="text-sm font-medium text-gray-800">
-                    {categories.map((category) => (
-                      <li
-                        key={category._id}
-                        className={`group flex justify-between items-center cursor-pointer px-4 py-3  hover:bg-gray-100 ${
-                          hoveredCategory?._id === category._id ? "bg-gray-100" : ""
-                        }`}
-                        onMouseEnter={() => handleMouseEnter(category)}
-                        onClick={() => {
-                          setIsCategoryOpen(false);
-                          navigate(
-                            `/category/${category.name
-                              .toLowerCase()
-                              .replace(/[^a-z0-9]+/g, "-")}`
-                          );
-                        }}
-                      >
-                        <span>{category.name}</span>
-
-                        {/* Always-visible arrow */}
-                        <IoIosArrowForward
-                          size={16}
-                          className={`text-gray-500 transition-transform duration-200`}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-
+                    <ul className="text-gray-800">
+                      {categories.map((category) => (
+                        <li
+                          key={category._id}
+                          className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${
+                            hoveredCategory?._id === category._id ? "bg-gray-100" : ""
+                          }`}
+                          onMouseEnter={() => handleMouseEnter(category)}
+                          onClick={() => {
+                            setIsCategoryOpen(false);
+                            navigate(
+                              `/category/${category.name
+                                .toLowerCase()
+                                .replace(/[^a-z0-9]+/g, "-")}`
+                            );
+                          }}
+                        >
+                          <span>{category.name}</span>
+                          <IoIosArrowForward size={16} className="text-gray-500" />
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
 
                 {/* Subcategory Panel */}
-               {hoveredCategory &&
-                subcategoryMap[hoveredCategory._id] &&
-                subcategoryMap[hoveredCategory._id].length > 0 && (
-                  <div
-                    className="bg-white shadow-lg border w-[280px] max-h-[80vh] overflow-auto p-2 text-sm"
-                    onMouseEnter={() => setHoveredCategory(hoveredCategory)}
-                  >
-                    {subcategoryMap[hoveredCategory._id].map((sub: Subcategory) => (
-                      <div
-                        key={sub._id}
-                        className="text-gray-700 cursor-pointer p-2 hover:bg-gray-100"
-                        onClick={() => {
-                          navigate(`/get-products-by-subcategory/${sub._id}`);
-                          setIsCategoryOpen(false);
-                          setHoveredCategory(null);
-                        }}
-                      >
-                        {sub.name}
-                      </div>
-                    ))}
-                  </div>
-              )}
-
+                {hoveredCategory &&
+                  subcategoryMap[hoveredCategory._id] &&
+                  subcategoryMap[hoveredCategory._id].length > 0 && (
+                    <div className="bg-white shadow-lg border w-72 max-h-[80vh] overflow-auto p-2 text-sm">
+                      {subcategoryMap[hoveredCategory._id].map((sub: Subcategory) => (
+                        <div
+                          key={sub._id}
+                          className="text-gray-700 cursor-pointer p-2 hover:bg-gray-100"
+                          onClick={() => {
+                            navigate(`/get-products-by-subcategory/${sub._id}`);
+                            setIsCategoryOpen(false);
+                            setHoveredCategory(null);
+                          }}
+                        >
+                          {sub.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </div>
             )}
           </div>
 
           {/* Search input */}
-          <div className="flex items-center h-full relative w-[350px] sm:w-[450px]" ref={containerRef}>
+          <div
+            className="flex items-center h-full relative w-[350px] sm:w-[500px]"
+            ref={containerRef}
+          >
             <input
               type="text"
               placeholder="Search for products, brands and more"
-              className="flex-1 px-4 text-sm outline-none bg-white text-[#1C647C] placeholder:text-xs placeholder-[#1C647C] h-8 border border-gray-200 rounded-none"
+              className="flex-1 px-4 text-sm outline-none bg-white text-gray-700 placeholder:text-gray-400 h-10 border border-gray-200 rounded-none"
               style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
               value={query}
               onChange={(e) => {
@@ -368,13 +349,11 @@ export default function Header() {
               onKeyDown={handleSearchKeyDown}
             />
             <button
-              className="flex items-center justify-center px-3 bg-[#006666] hover:bg-[#005555] h-8 rounded-r-full"
+              className="flex items-center justify-center px-4 bg-[#006666] hover:bg-[#005555] h-10 rounded-r-full"
               onClick={() => {
                 if (activeIdx >= 0 && suggestions[activeIdx]) {
                   const sel = suggestions[activeIdx];
-                  if ((sel as any)._id) {
-                    navigate(`/product/${(sel as any)._id}`);
-                  }
+                  if ((sel as any)._id) navigate(`/product/${(sel as any)._id}`);
                 } else if (query.trim()) {
                   navigate(`/search?q=${encodeURIComponent(query)}`);
                 }
@@ -383,13 +362,11 @@ export default function Header() {
                 setActiveIdx(-1);
               }}
             >
-              <AiOutlineSearch size={28} color="white" />
+              <AiOutlineSearch size={22} color="white" />
             </button>
 
             {showSug && suggestions.length > 0 && (
-              <ul
-                className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200"
-              >
+              <ul className="absolute left-0 right-0 top-full mt-2 z-50 max-h-72 overflow-auto bg-white rounded-md shadow-lg border border-gray-200">
                 {suggestions.map((p, i) => {
                   const id = (p as any)._id;
                   const rawCategory = (p as any).category;
@@ -441,142 +418,134 @@ export default function Header() {
             )}
           </div>
         </div>
-
-        {/* Right Side: user / cart / wishlist / etc */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center text-[11px] ml-0 sm:ml-2 gap-1 flex-shrink-0 justify-center sm:justify-start w-full sm:w-auto">
+                {/* Right Side: user / cart / wishlist / etc */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center text-xs sm:text-sm ml-0 sm:ml-4 gap-2 flex-shrink-0 justify-center sm:justify-end w-full sm:w-auto">
           {/* Specialty & Get Quote */}
-          <div className="flex items-center gap-2 font-montserrat text-[#1C647C]">
+          <div className="flex items-center gap-3 font-medium text-[#1C647C]">
             <div
               className="relative inline-block text-left"
               onMouseEnter={handleSpecialtyMouseEnter}
               onMouseLeave={() => setIsSpecialtyHovered(false)}
-
             >
-              <Link to="/specialty" className="px-2 py-1 rounded-md flex items-center">
+              <Link
+                to="/specialty"
+                className="px-3 py-2 rounded-md flex items-center gap-1 hover:bg-gray-100"
+              >
                 <FaUserDoctor size={16} />
-                <span> By Specialty</span>
+                <span>By Specialty</span>
               </Link>
 
-{isSpecialtyHovered && (
-  <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-    <ul className="py-1 text-sm">
-      {isLoadingSpecialties ? (
-        <li className="px-3 py-2 text-gray-500">Loading...</li>
-      ) : specialties.length === 0 ? (
-        <li className="px-3 py-2 text-red-500">No specialties found</li>
-      ) : (
-        specialties.map((specialty) => (
-          <li key={specialty._id}>
-            <Link
-              to={`/specialty/${specialty.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-100"
-              onClick={() => setIsSpecialtyHovered(false)}
-            >
-              {specialty.name}
-            </Link>
-          </li>
-        ))
-      )}
-    </ul>
-  </div>
-)}
-
+              {isSpecialtyHovered && (
+                <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <ul className="py-1 text-sm">
+                    {isLoadingSpecialties ? (
+                      <li className="px-3 py-2 text-gray-500">Loading...</li>
+                    ) : specialties.length === 0 ? (
+                      <li className="px-3 py-2 text-red-500">
+                        No specialties found
+                      </li>
+                    ) : (
+                      specialties.map((specialty) => (
+                        <li key={specialty._id}>
+                          <Link
+                            to={`/specialty/${specialty.name
+                              .toLowerCase()
+                              .replace(/[^a-z0-9]+/g, "-")}`}
+                            className="block px-3 py-2 text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsSpecialtyHovered(false)}
+                          >
+                            {specialty.name}
+                          </Link>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
 
-            <Link to="/get-quote" className="px-2 py-1 rounded-md transition flex items-center">
+            <Link
+              to="/get-quote"
+              className="px-3 py-2 rounded-md transition flex items-center gap-1 hover:bg-gray-100"
+            >
               <TbFileInvoice size={16} />
-              <span> Get Quote</span>
+              <span>Get Quote</span>
             </Link>
           </div>
 
-          {/* User / Profile Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsUserHovered(true)}
-            onMouseLeave={() => setIsUserHovered(false)}
-          >
-            {user ? (
-              <button className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors duration-200 ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
-                <FaRegCircleUser size={16} />
-                <span>{user.firstName?.split(" ")[0] || "Profile"}</span>
-                <IoIosArrowForward className={`transition-transform duration-200 ${isUserHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
-              </button>
-            ) : (
-              <Link to="/user" className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors duration-200 ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}>
-                <FaRegCircleUser size={16} />
-                <span>Login</span>
-                <IoIosArrowForward className={`transition-transform duration-200 ${isUserHovered ? "-rotate-90" : "rotate-90"}`} size={12} />
-              </Link>
-            )}
+         {/* User / Profile */}
+<div
+  className="relative"
+  onMouseEnter={() => user && setIsUserHovered(true)}
+  onMouseLeave={() => user && setIsUserHovered(false)}
+>
+  {user ? (
+    <button
+      className={`flex items-center gap-1 px-3 py-2 rounded-full font-medium transition-colors duration-200 ${
+        isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
+      }`}
+    >
+      <FaRegCircleUser size={18} />
+      <span>{user.firstName?.split(" ")[0] || "Profile"}</span>
+      <IoIosArrowForward
+        className={`transition-transform duration-200 ${
+          isUserHovered ? "-rotate-90" : "rotate-90"
+        }`}
+        size={14}
+      />
+    </button>
+  ) : (
+    <Link
+      to="/user"
+      className="flex items-center gap-2 px-3 py-2 rounded-full font-medium bg-[#1C647C] text-white hover:bg-[#14506A] transition"
+    >
+      <FaRegCircleUser size={18} />
+      <span>Login</span>
+    </Link>
+  )}
 
-            {isUserHovered && (
-              <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-200 rounded shadow-md z-50 text-[11px] text-gray-800">
-                {user ? (
-                  <>
-                    <Link to="/account" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
-                      <FaRegCircleUser size={14} />
-                      <span>My Account</span>
-                    </Link>
-                    <Link to="/wishlist" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
-                      <AiOutlineHeart size={14} />
-                      <span>Wishlist</span>
-                    </Link>
-                    <Link to="/add-to-cart" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
-                      <AiOutlineShoppingCart size={14} />
-                      <span>Cart</span>
-                    </Link>
-                    <Link to="/account/orders" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
-                      <RiShoppingBag4Line size={14} />
-                      <span>My Orders</span>
-                    </Link>
-                    <hr className="my-1" />
-                    <Link to="/support" className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100">
-                      <MdOutlineSupportAgent size={14} />
-                      <span>Support</span>
-                    </Link>
-                    <hr className="my-1" />
-                    <button onClick={logoutHandler} className="flex items-center gap-2 px-3 py-1 w-full text-red-600 hover:bg-gray-100">
-                      <FaSignOutAlt size={14} />
-                      <span>Logout</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-center px-3 py-1">
-                      <span>New customer?</span>
-                      <Link to="/signup" className="text-blue-600 text-[10px]">
-                        Sign Up
-                      </Link>
-                    </div>
-                    <hr />
-                    <Link to="/user" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <FaRegCircleUser size={14} />
-                      <span>My Profile</span>
-                    </Link>
-                    <Link to="/user/orders" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <RiShoppingBag4Line size={14} />
-                      <span>Orders</span>
-                    </Link>
-                    <Link to="/wishlist" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <AiOutlineHeart size={14} />
-                      <span>Wishlist</span>
-                    </Link>
-                    <Link to="/rewards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <IoGiftSharp size={14} />
-                      <span>Rewards</span>
-                    </Link>
-                    <Link to="/gift-cards" className="flex items-center gap-1 px-3 py-1 hover:bg-gray-100">
-                      <BsCashStack size={14} />
-                      <span>Gift Cards</span>
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+  {/* Dropdown only if logged in */}
+  {user && isUserHovered && (
+    <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-200 rounded shadow-md z-50 text-sm text-gray-800">
+      <Link to="/account" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+        <FaRegCircleUser size={16} />
+        <span>My Account</span>
+      </Link>
+      <Link to="/wishlist" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+        <AiOutlineHeart size={16} />
+        <span>Wishlist</span>
+      </Link>
+      <Link to="/add-to-cart" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+        <AiOutlineShoppingCart size={16} />
+        <span>Cart</span>
+      </Link>
+      <Link to="/account/orders" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+        <RiShoppingBag4Line size={16} />
+        <span>My Orders</span>
+      </Link>
+      <hr className="my-1" />
+      <Link to="/support" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+        <MdOutlineSupportAgent size={16} />
+        <span>Support</span>
+      </Link>
+      <hr className="my-1" />
+      <button
+        onClick={logoutHandler}
+        className="flex items-center gap-2 px-3 py-2 w-full text-red-600 hover:bg-gray-100"
+      >
+        <FaSignOutAlt size={16} />
+        <span>Logout</span>
+      </button>
+    </div>
+  )}
+</div>
+
 
           {/* Become a Seller */}
-          <Link to="/signup-seller" className="px-2 py-1 rounded-md text-[#1C647C]">
+          <Link
+            to="/signup-seller"
+            className="px-3 py-2 rounded-md text-[#1C647C] hover:bg-gray-100"
+          >
             Become a Seller
           </Link>
 
@@ -584,11 +553,11 @@ export default function Header() {
           <button
             onClick={openWishlistHandler}
             aria-label="Open Wishlist"
-            className="relative flex items-center px-2 py-1 cursor-pointer rounded-full text-[11px] text-[#1C647C] hover:bg-[#155d72] hover:text-white transition-colors duration-200"
+            className="relative flex items-center px-3 py-2 rounded-full border border-gray-200 text-[#1C647C] hover:bg-[#155d72] hover:text-white transition"
           >
-            <AiOutlineHeart size={16} />
+            <AiOutlineHeart size={18} />
             {wishlist.length > 0 && (
-              <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
                 {wishlist.length}
               </span>
             )}
@@ -598,11 +567,11 @@ export default function Header() {
           <button
             onClick={openCartHandler}
             aria-label="Open Cart"
-            className="relative flex items-center px-2 py-1 cursor-pointer rounded-full text-[11px] text-[#1C647C] hover:bg-[#155d72] hover:text-white transition-colors duration-200"
+            className="relative flex items-center px-3 py-2 rounded-full border border-gray-200 text-[#1C647C] hover:bg-[#155d72] hover:text-white transition"
           >
-            <AiOutlineShoppingCart size={16} />
+            <AiOutlineShoppingCart size={18} />
             {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#3bc177] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
                 {cart.length}
               </span>
             )}
@@ -616,3 +585,4 @@ export default function Header() {
     </header>
   );
 }
+

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "./Pharmaceutical.Hooks";
 import ProductShowcase from "../../components/Homepage/ProductShowcase";
-import ImageSlider from "../../components/Homepage/ImageSlider";
+// import ImageSlider from "../../components/Homepage/ImageSlider";
 
 export default function Pharmaceutical() {
   const {
@@ -17,7 +17,7 @@ export default function Pharmaceutical() {
 
   return (
     <section>
-      <ImageSlider image="banner_Equipment.png"/>
+      {/* <ImageSlider image="banner_Equipment.png"/> */}
         <div className="container max-w-[1060px] mx-auto px-4 pt-12">
           <ProductShowcase
             status={productFetchingStatus}
