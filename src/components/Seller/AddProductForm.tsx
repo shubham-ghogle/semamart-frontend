@@ -634,7 +634,7 @@ export default function AddProductForm({
                   name="unspsc"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>UNSPSC Code</FormLabel>
+                      <FormLabel>UNSPSC (United Nations Standard Products and Services Code)</FormLabel>
                       <FormControl>
                         <Input type="text" {...field} />
                       </FormControl>
@@ -1248,7 +1248,7 @@ export default function AddProductForm({
                 name="rma"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>RMA Policy</FormLabel>
+                    <FormLabel>RMA (Return merchandise authorization) Policy</FormLabel>
                     <FormControl>
                       <Textarea className="resize-none" {...field} />
                     </FormControl>
