@@ -10,7 +10,6 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  // ✅ Always pick first variant (or best variant logic later)
   const variant = product.variants?.[0]
 
   const originalPrice = variant?.originalPrice ?? null
@@ -22,13 +21,11 @@ export default function ProductCard({ product }: Props) {
       ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100)
       : 0
 
-  // ✅ new (prefer product.images)
-const imageUrl = product.images?.[0]
-  ? `/images/${product.images[0]}`
-  : variant?.thumbnail
-  ? `/images/${variant.thumbnail}`
-  : "/placeholder.png"
-
+  const imageUrl = product.images?.[0]
+    ? `/images/${product.images[0]}`
+    : variant?.thumbnail
+    ? `/images/${variant.thumbnail}`
+    : "/placeholder.png"
 
   // Zustand stores
   const addToCart = useCartStore((s) => s.addToCart)
@@ -68,29 +65,12 @@ const imageUrl = product.images?.[0]
 
   return (
     <div className="border rounded-lg bg-white hover:shadow-lg transition-all duration-200 overflow-hidden w-[220px] relative">
-      {/* Wishlist Button */}
-      <button
-        onClick={handleToggleWishlist}
-        className="absolute top-2 right-2 z-10 hover:scale-110 transition-transform"
-        title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-      >
-        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200">
-          <span
-            className="w-4 h-4 inline-block transition duration-200"
-            style={{
-              WebkitMaskImage: "url('/heart_icon.png')",
-              WebkitMaskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskImage: "url('/heart_icon.png')",
-              maskRepeat: "no-repeat",
-              maskPosition: "center",
-              maskSize: "contain",
-              backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
-            }}
-          />
-        </span>
-      </button>
+      {/* Discount Bar */}
+      {discountPercent > 0 && (
+        <div className="absolute top-0 right-0 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+          {discountPercent}% OFF
+        </div>
+      )}
 
       {/* Whole card clickable */}
       <Link to={`/product/${product._id}`} className="block">
@@ -113,20 +93,19 @@ const imageUrl = product.images?.[0]
             {product.name}
           </h3>
 
-          {/* Ratings
-          {product.ratings ? (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="bg-green-600 text-white px-1.5 py-0.5 rounded-sm flex items-center gap-0.5 font-medium">
-                {product.ratings.toFixed(1)}
-                <Star className="w-3 h-3 fill-white text-white" />
-              </span>
-              <span className="text-gray-500">
-                ({product.reviews?.length || 0})
-              </span>
-            </div>
-          ) : (
-            <span className="text-xs text-gray-500">No ratings</span>
-          )} */}
+          {/* Ratings: 3 filled + 2 empty */}
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${
+                  i < 3
+                    ? "fill-yellow-500 text-yellow-500"
+                    : "fill-gray-300 text-gray-300"
+                }`}
+              />
+            ))}
+          </div>
 
           {/* Price */}
           <div className="flex items-center gap-2 mt-1">
@@ -138,27 +117,37 @@ const imageUrl = product.images?.[0]
                 <span className="text-sm text-gray-500 line-through">
                   ₹{originalPrice}
                 </span>
-                {discountPercent > 0 && (
-                  <span className="text-sm text-green-600 font-medium">
-                    {discountPercent}% off
-                  </span>
-                )}
               </>
             )}
           </div>
 
-          {/* Stock + Cart */}
+          {/* Cart + Wishlist at bottom */}
           <div className="flex items-center justify-between mt-2">
-            {stock !== undefined && (
-              <span
-                className={`text-xs ${
-                  stock > 0 ? "text-green-600" : "text-red-500"
-                }`}
-              >
-                {stock > 0 ? `${stock} in stock` : "Out of stock"}
+            {/* Wishlist bottom-left */}
+            <button
+              onClick={handleToggleWishlist}
+              className="hover:scale-110 transition-transform"
+              title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200">
+                <span
+                  className="w-4 h-4 inline-block transition duration-200"
+                  style={{
+                    WebkitMaskImage: "url('/heart_icon.png')",
+                    WebkitMaskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
+                    WebkitMaskSize: "contain",
+                    maskImage: "url('/heart_icon.png')",
+                    maskRepeat: "no-repeat",
+                    maskPosition: "center",
+                    maskSize: "contain",
+                    backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
+                  }}
+                />
               </span>
-            )}
+            </button>
 
+            {/* Cart button right */}
             {stock > 0 && (
               <button
                 onClick={handleAddCart}

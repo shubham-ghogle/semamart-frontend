@@ -10,81 +10,99 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import ProductDetailsInfo from "../../components/Product/ProductDetailsInfo";
 import { getProductDetail } from "./ProductDetails.HooksUtils";
 
-
 export default function ProductDetailsScreen() {
   const { id } = useParams();
   const { data: product, status } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
   });
+
   const [count, setCount] = useState(1);
 
-  //adding to cart and persisting it in localStorage
   const { addToCart, cart } = useCartStore((state) => state);
- function addToCartHandler() {
-  if (!product) return;
 
-  // pick variant (defaultVariant fallback to first)
-  const variant = (product as any).defaultVariant || product.variants?.[0];
-  if (!variant) {
-    alert("No variant available for this product");
-    return;
+  function addToCartHandler() {
+    if (!product) return;
+
+    // pick variant (defaultVariant fallback to first)
+    const variant = (product as any).defaultVariant || product.variants?.[0];
+    if (!variant) {
+      alert("No variant available for this product");
+      return;
+    }
+
+    // check if already in cart (by product + variant)
+    const isItemInCart = cart.some((el) => {
+      const elProdId =
+        typeof el.productId === "string" ? el.productId : (el.productId as any)?._id;
+      const elVarId =
+        typeof el.variantId === "string" ? el.variantId : (el.variantId as any)?._id;
+      return elProdId === product._id && elVarId === variant._id;
+    });
+    if (isItemInCart) {
+      alert("Item already in the cart");
+      return;
+    }
+
+    // ✅ per-piece price calculation
+    let perPiece = 0;
+    if (Array.isArray(variant.bulkOrders) && variant.bulkOrders.length > 0) {
+      // use smallest pack price / qty as base per piece
+      const firstPack = variant.bulkOrders[0];
+      perPiece = firstPack.price / Math.max(firstPack.qty, 1);
+    } else {
+      perPiece = variant.discountPrice ?? variant.originalPrice ?? 0;
+    }
+
+    const item = {
+      productId: product._id,
+      variantId: variant._id,
+      product,
+      variant,
+      qty: count, // store will build total using count
+      price: perPiece, // ✅ pass per-piece only
+      shopId: (product.shopId as any)?._id || (product.shopId as string),
+      taxClass: (product as any).taxClass ?? 0,
+    };
+
+    addToCart(item);
   }
 
-  // check if already in cart (match productId + variantId)
-  const isItemInCart = cart.some(
-    (el) =>
-      el.productId === product._id &&
-      el.variantId === variant._id
-  );
-
-  if (isItemInCart) {
-    alert("Item already in the cart");
-    return;
-  }
-
-  const item = {
-    productId: product._id,
-    variantId: variant._id,
-    product,
-    qty: count,
-    shopId:
-      (product.shopId as any)?._id ||
-      (product.shopId as string),
-  };
-
-  addToCart(item);
-}
-
-
-  //wishlist handlers
+  // ✅ wishlist logic
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlistStore(
-    (state) => state,
+    (state) => state
   );
-  const isInWishlist = wishlist.some((pro) => pro._id === product?._id);
+
+  const currentVariant =
+    (product as any)?.defaultVariant || product?.variants?.[0] || null;
+
+  const isInWishlist = wishlist.some(
+    (w) =>
+      w.productId === product?._id &&
+      (w.variantId ?? null) === (currentVariant?._id ?? null)
+  );
 
   function addToWishlistHandler() {
-    if (!product) return;
+    if (!product || !currentVariant) return;
     if (isInWishlist) return;
-    addToWishlist(product);
-  }
-  function removeFromWishlistHandler() {
-    if (!product) return;
-    removeFromWishlist(product._id);
+
+    addToWishlist(product, currentVariant); // ✅ new store signature
   }
 
-  //number of items to add in the cart
+  function removeFromWishlistHandler() {
+    if (!product || !currentVariant) return;
+    removeFromWishlist(product._id, currentVariant._id ?? null);
+  }
+
+  // qty counter
   function incrementCount() {
-    setCount(count + 1);
+    setCount((c) => c + 1);
   }
   function decrementCount() {
-    if (count > 1) {
-      setCount(count - 1);
-    }
+    setCount((c) => (c > 1 ? c - 1 : c));
   }
 
   if (status === "pending") return <div>Loading...</div>;
-
   if (status === "error") return <div>error...</div>;
 
   return (

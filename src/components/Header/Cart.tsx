@@ -1,8 +1,5 @@
-// Cart.tsx
-import { Link } from "react-router-dom";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { RxCross1 } from "react-icons/rx";
-import { HiOutlineMinus, HiPlus } from "react-icons/hi";
 import { CartItem, useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
@@ -18,16 +15,30 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // ✅ calculate total price using variant OR fallback product price
-  const totalPrice = cart.reduce((acc, item) => {
-    const price =
-      item.variant?.discountPrice ??
-      item.variant?.originalPrice ??
-      (item.product?.variants?.[0]?.discountPrice ??
+  // ✅ Main totals calculation
+  const { subtotal, gstTotal, grandTotal } = cart.reduce(
+    (acc, item) => {
+      const base =
+        item.variant?.discountPrice ??
+        item.variant?.originalPrice ??
+        item.product?.variants?.[0]?.discountPrice ??
         item.product?.variants?.[0]?.originalPrice ??
-        0);
-    return acc + item.qty * price;
-  }, 0);
+        item.price ??
+        0;
+
+      const qty = Number(item.qty ?? 1);
+      const taxRate = Number(item.taxClass ?? 0);
+
+      const gstAmountPerUnit = (base * taxRate) / 100;
+
+      acc.subtotal += qty * base;
+      acc.gstTotal += qty * gstAmountPerUnit;
+      acc.grandTotal += qty * (base + gstAmountPerUnit);
+
+      return acc;
+    },
+    { subtotal: 0, gstTotal: 0, grandTotal: 0 }
+  );
 
   function checkoutHandler() {
     if (!user) {
@@ -49,13 +60,12 @@ export default function Cart({ cartOpenHandler }: CartProps) {
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]">
       <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl rounded-l-3xl flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500">
+        <header className="flex items-center justify-between px-6 py-4 bg-[#1C647C]">
           <div className="flex items-center gap-2 text-white">
             <IoBagHandleOutline size={28} />
             <h2 className="text-2xl font-bold">{cart.length} item(s)</h2>
           </div>
           <div className="flex items-center gap-2">
-            {/* Clear All */}
             <button
               onClick={clearCart}
               disabled={cart.length === 0}
@@ -63,7 +73,6 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             >
               Clear All
             </button>
-            {/* Close */}
             <RxCross1
               size={24}
               className="text-white cursor-pointer hover:opacity-80 transition"
@@ -76,9 +85,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
         {cart.length === 0 ? (
           <div className="flex-grow flex flex-col items-center justify-center px-8 text-gray-500">
             <div className="text-6xl mb-4 animate-pulse">🛒</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Your cart is empty!
-            </h3>
+            <h3 className="text-xl font-semibold mb-2">Your cart is empty!</h3>
             <p className="text-center">
               Browse our products and add something to your cart.
             </p>
@@ -96,18 +103,31 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             </div>
 
             {/* Footer / Checkout */}
-            <div className="px-6 py-4 bg-gray-50 border-t">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-lg font-medium text-gray-700">
-                  Subtotal
+            <div className="px-6 py-4 bg-gray-50 border-t space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-base text-gray-700">Subtotal</span>
+                <span className="font-semibold">₹{subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-base text-gray-700">GST</span>
+                <span className="font-semibold text-green-600">
+                  ₹{gstTotal.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold text-gray-800">
+                  Total (Incl. GST)
                 </span>
                 <span className="text-xl font-bold text-gray-900">
-                  ₹{totalPrice.toLocaleString()}
+                  ₹{grandTotal.toLocaleString()}
                 </span>
               </div>
               <button
                 onClick={checkoutHandler}
-                className="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition shadow"
+                className="w-full text-white py-3 rounded-2xl font-semibold text-lg shadow mt-3"
+                style={{
+                  background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
+                }}
               >
                 Checkout Now
               </button>
@@ -128,96 +148,96 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
   const product = data.product;
   const variant = data.variant;
+  if (!product) return null;
 
-  if (!product) return null; // safeguard
-
-  // ✅ image handling
   const imageUrl =
     variant?.thumbnail
       ? `/images/${variant.thumbnail}`
       : product.images?.[0]
       ? `/images/${product.images[0]}`
-      : "/placeholder.png";
+      : "/default-image.png";
 
-  // ✅ price handling
-  const unitPrice =
+  const basePrice =
     variant?.discountPrice ??
     variant?.originalPrice ??
     product.variants?.[0]?.discountPrice ??
     product.variants?.[0]?.originalPrice ??
+    data.price ??
     0;
 
-  const totalPrice = unitPrice * data.qty;
+  const qty = data.qty ?? 1;
+  const lineTotal = basePrice * qty;
 
-  // ✅ safe IDs
   const productId =
     typeof data.productId === "string" ? data.productId : data.productId?._id;
   const variantId =
     typeof data.variantId === "string" ? data.variantId : data.variantId?._id;
 
   return (
-    <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
-      {/* Product Link & Image */}
-      <Link
-        to={`/product/${productId}`}
-        className="flex items-center gap-3 flex-1"
-      >
+    <div className="flex gap-4 py-6 border-b border-gray-200">
+      {/* Image */}
+      <div className="w-28 flex-shrink-0">
         <img
           src={imageUrl}
           alt={product.name}
-          className="w-20 h-20 object-cover rounded-lg border"
+          className="w-24 h-24 object-cover rounded border"
         />
-
-        <div className="flex flex-col flex-1">
-          <h3 className="text-base font-semibold text-gray-900 line-clamp-1">
-            {product.name}
-          </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            ₹{unitPrice.toLocaleString()} × {data.qty}
-          </p>
-          <p className="text-sm font-bold text-red-600 mt-1">
-            ₹{totalPrice.toLocaleString()}
-          </p>
-        </div>
-      </Link>
-
-      {/* Quantity Controls */}
-      <div className="flex flex-col items-center gap-1">
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (productId) changeQyt(productId, variantId ?? null, 1);
-          }}
-          className="w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded-full grid place-items-center transition"
-        >
-          <HiPlus size={16} />
-        </button>
-        <span className="text-sm font-medium">{data.qty}</span>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (productId) changeQyt(productId, variantId ?? null, -1);
-          }}
-          className="w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded-full grid place-items-center transition"
-        >
-          <HiOutlineMinus size={16} />
-        </button>
       </div>
 
-      {/* Remove Button */}
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (productId) removeFromCart(productId, variantId ?? null);
-        }}
-        className="text-gray-400 hover:text-red-500 transition ml-2"
-        aria-label="Remove item"
-      >
-        <RxCross1 size={20} />
-      </button>
+      {/* Info */}
+      <div className="flex flex-col flex-1 justify-between">
+        <div className="flex justify-between items-center mb-1">
+          <h4 className="text-base font-semibold text-gray-900">{product.name}</h4>
+          <span className="text-sm font-semibold text-gray-900">
+            ₹{lineTotal.toFixed(2)}
+          </span>
+        </div>
+
+        <div className="text-sm text-gray-600 mb-2">
+          <p>
+            {variant?.colorOption ? `${variant.colorOption}` : ""}
+            {variant?.size ? ` | Size: ${variant.size}` : ""}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6">
+          {/* Qty controls */}
+          <div className="flex items-center gap-2 border rounded-md overflow-hidden">
+            <button
+              onClick={() =>
+                productId && changeQyt(productId, variantId ?? null, -1)
+              }
+              disabled={qty === 1}
+              className={`w-8 h-8 text-lg font-bold ${
+                qty === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white hover:bg-gray-100"
+              }`}
+            >
+              −
+            </button>
+            <div className="px-3 text-sm font-medium">{qty}</div>
+            <button
+              onClick={() =>
+                productId && changeQyt(productId, variantId ?? null, 1)
+              }
+              className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
+            >
+              +
+            </button>
+          </div>
+
+          {/* Remove */}
+          <button
+            onClick={() =>
+              productId && removeFromCart(productId, variantId ?? null)
+            }
+            className="text-sm text-red-600 cursor-pointer"
+          >
+            REMOVE
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -14,24 +14,31 @@ interface Variant {
   size?: string | null;
   colorOption?: string | null;
   thumbnail?: string | null;
-}
-
-interface CartItem {
-  product: Product | null;
-  qty: number;
-  isReviewed?: boolean;
-  _id: string;
+  productId?: Product;
 }
 
 interface Order {
   _id: string;
-  product?: Product | null; // ✅ new schema top-level product
-  variant?: Variant | null; // ✅ new schema top-level variant
-  qty?: number; // ✅ new schema qty
-  cart: CartItem[]; // ✅ legacy fallback
+  variant?: Variant | null;
+  qty?: number;
   totalPrice: number;
   status: string;
   deliveredAt?: string;
+  shop?: { _id: string; email: string };
+  shippingAddress?: {
+    state: string;
+    district: string;
+    instituteAddress1: string;
+    instituteAddress2?: string;
+    pincode: string;
+    landmark?: string;
+  };
+  user?: {
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  };
+  createdAt?: string;
 }
 
 const MyOrders = () => {
@@ -48,7 +55,7 @@ const MyOrders = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`/api/v2/order/get-order/${user._id}`);
+        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
         const data = await res.json();
 
         if (data.success) {
@@ -68,21 +75,14 @@ const MyOrders = () => {
     fetchOrders();
   }, [user]);
 
-  // ✅ Filter by product name (handles both new + old schema)
-  const filteredOrders = orders.filter((order) => {
-    const items = order.product
-      ? [{ product: order.product, qty: order.qty || 1, _id: order._id }]
-      : order.cart;
-
-    return items.some(
-      (item) =>
-        item.product &&
-        typeof item.product.name === "string" &&
-        item.product.name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    );
-  });
+  // ✅ Normalize image (handles relative filenames & URLs)
+  const normalizeImage = (src?: string | null) => {
+    if (!src) return "/placeholder.png";
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+      return src;
+    }
+    return `/images/${src}`;
+  };
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "N/A";
@@ -96,14 +96,14 @@ const MyOrders = () => {
         });
   };
 
-  // helper at top
-const normalizeImage = (src?: string | null) => {
-  if (!src) return "/placeholder.png";
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
-    return src;
-  }
-  return `/images/${src}`;
-};
+  // ✅ Filter by product name or order ID
+  const filteredOrders = orders.filter((order) => {
+    const productName = order.variant?.productId?.name || "";
+    return (
+      productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order._id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="font-montserrat">
@@ -116,52 +116,36 @@ const normalizeImage = (src?: string | null) => {
 
           <div className="mb-6">
             <h3 className="font-medium mb-2">ORDER STATUS</h3>
-            <div className="space-y-1">
+            <div className="space-y-1 text-sm text-gray-700">
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                On the way
+                <input type="checkbox" className="mr-2" /> On the way
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Delivered
+                <input type="checkbox" className="mr-2" /> Delivered
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Cancelled
+                <input type="checkbox" className="mr-2" /> Cancelled
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Returned
+                <input type="checkbox" className="mr-2" /> Returned
               </label>
             </div>
           </div>
 
           <div>
             <h3 className="font-medium mb-2">ORDER TIME</h3>
-            <div className="space-y-1">
+            <div className="space-y-1 text-sm text-gray-700">
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Last 30 days
+                <input type="checkbox" className="mr-2" /> Last 30 days
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                2024
+                <input type="checkbox" className="mr-2" /> 2025
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                2023
+                <input type="checkbox" className="mr-2" /> 2024
               </label>
               <label className="block">
-                <input type="checkbox" className="mr-2" />
-                2022
-              </label>
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                2021
-              </label>
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Older
+                <input type="checkbox" className="mr-2" /> Older
               </label>
             </div>
           </div>
@@ -178,7 +162,7 @@ const normalizeImage = (src?: string | null) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button className="bg-blue-600 text-white py-2 px-3 rounded-md text-center">
+            <button className="bg-blue-600 text-white py-2 px-3 rounded-md">
               Search
             </button>
           </div>
@@ -199,79 +183,56 @@ const normalizeImage = (src?: string | null) => {
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredOrders.map((order, orderIndex) => {
-                const product = order.product || null;
-                const variant = order.variant || null;
+              {filteredOrders.map((order) => {
+                const variant = order.variant;
+                const product = variant?.productId;
 
-                const items = product
-                  ? [
-                      {
-                        _id: order._id,
-                        product,
-                        qty: order.qty || 1,
-                        isReviewed: false,
-                      },
-                    ]
-                  : order.cart;
+                if (!product) return null;
+
+                const imageUrl = variant?.thumbnail
+                  ? normalizeImage(variant.thumbnail)
+                  : product.images && product.images.length > 0
+                  ? normalizeImage(product.images[0])
+                  : "/placeholder.png";
 
                 return (
-                  <div key={order._id || orderIndex} className="space-y-4">
-                    {items.map((item, itemIndex) => {
-                      if (!item.product) return null;
+                  <div
+                    key={order._id}
+                    className="border rounded-md p-4 bg-white shadow-sm flex items-start gap-4 cursor-pointer"
+                    onClick={() => navigate(`/account/orders/${order._id}`)}
+                  >
+                    {/* Product Image */}
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      className="w-20 h-20 object-cover rounded border"
+                    />
 
-                      const imageUrl = variant?.thumbnail
-  ? normalizeImage(variant.thumbnail)
-  : normalizeImage(item.product.images?.[0]);
-
-                      return (
-                        <div
-                          key={item._id || itemIndex}
-                          className="border rounded-md p-4 bg-white shadow-sm flex items-start space-x-4 cursor-pointer"
-                          onClick={() =>
-                            navigate(`/account/orders/${item.product!._id}`)
-                          }
-                        >
-                          {/* Product Image */}
-                          <img
-                            src={imageUrl}
-                            alt={item.product.name || "Product"}
-                            className="w-16 h-20 object-cover flex-shrink-0 rounded"
-                          />
-
-                          {/* Order Info */}
-                          <div className="flex flex-wrap items-start justify-between flex-1">
-                            <div className="flex flex-col min-w-[200px] mr-6">
-                              <h3 className="text-sm font-semibold">
-                                {item.product.name}
-                              </h3>
-                              <p className="text-xs text-gray-600">
-                                Quantity: {item.qty}
-                              </p>
-                            </div>
-
-                            <p className="text-sm text-gray-800 font-medium mr-6 whitespace-nowrap">
-                              ₹{order.totalPrice}
-                            </p>
-
-                            {order.status === "Delivered" && (
-                              <div className="flex flex-col items-start space-y-1 text-xs">
-                                <p className="text-green-600 font-medium flex items-center space-x-1">
-                                  <span className="text-lg leading-none">●</span>
-                                  <span>
-                                    Delivered on {formatDate(order.deliveredAt)}
-                                  </span>
-                                </p>
-                                {!item.isReviewed && (
-                                  <p className="text-blue-600 hover:underline font-medium cursor-pointer">
-                                    ★ Rate & Review Product
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {/* Order Info */}
+                    <div className="flex flex-1 flex-col">
+                      <h3 className="text-sm font-semibold">{product.name}</h3>
+                      <p className="text-xs text-gray-600">Quantity: {order.qty}</p>
+                      {variant?.size && (
+                        <p className="text-xs text-gray-500">Size: {variant.size}</p>
+                      )}
+                      {variant?.colorOption && (
+                        <p className="text-xs text-gray-500">
+                          Color: {variant.colorOption}
+                        </p>
+                      )}
+                      {order.shop?.email && (
+                        <p className="text-xs text-gray-500">
+                          Sold by: {order.shop.email}
+                        </p>
+                      )}
+                      <p className="text-sm font-medium mt-1">₹{order.totalPrice}</p>
+                      <p className="text-xs text-gray-500 mt-1">Status: {order.status}</p>
+                      {order.status === "Delivered" && order.deliveredAt && (
+                        <p className="text-green-600 text-xs font-medium">
+                          Delivered on {formatDate(order.deliveredAt)}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 );
               })}

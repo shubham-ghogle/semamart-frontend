@@ -28,7 +28,7 @@ export default function Consumables() {
             status={productFetchingStatus}
             title=""
             products={products}
-            layout="grid"
+            // layout="grid"
           />
         </div>
 
@@ -42,7 +42,7 @@ export default function Consumables() {
             status={productFetchingStatus}
             title=""
             products={products}
-            layout="collage"
+            // layout="collage"
           />
         </div>
 

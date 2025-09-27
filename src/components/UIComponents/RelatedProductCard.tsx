@@ -29,7 +29,7 @@ export default function RelatedProducts({ productType, productId }: RelatedProdu
   const shuffled = [...filteredProducts].sort(() => 0.5 - Math.random());
 
   // Pick first 5
-  const selectedProducts = shuffled.slice(0, 5);
+  const selectedProducts = shuffled.slice(0, 6);
 
   return (
     <div className="flex flex-wrap gap-4 mt-4">

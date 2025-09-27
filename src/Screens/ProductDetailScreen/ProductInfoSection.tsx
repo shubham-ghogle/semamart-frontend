@@ -1,0 +1,174 @@
+import React, { useState } from "react";
+import { CashOnDelivery } from "../../components/UIComponents/CashOnDelivery";
+import offer from "../../../public/offer.png";
+
+export default function ProductInfoSection({
+  product,
+  selectedVariant,
+  selectedPack,
+  selectedPerPiece,
+}: any) {
+  const [selectedOffer, setSelectedOffer] = useState<any>(null);
+
+  const displayOriginalPrice =
+    selectedVariant?.originalPrice ?? product.originalPrice;
+  const displayDiscountPrice =
+    selectedVariant?.discountPrice ?? product.discountPrice;
+
+  // ✅ main price
+  const mainPrice = selectedPack
+    ? selectedPack.price
+    : displayDiscountPrice ?? displayOriginalPrice ?? 0;
+
+  const STAR_COLOR = "#FFD700";
+  const GREEN = "#3bc177";
+
+  // ✅ discount calculation
+  let topDiscount = 0;
+  if (selectedPack) {
+    const perPiece = selectedPerPiece;
+    if (displayOriginalPrice) {
+      topDiscount = Math.round(
+        ((displayOriginalPrice - perPiece) / displayOriginalPrice) * 100
+      );
+    }
+  } else if (displayOriginalPrice && displayDiscountPrice) {
+    topDiscount = Math.round(
+      ((displayOriginalPrice - displayDiscountPrice) /
+        Math.max(displayOriginalPrice, 1)) *
+        100
+    );
+  }
+
+  return (
+    <div
+      className="w-full bg-white rounded-lg p-6 shadow-lg space-y-6"
+      style={{ minHeight: "540px" }}
+    >
+      <div>
+        {/* Title + Discount */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1C647C]">
+            {product.name}
+          </h2>
+
+          {topDiscount > 0 && (
+            <div className="px-3 py-1 rounded-sm border border-green-500 text-green-500 font-bold bg-white">
+              {topDiscount}% OFF
+            </div>
+          )}
+        </div>
+
+        {/* Rating */}
+        <div className="flex items-center text-base text-gray-500 mb-2 gap-3">
+          <div style={{ color: STAR_COLOR, fontSize: "1.75rem" }}>
+            {"★".repeat(3)}
+            {"☆".repeat(2)}
+          </div>
+          {product?.reviews?.length > 0 && (
+            <span>({product.reviews.length} reviews)</span>
+          )}
+        </div>
+
+        {/* Price */}
+        <div className="mt-2">
+          <div className="flex items-center gap-2">
+            {displayOriginalPrice && (
+              <span className="line-through text-gray-400 text-base">
+                ₹{displayOriginalPrice}
+              </span>
+            )}
+            <span
+              className="px-2 py-1 rounded font-bold text-[28px]"
+              style={{ color: "#FB9573" }}
+            >
+              ₹{mainPrice}
+            </span>
+          </div>
+          <div className="text-sm text-gray-500 mt-1">*Do not include GST</div>
+          <div
+            className="mt-2"
+            style={{
+              height: 48,
+              display: "flex",
+              alignItems: "center",
+              paddingLeft: 12,
+              paddingRight: 24,
+              background: "#FFEB99",
+              fontWeight: 600,
+              clipPath:
+                "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
+              borderRadius: 8,
+              justifyContent: "center",
+            }}
+          >
+            Shipping Charge at Actual*
+          </div>
+
+          {selectedPack && (
+            <div className="mt-3 text-sm text-gray-700">
+              <div>{selectedPack.label}</div>
+              <div className="text-sm text-gray-600">
+                @ ₹{(selectedPerPiece || 0).toFixed(2)}/piece
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Offers */}
+      <div className="flex items-center gap-3 mt-4">
+        <img src={offer} alt="Offer Icon" className="w-7 h-7" />
+        <span className="text-base font-semibold text-[#1C647C]">
+          Offers
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mt-2">
+        {[
+          { title: "Bank Offers", details: "10% off with HDFC cards" },
+          { title: "Partner Offers", details: "Flat ₹50 off via PhonePe" },
+          { title: "Cashback", details: "₹14 cashback on Amazon Pay" },
+          { title: "EMI options", details: "No Cost EMI on orders above ₹3,000" },
+        ].map((offerObj) => (
+          <div
+            key={offerObj.title}
+            className="flex flex-col justify-between w-[160px] h-[80px] rounded-lg border px-3 py-2 text-sm bg-gray-50"
+          >
+            <strong>{offerObj.title}</strong>
+            <div className="text-xs text-gray-600 truncate">
+              {offerObj.details}
+              <p
+                className="text-xs text-blue-600 cursor-pointer"
+                onClick={() => setSelectedOffer(offerObj)}
+              >
+                2 Offers
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedOffer && (
+        <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg border-l p-5 z-50">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">{selectedOffer.title}</h2>
+            <button
+              className="text-gray-500 hover:text-red-500 text-xl font-bold"
+              onClick={() => setSelectedOffer(null)}
+            >
+              &times;
+            </button>
+          </div>
+          <p className="text-sm text-gray-700">{selectedOffer.details}</p>
+        </div>
+      )}
+
+      <div className="flex justify-center mt-8">
+        <div className="scale-125">
+          <CashOnDelivery />
+        </div>
+      </div>
+    </div>
+  );
+}

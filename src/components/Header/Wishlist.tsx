@@ -1,11 +1,8 @@
-// Wishlist.tsx
-
 import { Link } from "react-router-dom";
 import { IoHeart } from "react-icons/io5";
 import { RxCross1 } from "react-icons/rx";
-import { useWishlistStore } from "../../store/wishlistStore";
+import { useWishlistStore, WishlistItem } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
-import { Product } from "../../Types/types";
 
 type WishlistProps = {
   wishlistOpenHandler: () => void;
@@ -18,8 +15,8 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
   return (
     <article className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]">
       <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl rounded-l-3xl flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-pink-500 to-red-500">
+        {/* Header - Green */}
+        <header className="flex items-center justify-between px-6 py-4 bg-[#1C647C]">
           <div className="flex items-center gap-2 text-white">
             <IoHeart size={28} />
             <h2 className="text-2xl font-bold">
@@ -61,15 +58,18 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
                 wishlistOpenHandler();
                 window.location.href = "/";
               }}
-              className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition"
+              className="bg-[#1C647C] text-white px-6 py-2 rounded-full font-semibold hover:bg-[#14525F] transition"
             >
               Shop Now
             </button>
           </div>
         ) : (
           <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 p-4 space-y-4">
-            {wishlist.map((product) => (
-              <WishlistItem key={product._id} product={product} />
+            {wishlist.map((item: WishlistItem) => (
+              <WishlistItemCard
+                key={`${item.productId}-${item.variantId ?? "no-variant"}`}
+                item={item}
+              />
             ))}
           </div>
         )}
@@ -79,29 +79,28 @@ export default function Wishlist({ wishlistOpenHandler }: WishlistProps) {
 }
 
 type WishlistItemProps = {
-  product: Product;
+  item: WishlistItem;
 };
 
-function WishlistItem({ product }: WishlistItemProps) {
+function WishlistItemCard({ item }: WishlistItemProps) {
   const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
   const addToCart = useCartStore((s) => s.addToCart);
 
-  // ✅ Image from backend
-  const imageUrl =
-    product.images?.[0] ? `/images/${product.images[0]}` : "/placeholder.png";
+  const { product, variant, price, productId, variantId, taxClass, shopId } =
+    item;
 
-  // ✅ Handle price (fallback to first variant)
-  const firstVariant = product.variants?.[0];
-  const price =
-    firstVariant?.discountPrice ??
-    firstVariant?.originalPrice ??
-    0;
+  // ✅ Safe image (prefer variant thumbnail > product image > placeholder)
+  const imageUrl = variant?.thumbnail
+    ? `/images/${variant.thumbnail}`
+    : product.images?.[0]
+    ? `/images/${product.images[0]}`
+    : "/placeholder.png";
 
   return (
-    <div className="flex items-center gap-4 bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition">
+    <div className="flex flex-col bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition relative">
       {/* Product Link & Image */}
       <Link
-        to={`/product/${product._id}`}
+        to={`/product/${productId}`}
         className="flex items-center gap-4 flex-1"
       >
         <img
@@ -113,63 +112,56 @@ function WishlistItem({ product }: WishlistItemProps) {
           <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
-            ₹{price.toLocaleString()}
-          </p>
+          <p className="text-sm text-gray-600 mt-1">₹{price.toLocaleString()}</p>
         </div>
       </Link>
 
-      {/* Actions */}
-      <div className="flex flex-col items-center gap-2">
-        {/* Add to Cart */}
+      {/* Remove button (top right corner) */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          removeFromWishlist(productId, variantId ?? null);
+        }}
+        className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 transition"
+        aria-label="Remove from wishlist"
+      >
+        <RxCross1
+          size={20}
+          className="text-gray-500 hover:text-red-500 transition"
+        />
+      </button>
+
+      {/* Add to Cart Button (bottom full-width) */}
+      {variant?.stock && (
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            {/* Add to Cart Button */}
-{product.variants[0].stock && (
-  <button
-    onClick={() => {
-      const variant = product.variants[0];
-      addToCart({
-        productId: product._id,
-        variantId: variant._id,
-        product,
-        variant,
-        qty: 1,
-        shopId: (product as any).shopId?._id || (product as any).shopId,
-      });
-      removeFromWishlist(product._id);
-    }}
-    className="mt-3 inline-block bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded hover:bg-green-600 transition"
-  >
-    Add to Cart
-  </button>
-)}
 
-            removeFromWishlist(product._id);
+            // ✅ Add to cart with same structure as cartStore expects
+            addToCart({
+              productId,
+              variantId,
+              product,
+              variant,
+              qty: 1,
+              price, // per-piece price
+              shopId: shopId ?? "",
+              taxClass: taxClass ?? 0,
+            });
+
+            // remove from wishlist after adding
+            removeFromWishlist(productId, variantId ?? null);
           }}
-          className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition"
+          className="mt-4 w-full py-2 rounded-2xl font-semibold text-white text-base"
+          style={{
+            background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
+          }}
         >
           Add to Cart
         </button>
-
-        {/* Remove from Wishlist */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            removeFromWishlist(product._id);
-          }}
-          className="p-2 rounded-full hover:bg-gray-100 transition"
-          aria-label="Remove from wishlist"
-        >
-          <RxCross1
-            size={20}
-            className="text-gray-500 hover:text-red-500 transition"
-          />
-        </button>
-      </div>
+      )}
     </div>
   );
 }
