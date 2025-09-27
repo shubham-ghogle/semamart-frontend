@@ -1,5 +1,4 @@
 // ProductMediaSection.tsx
-import React from "react";
 import { PLACEHOLDER, toImageUrl } from "./utils";
 
 export default function ProductMediaSection({
@@ -10,7 +9,6 @@ export default function ProductMediaSection({
   animating,
   setAnimating,
   selectedVariant,
-  selectedPack,
   isVariantActive,
   setIsVariantActive,
 }: any) {

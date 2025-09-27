@@ -30,11 +30,18 @@ export default function ProductCard({ product }: Props) {
   // Zustand stores
   const addToCart = useCartStore((s) => s.addToCart)
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s)
-  const inWishlist = wishlist.some((p) => p._id === product._id)
+
+  // ✅ Safe inWishlist check (wishlist item stores product object)
+  const inWishlist = wishlist.some(
+    (w: any) => w.product?._id === product._id || w.productId === product._id
+  )
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault()
     if (!variant || stock <= 0) return
+
+    const perPiecePrice =
+      variant.discountPrice ?? variant.originalPrice ?? 0
 
     addToCart({
       productId: product._id,
@@ -42,10 +49,12 @@ export default function ProductCard({ product }: Props) {
       product,
       variant,
       qty: 1,
+      price: perPiecePrice, // ✅ required field
       shopId: (product as any).shopId?._id || (product as any).shopId,
+      taxClass: (product as any).taxClass ?? 0,
     })
 
-    if (inWishlist) removeFromWishlist(product._id)
+    if (inWishlist) removeFromWishlist(product._id, variant._id)
 
     toast.success(`${product.name} added to cart!`, {
       position: "top-center",
@@ -60,7 +69,9 @@ export default function ProductCard({ product }: Props) {
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
-    inWishlist ? removeFromWishlist(product._id) : addToWishlist(product)
+    inWishlist
+      ? removeFromWishlist(product._id, variant?._id ?? null)
+      : addToWishlist(product, variant ?? null)
   }
 
   return (
@@ -93,7 +104,7 @@ export default function ProductCard({ product }: Props) {
             {product.name}
           </h3>
 
-          {/* Ratings: 3 filled + 2 empty */}
+          {/* Ratings */}
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -113,17 +124,15 @@ export default function ProductCard({ product }: Props) {
               ₹{discountPrice || originalPrice || "—"}
             </span>
             {discountPrice && originalPrice && (
-              <>
-                <span className="text-sm text-gray-500 line-through">
-                  ₹{originalPrice}
-                </span>
-              </>
+              <span className="text-sm text-gray-500 line-through">
+                ₹{originalPrice}
+              </span>
             )}
           </div>
 
           {/* Cart + Wishlist at bottom */}
           <div className="flex items-center justify-between mt-2">
-            {/* Wishlist bottom-left */}
+            {/* Wishlist */}
             <button
               onClick={handleToggleWishlist}
               className="hover:scale-110 transition-transform"
@@ -147,7 +156,7 @@ export default function ProductCard({ product }: Props) {
               </span>
             </button>
 
-            {/* Cart button right */}
+            {/* Cart */}
             {stock > 0 && (
               <button
                 onClick={handleAddCart}

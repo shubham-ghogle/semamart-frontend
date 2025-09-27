@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { CashOnDelivery } from "../../components/UIComponents/CashOnDelivery";
-import offer from "../../../public/offer.png";
+import { useState } from "react"
+import { CashOnDelivery } from "../../components/UIComponents/CashOnDelivery"
+import offer from "../../../public/offer.png"
 
 export default function ProductInfoSection({
   product,
@@ -8,36 +8,35 @@ export default function ProductInfoSection({
   selectedPack,
   selectedPerPiece,
 }: any) {
-  const [selectedOffer, setSelectedOffer] = useState<any>(null);
+  const [selectedOffer, setSelectedOffer] = useState<any>(null)
 
   const displayOriginalPrice =
-    selectedVariant?.originalPrice ?? product.originalPrice;
+    selectedVariant?.originalPrice ?? product.originalPrice
   const displayDiscountPrice =
-    selectedVariant?.discountPrice ?? product.discountPrice;
+    selectedVariant?.discountPrice ?? product.discountPrice
 
   // ✅ main price
   const mainPrice = selectedPack
     ? selectedPack.price
-    : displayDiscountPrice ?? displayOriginalPrice ?? 0;
+    : displayDiscountPrice ?? displayOriginalPrice ?? 0
 
-  const STAR_COLOR = "#FFD700";
-  const GREEN = "#3bc177";
+  const STAR_COLOR = "#FFD700"
 
   // ✅ discount calculation
-  let topDiscount = 0;
+  let topDiscount = 0
   if (selectedPack) {
-    const perPiece = selectedPerPiece;
+    const perPiece = selectedPerPiece
     if (displayOriginalPrice) {
       topDiscount = Math.round(
         ((displayOriginalPrice - perPiece) / displayOriginalPrice) * 100
-      );
+      )
     }
   } else if (displayOriginalPrice && displayDiscountPrice) {
     topDiscount = Math.round(
       ((displayOriginalPrice - displayDiscountPrice) /
         Math.max(displayOriginalPrice, 1)) *
         100
-    );
+    )
   }
 
   return (
@@ -119,9 +118,7 @@ export default function ProductInfoSection({
       {/* Offers */}
       <div className="flex items-center gap-3 mt-4">
         <img src={offer} alt="Offer Icon" className="w-7 h-7" />
-        <span className="text-base font-semibold text-[#1C647C]">
-          Offers
-        </span>
+        <span className="text-base font-semibold text-[#1C647C]">Offers</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mt-2">
@@ -129,7 +126,10 @@ export default function ProductInfoSection({
           { title: "Bank Offers", details: "10% off with HDFC cards" },
           { title: "Partner Offers", details: "Flat ₹50 off via PhonePe" },
           { title: "Cashback", details: "₹14 cashback on Amazon Pay" },
-          { title: "EMI options", details: "No Cost EMI on orders above ₹3,000" },
+          {
+            title: "EMI options",
+            details: "No Cost EMI on orders above ₹3,000",
+          },
         ].map((offerObj) => (
           <div
             key={offerObj.title}
@@ -170,5 +170,5 @@ export default function ProductInfoSection({
         </div>
       </div>
     </div>
-  );
+  )
 }

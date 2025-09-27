@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router";
-import { Product } from "../../Types/types";
+import { Product, Variant } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 
-// Replace this with your uploaded image filenames in the next message!
+// Replace with your actual uploaded images
 const uploadedImages = [
   "/MedicalImages/imagea.png",
   "/MedicalImages/imageb.png",
@@ -26,13 +26,10 @@ type ProductCardProps = {
   variant?: ProductCardVariant;
 };
 
-export default function EquipmentProductCard({
-  product,
-}: ProductCardProps) {
-  // pick first variant safely
-  const variant = product.variants?.[0];
-  const originalPrice = variant?.originalPrice ?? 0;
-  const discountPrice = variant?.discountPrice ?? originalPrice;
+export default function EquipmentProductCard({ product }: ProductCardProps) {
+  const firstVariant: Variant | undefined = product.variants?.[0];
+  const originalPrice = firstVariant?.originalPrice ?? 0;
+  const discountPrice = firstVariant?.discountPrice ?? originalPrice;
 
   const discountPct =
     originalPrice > 0
@@ -41,36 +38,37 @@ export default function EquipmentProductCard({
 
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
-  const inWishlist = wishlist.some((p) => p._id === product._id);
+
+  const inWishlist = wishlist.some(
+    (w) => w.product._id === product._id && w.variant?._id === firstVariant?._id
+  );
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
-   {/* Add to Cart Button */}
-{product.variants[0].stock && (
-  <button
-    onClick={() => {
-      const variant = product.variants[0];
-      addToCart({
-        productId: product._id,
-        variantId: variant._id,
-        product,
-        variant,
-        qty: 1,
-        shopId: (product as any).shopId?._id || (product as any).shopId,
-      });
-      removeFromWishlist(product._id);
-    }}
-    className="mt-3 inline-block bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded hover:bg-green-600 transition"
-  >
-    Add to Cart
-  </button>
-)}
+    if (!firstVariant) return;
 
+    addToCart({
+      productId: product._id,
+      variantId: firstVariant._id,
+      product,
+      variant: firstVariant,
+      qty: 1,
+      price: firstVariant.discountPrice ?? firstVariant.originalPrice ?? 0, // ✅ fixed
+      shopId: (product as any).shopId?._id || (product as any).shopId,
+    });
+
+    if (inWishlist) {
+      removeFromWishlist(product._id, firstVariant._id);
+    }
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    inWishlist ? removeFromWishlist(product._id) : addToWishlist(product);
+    if (!firstVariant) return;
+
+    inWishlist
+      ? removeFromWishlist(product._id, firstVariant._id)
+      : addToWishlist(product, firstVariant);
   };
 
   const imageSrc =

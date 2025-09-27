@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "./Equipment.Hooks";
 import ProductShowcase from "../../components/Homepage/ProductShowcase";
-import ImageSlider from "../../components/Homepage/ImageSlider";
 
 export default function Equipment() {
   const {

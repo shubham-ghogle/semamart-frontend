@@ -5,14 +5,14 @@ import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 
 import { ChevronDown } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/UIComponents/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/UIComponents/collapsible";
 
 const PLACEHOLDER = "/placeholder.png";
 
-/** Convert backend image value to public URL.
- * If image already starts with "/" or "http", keep it.
- * Otherwise map to `/images/<value>`
- */
 function toImageUrl(value?: string | null) {
   if (!value) return undefined;
   if (value.startsWith("http://") || value.startsWith("https://")) return value;
@@ -20,22 +20,19 @@ function toImageUrl(value?: string | null) {
   return `/images/${value}`;
 }
 
-/** Choose the best variant for display:
- * - prefer variant with smallest discountPrice (if discountPrice present)
- * - fallback to first variant
- * - returns undefined if no variants
- */
 function pickBestVariant(variants?: Variant[]) {
   if (!Array.isArray(variants) || variants.length === 0) return undefined;
-  // find variant with lowest discountPrice (if present), otherwise lowest originalPrice
-  const withDiscount = variants.filter((v) => typeof v.discountPrice === "number");
+  const withDiscount = variants.filter(
+    (v) => typeof v.discountPrice === "number"
+  );
   if (withDiscount.length > 0) {
-    return withDiscount.reduce((a, b) => ( (a.discountPrice! < b.discountPrice!) ? a : b ));
+    return withDiscount.reduce((a, b) =>
+      a.discountPrice! < b.discountPrice! ? a : b
+    );
   }
   return variants[0];
 }
 
-/** Helpers to get display prices (number) */
 function getDisplayDiscountPrice(p: Product) {
   const v = pickBestVariant(p.variants);
   return v?.discountPrice ?? v?.originalPrice ?? 0;
@@ -60,7 +57,9 @@ export default function SearchResultsPage() {
   const categories = ["All", "Consumables", "Pharmaceutical", "Equipment"];
 
   const addToCart = useCartStore((s) => s.addToCart);
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore(
+    (s) => s
+  );
 
   useEffect(() => {
     if (!q) {
@@ -70,13 +69,14 @@ export default function SearchResultsPage() {
     setLoading(true);
     (async () => {
       try {
-        const res = await fetch(`/api/v2/product/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(
+          `/api/v2/product/search?q=${encodeURIComponent(q)}`
+        );
         if (!res.ok) {
           setResults([]);
           return;
         }
         const data = await res.json().catch(() => ({}));
-        // API may return { products: [...] } or directly [...]
         const products: Product[] = Array.isArray(data?.products)
           ? data.products
           : Array.isArray(data)
@@ -92,24 +92,29 @@ export default function SearchResultsPage() {
     })();
   }, [q]);
 
-// Filtering
-let filtered = results.filter((p) => {
-  // category: using productType (matches your interface)
-  const inCat =
-    category === "All" ||
-    p.productType === category ||
-    (Array.isArray(p.category) ? p.category.includes(category) : p.category === category);
+  // Filtering
+  let filtered = results.filter((p) => {
+    const inCat =
+      category === "All" ||
+      p.productType === category ||
+      (Array.isArray(p.category)
+        ? p.category.includes(category)
+        : p.category === category);
 
-  const displayPrice = getDisplayDiscountPrice(p);
-  const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;
-  return inCat && inPrice;
-});
+    const displayPrice = getDisplayDiscountPrice(p);
+    const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;
+    return inCat && inPrice;
+  });
 
   // Sorting
   if (sort === "lowToHigh") {
-    filtered = filtered.sort((a, b) => getDisplayDiscountPrice(a) - getDisplayDiscountPrice(b));
+    filtered = filtered.sort(
+      (a, b) => getDisplayDiscountPrice(a) - getDisplayDiscountPrice(b)
+    );
   } else if (sort === "highToLow") {
-    filtered = filtered.sort((a, b) => getDisplayDiscountPrice(b) - getDisplayDiscountPrice(a));
+    filtered = filtered.sort(
+      (a, b) => getDisplayDiscountPrice(b) - getDisplayDiscountPrice(a)
+    );
   } else if (sort === "rating") {
     filtered = filtered.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
   }
@@ -207,16 +212,23 @@ let filtered = results.filter((p) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filtered.map((p) => {
                 const discountPercent =
-                  (getDisplayOriginalPrice(p) && getDisplayOriginalPrice(p) > 0)
-                    ? Math.round(((getDisplayOriginalPrice(p) - getDisplayDiscountPrice(p)) / Math.max(getDisplayOriginalPrice(p), 1)) * 100)
+                  getDisplayOriginalPrice(p) > 0
+                    ? Math.round(
+                        ((getDisplayOriginalPrice(p) -
+                          getDisplayDiscountPrice(p)) /
+                          Math.max(getDisplayOriginalPrice(p), 1)) *
+                          100
+                      )
                     : null;
 
-                const inWishlist = wishlist.some((w) => w._id === p._id);
+                const inWishlist = wishlist.some(
+                  (w) => w.productId === p._id
+                );
 
-                // Image: try product.images[0] else placeholder
-                const imgSrc = (Array.isArray(p.images) && p.images.length > 0)
-                  ? toImageUrl(p.images[0]) ?? PLACEHOLDER
-                  : PLACEHOLDER;
+                const imgSrc =
+                  Array.isArray(p.images) && p.images.length > 0
+                    ? toImageUrl(p.images[0]) ?? PLACEHOLDER
+                    : PLACEHOLDER;
 
                 const dispPrice = getDisplayDiscountPrice(p);
                 const origPrice = getDisplayOriginalPrice(p);
@@ -235,7 +247,10 @@ let filtered = results.filter((p) => {
                           src={imgSrc}
                           alt={p.name}
                           className="w-full h-40 object-contain bg-gray-100 p-2 rounded"
-                          onError={(e) => ((e.currentTarget as HTMLImageElement).src = PLACEHOLDER)}
+                          onError={(e) =>
+                            ((e.currentTarget as HTMLImageElement).src =
+                              PLACEHOLDER)
+                          }
                         />
                       </div>
 
@@ -243,7 +258,9 @@ let filtered = results.filter((p) => {
                         <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 min-h-[38px]">
                           {p.name}
                         </h3>
-                        <span className="text-xs text-gray-500">{p.productType || p.category}</span>
+                        <span className="text-xs text-gray-500">
+                          {p.productType || p.category}
+                        </span>
 
                         {/* Ratings */}
                         <div className="flex items-center mt-1 space-x-1">
@@ -251,14 +268,28 @@ let filtered = results.filter((p) => {
                             const starNumber = i + 1;
                             const rating = p.ratings ?? 0;
                             if (rating >= starNumber) {
-                              return <span key={i} className="text-yellow-400">★</span>;
+                              return (
+                                <span key={i} className="text-yellow-400">
+                                  ★
+                                </span>
+                              );
                             } else if (rating >= starNumber - 0.5) {
-                              return <span key={i} className="text-yellow-400">☆</span>;
+                              return (
+                                <span key={i} className="text-yellow-400">
+                                  ☆
+                                </span>
+                              );
                             } else {
-                              return <span key={i} className="text-gray-300">★</span>;
+                              return (
+                                <span key={i} className="text-gray-300">
+                                  ★
+                                </span>
+                              );
                             }
                           })}
-                          <span className="text-xs text-gray-600 ml-1">({(p.ratings ?? 0).toFixed(1)})</span>
+                          <span className="text-xs text-gray-600 ml-1">
+                            ({(p.ratings ?? 0).toFixed(1)})
+                          </span>
                         </div>
 
                         <div className="mt-2 flex items-center gap-2">
@@ -277,14 +308,23 @@ let filtered = results.filter((p) => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-addToCart({
-  product: p,
-  qty: 1,
-  productId: p._id,
-  shopId: typeof p.shopId === "string" ? p.shopId : p.shopId._id,
-  variantId: p.variants?.[0]?._id ?? null,
-  variant: p.variants?.[0], // optional
-});
+                              addToCart({
+                                product: p,
+                                qty: 1,
+                                productId: p._id,
+                                shopId:
+                                  typeof p.shopId === "string"
+                                    ? p.shopId
+                                    : p.shopId._id,
+                                variantId: p.variants?.[0]?._id ?? null,
+                                variant: p.variants?.[0],
+                                price:
+                                  p.variants?.[0]?.discountPrice ??
+                                  p.variants?.[0]?.originalPrice ??
+                                  (p as any).discountPrice ??
+                                  (p as any).originalPrice ??
+                                  0,
+                              });
                             }}
                             className="bg-[#005B5D] text-white text-xs px-3 py-1 rounded-full hover:bg-[#004C4D]"
                           >
@@ -295,7 +335,12 @@ addToCart({
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              inWishlist ? removeFromWishlist(p._id) : addToWishlist(p);
+                              inWishlist
+                                ? removeFromWishlist(
+                                    p._id,
+                                    p.variants?.[0]?._id ?? null
+                                  )
+                                : addToWishlist(p, p.variants?.[0]);
                             }}
                             className="w-6 h-6 rounded-full bg-white border flex items-center justify-center"
                             aria-label="toggle wishlist"
@@ -310,7 +355,9 @@ addToCart({
                                 maskSize: "contain",
                                 maskRepeat: "no-repeat",
                                 maskPosition: "center",
-                                backgroundColor: inWishlist ? "#DF848E" : "#1C647C",
+                                backgroundColor: inWishlist
+                                  ? "#DF848E"
+                                  : "#1C647C",
                               }}
                               className="w-4 h-4 inline-block"
                             />

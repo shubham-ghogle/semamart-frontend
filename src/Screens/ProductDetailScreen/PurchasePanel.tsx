@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react"
 import {
   AiOutlineShoppingCart,
   AiOutlineQuestionCircle,
   AiOutlineArrowRight,
   AiOutlineCheckCircle,
-} from "react-icons/ai";
+} from "react-icons/ai"
 
 export default function PurchasePanel({
   product,
@@ -18,13 +18,10 @@ export default function PurchasePanel({
   cartAnimation,
 }: any) {
   const displayOriginalPrice =
-    selectedVariant?.originalPrice ?? product.originalPrice;
+    selectedVariant?.originalPrice ?? product.originalPrice
   const displayDiscountPrice =
-    selectedVariant?.discountPrice ?? product.discountPrice;
-  const GREEN = "#3bc177";
-
-  // Fallback packs
-  const fallbackPacks = ["100 Pack", "500 Pack", "1000 Pack"];
+    selectedVariant?.discountPrice ?? product.discountPrice
+  const GREEN = "#3bc177"
 
   // ✅ Ensure "1 Pack" is default
   useEffect(() => {
@@ -33,9 +30,9 @@ export default function PurchasePanel({
         qty: 1,
         price: displayDiscountPrice ?? displayOriginalPrice ?? 0,
         label: "1 Pack",
-      });
+      })
     }
-  }, [selectedPack, displayOriginalPrice, displayDiscountPrice, setSelectedPack]);
+  }, [selectedPack, displayOriginalPrice, displayDiscountPrice, setSelectedPack])
 
   // ✅ discount for 1 Pack
   const onePackDiscount =
@@ -45,7 +42,7 @@ export default function PurchasePanel({
             Math.max(displayOriginalPrice, 1)) *
             100
         )
-      : 0;
+      : 0
 
   return (
     <div
@@ -105,13 +102,13 @@ export default function PurchasePanel({
         {/* Other bulk orders */}
         {variantBulkOrders && variantBulkOrders.length > 0
           ? variantBulkOrders.map((b: any) => {
-              const perPiece = b.price / Math.max(b.qty, 1);
+              const perPiece = b.price / Math.max(b.qty, 1)
               const saved = displayOriginalPrice
                 ? Math.round(
                     ((displayOriginalPrice - perPiece) / displayOriginalPrice) *
                       100
                   )
-                : 0;
+                : 0
               return (
                 <label
                   key={`${b.qty}-${b.price}`}
@@ -164,7 +161,7 @@ export default function PurchasePanel({
                     </div>
                   </div>
                 </label>
-              );
+              )
             })
           : null}
       </div>
@@ -214,5 +211,5 @@ export default function PurchasePanel({
         Buy Now
       </button>
     </div>
-  );
+  )
 }

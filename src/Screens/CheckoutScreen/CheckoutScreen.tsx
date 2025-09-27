@@ -16,7 +16,6 @@ export default function CheckoutScreen(): JSX.Element {
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [createdOrders, setCreatedOrders] = useState<any[] | null>(null);
 
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -95,7 +94,6 @@ export default function CheckoutScreen(): JSX.Element {
       const data = await res.json();
 
       if (data.success) {
-        setCreatedOrders(data.orders || null);
         clearCart();
         setSuccess(true);
       } else {
@@ -139,18 +137,9 @@ export default function CheckoutScreen(): JSX.Element {
             </div>
           )}
 
-          {/* {createdOrders && createdOrders.length > 0 && (
-            <div className="text-left bg-white p-3 rounded-md border mb-4">
-              <h4 className="font-medium mb-2">Order IDs</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                {createdOrders.map((o: any) => (
-                  <li key={o._id} className="truncate">
-                    <strong>#{String(o._id).slice(0, 8)}</strong>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
+          <p className="text-gray-600 text-sm mb-4">
+            ✅ Check your orders section for further details.
+          </p>
 
           <div className="flex justify-center">
             <button
@@ -254,7 +243,11 @@ export default function CheckoutScreen(): JSX.Element {
 
               <button
                 className="border rounded-lg py-3 font-semibold text-[#1C647C] bg-green-50 hover:bg-green-100 transition"
-                onClick={() => toast.info("Add new address flow coming soon!", { position: "top-left" })}
+                onClick={() =>
+                  toast.info("Add new address flow coming soon!", {
+                    position: "top-left",
+                  })
+                }
               >
                 + Add New Address
               </button>
@@ -264,7 +257,11 @@ export default function CheckoutScreen(): JSX.Element {
               No saved addresses.{" "}
               <button
                 className="text-blue-600 underline"
-                onClick={() => toast.info("Add new address flow coming soon!", { position: "top-left" })}
+                onClick={() =>
+                  toast.info("Add new address flow coming soon!", {
+                    position: "top-left",
+                  })
+                }
               >
                 Add one now
               </button>
@@ -290,7 +287,9 @@ export default function CheckoutScreen(): JSX.Element {
             <span>Grand Total (Incl. GST)</span>
             <span>{formatter.format(grandTotal)}</span>
           </div>
-          <p className="text-sm text-gray-500 mt-2">Estimated delivery: 6-7 business days</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Estimated delivery: 6-7 business days
+          </p>
 
           <button
             onClick={handlePlaceOrder}

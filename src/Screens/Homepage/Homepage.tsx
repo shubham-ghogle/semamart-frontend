@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "./Homepage.Hooks";
 import ProductShowcase from "../../components/Homepage/ProductShowcase";
-import ImageSlider from "../../components/Homepage/ImageSlider";
 
 export default function Homepage() {
   const { status: productFetchingStatus, data: products } = useQuery({

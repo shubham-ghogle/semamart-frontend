@@ -1,7 +1,7 @@
 // ProductCard.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { getProductDetail } from "./ProductDetails.HooksUtils";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
@@ -25,7 +25,6 @@ const demoImages = [
 ];
 
 export default function ProductCard() {
-  const navigate = useNavigate();
   const { id } = useParams();
 
   const { data: product, isLoading: isPending, isError } = useQuery({
