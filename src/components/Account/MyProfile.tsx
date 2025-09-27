@@ -209,7 +209,7 @@ useEffect(() => {
           your Seller account also.
         </p>
 
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <a
             href="#"
             className="text-blue-600 font-semibold hover:underline"
@@ -223,7 +223,7 @@ useEffect(() => {
           >
             Delete Account
           </a>
-        </div>
+        </div> */}
       </div>
     </div>
   );

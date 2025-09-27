@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
-import { useNavigate } from "react-router-dom";
 
 interface Product {
   _id: string;
@@ -24,6 +23,7 @@ interface Order {
   totalPrice: number;
   status: string;
   deliveredAt?: string;
+  createdAt?: string;
   shop?: { _id: string; email: string };
   shippingAddress?: {
     state: string;
@@ -38,7 +38,6 @@ interface Order {
     lastName: string;
     phoneNumber: string;
   };
-  createdAt?: string;
 }
 
 const MyOrders = () => {
@@ -46,7 +45,6 @@ const MyOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const { user } = useUserStore((state) => state);
 
   useEffect(() => {
@@ -104,6 +102,23 @@ const MyOrders = () => {
       order._id.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
+
+  // ✅ Status banner styles
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "Delivered":
+        return "bg-green-100 text-green-700";
+      case "Processing":
+        return "bg-yellow-100 text-yellow-700";
+      case "On the way":
+        return "bg-blue-100 text-blue-700";
+      case "Cancelled":
+      case "Returned":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
 
   return (
     <div className="font-montserrat">
@@ -198,39 +213,79 @@ const MyOrders = () => {
                 return (
                   <div
                     key={order._id}
-                    className="border rounded-md p-4 bg-white shadow-sm flex items-start gap-4 cursor-pointer"
-                    onClick={() => navigate(`/account/orders/${order._id}`)}
+                    className="border rounded-md p-4 bg-white shadow-sm flex flex-col gap-3"
                   >
-                    {/* Product Image */}
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className="w-20 h-20 object-cover rounded border"
-                    />
+                    {/* Status Banner */}
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-semibold self-start ${getStatusStyle(
+                        order.status
+                      )}`}
+                    >
+                      {order.status}
+                    </div>
 
-                    {/* Order Info */}
-                    <div className="flex flex-1 flex-col">
-                      <h3 className="text-sm font-semibold">{product.name}</h3>
-                      <p className="text-xs text-gray-600">Quantity: {order.qty}</p>
-                      {variant?.size && (
-                        <p className="text-xs text-gray-500">Size: {variant.size}</p>
-                      )}
-                      {variant?.colorOption && (
-                        <p className="text-xs text-gray-500">
-                          Color: {variant.colorOption}
+                    {/* Product Details */}
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={imageUrl}
+                        alt={product.name}
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+
+                      <div className="flex flex-1 flex-col">
+                        <h3 className="text-base font-bold">{product.name}</h3>
+                        <p className="text-sm text-gray-600">Quantity: {order.qty}</p>
+                        {variant && (
+                          <p className="text-sm text-gray-600">
+                            <span className="font-semibold">Variant:</span>{" "}
+                            {variant.size ? `Size ${variant.size} ` : ""}
+                            {variant.colorOption ? `Color ${variant.colorOption}` : ""}
+                          </p>
+                        )}
+                        {order.shop?.email && (
+                          <p className="text-sm text-gray-600">
+                            <span className="font-semibold">Seller:</span> {order.shop.email}
+                          </p>
+                        )}
+                        <p className="text-sm font-bold mt-1">
+                          Total: ₹{order.totalPrice}
                         </p>
-                      )}
-                      {order.shop?.email && (
-                        <p className="text-xs text-gray-500">
-                          Sold by: {order.shop.email}
+                      </div>
+                    </div>
+
+                    {/* Shipping + User */}
+                    {order.shippingAddress && (
+                      <div className="text-xs text-gray-600 mt-2">
+                        <p>
+                          <span className="font-semibold">Ship To:</span>{" "}
+                          {order.shippingAddress.instituteAddress1},{" "}
+                          {order.shippingAddress.district},{" "}
+                          {order.shippingAddress.state} -{" "}
+                          {order.shippingAddress.pincode}
                         </p>
-                      )}
-                      <p className="text-sm font-medium mt-1">₹{order.totalPrice}</p>
-                      <p className="text-xs text-gray-500 mt-1">Status: {order.status}</p>
-                      {order.status === "Delivered" && order.deliveredAt && (
-                        <p className="text-green-600 text-xs font-medium">
-                          Delivered on {formatDate(order.deliveredAt)}
+                        {order.shippingAddress.landmark && (
+                          <p>Landmark: {order.shippingAddress.landmark}</p>
+                        )}
+                      </div>
+                    )}
+                    {order.user && (
+                      <div className="text-xs text-gray-600">
+                        <p>
+                          <span className="font-semibold">Ordered By:</span>{" "}
+                          {order.user.firstName} {order.user.lastName}
                         </p>
+                        <p>
+                          <span className="font-semibold">Phone:</span>{" "}
+                          {order.user.phoneNumber}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Dates */}
+                    <div className="text-xs text-gray-500 mt-1">
+                      Placed on: {formatDate(order.createdAt)}
+                      {order.deliveredAt && (
+                        <p>Delivered on: {formatDate(order.deliveredAt)}</p>
                       )}
                     </div>
                   </div>
