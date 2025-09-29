@@ -5,50 +5,53 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 import { Logo } from "@/components/UIComponents/Logo";
 import { loginFailureToast } from "@/components/UIComponents/Toasts";
-import { useMutation } from "@tanstack/react-query";
-import { postUser } from "../LoginScreen/Login.Hooks";
-import { useUserStore } from "@/store/userStore";
+// import { useMutation } from "@tanstack/react-query";
+// import { postUser } from "../LoginScreen/Login.Hooks";
+// import { useUserStore } from "@/store/userStore";
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
-  const addUser = useUserStore((state) => state.addUser);
+  //const addUser = useUserStore((state) => state.addUser);
 
-  const { mutate } = useMutation({
-    mutationFn: postUser,
-    onSuccess: (data) => {
-      addUser(data.user);
-       navigate("/admin"); // redirect to dashboard
-    },
-    onError: () => {
-      loginFailureToast("Invalid email or password");
-    },
-  });
+  // const { mutate } = useMutation({
+  //   mutationFn: postUser,
+  //   onSuccess: (data) => {
+  //     addUser(data.user);
+  //      navigate("/admin"); // redirect to dashboard
+  //   },
+  //   onError: () => {
+  //     loginFailureToast("Invalid email or password");
+  //   },
+  // });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    mutate({ email, password });
+    //mutate({ email, password });
 
-    // if (email === "sema@gmail.com" && password === "Sema@123") {
-    //   // ✅ store Admin in localStorage
-    //   localStorage.setItem(
-    //     "user-storage",
-    //     JSON.stringify({
-    //       state: {
-    //         user: {
-    //           id: "1",
-    //           name: "Super Admin",
-    //           role: "Admin",
-    //           email: "sema@gmail.com",
-    //         },
-    //       },
-    //     })
-    //   );
-    // } else {
-    // }
+    if (email === "sema@gmail.com" && password === "Sema@123") {
+      // ✅ store Admin in localStorage
+      localStorage.setItem(
+        "user-storage",
+        JSON.stringify({
+          state: {
+            user: {
+              id: "1",
+              name: "Super Admin",
+              role: "Admin",
+              email: "sema@gmail.com",
+            },
+          },
+        })
+      );
+
+      navigate("/admin"); // redirect to dashboard
+    } else {
+      loginFailureToast("Invalid email or password");
+    }
   }
 
   return (
