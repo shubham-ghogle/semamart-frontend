@@ -25,7 +25,7 @@ type Product = {
   variants: Variant[];
 };
 
-export default function ProductBasedOnType() {
+export default function ProductBasedOnSpecialPackagetypes() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function ProductBasedOnType() {
     const fetchProducts = async () => {
       if (!id) return;
       try {
-        const res = await fetch(`/api/v2/product/get-products-by-subcategory/${id}`);
+        const res = await fetch(`/api/v2/product/get-products-by-speciality-package-type/${id}`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
@@ -252,7 +252,7 @@ export default function ProductBasedOnType() {
 
                   <button
                     onClick={() => handleAddToCart(product.id)}
-                    className="mt-auto flex items-center justify-center gap-2 bg-[#1C647C] text-white rounded px-3 py-2 hover:bg-blue-700 transition"
+                    className="mt-auto flex items-center justify-center gap-2 bg-[#1C647C]  text-white rounded px-3 py-2 hover:bg-blue-700 transition"
                   >
                     <AiOutlineShoppingCart size={18} />
                     Add to Cart

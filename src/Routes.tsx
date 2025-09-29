@@ -47,8 +47,11 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
-import ProductBasedOnType from "./components/ui/ProductBasedOnType";
+import ProductBasedOnType from "./components/UI/ProductBasedOnType";
 import AllUserScreen from "./Screens/Admin/AllUserScreen";
+import ProductBasedOnSpecialPackagetypes from "./components/UI/ProductBasedOnSpecialPackagetypes";
+import ProductBasedOnSpecialPackage from "./components/UI/ProductBasedOnSpecialPackage";
+
 
 export const router = createBrowserRouter([
   {
@@ -244,6 +247,8 @@ export const router = createBrowserRouter([
   { path: "/account/orders", element: <MyOrders /> },
   { path: "account/orders/:productId", element: <OrderSummary /> },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType/> },
+  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes/> },
+  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage/> },
 
 
 ]); 

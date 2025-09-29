@@ -46,6 +46,12 @@ type Subcategory = {
   name: string;
 };
 
+type PackageType = {
+  _id: string;
+  name: string;
+  // ... other fields
+};
+
 
 
 export default function Header() {
@@ -78,14 +84,33 @@ export default function Header() {
   const categoryRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+
+
+
+  const [loadingPackageTypes, setLoadingPackageTypes] = useState(false);
+
+  const [specialtyPackageTypes, setSpecialtyPackageTypes] = useState<Record<string, PackageType[]>>({});
+  const [loadingSpecialtyId, setLoadingSpecialtyId] = useState<string | null>(null);
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string | null>(null);
   const [isSpecialtyHovered, setIsSpecialtyHovered] = useState(false);
   const [specialties, setSpecialties] = useState<Subcategory[]>([]);
   const [isLoadingSpecialties, setIsLoadingSpecialties] = useState(false);
   const [specialtiesFetched, setSpecialtiesFetched] = useState(false);
+  const specialtyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hoveredSpecialtyId, setHoveredSpecialtyId] = useState<string | null>(null);
+  
+  const clearSpecialtyTimeout = () => {
+  if (specialtyTimeoutRef.current) {
+    clearTimeout(specialtyTimeoutRef.current);
+    specialtyTimeoutRef.current = null;
+  }
+};
+
+
   const [showSellerDialog, setShowSellerDialog] = useState(false);
 
 
-  
+
 
   useEffect(() => {
     // fetch categories from your API
@@ -132,30 +157,51 @@ export default function Header() {
       });
   }
 };
-  const handleSpecialtyMouseEnter = () => {
-  setIsSpecialtyHovered(true);
-  if (!specialtiesFetched) {
-    setIsLoadingSpecialties(true);
-    fetch("/api/v2/special-package")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch specialties");
-        return res.json();
-      })
-      .then((data: Subcategory[]) => {
-        console.log("my speciality")
-        setSpecialties(data || []);
-        setSpecialtiesFetched(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching specialties:", err);
-        setSpecialties([]);
-      })
-      .finally(() => {
-        setIsLoadingSpecialties(false);
-      });
-  }
-};
+  
+const handleSpecialtyMouseEnter = () => {
+    setIsSpecialtyHovered(true);
+    if (!specialtiesFetched) {
+      setLoadingPackageTypes(true);
+      fetch("/api/v2/special-package")
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch specialties");
+          return res.json();
+        })
+        .then((data: Subcategory[]) => {
+          setSpecialties(data || []);
+          setSpecialtiesFetched(true);
+        })
+        .catch((err) => {
+          console.error("Error fetching specialties:", err);
+          setSpecialties([]);
+        })
+        .finally(() => {
+          setLoadingPackageTypes(false);
+        });
+    }
+  };
 
+  // Fetch package types for a specialty — extracted as a helper to avoid duplication
+  const fetchPackageTypes = async (specialtyId: string) => {
+    setLoadingSpecialtyId(specialtyId);
+    try {
+      const res = await fetch(`/api/v2/special-package/${specialtyId}/package-types`);
+      if (!res.ok) throw new Error("Failed to fetch package types");
+      const data: PackageType[] = await res.json();
+      setSpecialtyPackageTypes((prev) => ({
+        ...prev,
+        [specialtyId]: data || [],
+      }));
+    } catch (err) {
+      console.error("Error fetching package types:", err);
+      setSpecialtyPackageTypes((prev) => ({
+        ...prev,
+        [specialtyId]: [],
+      }));
+    } finally {
+      setLoadingSpecialtyId(null);
+    }
+  };
 
 
 
@@ -305,14 +351,7 @@ return (
                           hoveredCategory?._id === category._id ? "bg-gray-100" : ""
                         }`}
                         onMouseEnter={() => handleMouseEnter(category)}
-                        onClick={() => {
-                          setIsCategoryOpen(false);
-                          navigate(
-                            `/category/${category.name
-                              .toLowerCase()
-                              .replace(/[^a-z0-9]+/g, "-")}`
-                          );
-                        }}
+                       
                       >
                         <span>{category.name}</span>
                         <IoIosArrowForward size={22} className="text-gray-500" />
@@ -436,46 +475,122 @@ return (
         </div>
       </div>
 
-      {/* Right Side: user / cart / wishlist / etc */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center text-lg ml-0 sm:ml-6 gap-6 flex-shrink-0 justify-end w-auto">
-        {/* Specialty & Get Quote */}
-        <div className="flex items-center gap-6 font-montserrat text-[#1C647C]">
-          <div
-            className="relative inline-block text-left"
-            onMouseEnter={handleSpecialtyMouseEnter}
-            onMouseLeave={() => setIsSpecialtyHovered(false)}
-          >
-            <Link to="/specialty" className="px-5 py-3 rounded-md flex items-center text-lg">
-              <FaUserDoctor size={24} />
-              <span> By Specialty</span>
-            </Link>
+        {/* Right Side: user / cart / wishlist / etc */}
+       <div className="flex flex-wrap sm:flex-nowrap items-center text-[11px] ml-0 sm:ml-2 gap-1 flex-shrink-0 justify-center sm:justify-start w-full sm:w-auto">
+          {/* Specialty & Get Quote */}
+      <div className="flex items-center  font-montserrat text-[#1C647C]">
+          <div className="relative inline-block text-left"
+  onMouseEnter={() => {
+    clearSpecialtyTimeout();
+    handleSpecialtyMouseEnter();
+  }}
+  onMouseLeave={() => {
+    specialtyTimeoutRef.current = setTimeout(() => {
+      setIsSpecialtyHovered(false);
+      setSelectedSpecialtyId(null);
+      setHoveredSpecialtyId(null);
+    }, 150);
+  }}
+>
+  <Link to="/" className="px-5 py-3 rounded-md transition flex items-center text-lg">
+    <FaUserDoctor size={16} />
+    <span className="ml-1">By Specialty</span>
+  </Link>
 
-            {isSpecialtyHovered && (
-              <div className="absolute left-0 mt-3 w-80 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                <ul className="py-3 text-lg">
-                  {isLoadingSpecialties ? (
-                    <li className="px-5 py-3 text-gray-500">Loading...</li>
-                  ) : specialties.length === 0 ? (
-                    <li className="px-5 py-3 text-red-500">No specialties found</li>
-                  ) : (
-                    specialties.map((specialty) => (
-                      <li key={specialty._id}>
-                        <Link
-                          to={`/specialty/${specialty.name
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")}`}
-                          className="block px-5 py-3 text-gray-700 hover:bg-gray-100"
-                          onClick={() => setIsSpecialtyHovered(false)}
-                        >
-                          {specialty.name}
-                        </Link>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
+  {/* Dropdown Container - both panels */}
+  {isSpecialtyHovered && (
+    <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 z-50"
+      onMouseEnter={clearSpecialtyTimeout}
+      onMouseLeave={() => {
+        specialtyTimeoutRef.current = setTimeout(() => {
+          setIsSpecialtyHovered(false);
+          setHoveredSpecialtyId(null);
+        }, 150);
+      }}
+    >
+      <div className="flex bg-white border border-gray-200 rounded-md shadow-lg max-h-96 overflow-hidden">
+
+        {/* Left Panel - Specialties */}
+        <div className="w-[250px] max-w-[90vw] overflow-y-auto border-r border-gray-200">
+          <ul className="py-1 text-sm">
+            {isLoadingSpecialties ? (
+              <li className="px-3 py-2 text-gray-500">Loading...</li>
+            ) : specialties.length === 0 ? (
+              <li className="px-3 py-2 text-red-500">No specialties found</li>
+            ) : (
+              specialties.map((specialty) => (
+                <li
+                  key={specialty._id}
+                  className={`px-4 py-2 cursor-pointer ${
+                    hoveredSpecialtyId === specialty._id
+                      ? "bg-gray-100 font-semibold"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onMouseEnter={() => {
+                    setHoveredSpecialtyId(String(specialty._id));
+                    if (!specialtyPackageTypes[specialty._id]) {
+                      fetchPackageTypes(specialty._id);
+                    }
+                  }}
+                  onClick={() => {
+                    navigate(
+                      `/get-products-by-speciality-package/${String(specialty._id)
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")}`
+                    );
+                  }}
+                >
+                  <div className="flex items-center justify-between text-black">
+                    <span>{specialty.name}</span>
+                    <IoIosArrowForward className="text-gray-400 text-sm ml-2" />
+                  </div>
+                </li>
+              ))
             )}
-          </div>
+          </ul>
+        </div>
+
+  
+       {/* Right Panel - Packages */}
+{hoveredSpecialtyId &&
+  specialtyPackageTypes[hoveredSpecialtyId] && (
+    <div className="w-[250px] p-4 overflow-y-auto bg-gray-50">
+      {specialtyPackageTypes[hoveredSpecialtyId].length === 0 ? (
+        <p className="text-gray-500">No package types found for this specialty.</p>
+      ) : (
+        <ul>
+          {specialtyPackageTypes[hoveredSpecialtyId].map((pkg) => (
+            <li
+              key={pkg._id}
+              className="py-1 text-black hover:text-blue-600 cursor-pointer"
+              onClick={() => {
+                navigate(
+                  `/get-products-by-speciality-package-type/${String(pkg._id)
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")}`
+                );
+              }}
+            >
+              {pkg.name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+)}
+
+
+      </div>
+    </div>
+  )}
+</div>
+
+     
+
+
+    
+  
+
 
           <Link to="/get-quote" className="px-5 py-3 rounded-md transition flex items-center text-lg">
             <TbFileInvoice size={24} />
