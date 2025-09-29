@@ -98,9 +98,11 @@ function Signup() {
     }));
   };
 
-  return (
-    <div className="min-h-screen bg-linear-to-b from-custom-blue to-custom-green flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md ">
+return (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="w-full max-w-md">
+      {/* Header */}
+      <div className="text-center mb-6">
         <Link to="/">
           <img
             src="/Logo-imag.png"
@@ -109,335 +111,317 @@ function Signup() {
             className="mt-1 mx-auto"
           />
         </Link>
-        <h2 className="flex justify-center text-center mt-6 mb-6 items-center text-3xl  text-white">
-          <IoIosLock />
-          <span>Customer Signup</span>
+        <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg mt-6 mb-2">
+          <div className="flex justify-center items-center gap-2">
+            <IoIosLock />
+            <span>Customer Signup</span>
+          </div>
         </h2>
+        <p className="text-base text-gray-700 mt-1 font-medium">
+          Create your customer account to continue
+        </p>
       </div>
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-140 ">
-        <div className="bg-white bg-opacity-30 py-8 px-4 shadow-sm sm:rounded-3xl sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Shop Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 "
-              >
-                First Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 ">
-                <input
-                  type="name"
-                  name="firstName"
-                  required
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Last Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="lastName"
-                  required
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            {/* Phon number */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Phone Number<div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  autoComplete="password"
-                  required
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            {/* Phone number end */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Institute Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="instituteName"
-                  required
-                  placeholder="Institute Name"
-                  value={formData.instituteName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
+      {/* Card */}
+      <section className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* First Name */}
+          <div>
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              First Name <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="firstName"
+              required
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Institute Address: <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="instituteAddress1"
-                  required
-                  placeholder="Address line 1"
-                  value={formData.instituteAddress1}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                <input
-                  type="text"
-                  name="instituteAddress2"
-                  // required
-                  placeholder="Address line 2"
-                  value={formData.instituteAddress2}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border mt-2 border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
+          {/* Last Name */}
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Last Name <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              required
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                ⁠⁠Landmark <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="landmark"
-                  required
-                  placeholder="Landmark"
-                  value={formData.landmark}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                ⁠⁠Pincode <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="pincode"
-                  required
-                  placeholder="⁠Pincode"
-                  value={formData.pincode}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                District <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="district"
-                  placeholder="District"
-                  value={formData.district}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                ⁠⁠State <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="state"
-                  required
-                  placeholder="⁠State"
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
+          {/* Phone Number */}
+          <div>
+            <label
+              htmlFor="phoneNumber"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Phone Number <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              required
+              placeholder="Phone Number"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password <span className="text-red-700">*</span>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type={visible ? "text" : "password"}
-                  name="password"
-                  required
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={handlePasswordChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Email Address <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* Institute Name */}
+          <div>
+            <label
+              htmlFor="instituteName"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Institute Name <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="instituteName"
+              required
+              placeholder="Institute Name"
+              value={formData.instituteName}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* Institute Address */}
+          <div>
+            <label
+              htmlFor="instituteAddress1"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Institute Address <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="instituteAddress1"
+              required
+              placeholder="Address line 1"
+              value={formData.instituteAddress1}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+            <input
+              type="text"
+              name="instituteAddress2"
+              placeholder="Address line 2"
+              value={formData.instituteAddress2}
+              onChange={handleChange}
+              className="mt-2 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* Landmark */}
+          <div>
+            <label
+              htmlFor="landmark"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Landmark <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="landmark"
+              required
+              placeholder="Landmark"
+              value={formData.landmark}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* Pincode */}
+          <div>
+            <label
+              htmlFor="pincode"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Pincode <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="pincode"
+              required
+              placeholder="Pincode"
+              value={formData.pincode}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* District */}
+          <div>
+            <label
+              htmlFor="district"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              District <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="district"
+              placeholder="District"
+              value={formData.district}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* State */}
+          <div>
+            <label
+              htmlFor="state"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              State <span className="text-red-700">*</span>
+            </label>
+            <input
+              type="text"
+              name="state"
+              required
+              placeholder="State"
+              value={formData.state}
+              onChange={handleChange}
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Password <span className="text-red-700">*</span>
+            </label>
+            <div className="mt-1 relative">
+              <input
+                type={visible ? "text" : "password"}
+                name="password"
+                required
+                placeholder="Password"
+                value={formData.password}
+                onChange={handlePasswordChange}
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+              />
+              {visible ? (
+                <AiOutlineEye
+                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
+                  size={22}
+                  onClick={() => setVisible(false)}
                 />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
-              {/* Password Error Messages */}
-              {passwordErrors.length > 0 && (
-                <ul className="mt-2 text-sm text-red-600">
-                  {passwordErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
+              ) : (
+                <AiOutlineEyeInvisible
+                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
+                  size={22}
+                  onClick={() => setVisible(true)}
+                />
               )}
             </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirm Password<div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type={visible ? "text" : "password"}
-                  name="confirmPassword"
-                  autoComplete="current-password"
-                  required
-                  placeholder="Confirm Password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="flex items-center mt-4">
+            {/* Password Error Messages */}
+            {passwordErrors.length > 0 && (
+              <ul className="mt-2 text-sm text-red-600">
+                {passwordErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-semibold text-[#1C647C]"
+            >
+              Confirm Password <span className="text-red-700">*</span>
+            </label>
+            <div className="mt-1 relative">
               <input
-                type="checkbox"
-                id="checkbox"
-                name="checkbox"
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
-                onChange={() => {
-                  setCheck((prev) => !prev);
-                }}
+                type={visible ? "text" : "password"}
+                name="confirmPassword"
+                required
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
               />
-              <label htmlFor="checkbox" className="ml-2 text-sm text-gray-700">
-                By Checking this box I agree to the Terms and Conditions of SEMA
-                Healthcare PVT. LTD.
-              </label>
             </div>
+          </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl  bg-accent-yellow text-black shadow-xs"
-                disabled={regiStatus === "pending"}
-              >
-                {regiStatus === "pending" ? (
-                  <AiOutlineLoading className="animate-spin" />
-                ) : (
-                  "SignUp"
-                )}
-              </button>
-            </div>
+          {/* Checkbox */}
+          <div className="flex items-center mt-4">
+            <input
+              type="checkbox"
+              id="checkbox"
+              name="checkbox"
+              className="h-4 w-4 text-[#1C647C] focus:ring-[#1C647C] border-gray-300 rounded-sm"
+              onChange={() => {
+                setCheck((prev) => !prev);
+              }}
+            />
+            <label htmlFor="checkbox" className="ml-2 text-sm text-gray-700">
+              By Checking this box I agree to the Terms and Conditions of SEMA
+              Healthcare PVT. LTD.
+            </label>
+          </div>
 
-            {/* <div className={`${styles.noramlFlex} w-full`} >
-                            <h4>Already have an account?</h4>
-                            <Link to="/shop-login" className="text-blue-600 pl-2">
-                                Sign In
-                            </Link>
-                        </div> */}
-          </form>
-        </div>
-      </div>
+          {/* Submit */}
+          <div>
+            <button
+              type="submit"
+              className="w-full h-[40px] flex justify-center items-center text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all disabled:bg-gray-400"
+              disabled={regiStatus === "pending"}
+            >
+              {regiStatus === "pending" ? (
+                <AiOutlineLoading className="animate-spin" />
+              ) : (
+                "SignUp"
+              )}
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
-  );
+  </div>
+);
+
 }
 
 export default Signup;

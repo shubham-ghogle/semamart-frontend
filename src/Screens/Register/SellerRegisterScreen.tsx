@@ -106,365 +106,369 @@ export default function SellerRegisterScreen() {
     }
   };
 
-  return (
-    <>
-      <div className="min-h-screen bg-linear-to-b from-custom-blue to-custom-green flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md ">
-          <Link to="/">
-            <img
-              src="/Logo-imag.png"
-              width={100}
-              alt="SEMA Favicon Icon"
-              className="mt-1 mx-auto"
-            />
-          </Link>
+ return (
+  <>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md ">
+        <Link to="/">
+          <img
+            src="/Logo-imag.png"
+            width={100}
+            alt="SEMA Favicon Icon"
+            className="mt-1 mx-auto"
+          />
+        </Link>
 
-          <h2 className="mt-10 mb-6 text-center text-4xl font-bold text-white">
-            Seller Registration
-          </h2>
-        </div>
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-140 ">
-          <div className="bg-white bg-opacity-30 py-8 px-4 shadow-sm sm:rounded-3xl sm:px-10">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Shop Name */}
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 "
-                >
-                  First Name <div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1 ">
-                  <input
-                    type="name"
-                    name="firstName"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+        <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center mt-6 mb-2">
+          Seller Registration
+        </h2>
+        <p className="text-base text-gray-700 mt-1 text-center font-medium">
+          Join Semamart and grow your medical business
+        </p>
+      </div>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-140 ">
+        <div className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Shop Name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 "
+              >
+                First Name <div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1 ">
+                <input
+                  type="name"
+                  name="firstName"
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Last Name <div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="name"
-                    name="lastName"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+            </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Last Name <div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1">
+                <input
+                  type="name"
+                  name="lastName"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email Address <div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+            </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email Address <div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1">
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Business Name <div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="name"
-                    name="businessName"
-                    required
-                    value={formData.businessName}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Business Name <div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1">
+                <input
+                  type="name"
+                  name="businessName"
+                  required
+                  value={formData.businessName}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  GST Number <div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="gstNumber"
-                    required
-                    value={formData.gstNumber}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                GST Number <div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="gstNumber"
+                  required
+                  value={formData.gstNumber}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
+            </div>
 
-              {/* Phon number */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Phone Number<div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    type="number"
-                    name="phoneNumber"
-                    autoComplete="password"
-                    required
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
+            {/* Phon number */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number<div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type="number"
+                  name="phoneNumber"
+                  autoComplete="password"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
               </div>
-              {/* Phone number end */}
+            </div>
+            {/* Phone number end */}
 
-              {/* Email start */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
+            {/* Email start */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Select Your Business categories{" "}
+                <div className="inline text-red-700">*</div>
+              </label>
+              <div className="relative mt-1">
+                <select
+                  name="businessType"
+                  required
+                  value={formData.businessType}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
                 >
-                  Select Your Business categories{" "}
-                  <div className="inline text-red-700">*</div>
-                </label>
-                <div className="relative mt-1">
-                  <select
-                    name="businessType"
-                    required
-                    value={formData.businessType}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+                  <option value="" disabled>
+                    Select an option
+                  </option>
+                  <option value="Distributor">Distributor</option>
+                  <option value="Manufacturer">Manufacturer</option>
+                  <option value="Reseller">Reseller</option>
+                </select>
+                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <option value="" disabled>
-                      Select an option
-                    </option>
-                    <option value="Distributor">Distributor</option>
-                    <option value="Manufacturer">Manufacturer</option>
-                    <option value="Reseller">Reseller</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19 9l-7 7-7-7"
-                      ></path>
-                    </svg>
-                  </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
                 </div>
               </div>
+            </div>
 
-              <div className=" ">
-                <label
-                  htmlFor="avatar"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Upload Profile Picture
-                  <div className="inline text-red-700">*</div>
-                </label>
+            <div className=" ">
+              <label
+                htmlFor="avatar"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Upload Profile Picture
+                <div className="inline text-red-700">*</div>
+              </label>
 
-                <div className=" flex items-center border border-gray-300 rounded-3xl">
-                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                    {profilePic ? (
-                      <img
-                        src={URL.createObjectURL(profilePic)}
-                        alt="profilePic"
-                        className="h-full w-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <RxAvatar className="h-8 w-8" />
-                    )}
-                  </span>
-                  <label
-                    htmlFor="file-input"
-                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 "
-                  >
-                    {/* <span>Upload</span> */}
-                    <input
-                      type="file"
-                      name="profile"
-                      id="profile"
-                      required
-                      onChange={handleFileInputChange}
-                      className=""
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="">
-                <label
-                  htmlFor="avatar"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Upload Banner
-                </label>
-                <div className=" flex items-center border rounded-3xl border-gray-300">
-                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                    {banner ? (
-                      <img
-                        src={URL.createObjectURL(banner)}
-                        alt="banner"
-                        className="h-full w-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <RxAvatar className="h-8 w-8" />
-                    )}
-                  </span>
-                  <label
-                    htmlFor="file-input"
-                    className="ml-5 flex items-center justify-center px-4 py-2   rounded-md shadow-xs text-sm font-medium text-gray-700 "
-                  >
-                    {/* <span>Upload</span> */}
-                    <input
-                      type="file"
-                      name="banner"
-                      id="banner"
-                      onChange={handleFileInputChange}
-                    // className="sr-only"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password <span className="text-red-700">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    type={visible ? "text" : "password"}
-                    name="password"
-                    required
-                    value={formData.password}
-                    onChange={handlePasswordChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  {visible ? (
-                    <AiOutlineEye
-                      className="absolute right-2 top-2 cursor-pointer"
-                      size={25}
-                      onClick={() => setVisible(false)}
+              <div className=" flex items-center border border-gray-300 rounded-3xl">
+                <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
+                  {profilePic ? (
+                    <img
+                      src={URL.createObjectURL(profilePic)}
+                      alt="profilePic"
+                      className="h-full w-full object-cover rounded-full"
                     />
                   ) : (
-                    <AiOutlineEyeInvisible
-                      className="absolute right-2 top-2 cursor-pointer"
-                      size={25}
-                      onClick={() => setVisible(true)}
-                    />
+                    <RxAvatar className="h-8 w-8" />
                   )}
-                </div>
-                {/* Password Error Messages */}
-                {passwordErrors.length > 0 && (
-                  <ul className="mt-2 text-sm text-red-600">
-                    {passwordErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
+                </span>
+                <label
+                  htmlFor="file-input"
+                  className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 "
+                >
+                  {/* <span>Upload</span> */}
+                  <input
+                    type="file"
+                    name="profile"
+                    id="profile"
+                    required
+                    onChange={handleFileInputChange}
+                    className=""
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="">
+              <label
+                htmlFor="avatar"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Upload Banner
+              </label>
+              <div className=" flex items-center border rounded-3xl border-gray-300">
+                <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
+                  {banner ? (
+                    <img
+                      src={URL.createObjectURL(banner)}
+                      alt="banner"
+                      className="h-full w-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <RxAvatar className="h-8 w-8" />
+                  )}
+                </span>
+                <label
+                  htmlFor="file-input"
+                  className="ml-5 flex items-center justify-center px-4 py-2   rounded-md shadow-xs text-sm font-medium text-gray-700 "
+                >
+                  {/* <span>Upload</span> */}
+                  <input
+                    type="file"
+                    name="banner"
+                    id="banner"
+                    onChange={handleFileInputChange}
+                    // className="sr-only"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password <span className="text-red-700">*</span>
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type={visible ? "text" : "password"}
+                  name="password"
+                  required
+                  value={formData.password}
+                  onChange={handlePasswordChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                {visible ? (
+                  <AiOutlineEye
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(false)}
+                  />
+                ) : (
+                  <AiOutlineEyeInvisible
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(true)}
+                  />
                 )}
               </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm Password<div className="inline text-red-700">*</div>
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    type={visible ? "text" : "password"}
-                    name="confirmPassword"
-                    autoComplete="current-password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                  {visible ? (
-                    <AiOutlineEye
-                      className="absolute right-2 top-2 cursor-pointer"
-                      size={25}
-                      onClick={() => setVisible(false)}
-                    />
-                  ) : (
-                    <AiOutlineEyeInvisible
-                      className="absolute right-2 top-2 cursor-pointer"
-                      size={25}
-                      onClick={() => setVisible(true)}
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center mt-4">
+              {/* Password Error Messages */}
+              {passwordErrors.length > 0 && (
+                <ul className="mt-2 text-sm text-red-600">
+                  {passwordErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password<div className="inline text-red-700">*</div>
+              </label>
+              <div className="mt-1 relative">
                 <input
-                  type="checkbox"
-                  id="checkbox"
-                  name="checkbox"
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
-                  onChange={() => {
-                    setCheck((prev) => !prev);
-                  }}
+                  type={visible ? "text" : "password"}
+                  name="confirmPassword"
+                  autoComplete="current-password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
-                <label
-                  htmlFor="checkbox"
-                  className="ml-2 text-sm text-gray-700"
-                >
-                  I agree to allow SEMA Healthcare Pvt. Ltd. to charge platform
-                  fees as per industry standards.
-                </label>
+                {visible ? (
+                  <AiOutlineEye
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(false)}
+                  />
+                ) : (
+                  <AiOutlineEyeInvisible
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(true)}
+                  />
+                )}
               </div>
+            </div>
+            <div className="flex items-center mt-4">
+              <input
+                type="checkbox"
+                id="checkbox"
+                name="checkbox"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
+                onChange={() => {
+                  setCheck((prev) => !prev);
+                }}
+              />
+              <label
+                htmlFor="checkbox"
+                className="ml-2 text-sm text-gray-700"
+              >
+                I agree to allow SEMA Healthcare Pvt. Ltd. to charge platform
+                fees as per industry standards.
+              </label>
+            </div>
 
-              <div>
-                <button
-                  type="submit"
-                  className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accent-yellow text-black shadow-md disabled:bg-gray-400"
-                  disabled={regStatus === "pending"}
-                >
-                  {regStatus === "pending" ? (
-                    <AiOutlineLoading className="animate-spin" />
-                  ) : (
-                    "Register"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div>
+              <button
+                type="submit"
+                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accent-yellow text-black shadow-md disabled:bg-gray-400"
+                disabled={regStatus === "pending"}
+              >
+                {regStatus === "pending" ? (
+                  <AiOutlineLoading className="animate-spin" />
+                ) : (
+                  "Register"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </>
-  );
+    </div>
+  </>
+);
+
 }
