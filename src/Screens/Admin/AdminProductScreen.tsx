@@ -1,30 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
-import { TableBodyCell, TableHeader, TableImageCell, TableWrapper } from "../../components/UIComponents/Table";
-import { formatDate } from "../../components/UIComponents/Inputs";
 import { getAdminProducts } from "./Admin.HooksAndUtils";
 import { toast } from "react-toastify";
-import { Link } from "react-router";
-import { AiOutlineEye } from "react-icons/ai";
+import AdminAllProductTable from "@/components/Admin/AdminAllProductTable";
 
 export default function AdminProductScren() {
   const qc = useQueryClient();
 
-  const { data: products, status, error } = useQuery({
+  const {
+    data: products,
+    status,
+    error,
+  } = useQuery({
     queryKey: ["admin-products"],
-    queryFn: getAdminProducts
+    queryFn: getAdminProducts,
   });
 
-  const headers = ["Product Name", "Image", "SKU", "Stocks", "Original Price", "Discounted Price", "Type", "Added on", "Status", "Actions"];
-
-  const { mutateAsync: mutateProduct, status: proVerifyStatus } = useMutation({
+  // const { mutateAsync: mutateProduct, status: proVerifyStatus } = useMutation({
+  const {} = useMutation({
     mutationFn: async function ({ proId }: { proId: string }) {
       const res = await fetch("/api/v2/product/admin/verify-product/", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ proId })
+        body: JSON.stringify({ proId }),
       });
       if (!res.ok) throw new Error("Something went wrong");
     },
@@ -35,54 +35,28 @@ export default function AdminProductScren() {
     },
     onError: () => {
       toast.error("Something went wrong");
-    }
+    },
   });
 
   return (
-    <AdminMainWrapper heading="Product Requests" status={status} errorMeassage={error?.message}>
-      {status === "success" && products && (
-        <TableWrapper>
-          <TableHeader headers={headers} />
-          <tbody>
-            {products.map(pro => {
-              // Pick the first variant for display
-              const variant = pro.variants?.[0];
-
-              return (
-                <tr key={pro._id}>
-                  <TableBodyCell text={pro.name} />
-                  <TableImageCell src={"/baseUrl" + "/" + (variant?.thumbnail || pro.images[0])} />
-                  <TableBodyCell text={pro.sku || ""} />
-                  <TableBodyCell text={variant?.stock?.toString() ?? "-"} />
-                  <TableBodyCell text={variant?.originalPrice?.toString() ?? "-"} />
-                  <TableBodyCell text={variant?.discountPrice?.toString() ?? "-"} />
-                  <TableBodyCell text={pro.productType} />
-                  <TableBodyCell text={formatDate(pro.createdAt)} />
-                  <TableBodyCell text={pro.productStatus} />
-                  <td align="center">
-                    <div className="flex items-center justify-center gap-2 px-2">
-                      <button>
-                        <Link to={"view/" + pro._id}>
-                          <AiOutlineEye size={20} />
-                        </Link>
-                      </button>
-                      {pro.productStatus === "offline" && (
-                        <button
-                          onClick={() => mutateProduct({ proId: pro._id })}
-                          className="bg-green-500 py-1 px-2 rounded-xs text-white text-sm disabled:bg-gray-700"
-                          disabled={proVerifyStatus === "pending"}
-                        >
-                          {proVerifyStatus === "pending" ? "Wait..." : "Verify"}
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </TableWrapper>
+    <AdminMainWrapper
+      heading="Product Requests"
+      status={status}
+      errorMeassage={error?.message}
+    >
+      {products && (
+        <div className="p-4 bg-white shadow rounded">
+          <AdminAllProductTable products={products} />
+        </div>
       )}
     </AdminMainWrapper>
   );
 }
+
+// <button
+//   onClick={() => mutateProduct({ proId: pro._id })}
+//   className="bg-green-500 py-1 px-2 rounded-xs text-white text-sm disabled:bg-gray-700"
+//   disabled={proVerifyStatus === "pending"}
+// >
+//   {proVerifyStatus === "pending" ? "Wait..." : "Verify"}
+// </button>

@@ -33,7 +33,7 @@ import { Button } from "../ui/button";
 import { IoRemoveCircle } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { CalendarIcon  } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -210,6 +210,7 @@ export default function AddProductForm({
       setImages([]);
       setThumbnail([]);
       setShortVideo(null);
+      qc.invalidateQueries({ queryKey: ["seller-products"] });
     },
     onError: () => {
       toast.error("Something went wrong!!");
