@@ -5,9 +5,24 @@ import {
 } from "react-icons/io";
 
 const sliderImages = [
-  "/banner_home.png",
-  "/banner_Equipment.png",
-  "/banner_Consumables.png",
+  "/Cover Photo/E1-1.png",
+  "/Cover Photo/E1-2.png",
+  "/Cover Photo/E1-4.png",
+
+  "/Cover Photo/E1-3.png",
+  "/Cover Photo/Dental-Consumables.png",
+  "/Cover Photo/Infection-Control-Consumables.png",
+  "/Cover Photo/Laboratory-Consumables.png",
+  "/Cover Photo/Pharma-2.png",
+  "/Cover Photo/Pharma-4.png",
+  "/Cover Photo/Radiology-Consumables.png",
+  "/Cover Photo/Refurbished-Imaging-Equipment.png",
+  "/Cover Photo/Refurbished-Laboratory-Equipment.png",
+  "/Cover Photo/Refurbished-Patient-Monitors.png",
+  "/Cover Photo/Refurbished-Surgical-Instruments.png",
+  "/Cover Photo/Surgical-Consumables.png",
+  "/Cover Photo/Wound-Care-Supplies.png",
+
 ];
 
 export default function ImageSliderHome() {
@@ -74,9 +89,8 @@ export default function ImageSliderHome() {
         {sliderImages.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-full cursor-pointer ${
-              currentSlide === index ? "bg-[#1C647C]" : "bg-gray-300"
-            }`}
+            className={`w-3 h-3 rounded-full cursor-pointer ${currentSlide === index ? "bg-[#1C647C]" : "bg-gray-300"
+              }`}
             onClick={() => setCurrentSlide(index)}
           />
         ))}
