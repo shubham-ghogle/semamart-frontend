@@ -87,14 +87,14 @@ export default function Header() {
 
 
 
-  const [loadingPackageTypes, setLoadingPackageTypes] = useState(false);
+  const [, setLoadingPackageTypes] = useState(false);
 
   const [specialtyPackageTypes, setSpecialtyPackageTypes] = useState<Record<string, PackageType[]>>({});
-  const [loadingSpecialtyId, setLoadingSpecialtyId] = useState<string | null>(null);
-  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string | null>(null);
+  const [, setLoadingSpecialtyId] = useState<string | null>(null);
+  const [, setSelectedSpecialtyId] = useState<string | null>(null);
   const [isSpecialtyHovered, setIsSpecialtyHovered] = useState(false);
   const [specialties, setSpecialties] = useState<Subcategory[]>([]);
-  const [isLoadingSpecialties, setIsLoadingSpecialties] = useState(false);
+  const [isLoadingSpecialties] = useState(false);
   const [specialtiesFetched, setSpecialtiesFetched] = useState(false);
   const specialtyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hoveredSpecialtyId, setHoveredSpecialtyId] = useState<string | null>(null);
