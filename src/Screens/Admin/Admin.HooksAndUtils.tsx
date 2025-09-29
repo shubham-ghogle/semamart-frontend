@@ -1,5 +1,7 @@
 import { redirect } from "react-router";
 import { Order, Product } from "../../Types/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 // ====== Sellers ======
 export interface Seller {
@@ -41,7 +43,9 @@ export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
 }
 
 export async function deleteSeller(id: string) {
-  const res = await fetch(`/api/v2/shop/delete-seller/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/v2/shop/delete-seller/${id}`, {
+    method: "DELETE",
+  });
   if (!res.ok) {
     const errMessage = await res.json();
     throw new Error(errMessage.message || "Failed to delete seller");
@@ -82,7 +86,11 @@ export async function getAdminProducts() {
 
   if (!res.ok) throw new Error("Something went wrong");
 
-  const data = (await res.json()) as { success: boolean; products: Product[]; message: string };
+  const data = (await res.json()) as {
+    success: boolean;
+    products: Product[];
+    message: string;
+  };
   if (!data.success) throw new Error(data.message);
   return data.products;
 }
@@ -140,7 +148,64 @@ export function getAdminFromLocalLoader() {
   if (!user) return redirect("/");
 
   const userData = JSON.parse(user);
-  if (!userData.state?.user?.role || userData.state.user.role !== "Admin") return redirect("/");
+  if (!userData.state?.user?.role || userData.state.user.role !== "Admin")
+    return redirect("/");
 
   return null;
+}
+
+export async function getAdminOrderDetails(orderId?: string) {
+  if (!orderId) throw new Error("Something went wrong");
+
+  const res = await fetch("/api/v2/order/get-order-details-admin/" + orderId);
+
+  if (!res.ok) {
+    const errMessage = await res.json();
+    throw new Error(errMessage.message);
+  }
+
+  const data = (await res.json()) as Order;
+
+  return data;
+}
+
+export function useAdminOrderMutation() {
+  const qc = useQueryClient();
+
+  const { status: mutationStatus, mutateAsync: mutateOrder } = useMutation({
+    mutationFn: async function ({
+      status,
+      orderId,
+    }: {
+      status: string;
+      orderId: string;
+    }) {
+      let url = "/api/v2/order/update-order-status-admin/" + orderId;
+
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      return null;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({
+        queryKey: ["admin-order-detail"],
+      });
+      await qc.invalidateQueries({
+        queryKey: ["admin-all-orders"],
+      });
+      toast.success("Order updates successfully!");
+    },
+    onError: () => {
+      toast.error("Something went wrong!");
+    },
+  });
+  return { mutationStatus, mutateOrder };
 }

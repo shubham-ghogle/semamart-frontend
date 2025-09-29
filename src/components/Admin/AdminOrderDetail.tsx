@@ -1,30 +1,24 @@
-import { useParams } from "react-router";
-import { useSellerOrderMutation } from "../../Screens/Seller/Seller.Hooks";
+import { Order } from "@/Types/types";
 import { useState } from "react";
-import OrderDetailsField from "./OrderDetailsFields";
-import { Order } from "../../Types/types";
-import { formatDate } from "../UIComponents/Inputs";
+import { useParams } from "react-router";
+import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { BASE_URL } from "@/data";
+import { formatDate } from "../UIComponents/Inputs";
+import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
+import TrackingDetailDialog from "./TrackingDetailDialog";
 
-type SellerOrderDetailProps = {
+type AdminOrderDetailProps = {
   data: Order;
 };
 
-export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
+export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   const { orderId } = useParams();
-  const { mutationStatus, mutateOrder } = useSellerOrderMutation();
+  const { mutationStatus, mutateOrder } = useAdminOrderMutation();
   const [status, setStatus] = useState("");
 
   const getOptionsForStatus = () => {
     const statuses = {
-      default: [
-        "Processing",
-        "Packed",
-        // "Shipping",
-        // "Received",
-        // "On the way",
-        // "Delivered",
-      ],
+      default: ["Shipped", "Delivered"],
       refund: ["Processing refund", "Refund Success"],
     };
 
@@ -96,13 +90,39 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
           />
         </div>
       </section>
+      <section className="mt-6 flex justify-between border-b pb-4">
+        <h4 className="text-xl">Shipping Address:</h4>
+        <article>
+          <OrderDetailsField
+            label=""
+            value={data?.shippingAddress.instituteAddress1}
+          />
+          <OrderDetailsField
+            label=""
+            value={data?.shippingAddress.instituteAddress2}
+          />
+          <OrderDetailsField
+            label=""
+            value={
+              data?.shippingAddress.district + ", " + data.shippingAddress.state
+            }
+          />
+          <OrderDetailsField
+            label=""
+            value={"Pin: " + data.shippingAddress.pincode}
+          />
+        </article>
+      </section>
 
       <section className="flex justify-between items-start mt-4">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
           <div>
-            <article className="mb-2">
-              <OrderDetailsField label={data.status} value="" />
+            <article className="mb-2 flex gap-2">
+              <OrderDetailsField label={data?.status || ""} value="" />
+              {data.status==="Shipped" && (
+                <TrackingDetailDialog/>
+                )}
             </article>
             <article>
               <select
@@ -124,7 +144,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               onClick={async () =>
                 await mutateOrder({
                   status,
-                  currentStatus: data?.status || "",
                   orderId: orderId || "",
                 })
               }

@@ -177,7 +177,7 @@ export type Order = {
   status?:
   "Processing"
   | "Transferred to delivery partner"
-  | "Shipping"
+  | "Shipped"
   | "Received"
   | "On the way"
   | "Delivered"
@@ -187,7 +187,7 @@ export type Order = {
   paidAt?: Date;
   deliveredAt?: Date;
   createdAt?: Date;
-  shop?: string;
+  shop?: string|Seller;
   variant:string|Variant;
   qty:number
 };

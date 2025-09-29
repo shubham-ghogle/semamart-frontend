@@ -1,17 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
-import { getAllOrders } from "./Admin.HooksAndUtils";
 import { FaRegAddressCard } from "react-icons/fa6";
 import { IoPersonAdd } from "react-icons/io5";
 import { FaBuilding } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
 
 const AdminDashboard = () => {
-  const { error, status } = useQuery({
-    queryKey: ["verifiedOrders"],
-    queryFn: getAllOrders,
-    retry: 3,
-  });
   const stockData = [
     { label: "New Vendor", icon: <IoPersonAdd className="text-[2rem] m-2" /> },
     { label: "Vendor", icon: <FaRegAddressCard className="text-[2rem] m-2" /> },
@@ -22,8 +15,8 @@ const AdminDashboard = () => {
   return (
     <AdminMainWrapper
       heading="Dashboard"
-      status={status}
-      errorMeassage={error?.message}
+      status="success"
+      errorMeassage="Error"
     >
       <div className="p-10 bg-white max-w-6xl mx-auto mt-8 rounded-xl drop-shadow-md ">
         <div className="flex flex-wrap justify-around gap-4 text-center drop-shadow-md ">
