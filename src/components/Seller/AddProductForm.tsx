@@ -18,7 +18,7 @@ import {
   SubCategory,
 } from "@/Types/types";
 import { ChangeEvent, useEffect, useState } from "react";
-import { API_URL  } from "@/data";
+import { API_URL } from "@/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TagsInput } from "../ui/tags-input";
 import {
@@ -33,7 +33,7 @@ import { Button } from "../ui/button";
 import { IoRemoveCircle } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { CalendarIcon, MinusCircleIcon } from "lucide-react";
+import { CalendarIcon  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -54,6 +54,7 @@ import { Checkbox } from "../ui/checkbox";
 import DocumentsDisplay from "./DocumentsDisplay";
 import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
+import AddProductFormVariants from "./AddProductFormVariants";
 
 type AddProductFormProps =
   | {
@@ -98,7 +99,7 @@ export default function AddProductForm({
   const {
     fields: variantFields,
     append,
-    remove:removeVariant,
+    remove: removeVariant,
   } = useFieldArray({
     name: "variants",
     control: form.control,
@@ -634,7 +635,10 @@ export default function AddProductForm({
                   name="unspsc"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>UNSPSC (United Nations Standard Products and Services Code)</FormLabel>
+                      <FormLabel>
+                        UNSPSC (United Nations Standard Products and Services
+                        Code)
+                      </FormLabel>
                       <FormControl>
                         <Input type="text" {...field} />
                       </FormControl>
@@ -1248,7 +1252,9 @@ export default function AddProductForm({
                 name="rma"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>RMA (Return merchandise authorization) Policy</FormLabel>
+                    <FormLabel>
+                      RMA (Return merchandise authorization) Policy
+                    </FormLabel>
                     <FormControl>
                       <Textarea className="resize-none" {...field} />
                     </FormControl>
@@ -1508,204 +1514,32 @@ export default function AddProductForm({
 
                 {/* //variants of products */}
                 <div className="my-6 space-y-4">
-                  {variantFields.map((field, i) => {
-                    const { fields, append, remove } = useFieldArray({
-                      control: form.control,
-                      name: `variants.${i}.bulkOrders`,
-                    });
-
-                    return (
-                      <section
-                        key={field.id}
-                        className="relative space-y-4 py-2 px-4 border rounded-xl"
-                      >
-                        {isMultiVariant && (
-                          <Button
-                            className="absolute right-2 top-2"
-                            variant="ghost"
-                            type="button"
-                            size="icon"
-                            disabled={i === 0}
-                            onClick={() => remove(i)}
-                          >
-                            <MinusCircleIcon className="text-red-500" />
-                          </Button>
-                        )}
-                        <p className="text-sm font-semibold text-gray-500">
-                          Variant {i + 1}
-                        </p>
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name={`variants.${i}.originalPrice`}
-                            render={() => (
-                              <FormItem>
-                                <FormLabel>MRP (₹)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...form.register(
-                                      `variants.${i}.originalPrice`
-                                    )}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`variants.${i}.discountPrice`}
-                            render={() => (
-                              <FormItem>
-                                <FormLabel>Selling Price (₹)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...form.register(
-                                      `variants.${i}.discountPrice`
-                                    )}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <div className="flex items-start gap-8">
-                          <article className="space-y-2 w-1/2">
-                            <FormField
-                              control={form.control}
-                              name={`variants.${i}.colorOption`}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel>Color</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...form.register(
-                                        `variants.${i}.colorOption`
-                                      )}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`variants.${i}.size`}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel>Size</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...form.register(`variants.${i}.size`)}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`variants.${i}.stocks`}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel>Stocks</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...form.register(`variants.${i}.stocks`)}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </article>
-                          <div>
-                            <FormLabel>Upload Thumbnail Image</FormLabel>
-                            <div className="border border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
-                              <label
-                                htmlFor="uploadThumbnail"
-                                className="cursor-pointer w-full h-full grid place-items-center"
-                              >
-                                {thumbnail[i] ? (
-                                  <img
-                                    src={URL.createObjectURL(thumbnail[i])}
-                                    alt="Thumbnail"
-                                    className="h-full w-full object-cover"
-                                  />
-                                ) : (
-                                  <AiOutlinePlusCircle size={30} color="#555" />
-                                )}
-                              </label>
-                            </div>
-                            <input
-                              type="file"
-                              id="uploadThumbnail"
-                              className="hidden"
-                              onChange={(e) => handleThumbnailChange(e, i)}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2 mt-4">
-                          <FormLabel>Bulk Orders (max 3)</FormLabel>
-                          {fields.map((field, index) => (
-                            <div
-                              key={field.id}
-                              className="flex items-center gap-2"
-                            >
-                              <Input
-                                placeholder="Qty"
-                                {...form.register(
-                                  `variants.${i}.bulkOrders.${index}.qty`
-                                )}
-                                className="w-20"
-                              />
-                              <Input
-                                placeholder="Price"
-                                {...form.register(
-                                  `variants.${i}.bulkOrders.${index}.price`
-                                )}
-                                className="w-28"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeVariant(index)}
-                              >
-                                ✕
-                              </Button>
-                            </div>
-                          ))}
-
-                          {fields.length < 3 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => append({ qty: 0, price: 0 })}
-                            >
-                              + Add Bulk Order
-                            </Button>
-                          )}
-                        </div>
-                      </section>
-                    );
-                  })}
-                  {isMultiVariant && (
-                    <article className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="outline"
-                        className="bg-green-100 cursor-pointer"
-                        onClick={addVariant}
-                      >
-                        <AiOutlinePlusCircle className="text-green-500" />
-                      </Button>
-                    </article>
-                  )}
+                  <>
+                    {variantFields.map((field, i) => (
+                      <AddProductFormVariants
+                        i={i}
+                        field={field}
+                        handleThumbnailChange={handleThumbnailChange}
+                        thumbnail={thumbnail}
+                        form={form}
+                        removeVariant={removeVariant}
+                        isMultiVariant={isMultiVariant}
+                      />
+                    ))}
+                    {isMultiVariant && (
+                      <article className="flex justify-end">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          className="bg-green-100 cursor-pointer"
+                          onClick={addVariant}
+                        >
+                          <AiOutlinePlusCircle className="text-green-500" />
+                        </Button>
+                      </article>
+                    )}
+                  </>
                 </div>
                 <section className="space-y-4 mt-4">
                   <div>

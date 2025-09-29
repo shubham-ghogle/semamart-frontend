@@ -19,11 +19,8 @@ export default function VariantsDisplay() {
   return (
     <div className="space-y-4">
       {variants.map((el) => (
-        <div className="border rounded-lg p-6 relative">
-          <article
-            key={el._id}
-            className="grid grid-cols-[3fr_2fr] gap-4 items-start"
-          >
+        <div key={el._id} className="border rounded-lg p-6 relative">
+          <article className="grid grid-cols-[3fr_2fr] gap-4 items-start">
             <section className="w-full space-y-2">
               <ReadOnlyField label="Original Price" value={el.originalPrice} />
               <ReadOnlyField label="Available Stock" value={el.stock} />
