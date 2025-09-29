@@ -47,12 +47,12 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
-import ProductBasedOnType from "./components/UI/ProductBasedOnType";
 import AllUserScreen from "./Screens/Admin/AllUserScreen";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
-import ProductBasedOnSpecialPackagetypes from "./components/UI/ProductBasedOnSpecialPackagetypes";
-import ProductBasedOnSpecialPackage from "./components/UI/ProductBasedOnSpecialPackage";
+import ProductBasedOnType from "./components/ui/ProductBasedOnType";
+import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackage";
+import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
 
 
 export const router = createBrowserRouter([
