@@ -10,7 +10,13 @@ const AllSellerScreen: React.FC = () => {
     try {
       setLoading(true);
       const sellersData = await getAllSellers();
-      setSellers(sellersData.sellers);
+
+      // ✅ filter verified sellers only
+      const verifiedSellers = sellersData.sellers.filter(
+        (seller: Seller) => seller.verified === true
+      );
+
+      setSellers(verifiedSellers);
       setLoading(false);
     } catch (err: any) {
       setError(err.message);
@@ -39,7 +45,7 @@ const AllSellerScreen: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">All Sellers</h1>
+      <h1 className="text-2xl font-bold mb-4">Verified Sellers</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
@@ -76,7 +82,7 @@ const AllSellerScreen: React.FC = () => {
             ) : (
               <tr>
                 <td colSpan={6} className="py-4">
-                  No sellers found.
+                  No verified sellers found.
                 </td>
               </tr>
             )}

@@ -4,15 +4,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 // ====== Sellers ======
-export interface Seller {
+export type Seller = {
   _id: string;
   firstName: string;
   lastName: string;
   businessName?: string;
+  businessType: string;
+  gstNumber: string;
   email: string;
+  phoneNumber: string;
   role: string;
+  profilePic: string;
+  banner: string;
+  avatar?: string;
+  address?: string;
+  zipCode?: number;
+  availableBalance: number;
   createdAt: string;
-}
+  verified: boolean;
+};
 
 export type AdminSellersApiRes =
   | { success: true; sellers: Seller[] }
@@ -29,6 +39,22 @@ export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
   if (!data.success) throw new Error(data.message);
   return { sellers: data.sellers };
 }
+
+export async function getSellerById(id: string): Promise<{ seller: Seller }> {
+  const res = await fetch(`/api/v2/shop/admin-seller/${id}`);
+  if (!res.ok) {
+    const errMessage = await res.json();
+    throw new Error(errMessage.message || "Failed to fetch seller");
+  }
+
+  const data = (await res.json()) as
+    | { success: true; seller: Seller }
+    | { success: false; message: string };
+
+  if (!data.success) throw new Error(data.message);
+  return { seller: data.seller };
+}
+
 
 export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
   const res = await fetch("/api/v2/shop/admin-verified-sellers");

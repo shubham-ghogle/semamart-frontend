@@ -53,6 +53,8 @@ import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 import ProductBasedOnType from "./components/ui/ProductBasedOnType";
 import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackage";
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
+import AdminNewVendor from "./Screens/Admin/AdminNewVendor";
+import AdminVendorDetail from "./Screens/Admin/AdminVendorDetail";
 
 
 export const router = createBrowserRouter([
@@ -191,6 +193,12 @@ export const router = createBrowserRouter([
           { index: true, element: <AllOrderScreen /> },
           { path: ":orderId", element: <AdminOrderDetailsScreen /> },
         ],
+      },
+      {
+         path:"new-vendor" , element: <AdminNewVendor/>
+      },
+      {
+         path:"/admin/vendors/:id" , element:<AdminVendorDetail/> 
       },
       {
         path: "products",
