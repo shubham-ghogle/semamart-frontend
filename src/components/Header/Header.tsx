@@ -6,12 +6,12 @@ import {
   AiOutlineSearch,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { BsCashStack } from "react-icons/bs";
+// import { BsCashStack } from "react-icons/bs";
 import { FaRegCircleUser, FaUserDoctor } from "react-icons/fa6";
 import { TbFileInvoice } from "react-icons/tb";
 import { RiShoppingBag4Line } from "react-icons/ri";
 import { MdOutlineSupportAgent } from "react-icons/md";
-import { IoGiftSharp } from "react-icons/io5";
+// import { IoGiftSharp } from "react-icons/io5";
 import { FaSignOutAlt } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
 
@@ -681,7 +681,7 @@ return (
                     </Link>
                   </div>
                   <hr />
-                  <Link to="/user" className="flex items-center gap-3 px-5 py-3 hover:bg-gray-100">
+                  {/* <Link to="/user" className="flex items-center gap-3 px-5 py-3 hover:bg-gray-100">
                     <FaRegCircleUser size={20} />
                     <span>My Profile</span>
                   </Link>
@@ -700,7 +700,7 @@ return (
                   <Link to="/gift-cards" className="flex items-center gap-3 px-5 py-3 hover:bg-gray-100">
                     <BsCashStack size={20} />
                     <span>Gift Cards</span>
-                  </Link>
+                  </Link> */}
                 </>
               )}
             </div>
