@@ -106,13 +106,17 @@ export interface Product {
 }
 
 export type Address = {
-  state: string;
-  district: string;
-  instituteAddress1: string;
-  instituteAddress2: string;
-  pincode: string;
-  landmark: string;
-  _id: string;
+  _id?: string;                
+  reciever_name: string;        
+  phone: string;                
+  instituteAddress1: string;  
+  district: string;            
+  state: string;                
+  pincode: string;              
+  instituteAddress2?: string;  
+  landmark?: string;            
+  alternatePhone?: string;      
+  addressType?: string;
 };
 
 // USER TYPES /////

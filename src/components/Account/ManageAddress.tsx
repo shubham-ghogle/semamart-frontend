@@ -1,62 +1,47 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useUserStore } from "@/store/userStore";
+import type { Address } from "@/Types/types";
+
+const initialFormData: Address = {
+  reciever_name: "",
+  phone: "",
+  alternatePhone: "",
+  pincode: "",
+  instituteAddress1: "",
+  instituteAddress2: "",
+  district: "",
+  state: "",
+  landmark: "",
+  addressType: "",
+};
 
 const ManageAddress: React.FC = () => {
-   const { user } = useUserStore((state) => state);
-  enum AddressType {
-    Home = "Home",
-    Work = "Work",
-  }
-
-  interface Address {
-    reciever_name: string;
-    mobile: string;
-    alternatePhone?: string;
-    pincode: string;
-    locality: string;
-    instituteAddress1: string;
-    instituteAddress2?: string;
-    district: string;
-    state: string;
-    landmark?: string;
-    addressType: AddressType;
-    _id?: string; // optional because new address won't have one
-  }
-
-  const initialFormData: Address = {
-    reciever_name: "",
-    mobile: "",
-    alternatePhone: "",
-    pincode: "",
-    locality: "",
-    instituteAddress1: "",
-    instituteAddress2: "",
-    district: "",
-    state: "",
-    landmark: "",
-    addressType: AddressType.Home,
-  };
-
+  const { user } = useUserStore((state) => state);
   const [formData, setFormData] = useState<Address>(initialFormData);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
-  // Fetch addresses on mount - public API, no auth token
   useEffect(() => {
-    const fetchAddresses = async () => {
-      try {
-        const res = await fetch("/api/v2/addresses"); // your new public GET endpoint for addresses
-        if (!res.ok) throw new Error("Failed to fetch addresses");
+    if (!user?._id) return;
 
+    const fetchAddresses = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/v2/user/${user._id}/addresses`);
+        if (!res.ok) throw new Error("Failed to fetch addresses");
         const data = await res.json();
-        setAddresses(data.addresses || []);
+        setAddresses(data || []);
       } catch (error) {
-        console.error(error);
+        alert(`Error loading addresses: ${(error as Error).message}`);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAddresses();
-  }, []);
+  }, [user]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -64,67 +49,145 @@ const ManageAddress: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "addressType" ? (value as AddressType) : value,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
+  // When user clicks "Edit" button on an address:
+  const handleEditClick = (address: Address) => {
+    setFormData(address);
+    setEditingAddressId(address._id || null);
+    setShowForm(true);
+  };
 
-  if (!/^[0-9]{10}$/.test(formData.mobile)) {
-    alert("Mobile number must be a 10-digit number.");
-    return;
-  }
-
-  if (
-    !formData.reciever_name ||
-    !formData.pincode ||
-    !formData.locality ||
-    !formData.instituteAddress1 ||
-    !formData.district ||
-    !formData.state
-  ) {
-    alert("Please fill all required fields.");
-    return;
-  }
-
-  if (addresses.some((addr) => addr.addressType === formData.addressType)) {
-    alert(`${formData.addressType} address already exists.`);
-    return;
-  }
-
-  try { 
-    const userId = user?._id;
-    console.log("my user:",userId);
-    const addressToSend = {
-      userId,
-      addresses: [formData],
-    };
-
-    const res = await fetch("/api/v2/user/add-user-address", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(addressToSend),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Failed to add address");
+  // When user clicks "Delete" button on an address:
+  const handleDeleteClick = async (addressId: string) => {
+    if (!user?._id) {
+      alert("User not logged in");
+      return;
     }
 
-    const data = await res.json();
+    if (!window.confirm("Are you sure you want to delete this address?")) return;
 
-    setAddresses(data.addresses);
-    setFormData(initialFormData);
-    setShowForm(false);
-    alert("Address added successfully!");
-  } catch (error: any) {
-    alert(`Failed to add address: ${error.message}`);
-  }
-};
+    try {
+      const res = await fetch(`/api/v2/user/${user._id}/addresses/${addressId}`, {
+        method: "DELETE",
+      });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete address");
+      }
+
+      alert("Address deleted successfully!");
+      // Remove address from local state
+      setAddresses((prev) => prev.filter((addr) => addr._id !== addressId));
+      // If currently editing this address, reset form
+      if (editingAddressId === addressId) {
+        setFormData(initialFormData);
+        setEditingAddressId(null);
+        setShowForm(false);
+      }
+    } catch (error: any) {
+      alert(`Failed to delete address: ${error.message}`);
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    // Validations
+    if (!/^[0-9]{10}$/.test(formData.phone)) {
+      alert("Mobile number must be a 10-digit number.");
+      return;
+    }
+
+    if (
+      !formData.reciever_name ||
+      !formData.pincode ||
+      !formData.instituteAddress1 ||
+      !formData.district ||
+      !formData.state ||
+      !formData.addressType
+    ) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    // Check if addressType already exists for new adds or for editing a different address
+    if (
+      addresses.some(
+        (addr) =>
+          addr.addressType === formData.addressType &&
+          addr._id !== editingAddressId
+      )
+    ) {
+      alert(`${formData.addressType} address already exists.`);
+      return;
+    }
+
+    if (!user?._id) {
+      alert("User not logged in");
+      return;
+    }
+
+    try {
+      let res;
+
+      if (editingAddressId) {
+        // Update address
+        res = await fetch(
+          `/api/v2/user/${user._id}/addresses/${editingAddressId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
+      } else {
+        // Add new address
+        res = await fetch(`/api/v2/user/${user._id}/addresses`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to save address");
+      }
+
+      if (editingAddressId) {
+        const updatedAddress = await res.json();
+        setAddresses((prev) =>
+          prev.map((addr) =>
+            addr._id === editingAddressId ? updatedAddress : addr
+          )
+        );
+      } else {
+        // For POST, backend might return the full updated list or just the new address
+        const data = await res.json();
+        if (data.addresses) {
+          setAddresses(data.addresses);
+        } else {
+          setAddresses((prev) => [...prev, data]);
+        }
+      }
+
+      setFormData(initialFormData);
+      setShowForm(false);
+      setEditingAddressId(null);
+
+      alert(editingAddressId ? "Address updated successfully!" : "Address added successfully!");
+    } catch (error: any) {
+      alert(`Failed to save address: ${error.message}`);
+    }
+  };
 
   return (
     <div className="flex-1 p-6 bg-white shadow-lg font-montserrat m-6">
@@ -132,7 +195,11 @@ const ManageAddress: React.FC = () => {
 
       {!showForm && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setFormData(initialFormData);
+            setEditingAddressId(null);
+            setShowForm(true);
+          }}
           className="w-full border border-gray-300 text-blue-600 text-sm font-medium py-3 px-4 rounded mb-4 flex items-center gap-2 hover:bg-gray-50"
         >
           <span className="text-xl font-bold">+</span> ADD A NEW ADDRESS
@@ -155,9 +222,9 @@ const ManageAddress: React.FC = () => {
           />
           <input
             type="text"
-            name="mobile"
+            name="phone"
             placeholder="10-digit mobile number"
-            value={formData.mobile}
+            value={formData.phone}
             onChange={handleChange}
             className="border p-2 rounded"
             required
@@ -171,15 +238,7 @@ const ManageAddress: React.FC = () => {
             className="border p-2 rounded"
             required
           />
-          <input
-            type="text"
-            name="locality"
-            placeholder="Locality"
-            value={formData.locality}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
+
           <textarea
             name="instituteAddress1"
             placeholder="Address (Area and Street)"
@@ -243,9 +302,10 @@ const ManageAddress: React.FC = () => {
               <input
                 type="radio"
                 name="addressType"
-                value={AddressType.Home}
-                checked={formData.addressType === AddressType.Home}
+                value="Home"
+                checked={formData.addressType === "Home"}
                 onChange={handleChange}
+                required
               />
               Home
             </label>
@@ -253,8 +313,8 @@ const ManageAddress: React.FC = () => {
               <input
                 type="radio"
                 name="addressType"
-                value={AddressType.Work}
-                checked={formData.addressType === AddressType.Work}
+                value="Work"
+                checked={formData.addressType === "Work"}
                 onChange={handleChange}
               />
               Work
@@ -265,7 +325,11 @@ const ManageAddress: React.FC = () => {
           <div className="col-span-2 flex justify-end gap-4 mt-2">
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setEditingAddressId(null);
+                setFormData(initialFormData);
+              }}
               className="border border-gray-400 text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
             >
               Cancel
@@ -274,39 +338,84 @@ const ManageAddress: React.FC = () => {
               type="submit"
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Save Address
+              {editingAddressId ? "Update Address" : "Save Address"}
             </button>
           </div>
         </form>
       )}
 
-      {/* Display Added Addresses */}
-      {addresses.map((addr) => (
-        <div
-          key={addr._id}
-          className="relative border border-gray-300 rounded p-4 mb-4"
-        >
-          <div className="inline-block bg-gray-200 text-gray-700 text-[10px] font-semibold px-2 py-[2px] rounded uppercase mb-2">
-            {addr.addressType}
-          </div>
+      {loading && <p>Loading addresses...</p>}
 
-          <div className="text-sm font-semibold mb-1">
-            {addr.reciever_name}{" "}
-            <span className="ml-4 font-normal">{addr.mobile}</span>
-          </div>
+      {/* Display Saved Addresses */}
+      {!loading && (
+        <>
+          {addresses.length === 0 ? (
+            <p>No addresses found.</p>
+          ) : (
+            <ul className="list-disc ml-6">
+              {addresses.map((addr) => (
+                <li
+                  key={addr._id || addr.addressType}
+                  className="mb-4 border border-gray-300 rounded p-4 relative"
+                >
+                  <div className="inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-2 py-1 rounded uppercase mb-2">
+                    {addr.addressType}
+                  </div>
+                  <p>
+                    <strong>Name:</strong> {addr.reciever_name}
+                  </p>
+                  <p>
+                    <strong>Mobile:</strong> {addr.phone}
+                  </p>
+                  <p>
+                    <strong>Address 1:</strong> {addr.instituteAddress1}
+                  </p>
+                  {addr.instituteAddress2 && (
+                    <p>
+                      <strong>Address 2:</strong> {addr.instituteAddress2}
+                    </p>
+                  )}
+                  <p>
+                    <strong>District:</strong> {addr.district}
+                  </p>
+                  <p>
+                    <strong>State:</strong> {addr.state}
+                  </p>
+                  <p>
+                    <strong>Pincode:</strong> {addr.pincode}
+                  </p>
+                  {addr.landmark && (
+                    <p>
+                      <strong>Landmark:</strong> {addr.landmark}
+                    </p>
+                  )}
+                  {addr.alternatePhone && (
+                    <p>
+                      <strong>Alternate Phone:</strong> {addr.alternatePhone}
+                    </p>
+                  )}
 
-          <p className="text-sm text-gray-700">
-            {addr.locality}, {addr.instituteAddress1}
-            {addr.instituteAddress2 && `, ${addr.instituteAddress2}`},{" "}
-            {addr.district}, {addr.state} –{" "}
-            <span className="font-bold">{addr.pincode}</span>
-          </p>
-
-          {addr.landmark && (
-            <p className="text-sm text-gray-500 mt-1">Landmark: {addr.landmark}</p>
+                  {/* Edit/Delete buttons */}
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(addr)}
+                      className="text-blue-600 cursor-pointer text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => addr._id && handleDeleteClick(addr._id)}
+                      className="text-red-600 cursor-pointer text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
-        </div>
-      ))}
+        </>
+      )}
     </div>
   );
 };
