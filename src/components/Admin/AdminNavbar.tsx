@@ -2,7 +2,7 @@ import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
 import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
-import { MdOutlineShoppingBag } from "react-icons/md";
+//import { MdOutlineShoppingBag } from "react-icons/md";
 
 export default function AdminNavbar() {
   return (
@@ -24,11 +24,11 @@ export default function AdminNavbar() {
           to="requests"
           label="Requests"
         />
-        <SidebarNavlinks
+        {/* <SidebarNavlinks
           icon={<MdOutlineShoppingBag />}
           to="products"
           label="Products"
-        />
+        /> */}
         <SidebarNavlinks
           icon={<GrWorkshop />}
           to="sellers"
