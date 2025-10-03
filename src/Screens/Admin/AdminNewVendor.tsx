@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Seller, getAllSellers } from "./Admin.HooksAndUtils";
+import {  getAllSellers } from "./Admin.HooksAndUtils";
 import { EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Seller } from "@/Types/types";
 
 const AdminNewVendor: React.FC = () => {
   const [sellers, setSellers] = useState<Seller[]>([]);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Seller, getSellerById } from "./Admin.HooksAndUtils";
+import {  getSellerById } from "./Admin.HooksAndUtils";
+import { Seller } from "@/Types/types";
 
 const AdminVendorDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
