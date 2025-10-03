@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Seller, getAllSellers, deleteSeller } from "./Admin.HooksAndUtils";
+import {  getAllSellers, deleteSeller } from "./Admin.HooksAndUtils";
+import AdminSellerTable from "@/components/Admin/AdminSellerTable";
+import { Seller } from "@/Types/types";
+import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 
 const AllSellerScreen: React.FC = () => {
   const [sellers, setSellers] = useState<Seller[]>([]);
@@ -13,7 +16,7 @@ const AllSellerScreen: React.FC = () => {
 
       // ✅ filter verified sellers only
       const verifiedSellers = sellersData.sellers.filter(
-        (seller: Seller) => seller.verified === true
+        (seller ) => seller.verified === true
       );
 
       setSellers(verifiedSellers);
@@ -44,52 +47,13 @@ const AllSellerScreen: React.FC = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Verified Sellers</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Business Name</th>
-              <th className="py-2 px-4 border-b">Email</th>
-              <th className="py-2 px-4 border-b">Role</th>
-              <th className="py-2 px-4 border-b">Joined At</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sellers.length > 0 ? (
-              sellers.map((seller) => (
-                <tr key={seller._id} className="text-center">
-                  <td className="py-2 px-4 border-b">{`${seller.firstName} ${seller.lastName}`}</td>
-                  <td className="py-2 px-4 border-b">{seller.businessName || "n/a"}</td>
-                  <td className="py-2 px-4 border-b">{seller.email}</td>
-                  <td className="py-2 px-4 border-b">{seller.role}</td>
-                  <td className="py-2 px-4 border-b">
-                    {new Date(seller.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleDeleteSeller(seller._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="py-4">
-                  No verified sellers found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <AdminMainWrapper
+      status="success"
+      heading="Verified Sellers"
+      errorMeassage={error}
+    >
+      <AdminSellerTable sellers={sellers} onDeleteSeller={handleDeleteSeller}/>
+    </AdminMainWrapper>
   );
 };
 

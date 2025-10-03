@@ -55,7 +55,7 @@ import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpe
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
 import AdminNewVendor from "./Screens/Admin/AdminNewVendor";
 import AdminVendorDetail from "./Screens/Admin/AdminVendorDetail";
-
+import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
 
 export const router = createBrowserRouter([
   {
@@ -185,7 +185,19 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen /> },
-      { path: "sellers", element: <AllSellerScreen /> },
+      {
+        path: "sellers",
+        children: [
+          { index: true, element: <AllSellerScreen /> },
+          {
+            path: ":sellerId",
+            children: [
+              { index: true, element: <AdminSellerProductScreen /> },
+              { path: ":id", element: <ViewProductScreen /> },
+            ],
+          },
+        ],
+      },
       { path: "users", element: <AllUserScreen /> },
       {
         path: "orders",
@@ -195,10 +207,12 @@ export const router = createBrowserRouter([
         ],
       },
       {
-         path:"new-vendor" , element: <AdminNewVendor/>
+        path: "new-vendor",
+        element: <AdminNewVendor />,
       },
       {
-         path:"/admin/vendors/:id" , element:<AdminVendorDetail/> 
+        path: "/admin/vendors/:id",
+        element: <AdminVendorDetail />,
       },
       {
         path: "products",
@@ -267,9 +281,13 @@ export const router = createBrowserRouter([
   { path: "/account", element: <AccountNavbar /> },
   { path: "/account/orders", element: <MyOrders /> },
   { path: "account/orders/:productId", element: <OrderSummary /> },
-  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType/> },
-  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes/> },
-  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage/> },
-
-
-]); 
+  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
+  {
+    path: "/get-products-by-speciality-package-type/:id",
+    element: <ProductBasedOnSpecialPackagetypes />,
+  },
+  {
+    path: "/get-products-by-speciality-package/:id",
+    element: <ProductBasedOnSpecialPackage />,
+  },
+]);

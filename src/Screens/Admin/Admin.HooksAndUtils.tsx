@@ -1,28 +1,7 @@
 import { redirect } from "react-router";
-import { Order, Product } from "../../Types/types";
+import { Order, Product, Seller } from "../../Types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-
-// ====== Sellers ======
-export type Seller = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  businessName?: string;
-  businessType: string;
-  gstNumber: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  profilePic: string;
-  banner: string;
-  avatar?: string;
-  address?: string;
-  zipCode?: number;
-  availableBalance: number;
-  createdAt: string;
-  verified: boolean;
-};
 
 export type AdminSellersApiRes =
   | { success: true; sellers: Seller[] }

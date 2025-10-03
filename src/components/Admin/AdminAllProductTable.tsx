@@ -1,9 +1,10 @@
 import { Product } from "@/Types/types";
 import { DataTable } from "../ui/data-table";
 import { Link } from "react-router";
-import {  AiOutlineEye } from "react-icons/ai";
+import { AiOutlineEye } from "react-icons/ai";
 import { ColumnDef } from "@tanstack/react-table";
 import { BASE_URL } from "@/data";
+import UpdateCommissionDialog from "./UpdateCommissionDialog";
 
 type VariantRow = {
   id: string;
@@ -16,7 +17,8 @@ type VariantRow = {
   discountPrice: number;
   createdAt: string;
   productId: string;
-  sku:string;
+  sku: string;
+  commission: number;
 };
 
 type AdminAllProductTableProps = {
@@ -30,7 +32,7 @@ export default function AdminAllProductTable({
     pro.variants.map((v) => ({
       id: v._id,
       productName: pro.name,
-      sku:pro.sku,
+      sku: pro.sku,
       thumbnail: BASE_URL + "images/" + v.thumbnail,
       colorOption: v.colorOption || "-",
       size: v.size || "-",
@@ -39,9 +41,9 @@ export default function AdminAllProductTable({
       discountPrice: v.discountPrice ?? 0,
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
+      commission: pro.commission || 0,
     }))
   );
-
 
   const columns: ColumnDef<VariantRow>[] = [
     {
@@ -85,16 +87,31 @@ export default function AdminAllProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
+    { accessorKey: "commission", header: "Commission (%)" },
+    { accessorKey: "earning", header: "SEMA Earning",cell:({row})=>(
+      <span>{row.original.originalPrice * row.original.commission / 100}</span>
+    ) },
     {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
-        <Link to={`view/${row.original.productId}`}>
-          <AiOutlineEye size={20} />
-        </Link>
+        <article className="flex items-center gap-4">
+          {/* <Link to={`/admin/products/view/${row.original.productId}`}> */}
+          <Link to={row.original.productId}>
+            <AiOutlineEye size={20} />
+          </Link>
+          <UpdateCommissionDialog
+            currentCommission={row.original.commission}
+            productId={row.original.productId}
+          />
+        </article>
       ),
     },
   ];
 
-  return <DataTable data={rows} columns={columns} docName="products" />;
+  return (
+    <div className="p-4 bg-white shadow rounded">
+      <DataTable data={rows} columns={columns} docName="products" />
+    </div>
+  );
 }

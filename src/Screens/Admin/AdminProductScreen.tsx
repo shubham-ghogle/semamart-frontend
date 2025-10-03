@@ -44,11 +44,7 @@ export default function AdminProductScren() {
       status={status}
       errorMeassage={error?.message}
     >
-      {products && (
-        <div className="p-4 bg-white shadow rounded">
-          <AdminAllProductTable products={products} />
-        </div>
-      )}
+      {products && <AdminAllProductTable products={products} />}
     </AdminMainWrapper>
   );
 }

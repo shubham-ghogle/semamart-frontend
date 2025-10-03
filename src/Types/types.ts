@@ -103,6 +103,7 @@ export interface Product {
   sold_out: number
   createdAt: Date
   updatedAt: Date
+  commission?:number
 }
 
 export type Address = {
