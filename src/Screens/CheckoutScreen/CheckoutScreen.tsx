@@ -8,6 +8,16 @@ import Confetti from "react-confetti";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import { toast } from "react-toastify";
 
+function loadRazorpayScript(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function CheckoutScreen(): JSX.Element {
   const { user } = useUserStore((s) => s);
   const { cart, clearCart } = useCartStore((s) => s);
@@ -74,7 +84,7 @@ export default function CheckoutScreen(): JSX.Element {
     shippingAddress: address,
     user: user?._id ?? null,
     totalPrice: grandTotal,
-    paymentInfo: { id: "test_payment", status: "Pending", type: "Cash on Delivery" },
+    paymentInfo: { id: "pending", status: "Pending", method: "Razorpay" },
   };
 
   async function handlePlaceOrder() {
@@ -84,8 +94,11 @@ export default function CheckoutScreen(): JSX.Element {
       });
       return;
     }
+
     setPlacingOrder(true);
+
     try {
+      // 1️⃣ Create orders in DB
       const res = await fetch("/api/v2/order/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,18 +106,84 @@ export default function CheckoutScreen(): JSX.Element {
       });
       const data = await res.json();
 
-      if (data.success) {
-        clearCart();
-        setSuccess(true);
-      } else {
-        toast.error("Failed to place order: " + (data.message || "Unknown error"), {
-          position: "top-left",
-        });
+      if (!data.success || !data.orders) {
+        toast.error("Failed to create orders: " + (data.message || "Unknown error"));
+        setPlacingOrder(false);
+        return;
       }
+
+      const orderIds = data.orders.map((o: any) => o._id);
+
+      // 2️⃣ Load Razorpay
+      const loaded = await loadRazorpayScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!loaded) {
+        toast.error("Failed to load Razorpay SDK");
+        setPlacingOrder(false);
+        return;
+      }
+
+      // 3️⃣ Create Razorpay order from backend
+      const razorRes = await fetch("/api/v2/payment/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: grandTotal }),
+      });
+      const razorData = await razorRes.json();
+
+      if (!razorData.success) {
+        toast.error("Failed to initiate payment");
+        setPlacingOrder(false);
+        return;
+      }
+
+      // 4️⃣ Razorpay options
+      const options = {
+        key: "rzp_test_RP4Pp63egmufYa", // hardcoded test key
+        amount: razorData.order.amount,
+        currency: "INR",
+        name: "Semamart",
+        description: "Order Payment",
+        order_id: razorData.order.id,
+        handler: async function (response: any) {
+          try {
+            // 5️⃣ Verify payment
+            const verifyRes = await fetch("/api/v2/payment/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderIds,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+
+            if (verifyData.success) {
+              clearCart();
+              setSuccess(true);
+            } else {
+              toast.error("Payment verification failed!");
+            }
+          } catch (err) {
+            toast.error("Payment verification error!");
+          } finally {
+            setPlacingOrder(false);
+          }
+        },
+        prefill: {
+          name: user?.firstName + " " + user?.lastName,
+          email: user?.email,
+          contact: user?.phoneNumber,
+        },
+        theme: { color: "#1C647C" },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (err) {
       console.error("Order error", err);
       toast.error("Something went wrong placing the order.", { position: "top-left" });
-    } finally {
       setPlacingOrder(false);
     }
   }
@@ -116,31 +195,11 @@ export default function CheckoutScreen(): JSX.Element {
         <Confetti />
         <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-lg mx-4">
           <h1 className="text-3xl font-bold text-green-600 mb-3">
-            🎉 Order Placed Successfully!
+            🎉 Payment Successful & Order Placed!
           </h1>
           <p className="text-gray-700 mb-4">
             Thank you for your order. We've received it and will begin processing.
           </p>
-
-          {address && (
-            <div className="text-left bg-gray-50 p-4 rounded-md mb-4">
-              <h3 className="font-semibold mb-1">Shipping Address</h3>
-              <div className="text-sm text-gray-700">
-                <div>{address.instituteAddress1}</div>
-                {address.instituteAddress2 && <div>{address.instituteAddress2}</div>}
-                <div>
-                  {address.district}, {address.state} - {address.pincode}
-                </div>
-                {address.landmark && <div>Landmark: {address.landmark}</div>}
-                {user?.phoneNumber && <div>📞 {user.phoneNumber}</div>}
-              </div>
-            </div>
-          )}
-
-          <p className="text-gray-600 text-sm mb-4">
-            ✅ Check your orders section for further details.
-          </p>
-
           <div className="flex justify-center">
             <button
               onClick={() => navigate("/")}
@@ -165,6 +224,7 @@ export default function CheckoutScreen(): JSX.Element {
     );
   }
 
+  // ✅ Checkout Page UI
   return (
     <div className="mt-16 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 p-4">
@@ -305,7 +365,7 @@ export default function CheckoutScreen(): JSX.Element {
             }
             disabled={selectedAddressIndex === null || placingOrder}
           >
-            {placingOrder ? "Placing Order..." : "Place Order"}
+            {placingOrder ? "Placing Order..." : "Pay & Place Order"}
           </button>
         </aside>
       </div>
