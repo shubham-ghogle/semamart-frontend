@@ -39,7 +39,7 @@ export default function SellerRegisterScreen() {
     }
 
     const newForm = new FormData();
-    newForm.append("firstName", "nina");
+    newForm.append("firstName", formData.firstName);
     newForm.append("lastName", formData.lastName);
     newForm.append("email", formData.email);
     newForm.append("businessName", formData.businessName);
