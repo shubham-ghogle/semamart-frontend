@@ -39,12 +39,17 @@ export default function AddressForm({ initialData, onCloseModal, isEditing }: Ad
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (isEditing) {
-      await editAddressAsync({ addressId: initialData._id, formData })
-      onCloseModal()
-    } else {
-      await mutateAddress(formData)
-      onCloseModal()
-    }
+  if (!initialData?._id) {
+    console.error("Address ID missing for edit");
+    return;
+  }
+  await editAddressAsync({ addressId: initialData._id as string, formData });
+  onCloseModal();
+} else {
+  await mutateAddress(formData);
+  onCloseModal();
+}
+
   };
 
   return (
