@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const variantSchema = z.object({
   size: z.string().optional().nullable(),
@@ -19,29 +19,33 @@ export const variantSchema = z.object({
 
 const addProductFormSchema = z.object({
   name: z.string().min(1),
-  category: z.array(
-    z.object({
-      name: z.string().min(1, "Category name required"),
-      val: z.string().min(1, "Category value required"),
-    })
-  ).min(1),
-  subCategory: z.array(
-    z.object({
-      name: z.string().min(1, "Category name required"),
-      val: z.string().min(1, "Category value required"),
-    })
-  ).min(1),
+  category: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Category name required"),
+        val: z.string().min(1, "Category value required"),
+      })
+    )
+    .min(1),
+  subCategory: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Category name required"),
+        val: z.string().min(1, "Category value required"),
+      })
+    )
+    .min(1),
   tags: z.array(z.string()).min(1, {
-    error: "Please select at least one item"
+    error: "Please select at least one item",
   }),
   productType: z.string().min(1),
-  intendedUse: z.string().min(1),
+  intendedUse: z.string().optional(),
   sku: z.string().min(1),
   gtin: z.string().min(1),
   hsn: z.string().min(1),
   unspsc: z.string(),
-  upsells: z.string().optional(),
-  crosssells: z.string().optional(),
+  upsells: z.array(z.string()).optional(),
+  crosssells: z.array(z.string()).optional(),
   specialityPackage: z.string().min(1),
   specialityPackageType: z.string().min(1),
   manufacturerName: z.string().min(1),
@@ -50,7 +54,9 @@ const addProductFormSchema = z.object({
   origin: z.string().min(1),
   shortdescription: z.string().min(1),
   description: z.string().min(1),
-  attributes: z.array(z.record(z.string(), z.string())).min(3, { error: "Add atleast three" }),
+  attributes: z
+    .array(z.record(z.string(), z.string()))
+    .min(3, { error: "Add atleast three" }),
   productWgt: z.string({ error: "add product weight" }).min(0),
   productWgtUnit: z.string().min(1),
   dimension_l: z.string().min(0),
@@ -58,7 +64,7 @@ const addProductFormSchema = z.object({
   dimension_h: z.string().min(0),
   dimensionUnit: z.string().min(1),
   // colorOptions: z.string().optional(),
-  sterileString: z.string(),
+  sterileString: z.string().optional(),
   singleUseString: z.string(),
   expiry: z.date(),
   productCompilance: z.instanceof(File).optional().nullable(),
@@ -66,13 +72,15 @@ const addProductFormSchema = z.object({
   // originalPrice: z.string().min(0),
   // discountPrice: z.string().min(0),
   // institutePrice: z.string().optional(),
-  minmaxrule: z.object({
-    minQty: z.string().min(1, "Min qty must be at least 1"),
-    maxQty: z.string().min(1, "Max qty must be at least 1"),
-  }).refine((data) => parseInt(data.maxQty) >= parseInt(data.minQty), {
-    message: "Max qty must be greater than or equal to min qty",
-    path: ["maxQty"],
-  }),
+  minmaxrule: z
+    .object({
+      minQty: z.string().min(1, "Min qty must be at least 1"),
+      maxQty: z.string().min(1, "Max qty must be at least 1"),
+    })
+    .refine((data) => parseInt(data.maxQty) >= parseInt(data.minQty), {
+      message: "Max qty must be greater than or equal to min qty",
+      path: ["maxQty"],
+    }),
   taxStatus: z.string().min(1),
   taxClass: z.string().min(0),
   // stocks: z.string().min(0),
@@ -88,13 +96,13 @@ const addProductFormSchema = z.object({
   shippingWeight: z.string().min(1),
   packagingType: z.string().min(1),
   // deliveryPartner: z.string().optional(),
-   deliveryInstruction: z.string().optional(),
+  deliveryInstruction: z.string().optional(),
   shelfing_storage_req: z.string().min(1),
   purchaseNote: z.string().optional(),
   certificate: z.array(z.instanceof(File)),
   oemLetter: z.instanceof(File).nullable(),
   productComparisionSheet: z.instanceof(File).optional().nullable(),
-  variants: z.array(variantSchema).min(1)
+  variants: z.array(variantSchema).min(1),
 });
 
-export { addProductFormSchema }
+export { addProductFormSchema };

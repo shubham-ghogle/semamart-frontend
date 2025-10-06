@@ -71,6 +71,8 @@ type AddProductFormProps =
       productId: string;
     };
 
+type ProductFormType = z.infer<typeof addProductFormSchema>;
+
 export default function AddProductForm({
   multiVariant = false,
   categories,
@@ -91,7 +93,7 @@ export default function AddProductForm({
     value: c._id,
   }));
 
-  const form = useForm<z.infer<typeof addProductFormSchema>>({
+  const form = useForm<ProductFormType>({
     resolver: zodResolver(addProductFormSchema),
     defaultValues: product ? product : addProductFormDefaultValues,
   });
@@ -113,6 +115,28 @@ export default function AddProductForm({
       colorOption: null,
       discountPrice: "",
     });
+  }
+
+  const crossFields = form.watch("crosssells") || [];
+  function crossAppend(val: string) {
+    const newCross = [...crossFields, val];
+    form.setValue("crosssells", newCross);
+  }
+  function crossRemove(idx: number) {
+    const newCross = [...crossFields];
+    newCross.splice(idx, 1);
+    form.setValue("crosssells", newCross);
+  }
+
+  const upsellFields = form.watch("upsells") || [];
+  function addUpsell(val: string) {
+    const newUpsell = [...upsellFields, val];
+    form.setValue("upsells", newUpsell);
+  }
+  function removeUpsell(idx: number) {
+    const newUpsells = [...upsellFields];
+    newUpsells.splice(idx, 1);
+    form.setValue("upsells", newUpsells);
   }
 
   const { mutate } = useMutation({
@@ -257,18 +281,26 @@ export default function AddProductForm({
     values.subCategory.forEach((el) => {
       newForm.append("subCategory", el.val);
     });
-    newForm.append("tags", JSON.stringify(values.tags));
+    values.tags.forEach((v) => {
+      newForm.append("tags", v);
+    });
     newForm.append("productType", values.productType);
-    newForm.append("intendedUse", values.intendedUse);
+    if (values.intendedUse) {
+      newForm.append("intendedUse", values.intendedUse);
+    }
     newForm.append("sku", values.sku);
     newForm.append("gtin", values.gtin);
     newForm.append("hsn", values.hsn);
     newForm.append("unspsc", values.unspsc);
     if (values.crosssells) {
-      newForm.append("crosssells", values.unspsc);
+      values.crosssells.forEach((v) => {
+        newForm.append("crosssells", v);
+      });
     }
     if (values.upsells) {
-      newForm.append("upsells", values.upsells);
+      values.upsells.forEach((c) => {
+        newForm.append("upsells", c);
+      });
     }
     newForm.append("specialityPackage", values.specialityPackage);
     newForm.append("specialityPackageType", values.specialityPackageType);
@@ -278,23 +310,19 @@ export default function AddProductForm({
     newForm.append("origin", values.origin);
     newForm.append("shortdescription", values.shortdescription);
     newForm.append("description", values.description);
-    newForm.append("attributes", JSON.stringify(values.attributes));
+    values.attributes.forEach((v) => {
+      newForm.append("attributes", JSON.stringify(v));
+    });
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
       `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`
     );
-    // if (values.colorOptions) {
-    //   newForm.append("colorOptions", values.colorOptions)
-    // }
-    newForm.append("sterile", values.sterileString);
+    if (values.sterileString) {
+      newForm.append("sterile", values.sterileString);
+    }
     newForm.append("singleUse", values.singleUseString);
     newForm.append("expiry", values.expiry.toISOString());
-    // newForm.append("originalPrice", values.originalPrice.toString())
-    // newForm.append("discountPrice", values.discountPrice.toString())
-    // if (values.institutePrice) {
-    //   newForm.append("institutePrice", values.institutePrice.toString())
-    // }
     newForm.append(
       "minmaxrule",
       JSON.stringify({
@@ -393,7 +421,9 @@ export default function AddProductForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (e) => {
+          console.log(e);
+        })}
         className="max-w-4xl mx-auto py-10 bg-white p-4 rounded shadow"
       >
         <Accordion type="multiple" defaultValue={["1"]}>
@@ -528,7 +558,7 @@ export default function AddProductForm({
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="productType"
@@ -545,10 +575,11 @@ export default function AddProductForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="New">New</SelectItem>
-                          <SelectItem value="Used">Used</SelectItem>
-                          <SelectItem value="Refurbished">
-                            Refurbished
+                          <SelectItem value="Non-Replaceable">
+                            Non-Replaceable
+                          </SelectItem>
+                          <SelectItem value="Replaceable">
+                            Replaceable
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -557,8 +588,8 @@ export default function AddProductForm({
                   )}
                 />
 
+                {/* control={form.control}
                 <FormField
-                  control={form.control}
                   name="intendedUse"
                   render={({ field }) => (
                     <FormItem>
@@ -585,7 +616,7 @@ export default function AddProductForm({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -649,7 +680,7 @@ export default function AddProductForm({
                 />
               </div>
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="upsells"
                 render={({ field }) => (
@@ -661,9 +692,40 @@ export default function AddProductForm({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
 
-              <FormField
+              <FormItem>
+                <FormLabel>Upsell Product URLs</FormLabel>
+                <div className="space-y-2">
+                  {upsellFields.map((_field, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        {...form.register(`upsells.${index}`)}
+                        placeholder="Enter product URL"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeUpsell(index)}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => addUpsell("")}
+                    disabled={upsellFields.length >= 5} // optional limit
+                  >
+                    + Add Upsell
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+
+              {/* <FormField
                 control={form.control}
                 name="crosssells"
                 render={({ field }) => (
@@ -675,7 +737,38 @@ export default function AddProductForm({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
+
+              <FormItem>
+                <FormLabel>Cross-sell Product URLs</FormLabel>
+                <div className="space-y-2">
+                  {crossFields.map((_field, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        {...form.register(`crosssells.${index}`)}
+                        placeholder="Enter product URL"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => crossRemove(index)}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => crossAppend("")}
+                    disabled={crossFields.length >= 5}
+                  >
+                    + Add Cross-sell
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
 
               <FormField
                 control={form.control}
@@ -784,7 +877,7 @@ export default function AddProductForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Detailed Specification</FormLabel>
                     <FormControl>
                       <Textarea className="resize-none" {...field} />
                     </FormControl>
@@ -941,7 +1034,7 @@ export default function AddProductForm({
                     <FormItem>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        // defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -967,7 +1060,7 @@ export default function AddProductForm({
                     <FormLabel>Sterile Product</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      // defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -992,7 +1085,7 @@ export default function AddProductForm({
                     <FormLabel>Single Use Product</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      // defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -1014,7 +1107,7 @@ export default function AddProductForm({
                 name="expiry"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Expiry Date/ Shelf life</FormLabel>
+                    <FormLabel>Manufacturing Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -1518,6 +1611,7 @@ export default function AddProductForm({
                   <>
                     {variantFields.map((field, i) => (
                       <AddProductFormVariants
+                        key={i}
                         i={i}
                         field={field}
                         handleThumbnailChange={handleThumbnailChange}

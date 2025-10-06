@@ -5,14 +5,14 @@ export const addProductFormDefaultValues = {
   name: "",
   category: [] as any[],
   subCategory: [] as any[],
-  productType: "",
-  intendedUse: "",
+  productType: undefined as string | undefined,
+  intendedUse: undefined as string | undefined,
   sku: "",
   gtin: "",
   hsn: "",
   unspsc: "",
-  upsells: "",
-  crosssells: "",
+  upsells: [] as string[],
+  crosssells: [] as string[],
   manufacturerName: "",
   email: "",
   phone: "",
@@ -20,8 +20,8 @@ export const addProductFormDefaultValues = {
   shortdescription: "",
   description: "",
   productWgt: "",
-  productWgtUnit: "",
-  dimensionUnit: "",
+  productWgtUnit: undefined as string | undefined,
+  dimensionUnit: undefined as string | undefined,
   dimension_h: "",
   dimension_l: "",
   dimension_w: "",
@@ -34,8 +34,8 @@ export const addProductFormDefaultValues = {
   // discountPrice: "",
   // institutePrice: "",
   minmaxrule: { maxQty: "", minQty: "" },
-  taxClass: "",
-  taxStatus: "",
+  taxClass: undefined as string | undefined,
+  taxStatus: undefined as string | undefined,
   // stocks: "",
   unitOfMeasure: "",
   stockStatus: "",
@@ -57,14 +57,19 @@ export const addProductFormDefaultValues = {
   productComparisionSheet: null as any,
   specialityPackage: "",
   specialityPackageType: "",
-  variants: [{
-    size: null as string | null,
-    colorOption: null as string | null,
-    originalPrice: "",
-    discountPrice: "",
-    stocks: "",
-    bulkOrders:[] as {qty?:number|undefined,price?:number|undefined}[]
-  }]
-}
+  variants: [
+    {
+      size: null as string | null,
+      colorOption: null as string | null,
+      originalPrice: "",
+      discountPrice: "",
+      stocks: "",
+      bulkOrders: [] as {
+        qty?: number | undefined;
+        price?: number | undefined;
+      }[],
+    },
+  ],
+};
 
-export type FormProduct = typeof addProductFormDefaultValues
+export type FormProduct = typeof addProductFormDefaultValues;

@@ -49,8 +49,8 @@ export interface Product {
   gtin: string
   hsn: string
   unspsc?: string
-  upsells?: string
-  crosssells?: string
+  upsells?: string[]
+  crosssells?: string[]
   specialityPackage: string   // fixed (required)
   specialityPackageType: string   // fixed (required)
   manufacturerName?: string   // fixed
