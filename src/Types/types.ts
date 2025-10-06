@@ -66,8 +66,8 @@ export interface Product {
   sterile: boolean   // fixed
   singleUse: boolean // fixed
   expiry: Date
-  productCompilance: string
-  msds_ifu_leaflet: string
+  productCompilance?: string[]
+  msds_ifu_leaflet?: string[]
   minmaxrule: Record<string, any>
   taxStatus: string
   taxClass: number

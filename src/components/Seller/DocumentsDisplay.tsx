@@ -11,7 +11,6 @@ import { Product } from "@/Types/types";
 import { Card, CardContent } from "../ui/card";
 
 export default function DocumentsDisplay() {
-
   const { id } = useParams();
   const queryClient = useQueryClient();
   const product = queryClient.getQueryData(["product", id]) as Product;
@@ -111,13 +110,16 @@ export default function DocumentsDisplay() {
           />
         )}
         {product.msds_ifu_leaflet ? (
-          <DocCard
-            title="MSDS/IFU Leaflet"
-            fileName={product.msds_ifu_leaflet}
-            onClick={() => {
-              openDialog("msds_ifu_leaflet");
-            }}
-          />
+          product.msds_ifu_leaflet.map((v, i) => (
+            <DocCard
+              key={i}
+              title={"MSDS/IFU Leaflet"+(1+i)}
+              fileName={v}
+              onClick={() => {
+                openDialog("msds_ifu_leaflet", i);
+              }}
+            />
+          ))
         ) : (
           <EmptyDocCard
             title="Add MSDS/IFU Leaflet"
@@ -127,13 +129,16 @@ export default function DocumentsDisplay() {
           />
         )}
         {product.productCompilance ? (
-          <DocCard
-            title="Product Compilance"
-            fileName={product.productCompilance}
-            onClick={() => {
-              openDialog("productCompilance");
-            }}
-          />
+          product.productCompilance.map((v, i) => (
+            <DocCard
+              key={i}
+              title={"Product Compilance"+(1+i)}
+              fileName={v}
+              onClick={() => {
+                openDialog("productCompilance", i);
+              }}
+            />
+          ))
         ) : (
           <EmptyDocCard
             title="Add Product Compilance"
@@ -144,27 +149,27 @@ export default function DocumentsDisplay() {
         )}
       </section>
 
-       <section className="mt-2">
+      <section className="mt-2">
         {testReports.length > 0 ? (
-            <div className="grid grid-cols-3">
-              {testReports.map((el, i) => (
-                <DocCard
-                  title={"Certifcate-" + (i + 1)}
-                  key={i}
-                  fileName={el}
-                  onClick={() => {
-                    openDialog("certificate", i);
-                  }}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-3">
+            {testReports.map((el, i) => (
+              <DocCard
+                title={"Certifcate-" + (i + 1)}
+                key={i}
+                fileName={el}
+                onClick={() => {
+                  openDialog("certificate", i);
+                }}
+              />
+            ))}
+          </div>
         ) : (
-            <EmptyDocCard
-              title="Certifcate"
-              onClick={() => {
-                openDialog("certificate", 0);
-              }}
-            />
+          <EmptyDocCard
+            title="Certifcate"
+            onClick={() => {
+              openDialog("certificate", 0);
+            }}
+          />
         )}
       </section>
 

@@ -51,8 +51,10 @@ export default function ViewProductScreen() {
 
   const formProduct: FormProduct = {
     expiry: new Date(product?.expiry || ""),
-    tags: JSON.parse(product.tags as unknown as string) || [],
-    attributes: JSON.parse(product?.attributes as unknown as string) || [],
+    // tags: JSON.parse(product.tags as unknown as string) || [],
+    tags: product.tags || [],
+    // attributes: JSON.parse(product?.attributes as unknown as string) || [],
+    attributes:product?.attributes||[],
     name: product?.name || "",
     category: category,
     subCategory: subCategory || [],

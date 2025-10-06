@@ -226,6 +226,8 @@ export default function AddProductForm({
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
+
+  // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
     mutationFn: (formData: any) => postProduct(formData),
     onSuccess: () => {
@@ -327,7 +329,7 @@ export default function AddProductForm({
       "minmaxrule",
       JSON.stringify({
         minQty: values.minmaxrule.minQty,
-        maxQty: values.minmaxrule.maxQty,
+        maxQty: values.minmaxrule.maxQty || "",
       })
     );
     newForm.append("taxStatus", values.taxStatus);
@@ -359,12 +361,16 @@ export default function AddProductForm({
     if (values.amc_cms) {
       newForm.append("amc_cms", values.amc_cms);
     }
-    if (values.productCompilance) {
-      newForm.append("productCompilance", values.productCompilance);
-    }
-    if (values.msds_ifu_leaflet) {
-      newForm.append("msds_ifu_leaflet", values.msds_ifu_leaflet);
-    }
+    values.productCompilance?.forEach((c) => {
+      if (c) {
+        newForm.append("productCompilance", c);
+      }
+    });
+    values.msds_ifu_leaflet?.forEach((c) => {
+      if (c) {
+        newForm.append("msds_ifu_leaflet", c);
+      }
+    });
     values.certificate.forEach((c) => {
       newForm.append("certificate", c);
     });
@@ -1146,10 +1152,11 @@ export default function AddProductForm({
                     <FormLabel>Product Compilance Documents</FormLabel>
                     <FormControl>
                       <Input
+                        multiple
                         type="file"
                         onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            field.onChange(e.target.files[0]);
+                          if (e.target.files) {
+                            field.onChange(Array.from( e.target.files));
                           }
                         }}
                       />
@@ -1170,8 +1177,8 @@ export default function AddProductForm({
                         type="file"
                         multiple
                         onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            field.onChange(e.target.files[0]);
+                          if (e.target.files) {
+                            field.onChange(Array.from(e.target.files));
                           }
                         }}
                       />
@@ -1186,7 +1193,7 @@ export default function AddProductForm({
           <AccordionItem value="3">
             <AccordionTrigger className="text-lg">Commercials</AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
-              <section className="grid grid-cols-2 gap-4">
+              <section className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="minmaxrule.minQty"
@@ -1200,7 +1207,7 @@ export default function AddProductForm({
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="minmaxrule.maxQty"
                   render={({ field }) => (
@@ -1212,7 +1219,7 @@ export default function AddProductForm({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </section>
 
               <section className="grid grid-cols-2 gap-4">
@@ -1559,7 +1566,7 @@ export default function AddProductForm({
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="productComparisionSheet"
                   render={({ field }) => (
@@ -1578,7 +1585,7 @@ export default function AddProductForm({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
                 {/* media */}
               </AccordionContent>
             </AccordionItem>

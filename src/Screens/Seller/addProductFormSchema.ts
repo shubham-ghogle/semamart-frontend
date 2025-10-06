@@ -67,20 +67,21 @@ const addProductFormSchema = z.object({
   sterileString: z.string().optional(),
   singleUseString: z.string(),
   expiry: z.date(),
-  productCompilance: z.instanceof(File).optional().nullable(),
-  msds_ifu_leaflet: z.instanceof(File).optional().nullable(),
+  productCompilance: z.array(z.instanceof(File)).optional().nullable(),
+  msds_ifu_leaflet: z.array(z.instanceof(File)).optional().nullable(),
   // originalPrice: z.string().min(0),
   // discountPrice: z.string().min(0),
   // institutePrice: z.string().optional(),
   minmaxrule: z
     .object({
       minQty: z.string().min(1, "Min qty must be at least 1"),
-      maxQty: z.string().min(1, "Max qty must be at least 1"),
+      maxQty: z.string().optional(),
     })
-    .refine((data) => parseInt(data.maxQty) >= parseInt(data.minQty), {
-      message: "Max qty must be greater than or equal to min qty",
-      path: ["maxQty"],
-    }),
+    // .refine((data) => parseInt(data.maxQty) >= parseInt(data.minQty), {
+    //   message: "Max qty must be greater than or equal to min qty",
+    //   path: ["maxQty"],
+    // })
+    ,
   taxStatus: z.string().min(1),
   taxClass: z.string().min(0),
   // stocks: z.string().min(0),
