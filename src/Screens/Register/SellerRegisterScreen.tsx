@@ -105,6 +105,7 @@ export default function SellerRegisterScreen() {
       setProfilePic(file);
     }
   };
+  const [isOpen, setIsOpen] = useState(false);
 
  return (
   <>
@@ -185,181 +186,184 @@ export default function SellerRegisterScreen() {
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Business Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="businessName"
-                  required
-                  value={formData.businessName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
+            <div
+            onClick={() => setIsOpen(!isOpen)}
+            className="cursor-pointer flex items-center justify-between bg-[#1C647C] text-white p-4 rounded-md"
+          >
+            <h2 className="text-lg font-semibold">Business Details</h2>
+            <svg
+              className={`w-5 h-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                GST Number <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="gstNumber"
-                  required
-                  value={formData.gstNumber}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Phon number */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Phone Number<div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type="number"
-                  name="phoneNumber"
-                  autoComplete="password"
-                  required
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            {/* Phone number end */}
-
-            {/* Email start */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Select Your Business categories{" "}
-                <div className="inline text-red-700">*</div>
-              </label>
-              <div className="relative mt-1">
-                <select
-                  name="businessType"
-                  required
-                  value={formData.businessType}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
-                >
-                  <option value="" disabled>
-                    Select an option
-                  </option>
-                  <option value="Distributor">Distributor</option>
-                  <option value="Manufacturer">Manufacturer</option>
-                  <option value="Reseller">Reseller</option>
-                </select>
-                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    ></path>
-                  </svg>
+          {/* Dropdown content */}
+          {isOpen && (
+            <div className="mt-4 space-y-6">
+              <div>
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
+                  Business Name <span className="inline text-red-700">*</span>
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    name="businessName"
+                    id="businessName"
+                    required
+                    value={formData.businessName}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
                 </div>
               </div>
-            </div>
 
-            <div className=" ">
-              <label
-                htmlFor="avatar"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Upload Profile Picture
-                <div className="inline text-red-700">*</div>
-              </label>
-
-              <div className=" flex items-center border border-gray-300 rounded-3xl">
-                <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                  {profilePic ? (
-                    <img
-                      src={URL.createObjectURL(profilePic)}
-                      alt="profilePic"
-                      className="h-full w-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <RxAvatar className="h-8 w-8" />
-                  )}
-                </span>
-                <label
-                  htmlFor="file-input"
-                  className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 "
-                >
-                  {/* <span>Upload</span> */}
+              <div>
+                <label htmlFor="gstNumber" className="block text-sm font-medium text-gray-700">
+                  GST Number <span className="inline text-red-700">*</span>
+                </label>
+                <div className="mt-1">
                   <input
-                    type="file"
-                    name="profile"
-                    id="profile"
+                    type="text"
+                    name="gstNumber"
+                    id="gstNumber"
                     required
-                    onChange={handleFileInputChange}
-                    className=""
+                    value={formData.gstNumber}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
-                </label>
+                </div>
               </div>
-            </div>
-            <div className="">
-              <label
-                htmlFor="avatar"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Upload Banner
-              </label>
-              <div className=" flex items-center border rounded-3xl border-gray-300">
-                <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                  {banner ? (
-                    <img
-                      src={URL.createObjectURL(banner)}
-                      alt="banner"
-                      className="h-full w-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <RxAvatar className="h-8 w-8" />
-                  )}
-                </span>
-                <label
-                  htmlFor="file-input"
-                  className="ml-5 flex items-center justify-center px-4 py-2   rounded-md shadow-xs text-sm font-medium text-gray-700 "
-                >
-                  {/* <span>Upload</span> */}
-                  <input
-                    type="file"
-                    name="banner"
-                    id="banner"
-                    onChange={handleFileInputChange}
-                    // className="sr-only"
-                  />
-                </label>
-              </div>
-            </div>
 
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+                  Phone Number <span className="inline text-red-700">*</span>
+                </label>
+                <div className="mt-1 relative">
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    id="phoneNumber"
+                    required
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
+                  Select Your Business categories <span className="inline text-red-700">*</span>
+                </label>
+                <div className="relative mt-1">
+                  <select
+                    name="businessType"
+                    id="businessType"
+                    required
+                    value={formData.businessType}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+                  >
+                    <option value="" disabled>
+                      Select an option
+                    </option>
+                    <option value="Distributor">Distributor</option>
+                    <option value="Manufacturer">Manufacturer</option>
+                    <option value="Reseller">Reseller</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="profile" className="block text-sm font-medium text-gray-700">
+                  Upload Profile Picture <span className="inline text-red-700">*</span>
+                </label>
+
+                <div className="flex items-center border border-gray-300 rounded-3xl p-2">
+                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
+                    {profilePic ? (
+                      <img
+                        src={URL.createObjectURL(profilePic)}
+                        alt="profilePic"
+                        className="h-full w-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <RxAvatar className="h-8 w-8" />
+                    )}
+                  </span>
+                  <label
+                    htmlFor="profile"
+                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                    <input
+                      type="file"
+                      name="profile"
+                      id="profile"
+                      required
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                    />
+                    Upload
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="banner" className="block text-sm font-medium text-gray-700">
+                  Upload Banner
+                </label>
+                <div className="flex items-center border rounded-3xl border-gray-300 p-2">
+                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
+                    {banner ? (
+                      <img
+                        src={URL.createObjectURL(banner)}
+                        alt="banner"
+                        className="h-full w-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <RxAvatar className="h-8 w-8" />
+                    )}
+                  </span>
+                  <label
+                    htmlFor="banner"
+                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                    <input
+                      type="file"
+                      name="banner"
+                      id="banner"
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                    />
+                    Upload
+                  </label>
+            </div>
+            </div>
+            </div>
+          )}
+        
+         
+          
+        
+    
             {/* Password */}
             <div>
               <label

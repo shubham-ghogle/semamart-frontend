@@ -97,6 +97,49 @@ function Signup() {
       [name]: value,
     }));
   };
+  const indianStates = [
+  { value: "Andhra Pradesh", label: "Andhra Pradesh" },
+  { value: "Arunachal Pradesh", label: "Arunachal Pradesh" },
+  { value: "Assam", label: "Assam" },
+  { value: "Bihar", label: "Bihar" },
+  { value: "Chhattisgarh", label: "Chhattisgarh" },
+  { value: "Goa", label: "Goa" },
+  { value: "Gujarat", label: "Gujarat" },
+  { value: "Haryana", label: "Haryana" },
+  { value: "Himachal Pradesh", label: "Himachal Pradesh" },
+  { value: "Jammu and Kashmir", label: "Jammu and Kashmir" },
+  { value: "Jharkhand", label: "Jharkhand" },
+  { value: "Karnataka", label: "Karnataka" },
+  { value: "Kerala", label: "Kerala" },
+  { value: "Madhya Pradesh", label: "Madhya Pradesh" },
+  { value: "Maharashtra", label: "Maharashtra" },
+  { value: "Manipur", label: "Manipur" },
+  { value: "Meghalaya", label: "Meghalaya" },
+  { value: "Mizoram", label: "Mizoram" },
+  { value: "Nagaland", label: "Nagaland" },
+  { value: "Odisha", label: "Odisha" },
+  { value: "Punjab", label: "Punjab" },
+  { value: "Rajasthan", label: "Rajasthan" },
+  { value: "Sikkim", label: "Sikkim" },
+  { value: "Tamil Nadu", label: "Tamil Nadu" },
+  { value: "Telangana", label: "Telangana" },
+  { value: "Tripura", label: "Tripura" },
+  { value: "Uttarakhand", label: "Uttarakhand" },
+  { value: "Uttar Pradesh", label: "Uttar Pradesh" },
+  { value: "West Bengal", label: "West Bengal" },
+  { value: "Andaman and Nicobar Islands", label: "Andaman and Nicobar Islands" },
+  { value: "Chandigarh", label: "Chandigarh" },
+  { value: "Dadra and Nagar Haveli", label: "Dadra and Nagar Haveli" },
+  { value: "Daman and Diu", label: "Daman and Diu" },
+  { value: "Delhi", label: "Delhi" },
+  { value: "Lakshadweep", label: "Lakshadweep" },
+  { value: "Puducherry", label: "Puducherry" },
+  ];
+  const [activeSection, setActiveSection] = useState<"personal" | "institute" | null>("personal");
+    const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
 return (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -125,202 +168,265 @@ return (
       {/* Card */}
       <section className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* First Name */}
-          <div>
-            <label
-              htmlFor="firstName"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              First Name <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="firstName"
-              required
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+          {/* Personal Details - Accordion Section */}
+<div className="border border-gray-300 rounded-md">
+  <button
+    type="button"
+    onClick={() =>
+      setActiveSection((prev) => (prev === "personal" ? null : "personal"))
+    }
+    className="w-full flex justify-between items-center px-4 py-3 bg-[#1C647C] text-white text-left text-sm font-semibold rounded-t-md focus:outline-none"
+  >
+    <span>Personal Details</span>
+    <svg
+      className={`w-4 h-4 transform transition-transform duration-200 ${
+        activeSection === "personal" ? "rotate-180" : ""
+      }`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
 
-          {/* Last Name */}
-          <div>
-            <label
-              htmlFor="lastName"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Last Name <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="lastName"
-              required
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+  {activeSection === "personal" && (
+    <div className="p-4 space-y-4 bg-white rounded-b-md">
+      {/* First Name */}
+      <div>
+        <label
+          htmlFor="firstName"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          First Name <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="firstName"
+          required
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
 
-          {/* Phone Number */}
-          <div>
-            <label
-              htmlFor="phoneNumber"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Phone Number <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              required
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+      {/* Last Name */}
+      <div>
+        <label
+          htmlFor="lastName"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Last Name <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="lastName"
+          required
+          placeholder="Last Name"
+          value={formData.lastName}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
 
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Email Address <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+      {/* Phone Number */}
+      <div>
+        <label
+          htmlFor="phoneNumber"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Phone Number <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="tel"
+          name="phoneNumber"
+          required
+          placeholder="Phone Number"
+          value={formData.phoneNumber}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
 
-          {/* Institute Name */}
-          <div>
-            <label
-              htmlFor="instituteName"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Institute Name <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="instituteName"
-              required
-              placeholder="Institute Name"
-              value={formData.instituteName}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+      {/* Email */}
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Email Address <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
+    </div>
+  )}
+</div>
 
-          {/* Institute Address */}
-          <div>
-            <label
-              htmlFor="instituteAddress1"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Institute Address <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="instituteAddress1"
-              required
-              placeholder="Address line 1"
-              value={formData.instituteAddress1}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-            <input
-              type="text"
-              name="instituteAddress2"
-              placeholder="Address line 2"
-              value={formData.instituteAddress2}
-              onChange={handleChange}
-              className="mt-2 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
 
-          {/* Landmark */}
-          <div>
-            <label
-              htmlFor="landmark"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Landmark <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="landmark"
-              required
-              placeholder="Landmark"
-              value={formData.landmark}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+        {/* Institute Details - Accordion Section */}
+<div className="border border-gray-300 rounded-md mt-4">
+  <button
+    type="button"
+    onClick={() =>
+      setActiveSection((prev) => (prev === "institute" ? null : "institute"))
+    }
+    className="w-full flex justify-between items-center px-4 py-3 bg-[#1C647C] text-white text-left text-sm font-semibold rounded-t-md focus:outline-none"
+  >
+    <span>Institute Details</span>
+    <svg
+      className={`w-4 h-4 transform transition-transform duration-200 ${
+        activeSection === "institute" ? "rotate-180" : ""
+      }`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
 
-          {/* Pincode */}
-          <div>
-            <label
-              htmlFor="pincode"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Pincode <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="pincode"
-              required
-              placeholder="Pincode"
-              value={formData.pincode}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+  {activeSection === "institute" && (
+    <div className="p-4 space-y-4 bg-white rounded-b-md">
+      {/* Institute Name */}
+      <div>
+        <label
+          htmlFor="instituteName"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Institute Name <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="instituteName"
+          required
+          placeholder="Institute Name"
+          value={formData.instituteName}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
 
-          {/* District */}
-          <div>
-            <label
-              htmlFor="district"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              District <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="district"
-              placeholder="District"
-              value={formData.district}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+      {/* Institute Address */}
+      <div>
+        <label
+          htmlFor="instituteAddress1"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Institute Address <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="instituteAddress1"
+          required
+          placeholder="Address line 1"
+          value={formData.instituteAddress1}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+        <input
+          type="text"
+          name="instituteAddress2"
+          placeholder="Address line 2"
+          value={formData.instituteAddress2}
+          onChange={handleChange}
+          className="mt-2 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
 
-          {/* State */}
-          <div>
-            <label
-              htmlFor="state"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              State <span className="text-red-700">*</span>
-            </label>
-            <input
-              type="text"
-              name="state"
-              required
-              placeholder="State"
-              value={formData.state}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-            />
-          </div>
+      {/* Landmark */}
+      <div>
+        <label
+          htmlFor="landmark"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Landmark <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="landmark"
+          required
+          placeholder="Landmark"
+          value={formData.landmark}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
+
+      {/* Pincode */}
+      <div>
+        <label
+          htmlFor="pincode"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          Pincode <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="pincode"
+          required
+          placeholder="Pincode"
+          value={formData.pincode}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
+
+      {/* District */}
+      <div>
+        <label
+          htmlFor="district"
+          className="block text-sm font-semibold text-[#1C647C]"
+        >
+          District <span className="text-red-700">*</span>
+        </label>
+        <input
+          type="text"
+          name="district"
+          required
+          placeholder="District"
+          value={formData.district}
+          onChange={handleChange}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+        />
+      </div>
+
+      {/* State */}
+      <div>
+        <label className="block text-sm font-semibold text-[#1C647C]">
+                      State <span className="text-red-700">*</span>
+                    </label>
+                    <select
+                      name="state"
+                      required
+                      value={formData.state}
+                      onChange={handleSelectChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-xs focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+                    >
+                      <option value="" disabled>
+                        Select a state
+                      </option>
+                      {indianStates.map((state) => (
+                        <option key={state.value} value={state.value}>
+                          {state.label}
+                        </option>
+                      ))}
+                    </select>
+      </div>
+    </div>
+  )}
+</div>
+
 
           {/* Password */}
           <div>
