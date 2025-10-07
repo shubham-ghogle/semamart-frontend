@@ -324,7 +324,7 @@ export default function AddProductForm({
       newForm.append("sterile", values.sterileString);
     }
     newForm.append("singleUse", values.singleUseString);
-    newForm.append("expiry", values.expiry.toISOString());
+    newForm.append("manufacturingDate", values.expiry.toISOString());
     newForm.append(
       "minmaxrule",
       JSON.stringify({
