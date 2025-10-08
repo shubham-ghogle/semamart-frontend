@@ -165,14 +165,14 @@ export default function AddProductForm({
   }, [form.watch("subCategory")]);
 
   function addAddtri(attri: Record<string, string>) {
-    const currentAttri = form.getValues("attributes");
+    const currentAttri = form.getValues("attributes") || [];
     const newAttris = [...currentAttri, attri];
     form.setValue("attributes", newAttris);
     setCurrentAttri({ key: "", val: "" });
   }
 
   function removeAttri(idx: number) {
-    const attributes = [...form.getValues("attributes")];
+    const attributes = [...(form.getValues("attributes") || [])];
     attributes.splice(idx, 1);
     form.setValue("attributes", attributes);
   }
@@ -226,7 +226,6 @@ export default function AddProductForm({
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
-
   // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
     mutationFn: (formData: any) => postProduct(formData),
@@ -256,6 +255,14 @@ export default function AddProductForm({
   });
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
+    if (thumbnail.length === 0) {
+      form.setError("thumbnail" as any, {
+        type: "manual",
+        message: "Please upload thumbnail image",
+      });
+      return;
+    }
+
     if (putProductStatus === "pending" || postProductStatus === "pending") {
       return;
     }
@@ -312,9 +319,11 @@ export default function AddProductForm({
     newForm.append("origin", values.origin);
     newForm.append("shortdescription", values.shortdescription);
     newForm.append("description", values.description);
-    values.attributes.forEach((v) => {
-      newForm.append("attributes", JSON.stringify(v));
-    });
+    if (values.attributes) {
+      values.attributes.forEach((v) => {
+        newForm.append("attributes", JSON.stringify(v));
+      });
+    }
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
@@ -333,9 +342,12 @@ export default function AddProductForm({
       })
     );
     newForm.append("taxStatus", values.taxStatus);
-    newForm.append("taxClass", values.taxClass.toString());
-    // newForm.append("stock", values.stocks.toString())
-    newForm.append("unitOfMeasure", values.unitOfMeasure);
+    if (values.taxClass) {
+      newForm.append("taxClass", values.taxClass.toString());
+    }
+    if (values.unitOfMeasure) {
+      newForm.append("unitOfMeasure", values.unitOfMeasure);
+    }
     newForm.append("stockStatus", values.stockStatus);
     newForm.append("deliveryLeadTime", values.deliveryLeadTime.toString());
     if (values.warranty) {
@@ -350,10 +362,9 @@ export default function AddProductForm({
     if (values.deliveryInstruction) {
       newForm.append("deliveryInstruction", values.deliveryInstruction);
     }
-    // if (values.deliveryPartner) {
-    //   newForm.append("deliveryPartner", values.deliveryPartner)
-    // }
-    newForm.append("shelfing_storage_req", values.shelfing_storage_req);
+    if (values.shelfing_storage_req) {
+      newForm.append("shelfing_storage_req", values.shelfing_storage_req);
+    }
     if (values.purchaseNote) {
       newForm.append("purchaseNote", values.purchaseNote);
     }
@@ -429,6 +440,12 @@ export default function AddProductForm({
       <form
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
+          if (thumbnail.length === 0) {
+            form.setError("thumbnail" as any, {
+              type: "manual",
+              message: "Please upload thumbnail image",
+            });
+          }
         })}
         className="max-w-4xl mx-auto py-10 bg-white p-4 rounded shadow"
       >
@@ -625,7 +642,7 @@ export default function AddProductForm({
                 /> */}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 items-start gap-4">
                 <FormField
                   control={form.control}
                   name="sku"
@@ -804,7 +821,6 @@ export default function AddProductForm({
 
           <AccordionItem value="2">
             <AccordionTrigger className="text-lg">
-              {" "}
               Product Description & Specifications{" "}
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
@@ -900,7 +916,7 @@ export default function AddProductForm({
                     <FormLabel>Custom Attributes</FormLabel>
                     <FormControl>
                       <>
-                        {field.value.map((e, i) => (
+                        {field.value?.map((e, i) => (
                           <div className="flex gap-8" key={i}>
                             <Input value={Object.keys(e)[0]} readOnly />
                             <Input value={Object.values(e)[0]} readOnly />
@@ -1003,7 +1019,7 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>Product dimensions (LxHxW)</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Length" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1015,7 +1031,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Height" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1027,7 +1043,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Width" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1058,91 +1074,93 @@ export default function AddProductForm({
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="sterileString"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sterile Product</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      // defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <section className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sterileString"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sterile Product</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        // defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="singleUseString"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Single Use Product</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      // defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="singleUseString"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Single Use Product</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        // defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="expiry"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Manufacturing Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="expiry"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Manufacturing Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </section>
 
               <FormField
                 control={form.control}
@@ -1156,7 +1174,7 @@ export default function AddProductForm({
                         type="file"
                         onChange={(e) => {
                           if (e.target.files) {
-                            field.onChange(Array.from( e.target.files));
+                            field.onChange(Array.from(e.target.files));
                           }
                         }}
                       />
@@ -1222,7 +1240,7 @@ export default function AddProductForm({
                 /> */}
               </section>
 
-              <section className="grid grid-cols-2 gap-4">
+              <section className="grid grid-cols-2 items-start gap-4">
                 <FormField
                   control={form.control}
                   name="taxStatus"
@@ -1266,8 +1284,10 @@ export default function AddProductForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="0">0%</SelectItem>
                           <SelectItem value="5">5%</SelectItem>
                           <SelectItem value="10">10%</SelectItem>
+                          <SelectItem value="12">12%</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -1290,63 +1310,65 @@ export default function AddProductForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="stockStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value?.toString()}
-                    >
+              <section className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="stockStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="In stock">In Stock</SelectItem>
+                          <SelectItem value="Out of stock">
+                            Out of stock
+                          </SelectItem>
+                          <SelectItem value="On backorder">
+                            On backorder
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="deliveryLeadTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Delivery Leading Time (in days)</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
+                        <Input {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="In stock">In Stock</SelectItem>
-                        <SelectItem value="Out of stock">
-                          Out of stock
-                        </SelectItem>
-                        <SelectItem value="On backorder">
-                          On backorder
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="deliveryLeadTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery Leading Time (in days)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="warranty"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Warranty (in year)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="warranty"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Warranty (in year)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </section>
 
               <FormField
                 control={form.control}
@@ -1435,7 +1457,7 @@ export default function AddProductForm({
                   <FormItem>
                     <FormLabel>Packaging Type</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Eg. box, polywrap etc."/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1459,6 +1481,7 @@ export default function AddProductForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Fragile">Fragile</SelectItem>
+                        <SelectItem value="Non-Fragile">Non-Fragile</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1626,6 +1649,9 @@ export default function AddProductForm({
                         form={form}
                         removeVariant={removeVariant}
                         isMultiVariant={isMultiVariant}
+                        thumbnailError={
+                          (form.formState.errors as any).thumbnail
+                        }
                       />
                     ))}
                     {isMultiVariant && (

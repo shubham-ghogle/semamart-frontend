@@ -1,4 +1,4 @@
-import { useFieldArray  } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { Button } from "../ui/button";
 import { MinusCircleIcon } from "lucide-react";
 import {
@@ -11,15 +11,16 @@ import {
 import { Input } from "../ui/input";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
-type AddProductFormVariantsProps={
-  i:any;
-  form:any;
-  field:any;
-  isMultiVariant:boolean;
-  handleThumbnailChange:any;
-  removeVariant:any;
-  thumbnail:any;
-}
+type AddProductFormVariantsProps = {
+  i: any;
+  form: any;
+  field: any;
+  isMultiVariant: boolean;
+  handleThumbnailChange: any;
+  removeVariant: any;
+  thumbnail: any;
+  thumbnailError: any;
+};
 
 export default function AddProductFormVariants({
   i,
@@ -29,7 +30,8 @@ export default function AddProductFormVariants({
   handleThumbnailChange,
   removeVariant,
   thumbnail,
-}:AddProductFormVariantsProps) {
+  thumbnailError,
+}: AddProductFormVariantsProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: `variants.${i}.bulkOrders`,
@@ -123,7 +125,7 @@ export default function AddProductFormVariants({
             )}
           />
         </article>
-        <div>
+        <FormItem>
           <FormLabel>Upload Thumbnail Image</FormLabel>
           <div className="border border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
             <label
@@ -141,13 +143,16 @@ export default function AddProductFormVariants({
               )}
             </label>
           </div>
+          {thumbnailError && (
+            <p className="text-sm text-red-500">{thumbnailError.message as string}</p>
+          )}
           <input
             type="file"
             id="uploadThumbnail"
             className="hidden"
             onChange={(e) => handleThumbnailChange(e, i)}
           />
-        </div>
+        </FormItem>
       </div>
 
       <div className="space-y-2 mt-4">
@@ -156,12 +161,16 @@ export default function AddProductFormVariants({
           <div key={field.id} className="flex items-center gap-2">
             <Input
               placeholder="Qty"
-              {...form.register(`variants.${i}.bulkOrders.${index}.qty`,{ valueAsNumber: true })}
+              {...form.register(`variants.${i}.bulkOrders.${index}.qty`, {
+                valueAsNumber: true,
+              })}
               className="w-20"
             />
             <Input
               placeholder="Price"
-              {...form.register(`variants.${i}.bulkOrders.${index}.price`,{ valueAsNumber: true })}
+              {...form.register(`variants.${i}.bulkOrders.${index}.price`, {
+                valueAsNumber: true,
+              })}
               className="w-28"
             />
             <Button
