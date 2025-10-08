@@ -1,13 +1,23 @@
-import { ChangeEvent, FormEvent, useState } from "react";
-import { RxAvatar } from "react-icons/rx";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router";
-import { useRegisterSeller } from "./Registration.Hooks";
-import { AiOutlineLoading } from "react-icons/ai";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { NavLink } from "react-router-dom";
+import { FaCheckCircle } from "react-icons/fa";
+import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLoading, AiOutlineCloseCircle } from "react-icons/ai";
 
-export default function SellerRegisterScreen() {
-  const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({
+interface SellerForm {
+  firstName: string;
+  lastName: string;
+  email: string;
+  businessName: string;
+  gstNumber: string;
+  phoneNumber: string;
+  businessType: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export default function SellerRegistration(): JSX.Element {
+  const [step, setStep] = useState<number>(1);
+  const [formData, setFormData] = useState<SellerForm>({
     firstName: "",
     lastName: "",
     email: "",
@@ -18,461 +28,352 @@ export default function SellerRegisterScreen() {
     password: "",
     confirmPassword: "",
   });
-  const [banner, setBanner] = useState<File | null>();
-  const [profilePic, setProfilePic] = useState<File | null>();
-  const [check, setCheck] = useState(false);
-  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
-  const { mutateSeller, status: regStatus } = useRegisterSeller();
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [banner, setBanner] = useState<File | null>(null);
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [agree, setAgree] = useState<boolean>(false);
+  const [regStatus, setRegStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const steps = [
+    { id: 1, title: "Personal Details" },
+    { id: 2, title: "Business Details" },
+    { id: 3, title: "Password Setup" },
+  ];
 
-    if (!check) {
-      return window.alert("Checkbox is compulsory");
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return window.alert("Passwords do not match");
-    }
-    if (passwordErrors.length > 0) {
-      return window.alert("Please fix the password issues.");
-    }
+  const labels: Record<string, string> = {
+    firstName: "First Name",
+    lastName: "Last Name",
+    email: "Email",
+    businessName: "Business Name",
+    gstNumber: "GST Number",
+    phoneNumber: "Phone Number",
+    businessType: "Business Type",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+  };
 
-    const newForm = new FormData();
-    newForm.append("firstName", formData.firstName);
-    newForm.append("lastName", formData.lastName);
-    newForm.append("email", formData.email);
-    newForm.append("businessName", formData.businessName);
-    newForm.append("gstNumber", formData.gstNumber);
-    newForm.append("phoneNumber", formData.phoneNumber);
-    newForm.append("businessType", formData.businessType);
-    newForm.append("password", formData.password);
-    if (banner) {
-      newForm.append("banner", banner);
-    }
-    if (profilePic) {
-      newForm.append("profilePic", profilePic);
-    }
+  // Handle input changes
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    let { name, value } = e.target;
 
-    await mutateSeller(newForm);
-  }
+    // GST auto-uppercase
+    if (name === "gstNumber") value = value.toUpperCase();
 
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  // Phone input: numeric only, max 10 digits
+  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 10) value = value.slice(0, 10);
+    setFormData((prev) => ({ ...prev, phoneNumber: value }));
+    setErrors((prev) => ({ ...prev, phoneNumber: "" }));
+  };
+
+  // File input
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, which: "banner" | "profile") => {
+    const file = e.target.files?.[0] || null;
+    if (which === "banner") setBanner(file);
+    else setProfilePic(file);
+    setErrors((prev) => ({ ...prev, [which === "banner" ? "banner" : "profilePic"]: "" }));
+  };
+
+  // Password validation
   const validatePassword = (password: string) => {
-    const errors = [];
-    if (password.length < 8) {
-      errors.push("Password must be at least 8 characters long.");
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push("Password must include at least one uppercase letter.");
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push("Password must include at least one lowercase letter.");
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push("Password must include at least one number.");
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push("Password must include at least one special character.");
-    }
+    const errors: string[] = [];
+    if (password.length < 8) errors.push("at least 8 chars");
+    if (!/[A-Z]/.test(password)) errors.push("1 uppercase");
+    if (!/[a-z]/.test(password)) errors.push("1 lowercase");
+    if (!/[0-9]/.test(password)) errors.push("1 number");
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("1 special char");
     return errors;
   };
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const password = e.target.value;
-    const errors = validatePassword(password);
-    setPasswordErrors(errors);
-    setFormData((prev) => ({
-      ...prev,
-      password,
-    }));
-  };
 
-  function handleChange(
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // console.log(formData);
-  }
-  const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const { name } = e.target;
-    if (name == "banner") {
-      setBanner(file);
-    } else {
-      setProfilePic(file);
+  // Step validation
+  const validateStep = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.firstName) newErrors.firstName = "First name is required.";
+      if (!formData.lastName) newErrors.lastName = "Last name is required.";
+      if (!formData.email) newErrors.email = "Email is required.";
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email.";
     }
+
+    if (step === 2) {
+      if (!formData.businessName) newErrors.businessName = "Business name is required.";
+      if (!formData.gstNumber) newErrors.gstNumber = "GST number is required.";
+      else if (!/^[A-Z0-9]{15}$/.test(formData.gstNumber))
+        newErrors.gstNumber = "GST number must be 15 alphanumeric characters.";
+      if (!formData.phoneNumber) newErrors.phoneNumber = "Phone number is required.";
+      else if (!/^\d{10}$/.test(formData.phoneNumber)) newErrors.phoneNumber = "Phone number must be 10 digits.";
+      if (!formData.businessType) newErrors.businessType = "Business type is required.";
+      if (!profilePic) newErrors.profilePic = "Profile picture is required.";
+    }
+
+    if (step === 3) {
+      if (!formData.password) newErrors.password = "Password is required.";
+      else {
+        const pwdErrors = validatePassword(formData.password);
+        if (pwdErrors.length > 0) newErrors.password = "Password must have: " + pwdErrors.join(", ");
+      }
+      if (!formData.confirmPassword) newErrors.confirmPassword = "Confirm password is required.";
+      if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword)
+        newErrors.confirmPassword = "Passwords do not match.";
+      if (!agree) newErrors.agree = "You must agree to the terms.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
-  const [isOpen, setIsOpen] = useState(false);
 
- return (
-  <>
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md ">
-        <Link to="/">
-          <img
-            src="/Logo-imag.png"
-            width={100}
-            alt="SEMA Favicon Icon"
-            className="mt-1 mx-auto"
-          />
-        </Link>
+  const nextStep = () => {
+    if (validateStep()) setStep((s) => Math.min(3, s + 1));
+  };
 
-        <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center mt-6 mb-2">
-          Seller Registration
-        </h2>
-        <p className="text-base text-gray-700 mt-1 text-center font-medium">
-          Join Semamart and grow your medical business
-        </p>
+  const prevStep = () => setStep((s) => Math.max(1, s - 1));
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validateStep()) return;
+    setRegStatus("pending");
+    setTimeout(() => setRegStatus("success"), 1000);
+  };
+
+  useEffect(() => {
+    if (regStatus === "success") {
+      alert("Registration successful!");
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        businessName: "",
+        gstNumber: "",
+        phoneNumber: "",
+        businessType: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setBanner(null);
+      setProfilePic(null);
+      setAgree(false);
+      setStep(1);
+      setRegStatus("idle");
+    }
+  }, [regStatus]);
+
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+      {/* LEFT SECTION */}
+      <div className="md:w-1/2 w-full text-[#006666] flex flex-col items-center justify-center p-8">
+        <NavLink to="/">
+          <img src="/Logo-imag.png" width={100} alt="SEMA Favicon Icon" className="mt-1 mx-auto" />
+        </NavLink>
+        <h1 className="text-3xl font-bold text-center mt-1">Seller Registration</h1>
+        <p className="mt-2 text-center text-[#006666] max-w-sm">Join Semamart and grow your medical business</p>
       </div>
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-140 ">
-        <div className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Shop Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 "
-              >
-                First Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 ">
-                <input
-                  type="name"
-                  name="firstName"
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Last Name <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="name"
-                  name="lastName"
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address <div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
 
-            <div
-            onClick={() => setIsOpen(!isOpen)}
-            className="cursor-pointer flex items-center justify-between bg-[#1C647C] text-white p-4 rounded-md"
-          >
-            <h2 className="text-lg font-semibold">Business Details</h2>
-            <svg
-              className={`w-5 h-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path>
-            </svg>
+      {/* RIGHT SECTION */}
+      <div className="md:w-1/2 w-full flex items-center justify-center p-6">
+        <form onSubmit={handleSubmit} className="w-full max-w-xl bg-white rounded-2xl shadow p-6 space-y-6">
+          {/* Stepper */}
+          <div className="flex justify-between mb-4">
+            {steps.map((s) => (
+              <div key={s.id} className="flex-1 text-center">
+                <div
+                  className={`mx-auto w-8 h-8 rounded-full mb-1 flex items-center justify-center ${
+                    step >= s.id ? "bg-[#006666] text-white" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {step > s.id ? <FaCheckCircle /> : s.id}
+                </div>
+                <p className={`text-xs ${step === s.id ? "text-[#006666] font-medium" : "text-gray-500"}`}>{s.title}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Dropdown content */}
-          {isOpen && (
-            <div className="mt-4 space-y-6">
-              <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
-                  Business Name <span className="inline text-red-700">*</span>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="businessName"
-                    id="businessName"
-                    required
-                    value={formData.businessName}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="gstNumber" className="block text-sm font-medium text-gray-700">
-                  GST Number <span className="inline text-red-700">*</span>
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="gstNumber"
-                    id="gstNumber"
-                    required
-                    value={formData.gstNumber}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-                  Phone Number <span className="inline text-red-700">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    id="phoneNumber"
-                    required
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
-                  Select Your Business categories <span className="inline text-red-700">*</span>
-                </label>
-                <div className="relative mt-1">
-                  <select
-                    name="businessType"
-                    id="businessType"
-                    required
-                    value={formData.businessType}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
-                  >
-                    <option value="" disabled>
-                      Select an option
-                    </option>
-                    <option value="Distributor">Distributor</option>
-                    <option value="Manufacturer">Manufacturer</option>
-                    <option value="Reseller">Reseller</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="profile" className="block text-sm font-medium text-gray-700">
-                  Upload Profile Picture <span className="inline text-red-700">*</span>
-                </label>
-
-                <div className="flex items-center border border-gray-300 rounded-3xl p-2">
-                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                    {profilePic ? (
-                      <img
-                        src={URL.createObjectURL(profilePic)}
-                        alt="profilePic"
-                        className="h-full w-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <RxAvatar className="h-8 w-8" />
-                    )}
-                  </span>
-                  <label
-                    htmlFor="profile"
-                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 cursor-pointer"
-                  >
-                    <input
-                      type="file"
-                      name="profile"
-                      id="profile"
-                      required
-                      onChange={handleFileInputChange}
-                      className="hidden"
-                    />
-                    Upload
+          {/* STEP 1: Personal Details */}
+          {step === 1 && (
+            <div className="space-y-4">
+              {["firstName", "lastName", "email"].map((key) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {labels[key]} <span className="text-red-500">*</span>
                   </label>
+                  <input
+                    type={key === "email" ? "email" : "text"}
+                    name={key}
+                    value={formData[key as keyof SellerForm]}
+                    onChange={handleChange}
+                    className={`mt-1 w-full border rounded px-3 py-2 ${errors[key] ? "border-red-500" : "border-gray-300"}`}
+                  />
+                  {errors[key] && <p className="text-red-500 text-xs mt-1">{errors[key]}</p>}
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="banner" className="block text-sm font-medium text-gray-700">
-                  Upload Banner
-                </label>
-                <div className="flex items-center border rounded-3xl border-gray-300 p-2">
-                  <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                    {banner ? (
-                      <img
-                        src={URL.createObjectURL(banner)}
-                        alt="banner"
-                        className="h-full w-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <RxAvatar className="h-8 w-8" />
-                    )}
-                  </span>
-                  <label
-                    htmlFor="banner"
-                    className="ml-5 flex items-center justify-center px-4 py-2 rounded-md shadow-xs text-sm font-medium text-gray-700 cursor-pointer"
-                  >
-                    <input
-                      type="file"
-                      name="banner"
-                      id="banner"
-                      onChange={handleFileInputChange}
-                      className="hidden"
-                    />
-                    Upload
-                  </label>
-            </div>
-            </div>
+              ))}
+              
+                <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">
+                  Next
+                </button>
+              
             </div>
           )}
-        
-         
-          
-        
-    
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password <span className="text-red-700">*</span>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type={visible ? "text" : "password"}
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handlePasswordChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
-              {/* Password Error Messages */}
-              {passwordErrors.length > 0 && (
-                <ul className="mt-2 text-sm text-red-600">
-                  {passwordErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirm Password<div className="inline text-red-700">*</div>
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  type={visible ? "text" : "password"}
-                  name="confirmPassword"
-                  autoComplete="current-password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-2xl shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="flex items-center mt-4">
-              <input
-                type="checkbox"
-                id="checkbox"
-                name="checkbox"
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
-                onChange={() => {
-                  setCheck((prev) => !prev);
-                }}
-              />
-              <label
-                htmlFor="checkbox"
-                className="ml-2 text-sm text-gray-700"
-              >
-                I agree to allow SEMA Healthcare Pvt. Ltd. to charge platform
-                fees as per industry standards.
-              </label>
-            </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full h-[40px] flex justify-center items-center text-md font-medium rounded-3xl bg-accent-yellow text-black shadow-md disabled:bg-gray-400"
-                disabled={regStatus === "pending"}
-              >
-                {regStatus === "pending" ? (
-                  <AiOutlineLoading className="animate-spin" />
-                ) : (
-                  "Register"
-                )}
-              </button>
+          {/* STEP 2: Business Details */}
+          {step === 2 && (
+            <div className="space-y-4">
+              {["businessName", "gstNumber", "phoneNumber"].map((key) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {labels[key]} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name={key}
+                    value={formData[key as keyof SellerForm]}
+                    onChange={key === "phoneNumber" ? handlePhoneChange : handleChange}
+                    placeholder={key === "phoneNumber" ? "10-digit phone number" : ""}
+                    className={`mt-1 w-full border rounded px-3 py-2 ${errors[key] ? "border-red-500" : "border-gray-300"}`}
+                  />
+                  {errors[key] && <p className="text-red-500 text-xs mt-1">{errors[key]}</p>}
+                </div>
+              ))}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Business Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="businessType"
+                  value={formData.businessType}
+                  onChange={handleChange}
+                  className={`mt-1 w-full border rounded px-3 py-2 ${errors.businessType ? "border-red-500" : "border-gray-300"}`}
+                >
+                  <option value="">Select</option>
+                  <option value="Distributor">Distributor</option>
+                  <option value="Manufacturer">Manufacturer</option>
+                  <option value="Reseller">Reseller</option>
+                </select>
+                {errors.businessType && <p className="text-red-500 text-xs mt-1">{errors.businessType}</p>}
+              </div>
+
+              {/* File Uploads */}
+              <div className="flex gap-6">
+                {/* Profile Picture */}
+                <div className="flex-1 relative">
+                  <label className="block text-sm text-gray-700">
+                    Profile Picture <span className="text-red-500">*</span>
+                  </label>
+                  <label className="block mt-1 w-full border rounded px-3 py-2 cursor-pointer bg-white">
+                    {profilePic ? (profilePic.name.length > 15 ? profilePic.name.slice(0, 15) + "..." : profilePic.name) : "Choose file"}
+                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "profile")} className="hidden" />
+                  </label>
+                  {profilePic && (
+                    <div className="relative mt-2 w-16 h-16">
+                      <img src={URL.createObjectURL(profilePic)} alt="profile" className="w-16 h-16 rounded-full object-cover" />
+                      <AiOutlineCloseCircle
+                        className="absolute -top-2 -right-2 text-red-500 cursor-pointer"
+                        size={20}
+                        onClick={() => setProfilePic(null)}
+                      />
+                    </div>
+                  )}
+                  {errors.profilePic && <p className="text-red-500 text-xs mt-1">{errors.profilePic}</p>}
+                </div>
+
+                {/* Banner Image */}
+                <div className="flex-1 relative">
+                  <label className="block text-sm text-gray-700">Banner Image</label>
+                  <label className="block mt-1 w-full border rounded px-3 py-2 cursor-pointer bg-white">
+                    {banner ? (banner.name.length > 15 ? banner.name.slice(0, 15) + "..." : banner.name) : "Choose file"}
+                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "banner")} className="hidden" />
+                  </label>
+                  {banner && (
+                    <div className="relative mt-2 w-28 h-16">
+                      <img src={URL.createObjectURL(banner)} alt="banner" className="w-28 h-16 rounded object-cover" />
+                      <AiOutlineCloseCircle
+                        className="absolute -top-2 -right-2 text-red-500 cursor-pointer"
+                        size={20}
+                        onClick={() => setBanner(null)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={prevStep} className="flex-1 h-10 bg-gray-300 text-gray-700 rounded-md">
+                    Back
+                  </button>
+                  <button type="button" onClick={nextStep} className="flex-1 h-10 bg-[#006666] text-white rounded-md">
+                    Next
+                  </button>
+                </div>
             </div>
-          </form>
-        </div>
+          )}
+
+          {/* STEP 3: Password Setup */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    type={showPassword ? "text" : "password"}
+                    className={`mt-1 w-full border rounded px-3 py-2 pr-10 ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                  />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-2 top-2">
+                    {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                  </button>
+                </div>
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Confirm Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    type={showConfirmPassword ? "text" : "password"}
+                    className={`mt-1 w-full border rounded px-3 py-2 pr-10 ${errors.confirmPassword ? "border-red-500" : "border-gray-300"}`}
+                  />
+                  <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-2 top-2">
+                    {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                  </button>
+                </div>
+                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+              </div>
+
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className={`${errors.agree ? "ring-1 ring-red-500" : ""}`} />
+                 I agree by accepting this with the terms of <b>SEMA Healthcare Pvt. Ltd.</b> <span className="text-red-700">*</span>
+              </label>
+              {errors.agree && <p className="text-red-500 text-xs mt-1">{errors.agree}</p>}
+
+              <div className="flex gap-2 mt-2">
+                <button type="button" onClick={prevStep} className="flex-1 h-10 bg-gray-300 text-gray-700 rounded-md">
+                  Back
+                </button>
+                <button type="submit" className={`flex-1 h-10 bg-[#1C647C] text-white rounded-md ${regStatus === "pending" ? "bg-gray-400" : "bg-[#006666]"}`} disabled={regStatus === "pending"}>
+                  {regStatus === "pending" ? <AiOutlineLoading className="animate-spin" /> : "Register"}
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
       </div>
     </div>
-  </>
-);
-
+  );
 }
