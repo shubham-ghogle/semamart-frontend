@@ -1,15 +1,17 @@
 import { ChangeEvent, FormEvent, useState } from "react";
-import {
-  AiOutlineEye,
-  AiOutlineEyeInvisible,
-  AiOutlineLoading,
-} from "react-icons/ai";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { IoIosLock } from "react-icons/io";
-import { Link } from "react-router";
+import { FaCheckCircle } from "react-icons/fa";
+import { Link } from "react-router-dom"; 
 import { useRegisterUser } from "./Registration.Hooks";
 
 function Signup() {
-  const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState(1);
+  const [visiblePassword, setVisiblePassword] = useState(false);
+  const [visibleConfirm, setVisibleConfirm] = useState(false);
+  const [check, setCheck] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -26,508 +28,262 @@ function Signup() {
     confirmPassword: "",
   });
 
-  const [check, setCheck] = useState(false);
-  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const { mutateUser } = useRegisterUser();
 
-  const { mutateUser, status: regiStatus } = useRegisterUser();
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-
-    if (!check) {
-      return window.alert("Checkbox is compulsory");
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return window.alert("Passwords do not match");
-    }
-    if (passwordErrors.length > 0) {
-      return window.alert("Please fix the password issues.");
-    }
-
-    const newForm = new FormData();
-    newForm.append("firstName", formData.firstName);
-    newForm.append("lastName", formData.lastName);
-    newForm.append("phoneNumber", formData.phoneNumber);
-    newForm.append("email", formData.email);
-    newForm.append("instituteName", formData.instituteName);
-    newForm.append("instituteAddress1", formData.instituteAddress1);
-    newForm.append("instituteAddress2", formData.instituteAddress2);
-    newForm.append("landmark", formData.landmark);
-    newForm.append("pincode", formData.pincode);
-    newForm.append("district", formData.district);
-    newForm.append("state", formData.state);
-    newForm.append("password", formData.password);
-
-    await mutateUser(newForm);
-  }
-
-  function validatePassword(password: string) {
-    const errors = [];
-    if (password.length < 8) {
-      errors.push("Password must be at least 8 characters long.");
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push("Password must include at least one uppercase letter.");
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push("Password must include at least one lowercase letter.");
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push("Password must include at least one number.");
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push("Password must include at least one special character.");
-    }
-    return errors;
-  }
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const password = e.target.value;
-    const errors = validatePassword(password);
-    setPasswordErrors(errors);
-    setFormData((prev) => ({
-      ...prev,
-      password,
-    }));
-  };
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
   const indianStates = [
-  { value: "Andhra Pradesh", label: "Andhra Pradesh" },
-  { value: "Arunachal Pradesh", label: "Arunachal Pradesh" },
-  { value: "Assam", label: "Assam" },
-  { value: "Bihar", label: "Bihar" },
-  { value: "Chhattisgarh", label: "Chhattisgarh" },
-  { value: "Goa", label: "Goa" },
-  { value: "Gujarat", label: "Gujarat" },
-  { value: "Haryana", label: "Haryana" },
-  { value: "Himachal Pradesh", label: "Himachal Pradesh" },
-  { value: "Jammu and Kashmir", label: "Jammu and Kashmir" },
-  { value: "Jharkhand", label: "Jharkhand" },
-  { value: "Karnataka", label: "Karnataka" },
-  { value: "Kerala", label: "Kerala" },
-  { value: "Madhya Pradesh", label: "Madhya Pradesh" },
-  { value: "Maharashtra", label: "Maharashtra" },
-  { value: "Manipur", label: "Manipur" },
-  { value: "Meghalaya", label: "Meghalaya" },
-  { value: "Mizoram", label: "Mizoram" },
-  { value: "Nagaland", label: "Nagaland" },
-  { value: "Odisha", label: "Odisha" },
-  { value: "Punjab", label: "Punjab" },
-  { value: "Rajasthan", label: "Rajasthan" },
-  { value: "Sikkim", label: "Sikkim" },
-  { value: "Tamil Nadu", label: "Tamil Nadu" },
-  { value: "Telangana", label: "Telangana" },
-  { value: "Tripura", label: "Tripura" },
-  { value: "Uttarakhand", label: "Uttarakhand" },
-  { value: "Uttar Pradesh", label: "Uttar Pradesh" },
-  { value: "West Bengal", label: "West Bengal" },
-  { value: "Andaman and Nicobar Islands", label: "Andaman and Nicobar Islands" },
-  { value: "Chandigarh", label: "Chandigarh" },
-  { value: "Dadra and Nagar Haveli", label: "Dadra and Nagar Haveli" },
-  { value: "Daman and Diu", label: "Daman and Diu" },
-  { value: "Delhi", label: "Delhi" },
-  { value: "Lakshadweep", label: "Lakshadweep" },
-  { value: "Puducherry", label: "Puducherry" },
+    "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
+    "Haryana","Himachal Pradesh","Jammu and Kashmir","Jharkhand","Karnataka","Kerala",
+    "Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha",
+    "Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttarakhand",
+    "Uttar Pradesh","West Bengal","Andaman and Nicobar Islands","Chandigarh",
+    "Dadra and Nagar Haveli","Daman and Diu","Delhi","Lakshadweep","Puducherry"
   ];
-  const [activeSection, setActiveSection] = useState<"personal" | "institute" | null>("personal");
-    const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = event.target;
+
+  // ---------- Validation ----------
+  const validatePassword = (password: string) => {
+    const errors: string[] = [];
+    if (password.length < 8) errors.push("At least 8 characters");
+    if (!/[A-Z]/.test(password)) errors.push("Include at least 1 uppercase letter");
+    if (!/[a-z]/.test(password)) errors.push("Include at least 1 lowercase letter");
+    if (!/[0-9]/.test(password)) errors.push("Include at least 1 number");
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("Include at least 1 special character");
+    return errors.join(", ");
+  };
+
+  const validateStep = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.firstName.trim()) newErrors.firstName = "First Name is required";
+      if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required";
+      if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+      else if (!/^\d{10}$/.test(formData.phoneNumber))
+        newErrors.phoneNumber = "Phone Number must be 10 digits";
+      if (!formData.email.trim()) newErrors.email = "Email is required";
+      else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
+    }
+
+    if (step === 2) {
+      if (!formData.instituteName.trim()) newErrors.instituteName = "Institute Name is required";
+      if (!formData.instituteAddress1.trim()) newErrors.instituteAddress1 = "Address Line 1 is required";
+      if (!formData.landmark.trim()) newErrors.landmark = "Landmark is required";
+      if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
+      else if (!/^\d{6}$/.test(formData.pincode)) newErrors.pincode = "Pincode must be 6 digits";
+      if (!formData.district.trim()) newErrors.district = "District is required";
+      else if (!/^[A-Za-z\s]+$/.test(formData.district)) newErrors.district = "District must contain only letters";
+      if (!formData.state.trim()) newErrors.state = "State is required";
+    }
+
+    if (step === 3) {
+      if (!formData.password) newErrors.password = "Password is required";
+      else {
+        const pwdErr = validatePassword(formData.password);
+        if (pwdErr) newErrors.password = pwdErr;
+      }
+      if (!formData.confirmPassword) newErrors.confirmPassword = "Confirm Password is required";
+      else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+      if (!check) newErrors.check = "You must agree to the terms";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const nextStep = () => {
+    if (validateStep()) setStep(step + 1);
+  };
+
+  const prevStep = () => setStep(step - 1);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-return (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="w-full max-w-md">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <Link to="/">
-          <img
-            src="/Logo-imag.png"
-            width={100}
-            alt="SEMA Favicon Icon"
-            className="mt-1 mx-auto"
-          />
-        </Link>
-        <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg mt-6 mb-2">
-          <div className="flex justify-center items-center gap-2">
-            <IoIosLock />
-            <span>Customer Signup</span>
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleChange(e);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!validateStep()) return;
+
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      phoneNumber:formData.phoneNumber,
+      instituteName:formData. instituteName,
+      addresses: [
+        {
+          reciever_name: formData.instituteName,
+          instituteAddress1: formData.instituteAddress1,
+          instituteAddress2: formData.instituteAddress2 || "",
+          landmark: formData.landmark || "",
+          pincode: formData.pincode,
+          district: formData.district,
+          state: formData.state,
+          phone: formData.phoneNumber,
+          addressType: "Home",
+        },
+      ],
+    };
+
+    await mutateUser(payload);
+  };
+
+  const steps = [
+    { id: 1, title: "Personal Details" },
+    { id: 2, title: "Institute Details" },
+    { id: 3, title: "Password" },
+  ];
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Left Side */}
+      <div className="w-1/2  flex flex-col justify-center items-center p-8 text-white">
+        <Link to="/"><img src="/Logo-imag.png" width={120} alt="SEMA Logo" className="mb-6" /></Link>
+        <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]"><IoIosLock />Customer Signup</h2>
+        <p className="text-lg  text-center text-[#006666]">Create your customer account to continue</p>
+      </div>
+
+      {/* Right Side */}
+      <div className="w-2/3 flex justify-center items-center p-8">
+        <div className="w-full max-w-md">
+          {/* Step Indicator */}
+          <div className="flex justify-between mb-4">
+            {steps.map((s) => (
+              <div key={s.id} className="flex-1 text-center">
+                <div className={`mx-auto w-8 h-8 rounded-full mb-1 flex items-center justify-center ${
+                  step > s.id ? "bg-[#006666] text-white" : step === s.id ? "bg-[#006666] text-white" : "bg-gray-200 text-gray-600"
+                }`}>
+                  {step > s.id ? <FaCheckCircle /> : s.id}
+                </div>
+                <p className={`text-xs ${step === s.id ? "text-[#006666] font-medium" : "text-gray-500"}`}>{s.title}</p>
+              </div>
+            ))}
           </div>
-        </h2>
-        <p className="text-base text-gray-700 mt-1 font-medium">
-          Create your customer account to continue
-        </p>
-      </div>
 
-      {/* Card */}
-      <section className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Personal Details - Accordion Section */}
-<div className="border border-gray-300 rounded-md">
-  <button
-    type="button"
-    onClick={() =>
-      setActiveSection((prev) => (prev === "personal" ? null : "personal"))
-    }
-    className="w-full flex justify-between items-center px-4 py-3 bg-[#1C647C] text-white text-left text-sm font-semibold rounded-t-md focus:outline-none"
-  >
-    <span>Personal Details</span>
-    <svg
-      className={`w-4 h-4 transform transition-transform duration-200 ${
-        activeSection === "personal" ? "rotate-180" : ""
-      }`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-
-  {activeSection === "personal" && (
-    <div className="p-4 space-y-4 bg-white rounded-b-md">
-      {/* First Name */}
-      <div>
-        <label
-          htmlFor="firstName"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          First Name <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="firstName"
-          required
-          placeholder="First Name"
-          value={formData.firstName}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Last Name */}
-      <div>
-        <label
-          htmlFor="lastName"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Last Name <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="lastName"
-          required
-          placeholder="Last Name"
-          value={formData.lastName}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Phone Number */}
-      <div>
-        <label
-          htmlFor="phoneNumber"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Phone Number <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="tel"
-          name="phoneNumber"
-          required
-          placeholder="Phone Number"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Email */}
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Email Address <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="email"
-          name="email"
-          required
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-    </div>
-  )}
-</div>
-
-
-        {/* Institute Details - Accordion Section */}
-<div className="border border-gray-300 rounded-md mt-4">
-  <button
-    type="button"
-    onClick={() =>
-      setActiveSection((prev) => (prev === "institute" ? null : "institute"))
-    }
-    className="w-full flex justify-between items-center px-4 py-3 bg-[#1C647C] text-white text-left text-sm font-semibold rounded-t-md focus:outline-none"
-  >
-    <span>Institute Details</span>
-    <svg
-      className={`w-4 h-4 transform transition-transform duration-200 ${
-        activeSection === "institute" ? "rotate-180" : ""
-      }`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-
-  {activeSection === "institute" && (
-    <div className="p-4 space-y-4 bg-white rounded-b-md">
-      {/* Institute Name */}
-      <div>
-        <label
-          htmlFor="instituteName"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Institute Name <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="instituteName"
-          required
-          placeholder="Institute Name"
-          value={formData.instituteName}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Institute Address */}
-      <div>
-        <label
-          htmlFor="instituteAddress1"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Institute Address <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="instituteAddress1"
-          required
-          placeholder="Address line 1"
-          value={formData.instituteAddress1}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-        <input
-          type="text"
-          name="instituteAddress2"
-          placeholder="Address line 2"
-          value={formData.instituteAddress2}
-          onChange={handleChange}
-          className="mt-2 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Landmark */}
-      <div>
-        <label
-          htmlFor="landmark"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Landmark <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="landmark"
-          required
-          placeholder="Landmark"
-          value={formData.landmark}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* Pincode */}
-      <div>
-        <label
-          htmlFor="pincode"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          Pincode <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="pincode"
-          required
-          placeholder="Pincode"
-          value={formData.pincode}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* District */}
-      <div>
-        <label
-          htmlFor="district"
-          className="block text-sm font-semibold text-[#1C647C]"
-        >
-          District <span className="text-red-700">*</span>
-        </label>
-        <input
-          type="text"
-          name="district"
-          required
-          placeholder="District"
-          value={formData.district}
-          onChange={handleChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-        />
-      </div>
-
-      {/* State */}
-      <div>
-        <label className="block text-sm font-semibold text-[#1C647C]">
-                      State <span className="text-red-700">*</span>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Step 1 */}
+            {step === 1 && (
+              <>
+                {["firstName","lastName","phoneNumber","email"].map((field) => (
+                  <div key={field}>
+                    <label className="block text-sm font-semibold text-[#1C647C]">
+                      {field==="firstName"?"First Name":field==="lastName"?"Last Name":field==="phoneNumber"?"Phone Number":"Email"} <span className="text-red-700">*</span>
                     </label>
+                    <input
+                      type={field==="email"?"email":"text"}
+                      name={field}
+                      value={formData[field as keyof typeof formData]}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors[field]?"border-red-500":"border-gray-300"}`}
+                      placeholder={field==="phoneNumber"?"10-digit Phone Number":""}
+                    />
+                    {errors[field] && <p className="text-red-600 text-sm mt-1">{errors[field]}</p>}
+                  </div>
+                ))}
+                <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">Next</button>
+              </>
+            )}
+
+            {/* Step 2 */}
+            {step === 2 && (
+              <>
+                {["instituteName","instituteAddress1","instituteAddress2","landmark","pincode"].map((field) => (
+                  <div key={field}>
+                    <label className="block text-sm font-semibold text-[#1C647C]">
+                      {field==="instituteName"?"Institute Name":field==="instituteAddress1"?"Address Line 1":field==="instituteAddress2"?"Address Line 2":field==="landmark"?"Landmark":"Pincode"} {field!=="instituteAddress2" && <span className="text-red-700">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      name={field}
+                      value={formData[field as keyof typeof formData]}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors[field]?"border-red-500":"border-gray-300"}`}
+                    />
+                    {errors[field] && <p className="text-red-600 text-sm mt-1">{errors[field]}</p>}
+                  </div>
+                ))}
+
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-[#1C647C]">District <span className="text-red-700">*</span></label>
+                    <input
+                      type="text"
+                      name="district"
+                      value={formData.district}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors.district?"border-red-500":"border-gray-300"}`}
+                    />
+                    {errors.district && <p className="text-red-600 text-sm mt-1">{errors.district}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-[#1C647C]">State <span className="text-red-700">*</span></label>
                     <select
                       name="state"
-                      required
                       value={formData.state}
-                      onChange={handleSelectChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-xs focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors.state?"border-red-500":"border-gray-300"}`}
                     >
-                      <option value="" disabled>
-                        Select a state
-                      </option>
-                      {indianStates.map((state) => (
-                        <option key={state.value} value={state.value}>
-                          {state.label}
-                        </option>
-                      ))}
+                      <option value="">Select State</option>
+                      {indianStates.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
+                    {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state}</p>}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={prevStep} className="flex-1 h-10 bg-gray-300 text-gray-700 rounded-md">Back</button>
+                  <button type="button" onClick={nextStep} className="flex-1 h-10 bg-[#006666] text-white rounded-md">Next</button>
+                </div>
+              </>
+            )}
+
+            {/* Step 3 */}
+            {step === 3 && (
+              <>
+                {["password","confirmPassword"].map((field) => (
+                  <div key={field}>
+                    <label className="block text-sm font-semibold text-[#1C647C]">{field==="password"?"Password":"Confirm Password"} <span className="text-red-700">*</span></label>
+                    <div className="relative">
+                      <input
+                        type={field==="password"?(visiblePassword?"text":"password"):(visibleConfirm?"text":"password")}
+                        name={field}
+                        value={formData[field as keyof typeof formData]}
+                        onChange={handlePasswordChange}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors[field]?"border-red-500":"border-gray-300"}`}
+                      />
+                      <span
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        onClick={() => field==="password"?setVisiblePassword(!visiblePassword):setVisibleConfirm(!visibleConfirm)}
+                      >
+                        {field==="password"?(visiblePassword?<AiOutlineEyeInvisible />:<AiOutlineEye />):(visibleConfirm?<AiOutlineEyeInvisible />:<AiOutlineEye />)}
+                      </span>
+                    </div>
+                    {errors[field] && <p className="text-red-600 text-sm mt-1">{errors[field]}</p>}
+                  </div>
+                ))}
+
+                <div className="flex items-center mt-2">
+                  <input type="checkbox" checked={check} onChange={() => setCheck(!check)} />
+                  <label className="ml-2 text-sm text-gray-700">I agree by accepting this with the terms of <b>SEMA Healthcare Pvt. Ltd.</b> <span className="text-red-700">*</span></label>
+                </div>
+                {errors.check && <p className="text-red-600 text-sm mt-1">{errors.check}</p>}
+
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={prevStep} className="flex-1 h-10 bg-gray-300 text-gray-700 rounded-md">Back</button>
+                  <button type="submit" className="flex-1 h-10 bg-[#1C647C] text-white rounded-md">Register</button>
+                </div>
+              </>
+            )}
+          </form>
+        </div>
       </div>
     </div>
-  )}
-</div>
-
-
-          {/* Password */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Password <span className="text-red-700">*</span>
-            </label>
-            <div className="mt-1 relative">
-              <input
-                type={visible ? "text" : "password"}
-                name="password"
-                required
-                placeholder="Password"
-                value={formData.password}
-                onChange={handlePasswordChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-              />
-              {visible ? (
-                <AiOutlineEye
-                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
-                  size={22}
-                  onClick={() => setVisible(false)}
-                />
-              ) : (
-                <AiOutlineEyeInvisible
-                  className="absolute right-2 top-2 cursor-pointer text-[#1C647C]"
-                  size={22}
-                  onClick={() => setVisible(true)}
-                />
-              )}
-            </div>
-            {/* Password Error Messages */}
-            {passwordErrors.length > 0 && (
-              <ul className="mt-2 text-sm text-red-600">
-                {passwordErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-semibold text-[#1C647C]"
-            >
-              Confirm Password <span className="text-red-700">*</span>
-            </label>
-            <div className="mt-1 relative">
-              <input
-                type={visible ? "text" : "password"}
-                name="confirmPassword"
-                required
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Checkbox */}
-          <div className="flex items-center mt-4">
-            <input
-              type="checkbox"
-              id="checkbox"
-              name="checkbox"
-              className="h-4 w-4 text-[#1C647C] focus:ring-[#1C647C] border-gray-300 rounded-sm"
-              onChange={() => {
-                setCheck((prev) => !prev);
-              }}
-            />
-            <label htmlFor="checkbox" className="ml-2 text-sm text-gray-700">
-              By Checking this box I agree to the Terms and Conditions of SEMA
-              Healthcare PVT. LTD.
-            </label>
-          </div>
-
-          {/* Submit */}
-          <div>
-            <button
-              type="submit"
-              className="w-full h-[40px] flex justify-center items-center text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all disabled:bg-gray-400"
-              disabled={regiStatus === "pending"}
-            >
-              {regiStatus === "pending" ? (
-                <AiOutlineLoading className="animate-spin" />
-              ) : (
-                "SignUp"
-              )}
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
-  </div>
-);
-
+  );
 }
 
 export default Signup;
