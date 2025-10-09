@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { CashOnDelivery } from "../../components/UIComponents/CashOnDelivery"
 import offer from "../../../public/offer.png"
 
 export default function ProductInfoSection({
@@ -40,79 +39,81 @@ export default function ProductInfoSection({
   }
 
   return (
-    <div
-      className="w-full bg-white rounded-lg p-6 shadow-lg space-y-6"
-      style={{ minHeight: "540px" }}
-    >
-      <div>
-        {/* Title + Discount */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1C647C]">
-            {product.name}
-          </h2>
-
-          {topDiscount > 0 && (
-            <div className="px-3 py-1 rounded-sm border border-green-500 text-green-500 font-bold bg-white">
-              {topDiscount}% OFF
-            </div>
-          )}
+    <div className="w-full bg-white rounded-lg p-4 shadow-lg space-y-6" style={{ minHeight: 540 }}>
+      {/* Title + Discount */}
+     <div className="flex justify-between items-start">
+      <h2 className="text-xl md:text-xl font-bold text-[#1C647C]">{product.name}</h2>
+      {topDiscount > 0 && (
+        <div className="p-3 py-3 rounded-sm border border-green-500 text-green-500 font-bold bg-white">
+          {topDiscount}% OFF
         </div>
+      )}
+    </div>
 
-        {/* Rating */}
-        <div className="flex items-center text-base text-gray-500 mb-2 gap-3">
-          <div style={{ color: STAR_COLOR, fontSize: "1.75rem" }}>
-            {"★".repeat(3)}
-            {"☆".repeat(2)}
-          </div>
-          {product?.reviews?.length > 0 && (
-            <span>({product.reviews.length} reviews)</span>
-          )}
+
+
+      {/* Rating */}
+      <div className="flex items-center text-base text-gray-500 mb-2 gap-3">
+        <div style={{ color: STAR_COLOR, fontSize: "1.75rem" }}>
+          {"★".repeat(3)}
+          {"☆".repeat(2)}
         </div>
+        {product.reviews?.length && <span>({product.reviews.length} reviews)</span>}
+      </div>
 
-        {/* Price */}
-        <div className="mt-2">
-          <div className="flex items-center gap-2">
-            {displayOriginalPrice && (
-              <span className="line-through text-gray-400 text-base">
-                ₹{displayOriginalPrice}
-              </span>
-            )}
-            <span
-              className="px-2 py-1 rounded font-bold text-[28px]"
-              style={{ color: "#FB9573" }}
-            >
-              ₹{mainPrice}
-            </span>
-          </div>
-          <div className="text-sm text-gray-500 mt-1">*Do not include GST</div>
-          <div
-            className="mt-2"
-            style={{
-              height: 48,
-              display: "flex",
-              alignItems: "center",
-              paddingLeft: 12,
-              paddingRight: 24,
-              background: "#FFEB99",
-              fontWeight: 600,
-              clipPath:
-                "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
-              borderRadius: 8,
-              justifyContent: "center",
-            }}
-          >
-            Shipping Charge at Actual*
-          </div>
+      {/* Price */}
+      <div className="mt-2">
+       <div className="mt-2 flex flex-col gap-1">
+  {/* Top row: Discount % and discounted price */}
+  <div className="flex items-baseline gap-2">
+    {topDiscount > 0 && (
+      <span className="text-red-500 font-bold text-lg">
+        -{topDiscount}%
+      </span>
+    )}
+    <span className="text-[28px] font-bold text-[#FB9573]">
+      ₹{mainPrice}
+    </span>
+  </div>
 
-          {selectedPack && (
-            <div className="mt-3 text-sm text-gray-700">
-              <div>{selectedPack.label}</div>
-              <div className="text-sm text-gray-600">
-                @ ₹{(selectedPerPiece || 0).toFixed(2)}/piece
-              </div>
-            </div>
-          )}
-        </div>
+  {/* Original price below */}
+  {displayOriginalPrice && displayDiscountPrice && (
+    <span className="text-gray-400 text-sm line-through">
+      M.R.P.: ₹{displayOriginalPrice}
+    </span>
+  )}
+</div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 mt-2">
+  {/* GST Note */}
+  <div className="text-sm text-gray-500 whitespace-nowrap">
+    *Do not include GST
+  </div>
+
+  {/* Shipping Banner */}
+  <div
+    className="mt-2 sm:mt-0 flex items-center justify-center"
+    style={{
+      height: 32,
+      paddingLeft: 12,
+      paddingRight: 24,
+      background: "#FFEB99",
+      fontWeight: 600,
+      clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
+      borderRadius: 8,
+    }}
+  >
+    Shipping Charge at Actual*
+  </div>
+</div>
+
+
+        {/* {selectedPack && (
+          <div className="mt-3 text-sm text-gray-700">
+            <div>{selectedPack.label}</div>
+            <div className="text-sm text-gray-600">@ ₹{(selectedPerPiece || 0).toFixed(2)}/piece</div>
+          </div>
+        )} */}
       </div>
 
       {/* Offers */}
@@ -121,7 +122,7 @@ export default function ProductInfoSection({
         <span className="text-base font-semibold text-[#1C647C]">Offers</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-2">
+     <div className="grid grid-cols-2 gap-4 mt-2">
         {[
           { title: "Bank Offers", details: "10% off with HDFC cards" },
           { title: "Partner Offers", details: "Flat ₹50 off via PhonePe" },
@@ -164,11 +165,7 @@ export default function ProductInfoSection({
         </div>
       )}
 
-      <div className="flex justify-center mt-8">
-        <div className="scale-125">
-          <CashOnDelivery />
-        </div>
-      </div>
+      
     </div>
   )
 }

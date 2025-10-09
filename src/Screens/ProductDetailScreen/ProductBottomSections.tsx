@@ -17,7 +17,7 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
         },
         {
           title: "Full Description",
-          content: <p className="text-base text-gray-700">{product?.description || "No description available."}</p>,
+          content: <p className="text-base text-gray-700 break-words whitespace-normal">{product?.description || "No description available."}</p>,
         },
         {
           title: "Technical Details",

@@ -207,7 +207,7 @@ export default function ProductCard() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-white font-sans pt-8 pb-12 px-0 overflow-x-hidden">
+    <div className="w-full min-h-screen bg-white font-sans pt-8 pb-12 px-0 ">
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-[1600px] mx-auto box-border px-4">
         {/* Left: media & variants */}
         <div
@@ -253,7 +253,7 @@ export default function ProductCard() {
 
         {/* Right: Info + Purchase */}
         <div className="w-full lg:w-[60%] flex flex-col gap-8">
-          <div className="flex flex-col lg:flex-row gap-8 w-full">
+          <div className="flex flex-col lg:flex-row gap-4 w-full">
             <div ref={infoRef} className="w-full flex-1">
               <ProductInfoSection
                 product={product}
