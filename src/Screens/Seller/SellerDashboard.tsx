@@ -37,7 +37,9 @@ export default function SellerDashboard() {
 
   const overAllError = proError?.message && orderErr?.message ? proError?.message + "\n" + orderErr && orderErr?.message : "Something went wrong"
 
+  const variants = products?.flatMap(p=>p.variants)||[]
 
+console.log(variants)
   return (
     <SellerMainWrapper status={overAllStatus} errorMeassage={overAllError} heading="Seller Dashboard">
       {isSuccess && (
@@ -60,7 +62,7 @@ export default function SellerDashboard() {
             <DashboardCard
               heading="All Products"
               icon={<AiOutlineProduct size={30} />}
-              value={products?.length || 0}
+              value={variants?.length || 0}
               linkTo="products"
               linkLabel="View Products"
             />

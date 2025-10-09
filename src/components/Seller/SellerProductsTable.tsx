@@ -1,31 +1,32 @@
-import { BASE_URL } from "@/data"
-import { Product } from "@/Types/types"
-import { ColumnDef } from "@tanstack/react-table"
-import { AiOutlineEye } from "react-icons/ai"
-import { Link } from "react-router-dom"
-import { DataTable } from "../ui/data-table"
+import { BASE_URL } from "@/data";
+import { Product } from "@/Types/types";
+import { ColumnDef } from "@tanstack/react-table";
+import { AiOutlineEye } from "react-icons/ai";
+import { Link } from "react-router-dom";
+import { DataTable } from "../ui/data-table";
 
 type VariantRow = {
-  id: string
-  productName: string
-  thumbnail: string
-  colorOption?: string
-  size?: string
-  stock: number
-  originalPrice: number
-  discountPrice: number
-  createdAt: string
-  productId: string
-}
+  id: string;
+  productName: string;
+  thumbnail: string;
+  colorOption?: string;
+  size?: string;
+  stock: number;
+  originalPrice: number;
+  discountPrice: number;
+  createdAt: string;
+  productId: string;
+};
 
 type SellerProductTableProps = {
-  products: Product[]
-}
+  products: Product[];
+};
 
-export default function SellerProductTable({ products }: SellerProductTableProps) {
-
-  const rows: VariantRow[] = products.flatMap(pro =>
-    pro.variants.map(v => ({
+export default function SellerProductTable({
+  products,
+}: SellerProductTableProps) {
+  const rows: VariantRow[] = products.flatMap((pro) =>
+    pro.variants.map((v) => ({
       id: v._id,
       productName: pro.name,
       thumbnail: BASE_URL + "images/" + v.thumbnail,
@@ -36,8 +37,8 @@ export default function SellerProductTable({ products }: SellerProductTableProps
       discountPrice: v.discountPrice ?? 0,
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
-    }))
-  )
+    })),
+  );
 
   const columns: ColumnDef<VariantRow>[] = [
     {
@@ -59,7 +60,13 @@ export default function SellerProductTable({ products }: SellerProductTableProps
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "productName", header: "Product Name" },
+    {
+      accessorKey: "productName",
+      header: "Product Name",
+      cell: ({ row }) => (
+        <p className="w-32 text-ellipsis overflow-hidden">{row.original.productName}</p>
+      ),
+    },
     {
       accessorKey: "thumbnail",
       header: "Image",
@@ -89,7 +96,7 @@ export default function SellerProductTable({ products }: SellerProductTableProps
         </Link>
       ),
     },
-  ]
+  ];
 
-  return <DataTable data={rows} columns={columns} docName="products" />
+  return <DataTable data={rows} columns={columns} docName="products" />;
 }
