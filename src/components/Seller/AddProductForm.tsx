@@ -33,7 +33,7 @@ import { Button } from "../ui/button";
 import { IoRemoveCircle } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -234,6 +234,11 @@ export default function AddProductForm({
       setImages(updatedImages);
     }
   };
+  function removeImage(i: number) {
+    const imgs = [...images];
+    imgs.splice(i, 1);
+    setImages(imgs);
+  }
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
 
@@ -1697,18 +1702,33 @@ export default function AddProductForm({
                       {Array.from({ length: 4 }).map((_, index) => (
                         <div
                           key={index}
-                          className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                          className="border relative border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
                         >
                           <label
                             htmlFor={`uploadImage-${index}`}
                             className="cursor-pointer"
                           >
                             {images[index] ? (
-                              <img
-                                src={URL.createObjectURL(images[index])}
-                                alt={`Image-${index + 1}`}
-                                className="h-full w-full object-cover"
-                              />
+                              <div>
+                                <img
+                                  src={URL.createObjectURL(images[index])}
+                                  alt={`Image-${index + 1}`}
+                                  className="h-full w-full object-cover"
+                                />
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  className="absolute top-1 right-1"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    removeImage(index);
+                                  }}
+                                >
+                                  <X className="w-8!" />
+                                </Button>
+                              </div>
                             ) : (
                               <AiOutlinePlusCircle size={30} color="#555" />
                             )}
