@@ -67,16 +67,28 @@ export default function ProductMediaSection({
         })()}
       </div>
 
-      <div className="flex gap-4 mt-2 justify-center w-full overflow-x-auto px-2">
+      <div
+        className="flex gap-4 mt-2 justify-center w-full px-2"
+        style={{
+          overflowX: "auto",
+          msOverflowStyle: "none", // IE and Edge
+          scrollbarWidth: "none",   // Firefox
+        }}
+      >
         {productMedia.map((m: any, idx: number) => (
           <button
             key={idx}
             onClick={() => handleThumbClick(idx)}
             className={`flex-none w-20 h-20 rounded-lg border-2 transition-all duration-200 overflow-hidden shadow ${activeIdx === idx ? "border-[#1C647C] scale-105" : "border-gray-200 opacity-80 hover:opacity-100"}`}
-            style={{ background: "#fff", position: "relative" }}
+            style={{ background: "#fff", position: "relative", WebkitOverflowScrolling: "touch" }}
           >
             {m.type === "image" ? (
-              <img src={m.src || PLACEHOLDER} alt={`Thumbnail ${idx + 1}`} className="object-cover w-full h-full" onError={(e) => ((e.currentTarget as HTMLImageElement).src = PLACEHOLDER)} />
+              <img
+                src={m.src || PLACEHOLDER}
+                alt={`Thumbnail ${idx + 1}`}
+                className="object-cover w-full h-full"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = PLACEHOLDER)}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-black text-white text-xs relative">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -89,6 +101,10 @@ export default function ProductMediaSection({
             )}
           </button>
         ))}
+        {/* Inline style to hide webkit scrollbar */}
+        <style>{`
+          div::-webkit-scrollbar { display: none; }
+        `}</style>
       </div>
     </div>
   );
