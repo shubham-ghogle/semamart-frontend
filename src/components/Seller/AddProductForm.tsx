@@ -241,6 +241,9 @@ export default function AddProductForm({
   }
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
+  function removeVideo() {
+    setShortVideo(null);
+  }
 
   // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
@@ -1721,8 +1724,8 @@ export default function AddProductForm({
                                   className="absolute top-1 right-1"
                                   type="button"
                                   onClick={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     removeImage(index);
                                   }}
                                 >
@@ -1746,17 +1749,32 @@ export default function AddProductForm({
 
                   <div>
                     <FormLabel>Upload Product Video</FormLabel>
-                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2 relative">
                       <label
-                        htmlFor="uploadThumbnail"
+                        htmlFor="uploadShortVideo"
                         className="cursor-pointer w-full h-full grid place-items-center"
                       >
                         {shortVideo ? (
-                          <video
-                            controls
-                            src={URL.createObjectURL(shortVideo)}
-                            className="h-full w-full object-cover"
-                          />
+                          <div>
+                            <video
+                              controls={true}
+                              src={URL.createObjectURL(shortVideo)}
+                              className="h-full w-full object-cover"
+                            />
+                            <Button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeVideo();
+                              }}
+                              variant="destructive"
+                              className="absolute top-1 right-1 p-1!"
+                              size="icon"
+                              type="button"
+                            >
+                              <X className="w-4!" />
+                            </Button>
+                          </div>
                         ) : (
                           <AiOutlinePlusCircle size={30} color="#555" />
                         )}
@@ -1769,8 +1787,8 @@ export default function AddProductForm({
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file && file.size > 2 * 1024 * 1024) {
-                          alert("Video size should not exceed 2MB.");
+                        if (file && file.size > 5 * 1024 * 1024) {
+                          alert("Video size should not exceed 5MB.");
                           return;
                         }
                         if (file) {
