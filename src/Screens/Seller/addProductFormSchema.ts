@@ -70,12 +70,12 @@ const addProductFormSchema = z
     specialityPackageType: z
       .string()
       .min(2, "Speciality Package Type Required"),
-    manufacturerName: z.string().min(1, "Required"),
+    manufacturerName: z.string().min(1, "Required").max(100,"Must have less then 100 character"),
     email: z.email(),
     phone: z
       .string()
       .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit phone number"),
-    origin: z.string().min(1, "Required"),
+    origin: z.string().min(1, "Required").regex(/^[A-Za-z\s]+$/, "Only alphabets are allowed"),
     shortdescription: z
       .string()
       .min(100, "Must have atleast 100 characters")

@@ -114,6 +114,7 @@ export default function AddProductForm({
       size: null,
       colorOption: null,
       discountPrice: "",
+      bulkOrders: [],
     });
   }
 
@@ -194,7 +195,7 @@ export default function AddProductForm({
   }
 
   //media
-  const [thumbnail, setThumbnail] = useState<File[]>([]);
+  const [thumbnail, setThumbnail] = useState<(File | null)[]>([]);
   const handleThumbnailChange = (
     e: ChangeEvent<HTMLInputElement>,
     i: number
@@ -204,10 +205,20 @@ export default function AddProductForm({
     if (file)
       setThumbnail((p) => {
         const img = [...p];
-        img.splice(i + 1, 0, file);
+        if (img[i]) {
+          img.splice(i + 1, 0, file);
+        } else {
+          img[i] = file;
+        }
         return img;
       });
   };
+
+  function removeThumbnail(i: number) {
+    const thumbs = [...thumbnail];
+    thumbs[i] = null;
+    setThumbnail(thumbs);
+  }
 
   const [images, setImages] = useState<File[]>([]);
   const handleImageChange = (
@@ -393,7 +404,9 @@ export default function AddProductForm({
     }
     if (thumbnail) {
       thumbnail.forEach((el) => {
-        newForm.append("thumbnail", el);
+        if (el) {
+          newForm.append("thumbnail", el);
+        }
       });
     }
     images.forEach((i) => {
@@ -440,7 +453,10 @@ export default function AddProductForm({
       <form
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
-          if (thumbnail.length === 0) {
+          const missingThumbnail = thumbnail.some(
+            (t) => t === null || t === undefined
+          );
+          if (missingThumbnail) {
             form.setError("thumbnail" as any, {
               type: "manual",
               message: "Please upload thumbnail image",
@@ -1066,6 +1082,8 @@ export default function AddProductForm({
                         <SelectContent>
                           <SelectItem value="cm">cm</SelectItem>
                           <SelectItem value="meter">meter</SelectItem>
+                          <SelectItem value="inch">inch</SelectItem>
+                          <SelectItem value="feet">feet</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -1253,47 +1271,49 @@ export default function AddProductForm({
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="taxable">taxable</SelectItem>
+                          <SelectItem value="taxable">Taxable</SelectItem>
                           <SelectItem value="shipping only">
-                            shipping only
+                            Shipping only
                           </SelectItem>
-                          <SelectItem value="none">none</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="taxClass"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tax Class</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="0">0%</SelectItem>
-                          <SelectItem value="5">5%</SelectItem>
-                          <SelectItem value="10">10%</SelectItem>
-                          <SelectItem value="12">12%</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {form.watch("taxStatus") === "taxable" && (
+                  <FormField
+                    control={form.control}
+                    name="taxClass"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Class</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="0">0%</SelectItem>
+                            <SelectItem value="5">5%</SelectItem>
+                            <SelectItem value="10">10%</SelectItem>
+                            <SelectItem value="12">12%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </section>
 
               <FormField
@@ -1323,7 +1343,7 @@ export default function AddProductForm({
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -1457,7 +1477,7 @@ export default function AddProductForm({
                   <FormItem>
                     <FormLabel>Packaging Type</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Eg. box, polywrap etc."/>
+                      <Input {...field} placeholder="Eg. box, polywrap etc." />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1639,10 +1659,10 @@ export default function AddProductForm({
                 {/* //variants of products */}
                 <div className="my-6 space-y-4">
                   <>
-                    {variantFields.map((field, i) => (
+                    {variantFields.map((field, index) => (
                       <AddProductFormVariants
-                        key={i}
-                        i={i}
+                        key={field.id}
+                        index={index}
                         field={field}
                         handleThumbnailChange={handleThumbnailChange}
                         thumbnail={thumbnail}
@@ -1652,6 +1672,7 @@ export default function AddProductForm({
                         thumbnailError={
                           (form.formState.errors as any).thumbnail
                         }
+                        removeThumbnail={removeThumbnail}
                       />
                     ))}
                     {isMultiVariant && (
