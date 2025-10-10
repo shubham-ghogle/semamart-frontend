@@ -1,6 +1,6 @@
-import { useFieldArray  } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { Button } from "../ui/button";
-import { MinusCircleIcon } from "lucide-react";
+import { MinusCircleIcon, X } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -11,28 +11,32 @@ import {
 import { Input } from "../ui/input";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
-type AddProductFormVariantsProps={
-  i:any;
-  form:any;
-  field:any;
-  isMultiVariant:boolean;
-  handleThumbnailChange:any;
-  removeVariant:any;
-  thumbnail:any;
-}
+type AddProductFormVariantsProps = {
+  index: any;
+  form: any;
+  field: any;
+  isMultiVariant: boolean;
+  handleThumbnailChange: any;
+  removeVariant: any;
+  thumbnail: any;
+  thumbnailError: any;
+  removeThumbnail: any;
+};
 
 export default function AddProductFormVariants({
-  i,
+  index,
   form,
   field,
   isMultiVariant,
   handleThumbnailChange,
   removeVariant,
   thumbnail,
-}:AddProductFormVariantsProps) {
+  thumbnailError,
+  removeThumbnail,
+}: AddProductFormVariantsProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: `variants.${i}.bulkOrders`,
+    name: `variants.${index}.bulkOrders`,
   });
 
   return (
@@ -46,22 +50,22 @@ export default function AddProductFormVariants({
           variant="ghost"
           type="button"
           size="icon"
-          disabled={i === 0}
-          onClick={() => removeVariant(i)}
+          disabled={index === 0}
+          onClick={() => removeVariant(index)}
         >
           <MinusCircleIcon className="text-red-500" />
         </Button>
       )}
-      <p className="text-sm font-semibold text-gray-500">Variant {i + 1}</p>
+      <p className="text-sm font-semibold text-gray-500">Variant {index + 1}</p>
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name={`variants.${i}.originalPrice`}
+          name={`variants.${index}.originalPrice`}
           render={() => (
             <FormItem>
               <FormLabel>MRP (₹)</FormLabel>
               <FormControl>
-                <Input {...form.register(`variants.${i}.originalPrice`)} />
+                <Input {...form.register(`variants.${index}.originalPrice`)} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -69,12 +73,12 @@ export default function AddProductFormVariants({
         />
         <FormField
           control={form.control}
-          name={`variants.${i}.discountPrice`}
+          name={`variants.${index}.discountPrice`}
           render={() => (
             <FormItem>
               <FormLabel>Selling Price (₹)</FormLabel>
               <FormControl>
-                <Input {...form.register(`variants.${i}.discountPrice`)} />
+                <Input {...form.register(`variants.${index}.discountPrice`)} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -85,12 +89,12 @@ export default function AddProductFormVariants({
         <article className="space-y-2 w-1/2">
           <FormField
             control={form.control}
-            name={`variants.${i}.colorOption`}
+            name={`variants.${index}.colorOption`}
             render={() => (
               <FormItem>
                 <FormLabel>Color</FormLabel>
                 <FormControl>
-                  <Input {...form.register(`variants.${i}.colorOption`)} />
+                  <Input {...form.register(`variants.${index}.colorOption`)} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,12 +102,12 @@ export default function AddProductFormVariants({
           />
           <FormField
             control={form.control}
-            name={`variants.${i}.size`}
+            name={`variants.${index}.size`}
             render={() => (
               <FormItem>
                 <FormLabel>Size</FormLabel>
                 <FormControl>
-                  <Input {...form.register(`variants.${i}.size`)} />
+                  <Input {...form.register(`variants.${index}.size`)} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -111,43 +115,65 @@ export default function AddProductFormVariants({
           />
           <FormField
             control={form.control}
-            name={`variants.${i}.stocks`}
+            name={`variants.${index}.stocks`}
             render={() => (
               <FormItem>
                 <FormLabel>Stocks</FormLabel>
                 <FormControl>
-                  <Input {...form.register(`variants.${i}.stocks`)} />
+                  <Input {...form.register(`variants.${index}.stocks`)} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </article>
-        <div>
+        <FormItem>
           <FormLabel>Upload Thumbnail Image</FormLabel>
-          <div className="border border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+          <div className="border relative border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
             <label
-              htmlFor="uploadThumbnail"
+              htmlFor={field.id}
               className="cursor-pointer w-full h-full grid place-items-center"
             >
-              {thumbnail[i] ? (
-                <img
-                  src={URL.createObjectURL(thumbnail[i])}
-                  alt="Thumbnail"
-                  className="h-full w-full object-cover"
-                />
+              {thumbnail[index] ? (
+                <div>
+                  <img
+                    src={URL.createObjectURL(thumbnail[index])}
+                    alt="Thumbnail"
+                    className="h-full w-full object-cover"
+                  />
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="absolute top-1 right-1"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeThumbnail(index);
+                    }}
+                  >
+                    <X className="w-8!" />
+                  </Button>
+                </div>
               ) : (
                 <AiOutlinePlusCircle size={30} color="#555" />
               )}
             </label>
           </div>
+          {thumbnailError && (
+            <p className="text-sm text-red-500">
+              {thumbnailError.message as string}
+            </p>
+          )}
           <input
             type="file"
-            id="uploadThumbnail"
+            id={field.id}
             className="hidden"
-            onChange={(e) => handleThumbnailChange(e, i)}
+            onChange={(e) => {
+              handleThumbnailChange(e, index);
+            }}
           />
-        </div>
+        </FormItem>
       </div>
 
       <div className="space-y-2 mt-4">
@@ -156,12 +182,16 @@ export default function AddProductFormVariants({
           <div key={field.id} className="flex items-center gap-2">
             <Input
               placeholder="Qty"
-              {...form.register(`variants.${i}.bulkOrders.${index}.qty`,{ valueAsNumber: true })}
+              {...form.register(`variants.${index}.bulkOrders.${index}.qty`, {
+                valueAsNumber: true,
+              })}
               className="w-20"
             />
             <Input
               placeholder="Price"
-              {...form.register(`variants.${i}.bulkOrders.${index}.price`,{ valueAsNumber: true })}
+              {...form.register(`variants.${index}.bulkOrders.${index}.price`, {
+                valueAsNumber: true,
+              })}
               className="w-28"
             />
             <Button

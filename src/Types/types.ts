@@ -65,7 +65,7 @@ export interface Product {
   variants: Variant[]
   sterile: boolean   // fixed
   singleUse: boolean // fixed
-  expiry: Date
+  manufacturingDate: Date
   productCompilance?: string[]
   msds_ifu_leaflet?: string[]
   minmaxrule: Record<string, any>

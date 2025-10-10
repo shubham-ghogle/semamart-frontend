@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   registerFailureToast,
   sellerRegisterSuccessToast,
@@ -6,6 +7,7 @@ import {
 } from "../../components/UIComponents/Toasts";
 
 export function useRegisterSeller() {
+  const navigate = useNavigate();
   const { mutateAsync: mutateSeller, status } = useMutation({
     mutationFn: async (newForm: FormData) => {
       const response = await fetch("/api/v2/shop/create-shop", {
@@ -20,6 +22,7 @@ export function useRegisterSeller() {
     },
     onSuccess: () => {
       sellerRegisterSuccessToast();
+      navigate("/seller"); 
     },
     onError: (err) => {
       registerFailureToast(err.message, false);
@@ -30,22 +33,33 @@ export function useRegisterSeller() {
 }
 
 export function useRegisterUser() {
+  const navigate = useNavigate();
   const { mutateAsync: mutateUser, status } = useMutation({
-    mutationFn: async (newForm: FormData) => {
+    mutationFn: async (payload: any) => {
       const res = await fetch("/api/v2/user/create-user", {
-        method: "post",
-        body: newForm,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message);
+      const text = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(text);
+      } catch {}
+      
+      if (!res.ok || data.success === false) {
+        throw new Error(data?.message || `HTTP ${res.status}`);
+      }
+
+      return data;
     },
     onSuccess: () => {
-      userRegisterSuccessToast()
+      userRegisterSuccessToast();
+      navigate("/"); 
     },
-    onError: (err) => {
-      registerFailureToast(err.message, false);
-    },
+
+    onError: (err: any) => registerFailureToast(err.message || "Something went wrong", false),
   });
 
   return { mutateUser, status };

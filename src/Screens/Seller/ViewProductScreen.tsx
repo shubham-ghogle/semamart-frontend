@@ -50,7 +50,7 @@ export default function ViewProductScreen() {
     : { minQty: "0", maxQty: "0" };
 
   const formProduct: FormProduct = {
-    expiry: new Date(product?.expiry || ""),
+    expiry: new Date(product?.manufacturingDate || ""),
     // tags: JSON.parse(product.tags as unknown as string) || [],
     tags: product.tags || [],
     // attributes: JSON.parse(product?.attributes as unknown as string) || [],

@@ -34,7 +34,7 @@ export default function LoginForm() {
     mutationFn: postSeller,
     onSuccess: (data) => {
       addSeller(data.user);
-      navigate("/");
+      navigate("/seller");
     },
     onError: (a) => {
       loginFailureToast(a.message);

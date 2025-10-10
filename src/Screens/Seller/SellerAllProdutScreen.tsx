@@ -9,7 +9,7 @@ export default function SellerAllProductsScreen() {
   const { data, status } = useCustomEnsureQuerty<Product[]>(
     ["seller-products", seller?._id],
     () => getProductsForSeller(seller?._id),
-    seller?._id
+    seller?._id,
   );
 
   const errMess = "Something went wrong";
@@ -20,13 +20,12 @@ export default function SellerAllProductsScreen() {
       errorMeassage={errMess}
       heading="Products"
     >
-      {data ? (
+      {data && (
         <div className="p-4 bg-white shadow rounded">
           <SellerProductTable products={data} />
         </div>
-      ) : (
-        <p>{errMess}</p>
       )}
+      {status === "error" && <p>{errMess}</p>}
     </SellerMainWrapper>
   );
 }

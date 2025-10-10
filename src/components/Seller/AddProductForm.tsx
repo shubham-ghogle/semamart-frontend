@@ -33,7 +33,7 @@ import { Button } from "../ui/button";
 import { IoRemoveCircle } from "react-icons/io5";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -114,6 +114,7 @@ export default function AddProductForm({
       size: null,
       colorOption: null,
       discountPrice: "",
+      bulkOrders: [],
     });
   }
 
@@ -165,14 +166,14 @@ export default function AddProductForm({
   }, [form.watch("subCategory")]);
 
   function addAddtri(attri: Record<string, string>) {
-    const currentAttri = form.getValues("attributes");
+    const currentAttri = form.getValues("attributes") || [];
     const newAttris = [...currentAttri, attri];
     form.setValue("attributes", newAttris);
     setCurrentAttri({ key: "", val: "" });
   }
 
   function removeAttri(idx: number) {
-    const attributes = [...form.getValues("attributes")];
+    const attributes = [...(form.getValues("attributes") || [])];
     attributes.splice(idx, 1);
     form.setValue("attributes", attributes);
   }
@@ -194,7 +195,7 @@ export default function AddProductForm({
   }
 
   //media
-  const [thumbnail, setThumbnail] = useState<File[]>([]);
+  const [thumbnail, setThumbnail] = useState<(File | null)[]>([]);
   const handleThumbnailChange = (
     e: ChangeEvent<HTMLInputElement>,
     i: number
@@ -204,10 +205,20 @@ export default function AddProductForm({
     if (file)
       setThumbnail((p) => {
         const img = [...p];
-        img.splice(i + 1, 0, file);
+        if (img[i]) {
+          img.splice(i + 1, 0, file);
+        } else {
+          img[i] = file;
+        }
         return img;
       });
   };
+
+  function removeThumbnail(i: number) {
+    const thumbs = [...thumbnail];
+    thumbs[i] = null;
+    setThumbnail(thumbs);
+  }
 
   const [images, setImages] = useState<File[]>([]);
   const handleImageChange = (
@@ -223,9 +234,16 @@ export default function AddProductForm({
       setImages(updatedImages);
     }
   };
+  function removeImage(i: number) {
+    const imgs = [...images];
+    imgs.splice(i, 1);
+    setImages(imgs);
+  }
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
-
+  function removeVideo() {
+    setShortVideo(null);
+  }
 
   // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
@@ -256,6 +274,14 @@ export default function AddProductForm({
   });
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
+    if (thumbnail.length === 0) {
+      form.setError("thumbnail" as any, {
+        type: "manual",
+        message: "Please upload thumbnail image",
+      });
+      return;
+    }
+
     if (putProductStatus === "pending" || postProductStatus === "pending") {
       return;
     }
@@ -312,9 +338,11 @@ export default function AddProductForm({
     newForm.append("origin", values.origin);
     newForm.append("shortdescription", values.shortdescription);
     newForm.append("description", values.description);
-    values.attributes.forEach((v) => {
-      newForm.append("attributes", JSON.stringify(v));
-    });
+    if (values.attributes) {
+      values.attributes.forEach((v) => {
+        newForm.append("attributes", JSON.stringify(v));
+      });
+    }
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
@@ -324,7 +352,7 @@ export default function AddProductForm({
       newForm.append("sterile", values.sterileString);
     }
     newForm.append("singleUse", values.singleUseString);
-    newForm.append("expiry", values.expiry.toISOString());
+    newForm.append("manufacturingDate", values.expiry.toISOString());
     newForm.append(
       "minmaxrule",
       JSON.stringify({
@@ -333,9 +361,12 @@ export default function AddProductForm({
       })
     );
     newForm.append("taxStatus", values.taxStatus);
-    newForm.append("taxClass", values.taxClass.toString());
-    // newForm.append("stock", values.stocks.toString())
-    newForm.append("unitOfMeasure", values.unitOfMeasure);
+    if (values.taxClass) {
+      newForm.append("taxClass", values.taxClass.toString());
+    }
+    if (values.unitOfMeasure) {
+      newForm.append("unitOfMeasure", values.unitOfMeasure);
+    }
     newForm.append("stockStatus", values.stockStatus);
     newForm.append("deliveryLeadTime", values.deliveryLeadTime.toString());
     if (values.warranty) {
@@ -350,10 +381,9 @@ export default function AddProductForm({
     if (values.deliveryInstruction) {
       newForm.append("deliveryInstruction", values.deliveryInstruction);
     }
-    // if (values.deliveryPartner) {
-    //   newForm.append("deliveryPartner", values.deliveryPartner)
-    // }
-    newForm.append("shelfing_storage_req", values.shelfing_storage_req);
+    if (values.shelfing_storage_req) {
+      newForm.append("shelfing_storage_req", values.shelfing_storage_req);
+    }
     if (values.purchaseNote) {
       newForm.append("purchaseNote", values.purchaseNote);
     }
@@ -382,7 +412,9 @@ export default function AddProductForm({
     }
     if (thumbnail) {
       thumbnail.forEach((el) => {
-        newForm.append("thumbnail", el);
+        if (el) {
+          newForm.append("thumbnail", el);
+        }
       });
     }
     images.forEach((i) => {
@@ -429,6 +461,15 @@ export default function AddProductForm({
       <form
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
+          const missingThumbnail = thumbnail.some(
+            (t) => t === null || t === undefined
+          );
+          if (missingThumbnail) {
+            form.setError("thumbnail" as any, {
+              type: "manual",
+              message: "Please upload thumbnail image",
+            });
+          }
         })}
         className="max-w-4xl mx-auto py-10 bg-white p-4 rounded shadow"
       >
@@ -625,7 +666,7 @@ export default function AddProductForm({
                 /> */}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 items-start gap-4">
                 <FormField
                   control={form.control}
                   name="sku"
@@ -804,7 +845,6 @@ export default function AddProductForm({
 
           <AccordionItem value="2">
             <AccordionTrigger className="text-lg">
-              {" "}
               Product Description & Specifications{" "}
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
@@ -900,7 +940,7 @@ export default function AddProductForm({
                     <FormLabel>Custom Attributes</FormLabel>
                     <FormControl>
                       <>
-                        {field.value.map((e, i) => (
+                        {field.value?.map((e, i) => (
                           <div className="flex gap-8" key={i}>
                             <Input value={Object.keys(e)[0]} readOnly />
                             <Input value={Object.values(e)[0]} readOnly />
@@ -1003,7 +1043,7 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>Product dimensions (LxHxW)</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Length" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1015,7 +1055,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Height" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1027,7 +1067,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} placeholder="Width" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1050,6 +1090,8 @@ export default function AddProductForm({
                         <SelectContent>
                           <SelectItem value="cm">cm</SelectItem>
                           <SelectItem value="meter">meter</SelectItem>
+                          <SelectItem value="inch">inch</SelectItem>
+                          <SelectItem value="feet">feet</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -1058,91 +1100,93 @@ export default function AddProductForm({
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="sterileString"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sterile Product</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      // defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <section className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sterileString"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sterile Product</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        // defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="singleUseString"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Single Use Product</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      // defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="singleUseString"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Single Use Product</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        // defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="expiry"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Manufacturing Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="expiry"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Manufacturing Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </section>
 
               <FormField
                 control={form.control}
@@ -1156,7 +1200,7 @@ export default function AddProductForm({
                         type="file"
                         onChange={(e) => {
                           if (e.target.files) {
-                            field.onChange(Array.from( e.target.files));
+                            field.onChange(Array.from(e.target.files));
                           }
                         }}
                       />
@@ -1222,7 +1266,7 @@ export default function AddProductForm({
                 /> */}
               </section>
 
-              <section className="grid grid-cols-2 gap-4">
+              <section className="grid grid-cols-2 items-start gap-4">
                 <FormField
                   control={form.control}
                   name="taxStatus"
@@ -1235,45 +1279,49 @@ export default function AddProductForm({
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="taxable">taxable</SelectItem>
+                          <SelectItem value="taxable">Taxable</SelectItem>
                           <SelectItem value="shipping only">
-                            shipping only
+                            Shipping only
                           </SelectItem>
-                          <SelectItem value="none">none</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="taxClass"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tax Class</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="5">5%</SelectItem>
-                          <SelectItem value="10">10%</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {form.watch("taxStatus") === "taxable" && (
+                  <FormField
+                    control={form.control}
+                    name="taxClass"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Class</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="0">0%</SelectItem>
+                            <SelectItem value="5">5%</SelectItem>
+                            <SelectItem value="10">10%</SelectItem>
+                            <SelectItem value="12">12%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </section>
 
               <FormField
@@ -1290,63 +1338,65 @@ export default function AddProductForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="stockStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value?.toString()}
-                    >
+              <section className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="stockStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="In stock">In Stock</SelectItem>
+                          <SelectItem value="Out of stock">
+                            Out of stock
+                          </SelectItem>
+                          <SelectItem value="On backorder">
+                            On backorder
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="deliveryLeadTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Delivery Leading Time (in days)</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
+                        <Input {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="In stock">In Stock</SelectItem>
-                        <SelectItem value="Out of stock">
-                          Out of stock
-                        </SelectItem>
-                        <SelectItem value="On backorder">
-                          On backorder
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="deliveryLeadTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery Leading Time (in days)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="warranty"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Warranty (in year)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="warranty"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Warranty (in year)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </section>
 
               <FormField
                 control={form.control}
@@ -1435,7 +1485,7 @@ export default function AddProductForm({
                   <FormItem>
                     <FormLabel>Packaging Type</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Eg. box, polywrap etc." />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1459,6 +1509,7 @@ export default function AddProductForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Fragile">Fragile</SelectItem>
+                        <SelectItem value="Non-Fragile">Non-Fragile</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1616,16 +1667,20 @@ export default function AddProductForm({
                 {/* //variants of products */}
                 <div className="my-6 space-y-4">
                   <>
-                    {variantFields.map((field, i) => (
+                    {variantFields.map((field, index) => (
                       <AddProductFormVariants
-                        key={i}
-                        i={i}
+                        key={field.id}
+                        index={index}
                         field={field}
                         handleThumbnailChange={handleThumbnailChange}
                         thumbnail={thumbnail}
                         form={form}
                         removeVariant={removeVariant}
                         isMultiVariant={isMultiVariant}
+                        thumbnailError={
+                          (form.formState.errors as any).thumbnail
+                        }
+                        removeThumbnail={removeThumbnail}
                       />
                     ))}
                     {isMultiVariant && (
@@ -1650,18 +1705,33 @@ export default function AddProductForm({
                       {Array.from({ length: 4 }).map((_, index) => (
                         <div
                           key={index}
-                          className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
+                          className="border relative border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer"
                         >
                           <label
                             htmlFor={`uploadImage-${index}`}
                             className="cursor-pointer"
                           >
                             {images[index] ? (
-                              <img
-                                src={URL.createObjectURL(images[index])}
-                                alt={`Image-${index + 1}`}
-                                className="h-full w-full object-cover"
-                              />
+                              <div>
+                                <img
+                                  src={URL.createObjectURL(images[index])}
+                                  alt={`Image-${index + 1}`}
+                                  className="h-full w-full object-cover"
+                                />
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  className="absolute top-1 right-1"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeImage(index);
+                                  }}
+                                >
+                                  <X className="w-8!" />
+                                </Button>
+                              </div>
                             ) : (
                               <AiOutlinePlusCircle size={30} color="#555" />
                             )}
@@ -1679,17 +1749,32 @@ export default function AddProductForm({
 
                   <div>
                     <FormLabel>Upload Product Video</FormLabel>
-                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+                    <div className="border border-gray-300 h-[120px] w-[120px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2 relative">
                       <label
-                        htmlFor="uploadThumbnail"
+                        htmlFor="uploadShortVideo"
                         className="cursor-pointer w-full h-full grid place-items-center"
                       >
                         {shortVideo ? (
-                          <video
-                            controls
-                            src={URL.createObjectURL(shortVideo)}
-                            className="h-full w-full object-cover"
-                          />
+                          <div>
+                            <video
+                              controls={true}
+                              src={URL.createObjectURL(shortVideo)}
+                              className="h-full w-full object-cover"
+                            />
+                            <Button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeVideo();
+                              }}
+                              variant="destructive"
+                              className="absolute top-1 right-1 p-1!"
+                              size="icon"
+                              type="button"
+                            >
+                              <X className="w-4!" />
+                            </Button>
+                          </div>
                         ) : (
                           <AiOutlinePlusCircle size={30} color="#555" />
                         )}
@@ -1702,8 +1787,8 @@ export default function AddProductForm({
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file && file.size > 2 * 1024 * 1024) {
-                          alert("Video size should not exceed 2MB.");
+                        if (file && file.size > 5 * 1024 * 1024) {
+                          alert("Video size should not exceed 5MB.");
                           return;
                         }
                         if (file) {
