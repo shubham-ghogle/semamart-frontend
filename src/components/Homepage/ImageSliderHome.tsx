@@ -1,99 +1,118 @@
-import { useState, useEffect } from "react";
-import {
-  IoIosArrowDroprightCircle,
-  IoIosArrowDropleftCircle,
-} from "react-icons/io";
+import { useEffect, useState } from "react";
+
+/**
+ * ImageSliderHome
+ * - left large slider (arrows appear on hover)
+ * - two right small banners
+ */
 
 const sliderImages = [
   "/Cover Photo/E1-1.png",
   "/Cover Photo/E1-2.png",
   "/Cover Photo/E1-4.png",
-
   "/Cover Photo/E1-3.png",
-  "/Cover Photo/Dental-Consumables.png",
-  "/Cover Photo/Infection-Control-Consumables.png",
-  "/Cover Photo/Laboratory-Consumables.png",
-  "/Cover Photo/Pharma-2.png",
-  "/Cover Photo/Pharma-4.png",
-  "/Cover Photo/Radiology-Consumables.png",
-  "/Cover Photo/Refurbished-Imaging-Equipment.png",
-  "/Cover Photo/Refurbished-Laboratory-Equipment.png",
-  "/Cover Photo/Refurbished-Patient-Monitors.png",
-  "/Cover Photo/Refurbished-Surgical-Instruments.png",
-  "/Cover Photo/Surgical-Consumables.png",
-  "/Cover Photo/Wound-Care-Supplies.png",
-
+  "/placeholder.png",
 ];
 
+const rightImageA = "/banner_Consumables.png";
+const rightImageB = "/banner_Equipment.png";
+
 export default function ImageSliderHome() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const totalSlides = sliderImages.length;
+  const [current, setCurrent] = useState(0);
+  const total = sliderImages.length;
 
-  function nextSlide() {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  }
-
-  function prevSlide() {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  }
-
-  // ✅ Auto-slide
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 3000); // 3s interval
-    return () => clearInterval(timer);
-  }, [totalSlides]);
+    const t = setInterval(() => setCurrent((p) => (p + 1) % total), 3000);
+    return () => clearInterval(t);
+  }, [total]);
+
+  const prev = () => setCurrent((p) => (p - 1 + total) % total);
+  const next = () => setCurrent((p) => (p + 1) % total);
 
   return (
-    <section className="overflow-hidden relative">
-      {/* Slides */}
-      <article
-        className="flex transition-transform duration-700 ease-in-out"
-        style={{
-          transform: `translateX(-${currentSlide * 100}%)`,
-        }}
-      >
-        {sliderImages.map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`banner-${index}`}
-            className="min-w-full h-[45vh] object-cover"
-          />
-        ))}
-      </article>
+    <section className="w-full px-6 py-6">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
+          {/* LEFT: LARGE SLIDER */}
+          <div className="relative rounded-xl overflow-hidden bg-white shadow-lg h-[40vh] sm:h-[42vh] lg:h-[44vh] group">
+            {/* slider track */}
+            <div
+              className="flex h-full transition-transform duration-700 ease-in-out"
+              style={{
+                width: `${total * 100}%`,
+                transform: `translateX(-${current * (100 / total)}%)`,
+              }}
+            >
+              {sliderImages.map((src, i) => (
+                <div key={i} className="min-w-full h-full flex items-center justify-center">
+                  <img
+                    src={src}
+                    alt={`hero-${i}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                  />
+                </div>
+              ))}
+            </div>
 
-      {/* Arrows */}
-      {totalSlides > 1 && (
-        <article className="absolute inset-0 flex items-center justify-between px-4">
-          <button onClick={prevSlide}>
-            <IoIosArrowDropleftCircle
-              size={40}
-              color="white"
-              className="drop-shadow-lg"
-            />
-          </button>
-          <button onClick={nextSlide}>
-            <IoIosArrowDroprightCircle
-              size={40}
-              color="white"
-              className="drop-shadow-lg"
-            />
-          </button>
-        </article>
-      )}
+            {/* arrows: become visible only when hovering the big card (.group:hover) */}
+            <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
+              <button
+                onClick={prev}
+                aria-label="previous"
+                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:-translate-x-0 -translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
+                style={{ WebkitTapHighlightColor: "transparent" }}
+              >
+                {/* left chevron */}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
+                  <path d="M15 6L9 12L15 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
 
-      {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-        {sliderImages.map((_, index) => (
-          <span
-            key={index}
-            className={`w-3 h-3 rounded-full cursor-pointer ${currentSlide === index ? "bg-[#1C647C]" : "bg-gray-300"
-              }`}
-            onClick={() => setCurrentSlide(index)}
-          />
-        ))}
+              <button
+                onClick={next}
+                aria-label="next"
+                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:translate-x-0 translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
+                style={{ WebkitTapHighlightColor: "transparent" }}
+              >
+                {/* right chevron */}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
+                  <path d="M9 6L15 12L9 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* pilled dots indicator (centered bottom) */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+              <div className="bg-white/95 px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
+                {sliderImages.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrent(i)}
+                    aria-label={`go-to-${i}`}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-150 ${
+                      current === i ? "bg-[#1C647C] w-3.5 h-3.5" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT SMALL BANNERS */}
+          {[rightImageA, rightImageB].map((img, i) => (
+            <div key={i} className="rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh]">
+              <a href="#" className="block w-full h-full">
+                <img
+                  src={img}
+                  alt={`promo-${i}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                />
+              </a>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
