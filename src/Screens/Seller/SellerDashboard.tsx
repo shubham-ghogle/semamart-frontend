@@ -39,7 +39,6 @@ export default function SellerDashboard() {
 
   const variants = products?.flatMap(p=>p.variants)||[]
 
-console.log(variants)
   return (
     <SellerMainWrapper status={overAllStatus} errorMeassage={overAllError} heading="Seller Dashboard">
       {isSuccess && (
