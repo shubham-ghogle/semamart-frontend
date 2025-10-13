@@ -55,6 +55,7 @@ import DocumentsDisplay from "./DocumentsDisplay";
 import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants";
+import { useBlocker } from "react-router";
 
 type AddProductFormProps =
   | {
@@ -97,6 +98,10 @@ export default function AddProductForm({
     resolver: zodResolver(addProductFormSchema),
     defaultValues: product ? product : addProductFormDefaultValues,
   });
+
+  const isDirty = form.formState.isDirty;
+  useBeforeUnload(isDirty);
+  useNavigationBlocker(isDirty);
 
   const {
     fields: variantFields,
@@ -198,7 +203,7 @@ export default function AddProductForm({
   const [thumbnail, setThumbnail] = useState<(File | null)[]>([]);
   const handleThumbnailChange = (
     e: ChangeEvent<HTMLInputElement>,
-    i: number
+    i: number,
   ) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -223,7 +228,7 @@ export default function AddProductForm({
   const [images, setImages] = useState<File[]>([]);
   const handleImageChange = (
     e: ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     e.preventDefault();
     if (!e.target.files) return;
@@ -297,8 +302,8 @@ export default function AddProductForm({
           discountPrice: el.discountPrice,
           stock: el.stocks,
           bulkOrders: el.bulkOrders ?? [],
-        }))
-      )
+        })),
+      ),
     );
 
     newForm.append("shopId", seller?._id || "");
@@ -346,7 +351,7 @@ export default function AddProductForm({
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
-      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`
+      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`,
     );
     if (values.sterileString) {
       newForm.append("sterile", values.sterileString);
@@ -358,7 +363,7 @@ export default function AddProductForm({
       JSON.stringify({
         minQty: values.minmaxrule.minQty,
         maxQty: values.minmaxrule.maxQty || "",
-      })
+      }),
     );
     newForm.append("taxStatus", values.taxStatus);
     if (values.taxClass) {
@@ -462,7 +467,7 @@ export default function AddProductForm({
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
           const missingThumbnail = thumbnail.some(
-            (t) => t === null || t === undefined
+            (t) => t === null || t === undefined,
           );
           if (missingThumbnail) {
             form.setError("thumbnail" as any, {
@@ -516,7 +521,7 @@ export default function AddProductForm({
                             setValue={(value) => {
                               const catName =
                                 categoryDropDownList.find(
-                                  (el) => el.value === value
+                                  (el) => el.value === value,
                                 )?.label || "";
                               setCurrCategory({ name: catName, val: value });
                             }}
@@ -561,7 +566,7 @@ export default function AddProductForm({
                               setValue={(value) => {
                                 const subCatName =
                                   subCatDropDownList.find(
-                                    (el) => el.value === value
+                                    (el) => el.value === value,
                                   )?.label || "";
                                 setCurrSubcategory({
                                   name: subCatName,
@@ -1163,7 +1168,7 @@ export default function AddProductForm({
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -1848,4 +1853,32 @@ async function editProduct(formData: FormData, productId: string) {
   });
 
   if (!res.ok) throw new Error();
+}
+
+function useBeforeUnload(when: boolean) {
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (when) {
+        event.preventDefault();
+        event.returnValue = ""; // for old browsers
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [when]);
+}
+
+function useNavigationBlocker(when: boolean) {
+  const blocker = useBlocker(when);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirm = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave this page?",
+      );
+      if (confirm) blocker.proceed();
+      else blocker.reset();
+    }
+  }, [blocker]);
 }
