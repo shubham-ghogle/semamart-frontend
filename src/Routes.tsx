@@ -1,15 +1,11 @@
 import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
-// import ProductDetailsScreen from "./Screens/ProductDetailScreen/ProductDetailScreen";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
-import { getUserFromLocalLoader } from "./Screens/LoginScreen/Login.Hooks";
+import { getUserFromLocalLoader, requireUserAuth } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
-
-// import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
-
 import { getAdminFromLocalLoader } from "./Screens/Admin/Admin.HooksAndUtils";
 import SellerRegisterScreen from "./Screens/Register/SellerRegisterScreen";
 import UserRegistrationScreen from "./Screens/Register/UserRegistrationScreen";
@@ -50,7 +46,7 @@ import ProductBasedOnType from "./components/ui/ProductBasedOnType";
 import AllUserScreen from "./Screens/Admin/AllUserScreen";
 import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackagetypes";
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
-import OrderPage from "./components/Layouts/OrderLayout"
+import OrderPage from "./components/Layouts/OrderLayout";
 
 
 export const router = createBrowserRouter([
@@ -62,37 +58,33 @@ export const router = createBrowserRouter([
       { path: "product", element: <ProductsScreen /> },
       {
         path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />
+        loader: requireUserAuth, // 🔐 requires login
+        element: <CheckoutScreen />,
       },
       {
         path: "checkout/payment",
-        loader: checkoutScreenLoader,
-        element: <PaymentScreen />
+        loader: requireUserAuth, // 🔐 requires login
+        element: <PaymentScreen />,
       },
-      { path: "wishlist", element: <WishlistProduct /> },
-      { path: "add-to-cart", element: <AddToCart /> },
+      { path: "wishlist", loader: requireUserAuth, element: <WishlistProduct /> }, // 🔐
+      { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> }, // 🔐
     ],
   },
 
   {
     path: "/search",
     element: <SearchLayout />,
-    children: [
-      { index: true, element: <SearchResultsPage /> },
-    ],
+    children: [{ index: true, element: <SearchResultsPage /> }],
   },
 
-  // Product details using a separate layout
+  // Product details layout
   {
     path: "product/:id",
     element: <ProductLayout />,
-    children: [
-      { index: true, element: <ProductDetails /> },
-    ],
+    children: [{ index: true, element: <ProductDetails /> }],
   },
 
-  // Consumables section
+  // Equipments section
   {
     path: "/equipments",
     element: <RootLayout />,
@@ -102,21 +94,11 @@ export const router = createBrowserRouter([
       {
         path: "product/:id",
         element: <ProductLayout />,
-        children: [
-          {
-            index: true,
-            element: <ProductDetails />,
-          },
-        ],
+        children: [{ index: true, element: <ProductDetails /> }],
       },
-      {
-        path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
-      },
+      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
     ],
   },
-
 
   // Pharmaceutical section
   {
@@ -128,15 +110,12 @@ export const router = createBrowserRouter([
       {
         path: "product/:id",
         element: <ProductLayout />,
-        children: [{ index: true, element: <ProductDetails /> }]
+        children: [{ index: true, element: <ProductDetails /> }],
       },
-      {
-        path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />
-      },
+      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
     ],
   },
+
   {
     path: "/",
     element: <RootLayout />,
@@ -144,53 +123,38 @@ export const router = createBrowserRouter([
       { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
-      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
+      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
     ],
   },
-  {
-    path: "/pharmaceutical",
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Pharmaceutical /> },
-      { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetails /> },
-      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
-    ],
-  },
-  // Login routes
-  {
-    path: "/login",
-    loader: getUserFromLocalLoader,
-    element: <LoginScreen />,
-  },
-  // Registraion routes
+
+  // Login & Registration routes
+  { path: "/login", loader: getUserFromLocalLoader, element: <LoginScreen /> },
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
-  // Admin Routes
-  {
-    path: "/admin-login",
-    element: <AdminLogin />,
-  },
+
+  // Admin routes
+  { path: "/admin-login", element: <AdminLogin /> },
   {
     path: "/admin",
     loader: getAdminFromLocalLoader,
     element: <AdminLayout />,
     children: [
       { index: true, element: <AdminDashboard /> },
-      { path: "requests", element: <AdminRequestScreen />, },
-      { path: "sellers", element: <AllSellerScreen />, },
-       { path: "users", element: <AllUserScreen/> },
+      { path: "requests", element: <AdminRequestScreen /> },
+      { path: "sellers", element: <AllSellerScreen /> },
+      { path: "users", element: <AllUserScreen /> },
       {
-        path: "products", children: [
+        path: "products",
+        children: [
           { index: true, element: <AdminProductRequestScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> }
-        ]
+          { path: "view/:id", element: <ViewProductScreen /> },
+        ],
       },
-      // {path: "orders", element: <AllOrderScreen />,
       { path: "*", element: <div>niniiii</div> },
     ],
   },
-  // Seller Routes
+
+  // Seller routes
   {
     path: "/seller",
     element: <SellerLayout />,
@@ -198,9 +162,10 @@ export const router = createBrowserRouter([
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
       {
-        path: "products", children: [
+        path: "products",
+        children: [
           { index: true, element: <SellerAllProductsScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> }
+          { path: "view/:id", element: <ViewProductScreen /> },
         ],
       },
       {
@@ -212,10 +177,11 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // User Routes
+
+  // User routes (🔐 protected)
   {
     path: "/user",
-    // loader: getAdminFromLocalLoader,
+    loader: requireUserAuth,
     element: <UserLayout />,
     children: [
       { index: true, element: <UserProfileScreen /> },
@@ -225,37 +191,31 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <UserOrdersScreen /> },
           { path: ":orderId", element: <UserOrderDetailsScreen /> },
-        ]
+        ],
       },
     ],
   },
 
+  // Account routes (🔐 protected)
   {
     path: "/account",
-    // loader: getAdminFromLocalLoader,
+    loader: requireUserAuth,
     element: <AccountLayout />,
     children: [
       { index: true, element: <MyProfile /> },
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
-
     ],
   },
 
-  {
-    path: "/account/orders", 
-    element: <OrderPage /> 
-  
-  },
+  // Orders page (🔐 protected)
+  { path: "/account/orders", loader: requireUserAuth, element: <OrderPage /> },
 
-
+  // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
   { path: "/account", element: <AccountNavbar /> },
-  
-  { path: "account/orders/:productId", element: <OrderSummary /> },
-  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType/> },
-  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes/> },
-  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage/> },
-
-
-]); 
+  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> }, // 🔐
+  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
+  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
+  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+]);

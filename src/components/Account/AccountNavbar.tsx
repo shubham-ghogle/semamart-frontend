@@ -1,20 +1,40 @@
 import { useUserStore } from "@/store/userStore";
+import { useSellerStore } from "@/store/sellerStore"; // ✅ Added
 import {
   FaClipboardList,
   FaUser,
   FaSignOutAlt,
 } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // ✅ Added useNavigate
 import { FiChevronRight } from "react-icons/fi";
 
-
 const AccountNavbar = () => {
-  const { user } = useUserStore((state) => state);
+  const { user, removeUser } = useUserStore((state) => state);
+  const { seller, removeSeller } = useSellerStore((s) => s); // ✅ Added seller store
   const location = useLocation();
+  const navigate = useNavigate(); // ✅ Added navigation hook
 
   const isActive = (path: string) => location.pathname === path;
+
+  // ✅ Added logout function (matches Header behavior)
+  async function logoutHandler() {
+    try {
+      const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Something went wrong");
+
+      removeUser();
+      removeSeller();
+
+      // redirect to homepage
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  }
+
   return (
-    <div className="font-montserrat  mx-auto min-h-screen bg-gray-100 p-6 ">
+    <div className="font-montserrat mx-auto min-h-screen bg-gray-100 p-6">
       {/* User Info */}
       <div className="flex items-center bg-white p-4 shadow-md w-64 rounded-xl rounded-r-3xl">
         <div className="bg-yellow-400 rounded-full w-12 h-12 flex items-center justify-center mr-4">
@@ -28,17 +48,17 @@ const AccountNavbar = () => {
       </div>
 
       {/* Sidebar Menu */}
-      <div className="w-64 bg-white shadow-lg p-4 flex flex-col justify-between mt-2 rounded-xl ">
+      <div className="w-64 bg-white shadow-lg p-4 flex flex-col justify-between mt-2 rounded-xl">
         <nav>
           {/* MY ORDERS */}
-         <Link to="/account/orders">
-          <div className="mb-4 pb-4 border-b flex justify-between items-center cursor-pointer">
-            <h3 className="font-semibold flex items-center gap-2 hover:text-blue-500 text-gray-500 cursor-pointer">
-              <FaClipboardList  className="text-blue-500"/> MY ORDERS
-            </h3>
-            <FiChevronRight className="text-gray-500" />
-          </div>
-        </Link>
+          <Link to="/account/orders">
+            <div className="mb-4 pb-4 border-b flex justify-between items-center cursor-pointer">
+              <h3 className="font-semibold flex items-center gap-2 hover:text-blue-500 text-gray-500 cursor-pointer">
+                <FaClipboardList className="text-blue-500" /> MY ORDERS
+              </h3>
+              <FiChevronRight className="text-gray-500" />
+            </div>
+          </Link>
 
           {/* ACCOUNT SETTINGS */}
           <div className="mb-4 pb-4 border-b">
@@ -47,77 +67,32 @@ const AccountNavbar = () => {
             </h3>
             <ul className="ml-4 space-y-1 mt-2">
               <Link to="/account">
-                <li className={`p-2 ${isActive("/account") ? "bg-blue-100 text-blue-500" : ""}`}>
+                <li
+                  className={`p-2 ${
+                    isActive("/account") ? "bg-blue-100 text-blue-500" : ""
+                  }`}
+                >
                   Profile Information
                 </li>
               </Link>
               <Link to="/account/address">
-                <li className={`p-2 ${isActive("/account/address") ? "bg-blue-100 text-blue-500" : ""}`}>
+                <li
+                  className={`p-2 ${
+                    isActive("/account/address") ? "bg-blue-100 text-blue-500" : ""
+                  }`}
+                >
                   Manage Addresses
                 </li>
               </Link>
-              
             </ul>
-
           </div>
 
-          {/* PAYMENTS */}
-          {/* <div className="mb-4 pb-4 border-b">
-            <h3 className="font-semibold text-gray-500 flex items-center gap-2">
-              <FaWallet className="text-blue-500" /> PAYMENTS
-            </h3>
-            <ul className="ml-4 space-y-1 mt-2">
-              <li className="flex justify-between items-center hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <div className=" items-center gap-2 ">
-                   Gift Cards
-                </div>
-                <span className="text-green-600 font-bold mr-5">₹10</span>
-              </li>
-              <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <span className="flex items-center gap-2">
-                   Saved UPI
-                </span> 
-              </li>
-              <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <span className="flex items-center gap-2">
-                   Saved Cards
-                </span>
-              </li>
-            </ul>
-          </div> */}
-
-          {/* MY STUFF */}
-          {/* <div className="mb-4">
-            <h3 className="font-semibold text-gray-500 flex items-center gap-2">
-              <FaTags className="text-blue-500" /> MY STUFF
-            </h3>
-            <ul className="ml-4 space-y-1 mt-2 ">
-              <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <span className="flex items-center gap-2 ">
-                  My Coupons
-                </span>
-              </li>
-              <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <span className="flex items-center gap-2">
-                  My Reviews & Ratings
-                </span>
-              </li>
-              <li className="hover:text-blue-500  hover:bg-blue-100 cursor-pointer p-2">
-                <span className="flex items-center gap-2">
-                   All Notifications
-                </span>
-              </li>
-              <Link to="/account/wishlist">
-                <li className={`p-2 ${isActive("/account/wishlist") ? "bg-blue-100 text-blue-500" : ""}`}>
-                  My Wishlist
-                </li>
-              </Link>
-            </ul>
-          </div> */}
-
           {/* LOGOUT */}
-          <div className="mt-6  pt-4">
-            <button className="flex items-center gap-2 hover:text-blue-500 text-gray-500 cursor-pointer font-medium">
+          <div className="mt-6 pt-4">
+            <button
+              onClick={logoutHandler} // ✅ Functional logout
+              className="flex items-center gap-2 hover:text-blue-500 text-gray-500 cursor-pointer font-medium"
+            >
               <FaSignOutAlt className="text-blue-500" /> Logout
             </button>
           </div>
@@ -126,8 +101,5 @@ const AccountNavbar = () => {
     </div>
   );
 };
-
-
-
 
 export default AccountNavbar;

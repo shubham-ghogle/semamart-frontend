@@ -278,19 +278,25 @@ export default function Header() {
   }
 
   async function logoutHandler() {
-    try {
-      const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Something went wrong");
-      removeUser();
-      removeSeller();
-      // close menus
-      setIsUserHovered(false);
-      setMobileProfileOpen(false);
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
+  try {
+    const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Something went wrong");
+    
+    removeUser();
+    removeSeller();
+
+    // close menus
+    setIsUserHovered(false);
+    setMobileProfileOpen(false);
+
+    // ✅ navigate to homepage after logout
+    navigate("/");
+  } catch (err) {
+    console.error("Logout error:", err);
   }
+}
+
 
   // specialty timeout helpers (for hover menus)
   const clearSpecialtyTimeout = () => {

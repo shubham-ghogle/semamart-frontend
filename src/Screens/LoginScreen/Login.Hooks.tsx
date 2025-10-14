@@ -1,3 +1,4 @@
+// 🟢 Login.Hooks.js
 import { redirect } from "react-router";
 import { Seller, User } from "../../Types/types";
 
@@ -30,14 +31,11 @@ export async function postUser(userData: UserData) {
       body: JSON.stringify(userData),
     });
     const data = (await res.json()) as PostUserApiResponse;
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
+    if (!res.ok) throw new Error(data.message);
     if (!data.success) throw new Error(data.message);
     return data;
   } catch {
     throw new Error("Something went wrong");
-
   }
 }
 
@@ -51,10 +49,7 @@ export async function postSeller(userData: UserData) {
       body: JSON.stringify(userData),
     });
     const data = (await res.json()) as PostSellerApiResponse;
-
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
+    if (!res.ok) throw new Error(data.message);
     if (!data.success) throw new Error(data.message);
     return data;
   } catch {
@@ -62,16 +57,22 @@ export async function postSeller(userData: UserData) {
   }
 }
 
+// Redirect if user already logged in (for login page)
 export function getUserFromLocalLoader() {
   const user = localStorage.getItem("user-storage");
   const seller = localStorage.getItem("seller-storage");
 
-  if (user) {
+  if (user || seller) {
     return redirect("/");
   }
-  if (seller) {
-    return redirect("/");
-  }
+  return null;
+}
 
+// 🟠 NEW FUNCTION - Protect user routes
+export function requireUserAuth() {
+  const user = localStorage.getItem("user-storage");
+  if (!user) {
+    return redirect("/login");
+  }
   return null;
 }
