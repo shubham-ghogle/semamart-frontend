@@ -105,7 +105,7 @@ export default function ViewProductScreen() {
     productCompilance: null,
     msds_ifu_leaflet: null,
     minmaxrule: minmaxrule,
-    taxClass: product?.taxClass.toString() || "",
+    taxClass: product?.taxClass?.toString() || "",
     taxStatus: product?.taxStatus || "",
     unitOfMeasure: product?.unitOfMeasure || "",
     stockStatus: product?.stockStatus || "",
