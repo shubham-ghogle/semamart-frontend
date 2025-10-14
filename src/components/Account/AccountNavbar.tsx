@@ -10,7 +10,6 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import { FiChevronRight } from "react-icons/fi";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
