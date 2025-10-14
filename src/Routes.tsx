@@ -47,7 +47,7 @@ import AllUserScreen from "./Screens/Admin/AllUserScreen";
 import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackagetypes";
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
 import OrderPage from "./components/Layouts/OrderLayout";
-
+import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
 
 export const router = createBrowserRouter([
   {
@@ -58,12 +58,12 @@ export const router = createBrowserRouter([
       { path: "product", element: <ProductsScreen /> },
       {
         path: "checkout",
-        loader: requireUserAuth, // 🔐 requires login
+        loader: requireUserAuth, // 🔐 user must login
         element: <CheckoutScreen />,
       },
       {
         path: "checkout/payment",
-        loader: requireUserAuth, // 🔐 requires login
+        loader: requireUserAuth, // 🔐
         element: <PaymentScreen />,
       },
       { path: "wishlist", loader: requireUserAuth, element: <WishlistProduct /> }, // 🔐
@@ -127,7 +127,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Login & Registration routes
+  // Login & Registration
   { path: "/login", loader: getUserFromLocalLoader, element: <LoginScreen /> },
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
@@ -154,9 +154,10 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Seller routes
+  // ✅ Seller routes (PROTECTED)
   {
     path: "/seller",
+    loader: requireSellerAuth, // 🔐 Seller must be logged in
     element: <SellerLayout />,
     children: [
       { index: true, element: <SellerDashboard /> },
@@ -178,7 +179,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // User routes (🔐 protected)
+  // ✅ User routes (Protected)
   {
     path: "/user",
     loader: requireUserAuth,
@@ -196,7 +197,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Account routes (🔐 protected)
+  // ✅ Account routes (Protected)
   {
     path: "/account",
     loader: requireUserAuth,
@@ -208,13 +209,13 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Orders page (🔐 protected)
+  // ✅ Orders page (Protected)
   { path: "/account/orders", loader: requireUserAuth, element: <OrderPage /> },
 
   // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
   { path: "/account", element: <AccountNavbar /> },
-  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> }, // 🔐
+  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
   { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
   { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
