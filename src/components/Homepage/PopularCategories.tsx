@@ -95,12 +95,17 @@ export default function PopularCategories() {
   const [visibleFrac, setVisibleFrac] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
 
+  // enable/disable nav buttons on desktop
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
   // movement detection (ref so listeners read latest)
   const movedRef = useRef(false);
   const startXRef = useRef<number | null>(null);
   const startLeftRef = useRef(0);
 
   const CARD_WIDTH = 320;
+  const CARD_GAP = 16; // matches `gap-4` (4 * 4px tailwind) => 16px
   const CARD_HEIGHT = 260;
 
   // update progress & visible fraction whenever layout/scroll changes
@@ -115,6 +120,9 @@ export default function PopularCategories() {
       setProgress(Math.max(0, Math.min(1, p)));
       const vf = Math.min(1, el.clientWidth / Math.max(el.scrollWidth, 1));
       setVisibleFrac(vf);
+
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(el.scrollLeft < totalScroll - 1);
     };
 
     update();
@@ -198,6 +206,16 @@ export default function PopularCategories() {
   const leftPercent = Math.max(0, Math.min(100, progress * (1 - visibleFrac) * 100));
   const widthPercent = Math.max(visibleFrac * 100, 6);
 
+  // desktop button handlers
+  const scrollBy = (delta: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  const onClickLeft = () => scrollBy(-(CARD_WIDTH + CARD_GAP));
+  const onClickRight = () => scrollBy(CARD_WIDTH + CARD_GAP);
+
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
@@ -208,87 +226,119 @@ export default function PopularCategories() {
 
         <div className="h-1.5 w-28 rounded-full bg-[#f2efe9] mb-6" />
 
-        {/* scroller */}
-        <div
-          ref={scrollerRef}
-          className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
-          style={{
-            msOverflowStyle: "none",
-            scrollbarWidth: "none",
-            touchAction: "pan-x",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          <style>{`
-            .scroll-smooth::-webkit-scrollbar { display: none; }
-            .cat-title-clamp {
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-              overflow: hidden;
-            }
+        {/* scroller wrapper (relative so nav buttons can be positioned) */}
+        <div className="relative">
+          {/* left / right nav buttons - visible on md+ (desktop) */}
+          <button
+            aria-label="Scroll left"
+            onClick={onClickLeft}
+            disabled={!canScrollLeft}
+            className={`hidden md:flex items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+              canScrollLeft ? "opacity-100" : "opacity-40 pointer-events-none"
+            }`}
+          >
+            {/* chevron left */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M15 18L9 12L15 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
 
-            /* subtle scrollbar for list inside cards */
-            .cat-card .items-list::-webkit-scrollbar{height:6px;width:6px}
-            .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
-          `}</style>
+          <button
+            aria-label="Scroll right"
+            onClick={onClickRight}
+            disabled={!canScrollRight}
+            className={`hidden md:flex items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+              canScrollRight ? "opacity-100" : "opacity-40 pointer-events-none"
+            }`}
+          >
+            {/* chevron right */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M9 18L15 12L9 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
 
-          {sampleCategories.map((c) => (
-            <div
-              key={c.id}
-              className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
-              style={{
-                width: CARD_WIDTH,
-                height: CARD_HEIGHT,
-                minWidth: CARD_WIDTH,
-                boxSizing: "border-box",
-                scrollSnapAlign: "start",
-              }}
-            >
-              {/* Image column (image links to category) */}
-              <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
-                  <div
-                    style={{
-                      width: 112,
-                      height: 184,
-                      background: "rgba(0,0,0,0.03)",
-                      borderRadius: 12,
-                    }}
-                    className="flex items-center justify-center"
-                  >
-                    <img
-                      src={c.image}
-                      alt={c.title}
-                      className="w-full h-full object-contain p-3"
-                      onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                    />
-                  </div>
-                </Link>
-              </div>
+          {/* scroller */}
+          <div
+            ref={scrollerRef}
+            className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
+            style={{
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+              touchAction: "pan-x",
+              scrollSnapType: "x mandatory",
+            }}
+          >
+            <style>{` 
+              .scroll-smooth::-webkit-scrollbar { display: none; }
+              .cat-title-clamp {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+              }
 
-              {/* Right text column */}
-              <div className="flex-1 flex flex-col min-h-0">
-                <h3 className="mb-2 cat-title-clamp">
-                  <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
-                    {c.title}
+              /* subtle scrollbar for list inside cards */
+              .cat-card .items-list::-webkit-scrollbar{height:6px;width:6px}
+              .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
+            `}</style>
+
+            {sampleCategories.map((c) => (
+              <div
+                key={c.id}
+                className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
+                style={{
+                  width: CARD_WIDTH,
+                  height: CARD_HEIGHT,
+                  minWidth: CARD_WIDTH,
+                  boxSizing: "border-box",
+                  scrollSnapAlign: "start",
+                }}
+              >
+                {/* Image column (image links to category) */}
+                <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
+                  <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
+                    <div
+                      style={{
+                        width: 112,
+                        height: 184,
+                        background: "rgba(0,0,0,0.03)",
+                        borderRadius: 12,
+                      }}
+                      className="flex items-center justify-center"
+                    >
+                      <img
+                        src={c.image}
+                        alt={c.title}
+                        className="w-full h-full object-contain p-3"
+                        onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                      />
+                    </div>
                   </Link>
-                </h3>
+                </div>
 
-                <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
-                  <ul className="flex flex-col">
-                    {c.items.map((it, i) => (
-                      <li key={i} className="py-2">
-                        <Link to={it.link} className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]">
-                          {it.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                {/* Right text column */}
+                <div className="flex-1 flex flex-col min-h-0">
+                  <h3 className="mb-2 cat-title-clamp">
+                    <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
+                      {c.title}
+                    </Link>
+                  </h3>
+
+                  <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
+                    <ul className="flex flex-col">
+                      {c.items.map((it, i) => (
+                        <li key={i} className="py-2">
+                          <Link to={it.link} className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]">
+                            {it.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* slider track — viewport indicator segment (green) */}

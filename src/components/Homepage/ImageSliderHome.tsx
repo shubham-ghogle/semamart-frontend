@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 /**
  * ImageSliderHome
  * - left large slider (arrows appear on hover)
- * - two right small banners
+ * - two right small banners (subtle hover animation)
  */
 
 const sliderImages = [
@@ -101,12 +101,20 @@ export default function ImageSliderHome() {
 
           {/* RIGHT SMALL BANNERS */}
           {[rightImageA, rightImageB].map((img, i) => (
-            <div key={i} className="rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh]">
-              <a href="#" className="block w-full h-full">
+            <div
+              key={i}
+              className="group relative rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh] transition-shadow duration-300 hover:shadow-xl"
+            >
+              {/* subtle hover animation: slight lift + scale + smoother transition */}
+              <a
+                href="#"
+                aria-label={`promo-${i}`}
+                className="block w-full h-full transform-gpu transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105 cursor-pointer"
+              >
                 <img
                   src={img}
                   alt={`promo-${i}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1 will-change-transform"
                   onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                 />
               </a>
