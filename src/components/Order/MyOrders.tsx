@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
 
 interface Product {
@@ -82,17 +81,17 @@ const MyOrders = () => {
     return `/images/${src}`;
   };
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "N/A";
-    const d = new Date(dateStr);
-    return isNaN(d.getTime())
-      ? "Invalid Date"
-      : d.toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-  };
+  // const formatDate = (dateStr?: string) => {
+  //   if (!dateStr) return "N/A";
+  //   const d = new Date(dateStr);
+  //   return isNaN(d.getTime())
+  //     ? "Invalid Date"
+  //     : d.toLocaleDateString(undefined, {
+  //         month: "short",
+  //         day: "numeric",
+  //         year: "numeric",
+  //       });
+  // };
 
   // ✅ Filter by product name or order ID
   const filteredOrders = orders.filter((order) => {
@@ -104,25 +103,23 @@ const MyOrders = () => {
   });
 
   // ✅ Status banner styles
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-700";
-      case "Processing":
-        return "bg-yellow-100 text-yellow-700";
-      case "On the way":
-        return "bg-blue-100 text-blue-700";
-      case "Cancelled":
-      case "Returned":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
+  // const getStatusStyle = (status: string) => {
+  //   switch (status) {
+  //     case "Delivered":
+  //       return "bg-green-100 text-green-700";
+  //     case "Processing":
+  //       return "bg-yellow-100 text-yellow-700";
+  //     case "On the way":
+  //       return "bg-blue-100 text-blue-700";
+  //     case "Cancelled":
+  //     case "Returned":
+  //       return "bg-red-100 text-red-700";
+  //     default:
+  //       return "bg-gray-100 text-gray-700";
+  //   }
+  // };
 
   return (
-    <div className="font-montserrat">
-      <Header />
 
       <div className="flex flex-col md:flex-row p-6 bg-gray-50 min-h-screen">
         {/* Sidebar Filters */}
@@ -185,11 +182,13 @@ const MyOrders = () => {
           {/* Error */}
           {error && <p className="text-red-600 mb-4">{error}</p>}
 
-          {/* Loading */}
+         {/* Loading / Error / Empty */}
           {loading ? (
             <p>Loading orders...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
               <div className="text-5xl mb-4 animate-bounce">📦</div>
               <h2 className="text-xl font-semibold mb-2">No Orders Found</h2>
               <p className="text-sm text-gray-400">
@@ -197,96 +196,85 @@ const MyOrders = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {filteredOrders.map((order) => {
                 const variant = order.variant;
                 const product = variant?.productId;
-
                 if (!product) return null;
 
-                const imageUrl = variant?.thumbnail
-                  ? normalizeImage(variant.thumbnail)
-                  : product.images && product.images.length > 0
-                  ? normalizeImage(product.images[0])
-                  : "/placeholder.png";
+                const imageUrl = normalizeImage(
+                  variant?.thumbnail ??
+                    product.images?.[0] ??
+                    "/placeholder.png"
+                );
 
                 return (
                   <div
                     key={order._id}
-                    className="border rounded-md p-4 bg-white shadow-sm flex flex-col gap-3"
+                    className="border rounded-md bg-white shadow-sm p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                   >
-                    {/* Status Banner */}
-                    <div
-                      className={`px-3 py-1 rounded-full text-xs font-semibold self-start ${getStatusStyle(
-                        order.status
-                      )}`}
-                    >
-                      {order.status}
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex items-start gap-4">
+                    {/* Left: Product Info */}
+                    <div className="flex items-center gap-4">
                       <img
                         src={imageUrl}
                         alt={product.name}
-                        className="w-20 h-20 object-cover rounded border"
+                        className="w-20 h-20 object-cover rounded-md border"
                       />
+                      <div>
+                        <h3 className="text-sm md:text-base font-semibold text-gray-800">
+                          {product.name.split(" ").slice(0, 12).join(" ")}
+                          {product.name.split(" ").length > 12 && "..."}
+                        </h3>
 
-                      <div className="flex flex-1 flex-col">
-                        <h3 className="text-base font-bold">{product.name}</h3>
-                        <p className="text-sm text-gray-600">Quantity: {order.qty}</p>
-                        {variant && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Variant:</span>{" "}
-                            {variant.size ? `Size ${variant.size} ` : ""}
-                            {variant.colorOption ? `Color ${variant.colorOption}` : ""}
-                          </p>
-                        )}
-                        {order.shop?.email && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Seller:</span> {order.shop.email}
-                          </p>
-                        )}
-                        <p className="text-sm font-bold mt-1">
-                          Total: ₹{order.totalPrice}
-                        </p>
+                        <div className="text-gray-600 text-sm mt-1 space-x-4">
+                          {variant?.colorOption && (
+                            <span>
+                              Color:{" "}
+                              <span className="font-medium text-gray-700">
+                                {variant.colorOption}
+                              </span>
+                            </span>
+                          )}
+                          {variant?.size && (
+                            <span>
+                              Size:{" "}
+                              <span className="font-medium text-gray-700">
+                                {variant.size}
+                              </span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Shipping + User */}
-                    {order.shippingAddress && (
-                      <div className="text-xs text-gray-600 mt-2">
-                        <p>
-                          <span className="font-semibold">Ship To:</span>{" "}
-                          {order.shippingAddress.instituteAddress1},{" "}
-                          {order.shippingAddress.district},{" "}
-                          {order.shippingAddress.state} -{" "}
-                          {order.shippingAddress.pincode}
-                        </p>
-                        {order.shippingAddress.landmark && (
-                          <p>Landmark: {order.shippingAddress.landmark}</p>
-                        )}
-                      </div>
-                    )}
-                    {order.user && (
-                      <div className="text-xs text-gray-600">
-                        <p>
-                          <span className="font-semibold">Ordered By:</span>{" "}
-                          {order.user.firstName} {order.user.lastName}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Phone:</span>{" "}
-                          {order.user.phoneNumber}
-                        </p>
-                      </div>
-                    )}
+                    {/* Middle: Price */}
+                    <div className="text-lg font-semibold text-gray-800 md:w-24 md:text-center">
+                      ₹{order.totalPrice}
+                    </div>
 
-                    {/* Dates */}
-                    <div className="text-xs text-gray-500 mt-1">
-                      Placed on: {formatDate(order.createdAt)}
-                      {order.deliveredAt && (
-                        <p>Delivered on: {formatDate(order.deliveredAt)}</p>
-                      )}
+                    {/* Right: Status + Review */}
+                    <div className="flex flex-col items-start md:items-end text-sm">
+                      <div className="flex items-center gap-2 font-medium text-gray-800">
+                        <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                        {/* Delivered on{" "} */}
+                        <span className="font-semibold">
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Your item has been {order.status}
+                      </p>
+                      <button className="text-blue-600 hover:underline text-sm font-medium mt-1 flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          className="w-4 h-4 text-blue-600"
+                        >
+                          <path d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z" />
+                        </svg>
+                        Rate & Review Product
+                      </button>
                     </div>
                   </div>
                 );
@@ -295,7 +283,6 @@ const MyOrders = () => {
           )}
         </main>
       </div>
-    </div>
   );
 };
 

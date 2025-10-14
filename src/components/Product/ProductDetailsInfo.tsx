@@ -55,11 +55,11 @@ export default function ProductDetailsInfo({ product }: ProductDetailsInfoProps)
               />
               <ProductDetailsRows
                 label="Manufacturer"
-                value={product.manufacturerName ?? "N/A"}
+                value={typeof product.manufacturer !=="string"? product.manufacturer?.manufacturerName : "N/A"}
               />
               <ProductDetailsRows
                 label="Country of origin"
-                value={product.origin ?? "N/A"}
+                value={typeof product.manufacturer !=="string" ? product.manufacturer.origin : "N/A"}
               />
               <ProductDetailsRows
                 label="Category"

@@ -3,7 +3,7 @@ import { DataTable } from "../ui/data-table";
 import { Link } from "react-router";
 import { AiOutlineEye } from "react-icons/ai";
 import { ColumnDef } from "@tanstack/react-table";
-import { BASE_URL } from "@/data";
+import { BASE_URL } from "../../data";
 import UpdateCommissionDialog from "./UpdateCommissionDialog";
 
 type VariantRow = {

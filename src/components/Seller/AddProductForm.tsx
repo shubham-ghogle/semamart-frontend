@@ -55,6 +55,8 @@ import DocumentsDisplay from "./DocumentsDisplay";
 import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants";
+import { useBlocker } from "react-router";
+import { useDebounce } from "@/hooks";
 
 type AddProductFormProps =
   | {
@@ -97,6 +99,10 @@ export default function AddProductForm({
     resolver: zodResolver(addProductFormSchema),
     defaultValues: product ? product : addProductFormDefaultValues,
   });
+
+  const isDirty = form.formState.isDirty;
+  useBeforeUnload(isDirty);
+  useNavigationBlocker(isDirty);
 
   const {
     fields: variantFields,
@@ -198,7 +204,7 @@ export default function AddProductForm({
   const [thumbnail, setThumbnail] = useState<(File | null)[]>([]);
   const handleThumbnailChange = (
     e: ChangeEvent<HTMLInputElement>,
-    i: number
+    i: number,
   ) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -223,7 +229,7 @@ export default function AddProductForm({
   const [images, setImages] = useState<File[]>([]);
   const handleImageChange = (
     e: ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     e.preventDefault();
     if (!e.target.files) return;
@@ -244,6 +250,24 @@ export default function AddProductForm({
   function removeVideo() {
     setShortVideo(null);
   }
+
+  const [showManuDropdown, setShowManuDropdown] = useState(false);
+  const [manufacQuery, setManufacQuery] = useState("");
+  const debouncedManuQuery = useDebounce(manufacQuery, 400);
+  const [manufacturerList, setManufacturerList] = useState([]);
+
+  const { mutate: mutateManufacturer } = useMutation({
+    mutationFn: searchManufacturers,
+    onSuccess: (data) => {
+      setManufacturerList(data);
+    },
+  });
+
+  useEffect(() => {
+    if (debouncedManuQuery && debouncedManuQuery.length >= 2) {
+      mutateManufacturer(debouncedManuQuery);
+    }
+  }, [debouncedManuQuery, mutateManufacturer]);
 
   // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
@@ -297,8 +321,8 @@ export default function AddProductForm({
           discountPrice: el.discountPrice,
           stock: el.stocks,
           bulkOrders: el.bulkOrders ?? [],
-        }))
-      )
+        })),
+      ),
     );
 
     newForm.append("shopId", seller?._id || "");
@@ -346,7 +370,7 @@ export default function AddProductForm({
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
-      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`
+      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`,
     );
     if (values.sterileString) {
       newForm.append("sterile", values.sterileString);
@@ -358,7 +382,7 @@ export default function AddProductForm({
       JSON.stringify({
         minQty: values.minmaxrule.minQty,
         maxQty: values.minmaxrule.maxQty || "",
-      })
+      }),
     );
     newForm.append("taxStatus", values.taxStatus);
     if (values.taxClass) {
@@ -462,7 +486,7 @@ export default function AddProductForm({
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
           const missingThumbnail = thumbnail.some(
-            (t) => t === null || t === undefined
+            (t) => t === null || t === undefined,
           );
           if (missingThumbnail) {
             form.setError("thumbnail" as any, {
@@ -516,7 +540,7 @@ export default function AddProductForm({
                             setValue={(value) => {
                               const catName =
                                 categoryDropDownList.find(
-                                  (el) => el.value === value
+                                  (el) => el.value === value,
                                 )?.label || "";
                               setCurrCategory({ name: catName, val: value });
                             }}
@@ -561,7 +585,7 @@ export default function AddProductForm({
                               setValue={(value) => {
                                 const subCatName =
                                   subCatDropDownList.find(
-                                    (el) => el.value === value
+                                    (el) => el.value === value,
                                   )?.label || "";
                                 setCurrSubcategory({
                                   name: subCatName,
@@ -845,7 +869,7 @@ export default function AddProductForm({
 
           <AccordionItem value="2">
             <AccordionTrigger className="text-lg">
-              Product Description & Specifications{" "}
+              Product Description & Specifications
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
@@ -855,7 +879,45 @@ export default function AddProductForm({
                   <FormItem>
                     <FormLabel>Manufacturer Name</FormLabel>
                     <FormControl>
-                      <Input type="text" {...field} />
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          {...field}
+                          onChange={(e) => {
+                            setManufacQuery(e.target.value);
+                            setShowManuDropdown(true);
+                            field.onChange(e.target.value);
+                          }}
+                        />
+                        {showManuDropdown && manufacturerList?.length > 0 && (
+                          <ul className="border p-2 max-h-48 overflow-y-auto absolute bg-white shadow inset-x-0 z-[900]">
+                            {manufacturerList.map((m: any) => (
+                              <li
+                                key={m._id}
+                                className="py-1 border-b last:border-none"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    form.setValue(
+                                      "manufacturerName",
+                                      m.manufacturerName,
+                                    );
+                                    form.setValue("origin", m.origin);
+                                    form.setValue("phone", m.phone);
+                                    form.setValue("email", m.email);
+                                    setShowManuDropdown(false);
+                                    setManufacturerList([]);
+                                  }}
+                                >
+                                  {m.manufacturerName} ({m.origin})
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1080,7 +1142,7 @@ export default function AddProductForm({
                     <FormItem>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1109,7 +1171,7 @@ export default function AddProductForm({
                       <FormLabel>Sterile Product</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1134,7 +1196,7 @@ export default function AddProductForm({
                       <FormLabel>Single Use Product</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1163,7 +1225,7 @@ export default function AddProductForm({
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -1188,49 +1250,53 @@ export default function AddProductForm({
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="productCompilance"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Compilance Documents</FormLabel>
-                    <FormControl>
-                      <Input
-                        multiple
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(Array.from(e.target.files));
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!product && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="productCompilance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Compilance Documents</FormLabel>
+                        <FormControl>
+                          <Input
+                            multiple
+                            type="file"
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="msds_ifu_leaflet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(Array.from(e.target.files));
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="msds_ifu_leaflet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            multiple
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </AccordionContent>
           </AccordionItem>
 
@@ -1848,4 +1914,38 @@ async function editProduct(formData: FormData, productId: string) {
   });
 
   if (!res.ok) throw new Error();
+}
+
+function useBeforeUnload(when: boolean) {
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (when) {
+        event.preventDefault();
+        event.returnValue = ""; // for old browsers
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [when]);
+}
+
+function useNavigationBlocker(when: boolean) {
+  const blocker = useBlocker(when);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirm = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave this page?",
+      );
+      if (confirm) blocker.proceed();
+      else blocker.reset();
+    }
+  }, [blocker]);
+}
+
+async function searchManufacturers(query: string) {
+  const res = await fetch(`${API_URL}manufacturer/search?q=${query}`);
+  if (!res.ok) throw new Error("Failed to search manufacturers");
+  return res.json();
 }
