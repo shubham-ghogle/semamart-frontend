@@ -894,7 +894,7 @@ export default function AddProductForm({
                             {manufacturerList.map((m: any) => (
                               <li
                                 key={m._id}
-                                className="py-1 border-b last:border-none bg-red-200"
+                                className="py-1 border-b last:border-none"
                               >
                                 <button
                                   type="button"
