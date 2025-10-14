@@ -49,43 +49,60 @@ export default function BestSellerShowcase({
   viewAllLink = "/products",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
+
+  // left arrow position in px from section left (computed)
+  const [leftArrowLeft, setLeftArrowLeft] = useState<number>(20);
 
   const items = useMemo(() => {
     const arr = Array.isArray(products) ? products : [];
     return arr.slice(0, maxItems);
   }, [products, maxItems]);
 
-  // checks whether left/right arrows should be shown
+  // checks whether left/right arrows should be shown and positions the left arrow
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) {
+    const section = sectionRef.current;
+    if (!el || !section) {
       setShowLeft(false);
       setShowRight(false);
       return;
     }
 
-    const checkScroll = () => {
+    const checkScrollAndMeasure = () => {
       const maxScroll = Math.max(el.scrollWidth - el.clientWidth, 0);
       setShowLeft(el.scrollLeft > 5);
-      // show right if we are not at the far-right
       setShowRight(el.scrollLeft < maxScroll - 1);
+
+      // position the left arrow at the left edge of the scroll container (where cards start)
+      try {
+        const sectionRect = section.getBoundingClientRect();
+        const scrollRect = el.getBoundingClientRect();
+        // small padding so the arrow doesn't touch exactly the card's border
+        const left = Math.max(8, Math.round(scrollRect.left - sectionRect.left + 8));
+        setLeftArrowLeft(left);
+      } catch {
+        setLeftArrowLeft(20);
+      }
     };
 
     // initial
-    checkScroll();
+    checkScrollAndMeasure();
 
     // listeners
-    el.addEventListener("scroll", checkScroll, { passive: true });
-    const ro = new ResizeObserver(checkScroll);
+    el.addEventListener("scroll", checkScrollAndMeasure, { passive: true });
+    const ro = new ResizeObserver(checkScrollAndMeasure);
     ro.observe(el);
-    window.addEventListener("resize", checkScroll);
+    ro.observe(section);
+    window.addEventListener("resize", checkScrollAndMeasure);
 
     return () => {
-      el.removeEventListener("scroll", checkScroll);
+      el.removeEventListener("scroll", checkScrollAndMeasure);
       ro.disconnect();
-      window.removeEventListener("resize", checkScroll);
+      window.removeEventListener("resize", checkScrollAndMeasure);
     };
     // note: items.length influences layout; we intentionally watch it in the outer hook deps
   }, [items.length]);
@@ -139,7 +156,7 @@ export default function BestSellerShowcase({
 
   return (
     // Make section relative & overflow-visible so arrows can sit outside the rounded box
-    <section className="w-full max-w-[1400px] mx-auto mb-16 relative overflow-visible">
+    <section ref={sectionRef} className="w-full max-w-[1400px] mx-auto mb-16 relative overflow-visible">
       {/* Rounded content box: keep overflow-hidden so the rounded corners stay crisp */}
       <div
         className="rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-5 items-start overflow-hidden"
@@ -249,7 +266,7 @@ export default function BestSellerShowcase({
         aria-label="scroll left"
         className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30"
         style={{
-          left: 20,
+          left: leftArrowLeft,
           zIndex: 60,
           opacity: showLeft ? 1 : 0,
           pointerEvents: showLeft ? "auto" : "none",

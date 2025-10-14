@@ -90,25 +90,21 @@ export default function PopularCategories() {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  // state used for scrollbar indicator
   const [progress, setProgress] = useState(0);
   const [visibleFrac, setVisibleFrac] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
 
-  // enable/disable nav buttons on desktop
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // movement detection (ref so listeners read latest)
   const movedRef = useRef(false);
   const startXRef = useRef<number | null>(null);
   const startLeftRef = useRef(0);
 
   const CARD_WIDTH = 320;
-  const CARD_GAP = 16; // matches `gap-4` (4 * 4px tailwind) => 16px
+  const CARD_GAP = 16; // matches `gap-4` => 16px
   const CARD_HEIGHT = 260;
 
-  // update progress & visible fraction whenever layout/scroll changes
   useEffect(() => {
     const el = scrollerRef.current;
     const track = trackRef.current;
@@ -140,14 +136,12 @@ export default function PopularCategories() {
     };
   }, []);
 
-  // Drag handling WITHOUT pointer capture + click suppression after drag
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
 
-    const MOVE_THRESHOLD = 6; // px - movement greater than this counts as drag
+    const MOVE_THRESHOLD = 6; // px
 
-    // pointer handlers (works for mouse + touch with pointer events enabled)
     const onPointerDown = (ev: PointerEvent) => {
       if (ev.isPrimary === false) return;
       startXRef.current = ev.clientX;
@@ -163,7 +157,7 @@ export default function PopularCategories() {
       el.scrollLeft = Math.round(startLeftRef.current + dx);
     };
 
-    const onPointerUp = (_ev: PointerEvent) => {
+    const onPointerUp = () => {
       startXRef.current = null;
       setIsDragging(false);
       setTimeout(() => {
@@ -191,7 +185,6 @@ export default function PopularCategories() {
     };
   }, []);
 
-  // click-on-track behavior (unchanged)
   const onTrackClick = (e: React.MouseEvent) => {
     const track = trackRef.current;
     const scroller = scrollerRef.current;
@@ -206,7 +199,6 @@ export default function PopularCategories() {
   const leftPercent = Math.max(0, Math.min(100, progress * (1 - visibleFrac) * 100));
   const widthPercent = Math.max(visibleFrac * 100, 6);
 
-  // desktop button handlers
   const scrollBy = (delta: number) => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -219,25 +211,20 @@ export default function PopularCategories() {
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
-        {/* title: smaller and less heavy */}
         <h2 className="text-xl sm:text-2xl font-semibold text-[#1C170D] mb-4">
           Popular Categories
         </h2>
 
         <div className="h-1.5 w-28 rounded-full bg-[#f2efe9] mb-6" />
 
-        {/* scroller wrapper (relative so nav buttons can be positioned) */}
         <div className="relative">
-          {/* left / right nav buttons - visible on md+ (desktop) */}
+          {/* NOTE: buttons are completely hidden on small screens (hidden),
+              and on md+ they become either flex (visible) or hidden depending on canScrollLeft/Right */}
           <button
             aria-label="Scroll left"
             onClick={onClickLeft}
-            disabled={!canScrollLeft}
-            className={`hidden md:flex items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-              canScrollLeft ? "opacity-100" : "opacity-40 pointer-events-none"
-            }`}
+            className={`${canScrollLeft ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
           >
-            {/* chevron left */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M15 18L9 12L15 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -246,12 +233,8 @@ export default function PopularCategories() {
           <button
             aria-label="Scroll right"
             onClick={onClickRight}
-            disabled={!canScrollRight}
-            className={`hidden md:flex items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-              canScrollRight ? "opacity-100" : "opacity-40 pointer-events-none"
-            }`}
+            className={`${canScrollRight ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
           >
-            {/* chevron right */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M9 18L15 12L9 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -294,7 +277,6 @@ export default function PopularCategories() {
                   scrollSnapAlign: "start",
                 }}
               >
-                {/* Image column (image links to category) */}
                 <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
                   <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
                     <div
@@ -316,7 +298,6 @@ export default function PopularCategories() {
                   </Link>
                 </div>
 
-                {/* Right text column */}
                 <div className="flex-1 flex flex-col min-h-0">
                   <h3 className="mb-2 cat-title-clamp">
                     <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
@@ -341,7 +322,6 @@ export default function PopularCategories() {
           </div>
         </div>
 
-        {/* slider track — viewport indicator segment (green) */}
         <div className="mt-4">
           <div
             ref={trackRef}
@@ -351,7 +331,7 @@ export default function PopularCategories() {
               userSelect: "none",
               touchAction: "none",
               height: 6,
-              background: "#ECFDF0", // pale green track
+              background: "#ECFDF0",
             }}
           >
             <div
