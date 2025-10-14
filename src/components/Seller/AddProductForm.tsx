@@ -56,6 +56,7 @@ import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants";
 import { useBlocker } from "react-router";
+import { useDebounce } from "@/hooks";
 
 type AddProductFormProps =
   | {
@@ -249,6 +250,24 @@ export default function AddProductForm({
   function removeVideo() {
     setShortVideo(null);
   }
+
+  const [showManuDropdown, setShowManuDropdown] = useState(false);
+  const [manufacQuery, setManufacQuery] = useState("");
+  const debouncedManuQuery = useDebounce(manufacQuery, 400);
+  const [manufacturerList, setManufacturerList] = useState([]);
+
+  const { mutate: mutateManufacturer } = useMutation({
+    mutationFn: searchManufacturers,
+    onSuccess: (data) => {
+      setManufacturerList(data);
+    },
+  });
+
+  useEffect(() => {
+    if (debouncedManuQuery && debouncedManuQuery.length >= 2) {
+      mutateManufacturer(debouncedManuQuery);
+    }
+  }, [debouncedManuQuery, mutateManufacturer]);
 
   // const navigate = useNavigate()
   const { mutate: mutateProduct, status: postProductStatus } = useMutation({
@@ -850,7 +869,7 @@ export default function AddProductForm({
 
           <AccordionItem value="2">
             <AccordionTrigger className="text-lg">
-              Product Description & Specifications{" "}
+              Product Description & Specifications
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-2 pb-6 space-y-4">
               <FormField
@@ -860,7 +879,45 @@ export default function AddProductForm({
                   <FormItem>
                     <FormLabel>Manufacturer Name</FormLabel>
                     <FormControl>
-                      <Input type="text" {...field} />
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          {...field}
+                          onChange={(e) => {
+                            setManufacQuery(e.target.value);
+                            setShowManuDropdown(true);
+                            field.onChange(e.target.value);
+                          }}
+                        />
+                        {showManuDropdown && manufacturerList?.length > 0 && (
+                          <ul className="border p-2 max-h-48 overflow-y-auto absolute bg-white shadow inset-x-0 z-[900]">
+                            {manufacturerList.map((m: any) => (
+                              <li
+                                key={m._id}
+                                className="py-1 border-b last:border-none bg-red-200"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    form.setValue(
+                                      "manufacturerName",
+                                      m.manufacturerName,
+                                    );
+                                    form.setValue("origin", m.origin);
+                                    form.setValue("phone", m.phone);
+                                    form.setValue("email", m.email);
+                                    setShowManuDropdown(false);
+                                    setManufacturerList([]);
+                                  }}
+                                >
+                                  {m.manufacturerName} ({m.origin})
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1085,7 +1142,7 @@ export default function AddProductForm({
                     <FormItem>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1114,7 +1171,7 @@ export default function AddProductForm({
                       <FormLabel>Sterile Product</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1139,7 +1196,7 @@ export default function AddProductForm({
                       <FormLabel>Single Use Product</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1193,49 +1250,53 @@ export default function AddProductForm({
                 />
               </section>
 
-              <FormField
-                control={form.control}
-                name="productCompilance"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Compilance Documents</FormLabel>
-                    <FormControl>
-                      <Input
-                        multiple
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(Array.from(e.target.files));
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!product && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="productCompilance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Compilance Documents</FormLabel>
+                        <FormControl>
+                          <Input
+                            multiple
+                            type="file"
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="msds_ifu_leaflet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            field.onChange(Array.from(e.target.files));
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="msds_ifu_leaflet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            multiple
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </AccordionContent>
           </AccordionItem>
 
@@ -1881,4 +1942,10 @@ function useNavigationBlocker(when: boolean) {
       else blocker.reset();
     }
   }, [blocker]);
+}
+
+async function searchManufacturers(query: string) {
+  const res = await fetch(`${API_URL}manufacturer/search?q=${query}`);
+  if (!res.ok) throw new Error("Failed to search manufacturers");
+  return res.json();
 }

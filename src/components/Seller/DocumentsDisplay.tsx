@@ -48,6 +48,7 @@ export default function DocumentsDisplay() {
   }
 
   function handleUpdateDoc() {
+    console.log(file)
     if (file) {
       mutate({ file: file, docType: docType, idx: idx });
     }
@@ -109,30 +110,29 @@ export default function DocumentsDisplay() {
             }}
           />
         )}
-        {product.msds_ifu_leaflet ? (
+        {product.msds_ifu_leaflet &&
           product.msds_ifu_leaflet.map((v, i) => (
             <DocCard
               key={i}
-              title={"MSDS/IFU Leaflet"+(1+i)}
+              title={"MSDS/IFU Leaflet" + (1 + i)}
               fileName={v}
               onClick={() => {
                 openDialog("msds_ifu_leaflet", i);
               }}
             />
-          ))
-        ) : (
-          <EmptyDocCard
-            title="Add MSDS/IFU Leaflet"
-            onClick={() => {
-              openDialog("msds_ifu_leaflet");
-            }}
-          />
-        )}
+          ))}
+        <EmptyDocCard
+          title="Add MSDS/IFU Leaflet"
+          onClick={() => {
+            openDialog("msds_ifu_leaflet",0);
+          }}
+        />
+
         {product.productCompilance ? (
           product.productCompilance.map((v, i) => (
             <DocCard
               key={i}
-              title={"Product Compilance"+(1+i)}
+              title={"Product Compilance" + (1 + i)}
               fileName={v}
               onClick={() => {
                 openDialog("productCompilance", i);
@@ -250,7 +250,7 @@ async function editDoc(
   docType: string,
   file: File,
   productId: string,
-  idx?: number
+  idx?: number,
 ) {
   const formData = new FormData();
   formData.append("file", file);

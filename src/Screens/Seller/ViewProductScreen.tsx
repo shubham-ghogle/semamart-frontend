@@ -11,27 +11,31 @@ import { API_URL } from "@/data";
 export default function ViewProductScreen() {
   const { id } = useParams();
 
-  const { data: product, status, } = useQuery({
+  const { data: product, status } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
   });
 
   const { data, status: catStatus } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => fetchProductCategories()
-  })
+    queryFn: () => fetchProductCategories(),
+  });
 
   const { data: subCats, status: subCatStatus } = useQuery({
     queryKey: ["subCategories"],
-    queryFn: () => getSubcats()
-  })
+    queryFn: () => getSubcats(),
+  });
 
-  if (status === "pending" || subCatStatus === "pending" || catStatus === "pending") {
+  if (
+    status === "pending" ||
+    subCatStatus === "pending" ||
+    catStatus === "pending"
+  ) {
     return (
       <div className="h-screen grid place-items-center">
         <LoaderIcon className="animate-spin" />
       </div>
-    )
+    );
   }
 
   if (status === "error" || !product || !data || !subCats) {
@@ -39,22 +43,28 @@ export default function ViewProductScreen() {
       <div className="h-screen grid place-items-center">
         <p>Something went wrong</p>
       </div>
-    )
+    );
   }
 
-  const category = data.filter(el => product.category.includes(el._id)).map(c => ({ name: c.name, val: c._id }))
-  const subCategory = subCats.filter((el: any) => product.subCategory.includes(el._id)).map((el: any) => ({ name: el.name, val: el._id }))
+  const category = data
+    .filter((el) => product.category.includes(el._id))
+    .map((c) => ({ name: c.name, val: c._id }));
+  const subCategory = subCats
+    .filter((el: any) => product.subCategory.includes(el._id))
+    .map((el: any) => ({ name: el.name, val: el._id }));
 
   const minmaxrule = product?.minmaxrule
     ? JSON.parse(product.minmaxrule as unknown as string)
     : { minQty: "0", maxQty: "0" };
 
   const formProduct: FormProduct = {
-    expiry: new Date(product?.manufacturingDate || ""),
+    expiry: product?.manufacturingDate
+      ? new Date(product?.manufacturingDate)
+      : new Date(),
     // tags: JSON.parse(product.tags as unknown as string) || [],
     tags: product.tags || [],
     // attributes: JSON.parse(product?.attributes as unknown as string) || [],
-    attributes:product?.attributes||[],
+    attributes: product?.attributes || [],
     name: product?.name || "",
     category: category,
     subCategory: subCategory || [],
@@ -66,10 +76,22 @@ export default function ViewProductScreen() {
     unspsc: product?.unspsc || "",
     upsells: product?.upsells || [],
     crosssells: product?.crosssells || [],
-    manufacturerName: product?.manufacturerName || "",
-    email: product?.email || "",
-    phone: product?.phone || "",
-    origin: product?.origin || "",
+    manufacturerName:
+      typeof product?.manufacturer !== "string"
+        ? product?.manufacturer?.manufacturerName
+        : "",
+    email:
+      typeof product?.manufacturer !== "string"
+        ? product?.manufacturer?.email
+        : "",
+    phone:
+      typeof product?.manufacturer !== "string"
+        ? product?.manufacturer?.phone
+        : "",
+    origin:
+      typeof product?.manufacturer !== "string"
+        ? product?.manufacturer?.origin
+        : "",
     shortdescription: product?.shortdescription || "",
     description: product?.description || "",
     productWgt: product?.weight.split(" ")[0] || "",
@@ -103,20 +125,24 @@ export default function ViewProductScreen() {
     oemLetter: null,
     productComparisionSheet: null,
     specialityPackage: product?.specialityPackage || "",
-    variants: product?.variants.map(el => ({
-      size: el?.size || null,
-      colorOption: el.colorOption || null,
-      originalPrice: el?.originalPrice?.toString() || "",
-      discountPrice: el?.discountPrice?.toString() || "",
-      stocks: el.stock.toString() || "",
-      bulkOrders:el.bulkOrders
-    })) || [],
-    specialityPackageType: product?.specialityPackageType || ""
-  }
-
+    variants:
+      product?.variants.map((el) => ({
+        size: el?.size || null,
+        colorOption: el.colorOption || null,
+        originalPrice: el?.originalPrice?.toString() || "",
+        discountPrice: el?.discountPrice?.toString() || "",
+        stocks: el.stock.toString() || "",
+        bulkOrders: el.bulkOrders,
+      })) || [],
+    specialityPackageType: product?.specialityPackageType || "",
+  };
 
   return (
-    <SellerMainWrapper status={status} errorMeassage="Something went wrong" heading="Product Detail">
+    <SellerMainWrapper
+      status={status}
+      errorMeassage="Something went wrong"
+      heading="Product Detail"
+    >
       {status === "success" && catStatus === "success" && data && product && (
         <>
           <AddProductForm
@@ -128,13 +154,13 @@ export default function ViewProductScreen() {
         </>
       )}
     </SellerMainWrapper>
-  )
+  );
 }
 
 async function getSubcats() {
-  const url = API_URL + "sub-category"
-  const res = await fetch(url)
-  if (!res.ok) throw new Error()
-  const data = await res.json()
-  return data
+  const url = API_URL + "sub-category";
+  const res = await fetch(url);
+  if (!res.ok) throw new Error();
+  const data = await res.json();
+  return data;
 }

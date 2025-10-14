@@ -53,10 +53,16 @@ export interface Product {
   crosssells?: string[]
   specialityPackage: string   // fixed (required)
   specialityPackageType: string   // fixed (required)
-  manufacturerName?: string   // fixed
-  email?: string
-  phone?: string
-  origin?: string
+  manufacturer:string | {
+    manufacturerName: string 
+    email: string
+    phone: string
+    origin: string
+  }
+  // manufacturerName?: string   // fixed
+  // email?: string
+  // phone?: string
+  // origin?: string
   shortdescription: string
   description: string
   attributes?: Record<string, string>[]
