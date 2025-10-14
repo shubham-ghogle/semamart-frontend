@@ -1,6 +1,6 @@
-// File: src/components/Account/AccountNavbar.tsx
+// src/components/Account/AccountNavbar.tsx
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaClipboardList,
   FaUser,
@@ -10,13 +10,10 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
+import { FiChevronRight } from "react-icons/fi";
 import { useUserStore } from "@/store/userStore";
-
-/**
- * Responsive AccountNavbar:
- * - md+ : persistent left column
- * - <md : top compact bar with avatar + "Menu" button that opens a slide-over
- */
+import { useSellerStore } from "@/store/sellerStore";
+import { toast } from "react-toastify";
 
 const NavItem: React.FC<{ to: string; active: boolean; onClick?: () => void } & { children: React.ReactNode }> = ({
   to,
@@ -36,11 +33,14 @@ const NavItem: React.FC<{ to: string; active: boolean; onClick?: () => void } & 
 );
 
 const AccountNavbar: React.FC = () => {
-  const { user } = useUserStore((s) => s);
+  const { user, removeUser } = useUserStore((s) => s);
+  const { seller, removeSeller } = useSellerStore((s) => s);
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = (path: string) => location.pathname === path;
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); // mobile drawer
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // close on escape
   useEffect(() => {
@@ -54,8 +54,79 @@ const AccountNavbar: React.FC = () => {
   // close drawer on route change (mobile)
   useEffect(() => {
     setOpen(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // logout handler: picks user vs seller endpoint, calls API, clears store and redirects
+async function logoutHandler() {
+  if (loggingOut) return;
+  setLoggingOut(true);
+
+  const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+
+  // helper that does a fetch with the given method but WITHOUT forcing Content-Type header
+  const call = async (method: "GET" | "POST") =>
+    fetch(url, {
+      method,
+      credentials: "include", // important for cookie/session auth
+      // NOTE: do NOT set "Content-Type": "application/json" unless your server expects a JSON body.
+    });
+
+  try {
+    // Try GET first (this matched your working handler)
+    let res = await call("GET");
+    console.debug("[logout] GET", res.status, res.statusText);
+
+    // If server explicitly forbids GET (405) try POST as fallback
+    if (res.status === 405) {
+      console.debug("[logout] GET returned 405 -> retrying POST");
+      res = await call("POST");
+      console.debug("[logout] POST", res.status, res.statusText);
+    }
+
+    // success
+    if (res.ok) {
+      removeUser();
+      removeSeller();
+      toast.success("Logged out successfully", { position: "top-center" });
+      setOpen(false);
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // treat 401/403 as session invalid — clear local store anyway
+    if (res.status === 401 || res.status === 403) {
+      removeUser();
+      removeSeller();
+      toast.info("Session expired — logged out locally", { position: "top-center" });
+      setOpen(false);
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // Try to extract message from body (JSON or text)
+    let bodyMsg: string | null = null;
+    try {
+      const json = await res.json();
+      bodyMsg = json?.message || json?.error || null;
+    } catch {
+      try {
+        bodyMsg = await res.text();
+      } catch {
+        bodyMsg = null;
+      }
+    }
+
+    const msg = bodyMsg || `Logout failed (status ${res.status})`;
+    console.warn("[logout] failure:", { status: res.status, message: msg });
+    toast.error(msg, { position: "top-center" });
+  } catch (err) {
+    console.error("[logout] network error:", err);
+    toast.error("Network error while logging out", { position: "top-center" });
+  } finally {
+    setLoggingOut(false);
+  }
+}
+
 
   return (
     <>
@@ -76,13 +147,24 @@ const AccountNavbar: React.FC = () => {
             </div>
           </div>
 
-          <button
-            aria-label="Open account menu"
-            onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-sky-50 text-sky-600 hover:bg-sky-100"
-          >
-            <FaBars /> Menu
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              aria-label="Open account menu"
+              onClick={() => setOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-sky-50 text-sky-600 hover:bg-sky-100"
+            >
+              <FaBars /> Menu
+            </button>
+
+            <button
+              aria-label="Logout"
+              onClick={logoutHandler}
+              disabled={loggingOut}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-red-50 text-red-600 hover:bg-red-100"
+            >
+              <FaSignOutAlt />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -131,13 +213,12 @@ const AccountNavbar: React.FC = () => {
 
             <div className="mt-6 pt-4 px-3">
               <button
-                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50"
-                onClick={() => {
-                  // wire your logout logic here
-                  console.log("logout clicked");
-                }}
+                onClick={logoutHandler}
+                disabled={loggingOut}
+                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-60"
+                title="Logout"
               >
-                <FaSignOutAlt className="text-sky-600" /> Logout
+                <FaSignOutAlt className="text-sky-600" /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>
           </nav>
@@ -178,13 +259,28 @@ const AccountNavbar: React.FC = () => {
               </div>
             </div>
 
-            <button
-              aria-label="Close menu"
-              onClick={() => setOpen(false)}
-              className="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100"
-            >
-              <FaTimes />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Logout"
+                onClick={() => {
+                  // close drawer then logout (so UX stays consistent)
+                  setOpen(false);
+                  logoutHandler();
+                }}
+                disabled={loggingOut}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60"
+              >
+                <FaSignOutAlt />
+              </button>
+
+              <button
+                aria-label="Close menu"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100"
+              >
+                <FaTimes />
+              </button>
+            </div>
           </div>
 
           <nav className="p-3 overflow-auto">
@@ -214,13 +310,14 @@ const AccountNavbar: React.FC = () => {
 
             <div className="mt-6 pt-4 px-3">
               <button
-                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50"
                 onClick={() => {
                   setOpen(false);
-                  console.log("logout clicked");
+                  logoutHandler();
                 }}
+                disabled={loggingOut}
+                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-60"
               >
-                <FaSignOutAlt className="text-sky-600" /> Logout
+                <FaSignOutAlt className="text-sky-600" /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>
           </nav>

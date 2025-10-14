@@ -192,47 +192,93 @@ const MyProfile: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 p-6 bg-white shadow-lg font-montserrat m-6 ">
-      {/* Personal Information */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="font-bold text-lg">Personal Information</h2>
-          <button
-            className="text-blue-500 cursor-pointer"
-            onClick={() => {
-              if (isEditingName) {
-                handleNameSave();
-              } else {
-                setIsEditingName(true);
-              }
-            }}
-          >
-            {isEditingName ? "Save" : "Edit"}
-          </button>
+    <div className="flex-1 px-4 sm:px-6 py-4">
+      {/* note: removed overflow-hidden and added bottom padding so mobile FAQs are visible */}
+      <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
+        <div className="px-5 py-4 border-b flex items-center justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Personal Information</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your account details</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {flash ? <InlineFlash text={flash.text} tone={flash.tone === "error" ? "error" : "success"} /> : null}
+            <div className="text-xs sm:text-sm text-gray-500">Member since {user?.createdAt ? new Date(user.createdAt).getFullYear() : "—"}</div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="firstName"
-            value={profile.firstName}
-            onChange={handleInputChange}
-            className={`border rounded p-2 ${
-              isEditingName ? "bg-white" : "bg-gray-100"
-            }`}
-            readOnly={!isEditingName}
-          />
-          <input
-            type="text"
-            name="lastName"
-            value={profile.lastName}
-            onChange={handleInputChange}
-            className={`border rounded p-2 ${
-              isEditingName ? "bg-white" : "bg-gray-100"
-            }`}
-            readOnly={!isEditingName}
-          />
-        </div>
-      </div>
+
+        {/* make content scrollable on small screens so FAQ can be reached */}
+        <div className="p-5 sm:p-6 space-y-5 max-h-[calc(100vh-160px)] sm:max-h-none overflow-auto">
+          {/* NAME */}
+          <section className="rounded-lg border bg-white p-4 shadow-sm hover:shadow transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-medium text-gray-800">Name</h3>
+                <p className="text-xs text-gray-500">Your full name shown on orders</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {editing.name ? (
+                  <>
+                    <button
+                      title="Cancel"
+                      onClick={() => handleCancel("name")}
+                      className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-gray-50"
+                    >
+                      <FaTimes className="text-gray-500" /> Cancel
+                    </button>
+
+                    <button
+                      onClick={saveName}
+                      disabled={saving.name}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-sky-600 text-white text-sm hover:brightness-105"
+                    >
+                      {saving.name ? <FaSpinner className="animate-spin" /> : <FaCheck />} Save
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setEditing((s) => ({ ...s, name: true }))}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm text-sky-600 hover:bg-sky-50"
+                  >
+                    <FaPen /> Edit
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                ref={firstNameRef}
+                name="firstName"
+                value={profile.firstName}
+                onChange={handleChange}
+                readOnly={!editing.name}
+                placeholder="First name"
+                className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
+                  editing.name ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                }`}
+              />
+              <input
+                name="lastName"
+                value={profile.lastName}
+                onChange={handleChange}
+                readOnly={!editing.name}
+                placeholder="Last name"
+                className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
+                  editing.name ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                }`}
+              />
+            </div>
+          </section>
+
+          {/* EMAIL */}
+          <section className="rounded-lg border bg-white p-4 shadow-sm hover:shadow transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-medium text-gray-800">Email Address</h3>
+                <p className="text-xs text-gray-500">Used for sign-in and notifications</p>
+              </div>
 
               <div className="flex items-center gap-2">
                 {editing.email ? (
