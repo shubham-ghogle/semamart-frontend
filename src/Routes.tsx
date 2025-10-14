@@ -24,7 +24,6 @@ import AdminDashboard from "./Screens/Admin/AdminDashboard";
 import AdminProductRequestScreen from "./Screens/Admin/AdminProductScreen";
 import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
 import CheckoutScreen from "./Screens/CheckoutScreen/CheckoutScreen";
-import { checkoutScreenLoader } from "./Screens/CheckoutScreen/Checkout.HooksUtils";
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
 import UserOrdersScreen from "./Screens/User/UserOrdersScreen";
 import UserOrderDetailsScreen from "./Screens/User/UserOrderDetailsScreen";
