@@ -39,7 +39,6 @@ import ProductLayout from "./components/Layouts/ProductLayout";
 import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import MyProfile from "./components/Account/MyProfile";
-import MyOrders from "./components/Order/MyOrders";
 import PaymentScreen from "./Screens/Payment/PaymentScreen";
 import AdminLogin from "./Screens/Admin/AdminLogin";
 import OrderSummary from "./components/Order/OrderSummary";
@@ -47,15 +46,12 @@ import ManageAddress from "./components/Account/ManageAddress";
 import WishlistProduct from "./components/Account/WishlistProduct";
 import AccountNavbar from "./components/Account/AccountNavbar";
 import AddToCart from "./components/Account/AddToCart";
-import AllUserScreen from "./Screens/Admin/AllUserScreen";
-import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
-import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 import ProductBasedOnType from "./components/ui/ProductBasedOnType";
-import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackage";
+import AllUserScreen from "./Screens/Admin/AllUserScreen";
+import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackagetypes";
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
-import AdminNewVendor from "./Screens/Admin/AdminNewVendor";
-import AdminVendorDetail from "./Screens/Admin/AdminVendorDetail";
-import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
+import OrderPage from "./components/Layouts/OrderLayout"
+
 
 export const router = createBrowserRouter([
   {
@@ -67,12 +63,12 @@ export const router = createBrowserRouter([
       {
         path: "checkout",
         loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
+        element: <CheckoutScreen />
       },
       {
         path: "checkout/payment",
         loader: checkoutScreenLoader,
-        element: <PaymentScreen />,
+        element: <PaymentScreen />
       },
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "add-to-cart", element: <AddToCart /> },
@@ -82,14 +78,18 @@ export const router = createBrowserRouter([
   {
     path: "/search",
     element: <SearchLayout />,
-    children: [{ index: true, element: <SearchResultsPage /> }],
+    children: [
+      { index: true, element: <SearchResultsPage /> },
+    ],
   },
 
   // Product details using a separate layout
   {
     path: "product/:id",
     element: <ProductLayout />,
-    children: [{ index: true, element: <ProductDetails /> }],
+    children: [
+      { index: true, element: <ProductDetails /> },
+    ],
   },
 
   // Consumables section
@@ -117,6 +117,7 @@ export const router = createBrowserRouter([
     ],
   },
 
+
   // Pharmaceutical section
   {
     path: "/pharmaceutical",
@@ -127,12 +128,12 @@ export const router = createBrowserRouter([
       {
         path: "product/:id",
         element: <ProductLayout />,
-        children: [{ index: true, element: <ProductDetails /> }],
+        children: [{ index: true, element: <ProductDetails /> }]
       },
       {
         path: "checkout",
         loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
+        element: <CheckoutScreen />
       },
     ],
   },
@@ -143,11 +144,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
-      {
-        path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
-      },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
     ],
   },
   {
@@ -157,11 +154,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Pharmaceutical /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
-      {
-        path: "checkout",
-        loader: checkoutScreenLoader,
-        element: <CheckoutScreen />,
-      },
+      { path: "checkout", loader: checkoutScreenLoader, element: <CheckoutScreen /> },
     ],
   },
   // Login routes
@@ -184,42 +177,14 @@ export const router = createBrowserRouter([
     element: <AdminLayout />,
     children: [
       { index: true, element: <AdminDashboard /> },
-      { path: "requests", element: <AdminRequestScreen /> },
+      { path: "requests", element: <AdminRequestScreen />, },
+      { path: "sellers", element: <AllSellerScreen />, },
+       { path: "users", element: <AllUserScreen/> },
       {
-        path: "sellers",
-        children: [
-          { index: true, element: <AllSellerScreen /> },
-          {
-            path: ":sellerId",
-            children: [
-              { index: true, element: <AdminSellerProductScreen /> },
-              { path: ":id", element: <ViewProductScreen /> },
-            ],
-          },
-        ],
-      },
-      { path: "users", element: <AllUserScreen /> },
-      {
-        path: "orders",
-        children: [
-          { index: true, element: <AllOrderScreen /> },
-          { path: ":orderId", element: <AdminOrderDetailsScreen /> },
-        ],
-      },
-      {
-        path: "new-vendor",
-        element: <AdminNewVendor />,
-      },
-      {
-        path: "/admin/vendors/:id",
-        element: <AdminVendorDetail />,
-      },
-      {
-        path: "products",
-        children: [
+        path: "products", children: [
           { index: true, element: <AdminProductRequestScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> },
-        ],
+          { path: "view/:id", element: <ViewProductScreen /> }
+        ]
       },
       // {path: "orders", element: <AllOrderScreen />,
       { path: "*", element: <div>niniiii</div> },
@@ -233,10 +198,9 @@ export const router = createBrowserRouter([
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
       {
-        path: "products",
-        children: [
+        path: "products", children: [
           { index: true, element: <SellerAllProductsScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> },
+          { path: "view/:id", element: <ViewProductScreen /> }
         ],
       },
       {
@@ -261,7 +225,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <UserOrdersScreen /> },
           { path: ":orderId", element: <UserOrderDetailsScreen /> },
-        ],
+        ]
       },
     ],
   },
@@ -274,20 +238,24 @@ export const router = createBrowserRouter([
       { index: true, element: <MyProfile /> },
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
+
     ],
   },
 
+  {
+    path: "/account/orders", 
+    element: <OrderPage /> 
+  
+  },
+
+
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
   { path: "/account", element: <AccountNavbar /> },
-  { path: "/account/orders", element: <MyOrders /> },
+  
   { path: "account/orders/:productId", element: <OrderSummary /> },
-  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
-  {
-    path: "/get-products-by-speciality-package-type/:id",
-    element: <ProductBasedOnSpecialPackagetypes />,
-  },
-  {
-    path: "/get-products-by-speciality-package/:id",
-    element: <ProductBasedOnSpecialPackage />,
-  },
-]);
+  { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType/> },
+  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes/> },
+  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage/> },
+
+
+]); 

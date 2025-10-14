@@ -14,9 +14,9 @@ const AccountNavbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
   return (
-    <div className="font-montserrat  mx-auto min-h-screen bg-gray-100 p-6">
+    <div className="font-montserrat  mx-auto min-h-screen bg-gray-100 p-6 ">
       {/* User Info */}
-      <div className="flex items-center bg-white p-4 shadow-md w-64">
+      <div className="flex items-center bg-white p-4 shadow-md w-64 rounded-xl rounded-r-3xl">
         <div className="bg-yellow-400 rounded-full w-12 h-12 flex items-center justify-center mr-4">
           {/* Placeholder avatar illustration */}
           <div className="w-7 h-7 bg-[url('https://cdn-icons-png.flaticon.com/512/921/921087.png')] bg-cover bg-center" />
@@ -28,7 +28,7 @@ const AccountNavbar = () => {
       </div>
 
       {/* Sidebar Menu */}
-      <div className="w-64 bg-white shadow-lg p-4 flex flex-col justify-between mt-2 ">
+      <div className="w-64 bg-white shadow-lg p-4 flex flex-col justify-between mt-2 rounded-xl ">
         <nav>
           {/* MY ORDERS */}
          <Link to="/account/orders">

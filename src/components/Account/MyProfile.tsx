@@ -65,7 +65,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="flex-1 p-6 bg-white shadow-lg font-montserrat m-6 ">
+    <div className="flex-1 p-6 bg-white shadow-lg  m-6 rounded-r-2xl ">
       {/* Personal Information */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">

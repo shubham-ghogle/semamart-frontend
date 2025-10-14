@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useUserStore } from "@/store/userStore";
 import type { Address } from "@/Types/types";
 
@@ -15,7 +15,7 @@ const initialFormData: Address = {
   addressType: "",
 };
 
-const ManageAddress: React.FC = () => {
+const ManageAddress = () => {
   const { user } = useUserStore((state) => state);
   const [formData, setFormData] = useState<Address>(initialFormData);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -190,7 +190,7 @@ const ManageAddress: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 bg-white shadow-lg font-montserrat m-6">
+    <div className="flex-1 p-6 bg-white shadow-lg  m-6 rounded-r-2xl">
       <h2 className="text-lg font-semibold mb-4">Manage Addresses</h2>
 
       {!showForm && (
