@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
-import OrderBreadcrum from "../UI/OrderBredcrum";
+import OrderBreadcrum from "../ui/OrderBredcrum";
 
 interface Product {
   _id: string;
