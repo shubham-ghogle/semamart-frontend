@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
+import { useNavigate } from "react-router-dom";
+
 
 interface Product {
   _id: string;
@@ -118,10 +121,30 @@ const MyOrders = () => {
   //       return "bg-gray-100 text-gray-700";
   //   }
   // };
+  const navigate = useNavigate();
+
+const handleOrderClick = (productId: string) => {
+  navigate(`/account/orders/${productId}`);
+};
+
 
   return (
 
-      <div className="flex flex-col md:flex-row p-6 bg-gray-50 min-h-screen">
+      <div>    
+      <nav className="text-sm text-gray-500 mb-6 ml-20 mt-5">
+            <ul className="flex gap-2 items-center">
+              <li>
+                <Link to="/" className="hover:text-blue-600">Home</Link>
+              </li>
+              <li>/</li>
+              <li>
+                <Link to="/account" className="hover:text-blue-600">My Account</Link>
+              </li>
+              <li>/</li>
+              <li className="font-semibold text-gray-800">My Orders</li>
+            </ul>
+          </nav>
+      <div className="flex flex-col md:flex-row ml-20 mr-20 mt-6 bg-gray-50 min-h-screen">
         {/* Sidebar Filters */}
         <aside className="md:w-1/4 mb-6 md:mb-0 bg-white p-4 rounded shadow">
           <h2 className="text-xl font-semibold mb-4">Filters</h2>
@@ -209,62 +232,75 @@ const MyOrders = () => {
                 );
 
                 return (
-                  <div
-                    key={order._id}
-                    className="border rounded-md bg-white shadow-sm p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-                  >
-                    {/* Left: Product Info */}
-                    <div className="flex items-center gap-4">
+                    <div
+                  key={order._id}
+                  onClick={() => handleOrderClick(product._id)}
+                  className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-4 cursor-pointer"
+                >
+                  {/* Row container */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                    {/* 🖼️ Image column */}
+                    <div className="md:col-span-2 flex justify-center md:justify-start">
                       <img
                         src={imageUrl}
                         alt={product.name}
-                        className="w-20 h-20 object-cover rounded-md border"
+                        className="w-24 h-24 object-cover rounded-lg border"
                       />
-                      <div>
-                        <h3 className="text-sm md:text-base font-semibold text-gray-800">
-                          {product.name.split(" ").slice(0, 12).join(" ")}
-                          {product.name.split(" ").length > 12 && "..."}
-                        </h3>
+                    </div>
 
-                        <div className="text-gray-600 text-sm mt-1 space-x-4">
-                          {variant?.colorOption && (
-                            <span>
-                              Color:{" "}
-                              <span className="font-medium text-gray-700">
-                                {variant.colorOption}
-                              </span>
-                            </span>
-                          )}
-                          {variant?.size && (
-                            <span>
-                              Size:{" "}
-                              <span className="font-medium text-gray-700">
-                                {variant.size}
-                              </span>
-                            </span>
-                          )}
-                        </div>
+                    {/* 🏷️ Name & variant column */}
+                    <div className="md:col-span-5">
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
+                        {product.name.split(" ").slice(0, 8).join(" ")}
+                        {product.name.split(" ").length > 8 && "..."}
+                      </h3>
+
+                      <div className="text-gray-600 text-sm mt-1">
+                        {variant?.colorOption && (
+                          <span>
+                            Color:{" "}
+                            <span className="font-medium text-gray-700">{variant.colorOption}</span>
+                          </span>
+                        )}
+                        {variant?.size && (
+                          <span className="ml-4">
+                            Size:{" "}
+                            <span className="font-medium text-gray-700">{variant.size}</span>
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Middle: Price */}
-                    <div className="text-lg font-semibold text-gray-800 md:w-24 md:text-center">
-                      ₹{order.totalPrice}
+                    {/* 💰 Price column */}
+                    <div className="md:col-span-2 text-center">
+                      <p className="text-lg font-semibold text-gray-900">₹{order.totalPrice}</p>
                     </div>
 
-                    {/* Right: Status + Review */}
-                    <div className="flex flex-col items-start md:items-end text-sm">
-                      <div className="flex items-center gap-2 font-medium text-gray-800">
-                        <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                        {/* Delivered on{" "} */}
-                        <span className="font-semibold">
-                          {order.status}
-                        </span>
+                    {/* 🚚 Delivery status & review column */}
+                   <div className="md:col-span-3 text-sm text-right">
+                      {/* 🟢 Status */}
+                      <div className="font-medium text-gray-800">
+                        <span
+                          className={`inline-block w-2.5 h-2.5 rounded-full mr-2 ${
+                            order.status === "Delivered"
+                              ? "bg-green-500"
+                              : order.status === "Cancelled"
+                              ? "bg-red-500"
+                              : "bg-yellow-500"
+                          }`}
+                        ></span>
+                        {order.status}
                       </div>
+
+                      {/* 📦 Delivery text */}
                       <p className="text-xs text-gray-500 mt-1">
-                        Your item has been {order.status}
+                        {order.status === "Delivered"
+                          ? `Delivered on ${new Date(order.deliveredAt || "").toLocaleDateString()}`
+                          : `Your item is ${order.status.toLowerCase()}`}
                       </p>
-                      <button className="text-blue-600 hover:underline text-sm font-medium mt-1 flex items-center gap-1">
+
+                      {/* ⭐ Rate & Review */}
+                      <button className="text-blue-600 hover:underline text-sm font-medium mt-2 inline-flex items-center gap-1">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="currentColor"
@@ -273,15 +309,20 @@ const MyOrders = () => {
                         >
                           <path d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z" />
                         </svg>
-                        Rate & Review Product
+                        Rate & Review
                       </button>
                     </div>
+
+
                   </div>
+                </div>
+
                 );
               })}
             </div>
           )}
         </main>
+      </div>
       </div>
   );
 };

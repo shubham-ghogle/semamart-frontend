@@ -1,86 +1,106 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
-import { Product, Order } from "../../Types/types";
 import { useUserStore } from "@/store/userStore";
+import OrderBreadcrum from "../UI/OrderBredcrum";
+
+interface Product {
+  _id: string;
+  name: string;
+  images?: string[];
+  manufacturerName?: string;
+  tags?: string[];
+}
+
+interface Variant {
+  _id: string;
+  colorOption?: string;
+  size?: string;
+  originalPrice: number;
+  discountPrice : number;
+  productId?: Product;
+  thumbnail?:string;
+}
+
+interface Order {
+  _id: string;
+  variant?: Variant;
+  qty: number;
+  totalPrice: number;
+  status: string;
+  deliveredAt?: string;
+  shippingAddress?: {
+    state: string;
+    district: string;
+    instituteAddress1: string;
+    instituteAddress2?: string;
+    pincode: string;
+    landmark?: string;
+  };
+  paymentInfo?: {
+    method?: string;
+    status?: string;
+  };
+  paidAt?: string;
+}
 
 const OrderSummary = () => {
   const { productId } = useParams<{ productId: string }>();
   const { user } = useUserStore((state) => state);
 
-  const [product, setProduct] = useState<Product | null>(null);
   const [order, setOrder] = useState<Order | null>(null);
+  const [orderedProduct, setOrderedProduct] = useState<Variant | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch current user's order for this product
   useEffect(() => {
-    const fetchData = async () => {
-      console.log("my product id:", productId);
-      if (!productId || !user?._id) return;
+    const fetchOrderForProduct = async () => {
+      if (!user?._id || !productId) return;
 
       try {
-        // Fetch order
-        const orderRes = await fetch(`/api/v2/order/get-order/${user._id}`);
-        if (!orderRes.ok) {
-          throw new Error(`Failed to fetch order data: ${orderRes.statusText}`);
-        }
+        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
+        const data = await res.json();
 
-        const orderData = await orderRes.json();
+        if (!data.success) throw new Error("Failed to fetch orders");
 
-        if (!orderData || !orderData.orders || orderData.orders.length === 0) {
-          setError("No order found for this user");
-          return;
-        }
-
-        setOrder(orderData.orders[0]); // Use first order
-
-        // Fetch product
-        const productRes = await fetch(
-          `/api/v2/product/get-product/${productId}`,
+        // Find order containing this product
+        const foundOrder = data.orders.find(
+          (o: Order) => o.variant?.productId?._id === productId
         );
-        if (!productRes.ok) {
-          throw new Error(
-            `Failed to fetch product data: ${productRes.statusText}`,
-          );
-        }
 
-        const productData = await productRes.json();
-
-        if (!productData || !productData._id) {
-          setError("Invalid product data received");
+        if (!foundOrder) {
+          setError("No order found for this product");
           return;
         }
 
-        setProduct(productData);
-        setError(null);
+        setOrder(foundOrder);
+        setOrderedProduct(foundOrder.variant!);
+        setProduct(foundOrder.variant?.productId || null);
       } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Failed to fetch order or product data");
+        setError(err.message || "Something went wrong");
       }
     };
 
-    fetchData();
-  }, [productId, user?._id]);
+    fetchOrderForProduct();
+  }, [user?._id, productId]);
 
+  // Download invoice
   const downloadInvoice = async () => {
-    if (!order?._id || !productId) return;
+    if (!order?._id) return;
 
     try {
-      const res = await fetch(
-        `/api/v2/order/invoice/${order._id}/${productId}`,
-      );
+      const res = await fetch(`/api/v2/order/invoice/${order._id}`);
       if (!res.ok) throw new Error("Failed to download invoice");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
-      link.download = `invoice-${order._id}-${productId}.pdf`;
-
-      document.body.appendChild(link); // Append to DOM for Firefox, Safari
+      link.download = `invoice-${order._id}.pdf`;
+      document.body.appendChild(link);
       link.click();
       link.remove();
-
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
@@ -88,55 +108,51 @@ const OrderSummary = () => {
     }
   };
 
-  if (error) {
-    return <div className="p-10 text-center text-red-600">{error}</div>;
-  }
-
-  if (!product || !order) {
-    return <div className="p-10 text-center">Loading details...</div>;
-  }
+  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (!order || !orderedProduct || !product)
+    return <div className="p-10 text-center">Loading order details...</div>;
 
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
+          <OrderBreadcrum orderId={order?._id} />
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col md:flex-row gap-6">
           {/* Left Section */}
           <div className="flex-1 space-y-6">
-            {/* Product Card */}
+            {/* Product Info */}
             <div className="flex items-start gap-4 border-b pb-4">
               <img
-                src={
-                  product.images && product.images.length > 0
-                    ? `BASE_URL/uploads/${product.images[0]}`
-                    : "/placeholder.png"
-                }
-                alt={product.name || "Product"}
-                className="w-24 h-24 object-contain border rounded-md"
-              />
+                    src={
+                      orderedProduct.thumbnail
+                        ? `/uploads/${orderedProduct.thumbnail}`
+                        : product.images?.length
+                        ? `/uploads/${product.images[0]}`
+                        : "/placeholder.png"
+                    }
+                    alt={product.name}
+                    className="w-24 h-24 object-contain border rounded-md"
+                  />
+
               <div>
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {product.name}
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Sold by:{" "}
-                  {typeof product.manufacturer !== "string"
-                    ? product.manufacturer.manufacturerName
-                    : "Unknown Seller"}
+                  Sold by: {product.manufacturerName || "Unknown Seller"}
                 </p>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <p className="text-xl font-bold text-green-700">
-                    ₹{order.totalPrice}
+                    ₹{orderedProduct.discountPrice}
                   </p>
-                  <span className="text-sm text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded">
-                    {product.tags?.join(", ") || "No offers"}
-                  </span>
+                  <p className="text-sm text-gray-600">Quantity: {order.qty}</p>
+                  <p className="text-sm text-gray-600">
+                    Total: ₹{ orderedProduct.discountPrice* order.qty}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Order Status */}
-            <div className="mt-6">
+            <div>
               <h3 className="text-lg font-semibold mb-2">Order Status</h3>
               <p className="text-gray-700 font-medium">{order.status}</p>
               <p className="text-sm text-gray-500">
@@ -148,23 +164,17 @@ const OrderSummary = () => {
             </div>
 
             {/* Payment Info */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">
-                Payment Information
-              </h3>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Payment Information</h3>
               {order.paymentInfo ? (
                 <>
                   <p>
                     Payment Type:{" "}
-                    <span className="font-medium">
-                      {order.paymentInfo.method}
-                    </span>
+                    <span className="font-medium">{order.paymentInfo.method}</span>
                   </p>
                   <p>
                     Payment Status:{" "}
-                    <span className="font-medium">
-                      {order.paymentInfo.status}
-                    </span>
+                    <span className="font-medium">{order.paymentInfo.status}</span>
                   </p>
                   <p>
                     Paid At:{" "}
@@ -196,8 +206,7 @@ const OrderSummary = () => {
               {order.shippingAddress ? (
                 <div className="bg-gray-50 p-4 rounded-md text-sm space-y-1">
                   <p>
-                    <span className="font-medium">State:</span>{" "}
-                    {order.shippingAddress.state}
+                    <span className="font-medium">State:</span> {order.shippingAddress.state}
                   </p>
                   <p>
                     <span className="font-medium">District:</span>{" "}
@@ -207,23 +216,25 @@ const OrderSummary = () => {
                     <span className="font-medium">Address 1:</span>{" "}
                     {order.shippingAddress.instituteAddress1}
                   </p>
-                  <p>
-                    <span className="font-medium">Address 2:</span>{" "}
-                    {order.shippingAddress.instituteAddress2}
-                  </p>
+                  {order.shippingAddress.instituteAddress2 && (
+                    <p>
+                      <span className="font-medium">Address 2:</span>{" "}
+                      {order.shippingAddress.instituteAddress2}
+                    </p>
+                  )}
                   <p>
                     <span className="font-medium">Pincode:</span>{" "}
                     {order.shippingAddress.pincode}
                   </p>
-                  <p>
-                    <span className="font-medium">Landmark:</span>{" "}
-                    {order.shippingAddress.landmark}
-                  </p>
+                  {order.shippingAddress.landmark && (
+                    <p>
+                      <span className="font-medium">Landmark:</span>{" "}
+                      {order.shippingAddress.landmark}
+                    </p>
+                  )}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">
-                  Shipping address not available
-                </p>
+                <p className="text-sm text-gray-500">Shipping address not available</p>
               )}
             </div>
           </div>

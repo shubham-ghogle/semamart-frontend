@@ -9,7 +9,7 @@ export default function OrderLayout() {
       <section>
         <MyOrder />
         <main className="bg-bg-gray">
-          <Outlet /> 
+          <Outlet />
         </main>
       </section>
     </>
