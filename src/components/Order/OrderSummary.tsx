@@ -4,6 +4,9 @@ import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
 import OrderBreadcrum from "../ui/OrderBredcrum";
 
+// React Icons
+import { FaUser, FaPhoneAlt, FaHome, FaBoxOpen, FaCheckCircle, FaStar } from "react-icons/fa";
+
 interface Product {
   _id: string;
   name: string;
@@ -17,9 +20,9 @@ interface Variant {
   colorOption?: string;
   size?: string;
   originalPrice: number;
-  discountPrice : number;
+  discountPrice: number;
   productId?: Product;
-  thumbnail?:string;
+  thumbnail?: string;
 }
 
 interface Order {
@@ -28,7 +31,9 @@ interface Order {
   qty: number;
   totalPrice: number;
   status: string;
+  createdAt?: string;
   deliveredAt?: string;
+  returnValidTill?: string;
   shippingAddress?: {
     state: string;
     district: string;
@@ -36,6 +41,8 @@ interface Order {
     instituteAddress2?: string;
     pincode: string;
     landmark?: string;
+    reciever_name: string;
+    phone: string;
   };
   paymentInfo?: {
     method?: string;
@@ -53,7 +60,25 @@ const OrderSummary = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch current user's order for this product
+  // ✅ Helper function to normalize image paths
+  const normalizeImage = (src?: string | null): string => {
+    if (!src) return "/placeholder.png";
+
+    if (
+      src.startsWith("http://") ||
+      src.startsWith("https://") ||
+      src.startsWith("/")
+    ) {
+      return src;
+    }
+
+    if (src.startsWith("uploads/")) {
+      return `/${src}`;
+    }
+
+    return `/images/${src}`;
+  };
+
   useEffect(() => {
     const fetchOrderForProduct = async () => {
       if (!user?._id || !productId) return;
@@ -64,7 +89,6 @@ const OrderSummary = () => {
 
         if (!data.success) throw new Error("Failed to fetch orders");
 
-        // Find order containing this product
         const foundOrder = data.orders.find(
           (o: Order) => o.variant?.productId?._id === productId
         );
@@ -85,157 +109,202 @@ const OrderSummary = () => {
     fetchOrderForProduct();
   }, [user?._id, productId]);
 
-  // Download invoice
-  const downloadInvoice = async () => {
-    if (!order?._id) return;
-
-    try {
-      const res = await fetch(`/api/v2/order/invoice/${order._id}`);
-      if (!res.ok) throw new Error("Failed to download invoice");
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `invoice-${order._id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("Error downloading invoice");
-    }
-  };
-
-  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (error)
+    return <div className="p-10 text-center text-red-600">{error}</div>;
   if (!order || !orderedProduct || !product)
     return <div className="p-10 text-center">Loading order details...</div>;
 
-  return (
-    <div className="bg-gray-100 min-h-screen">
-      <Header />
-      <div className="max-w-6xl mx-auto px-4 py-8">
-          <OrderBreadcrum orderId={order?._id} />
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col md:flex-row gap-6">
-          {/* Left Section */}
-          <div className="flex-1 space-y-6">
-            {/* Product Info */}
-            <div className="flex items-start gap-4 border-b pb-4">
-              <img
-                    src={
-                      orderedProduct.thumbnail
-                        ? `/uploads/${orderedProduct.thumbnail}`
-                        : product.images?.length
-                        ? `/uploads/${product.images[0]}`
-                        : "/placeholder.png"
-                    }
-                    alt={product.name}
-                    className="w-24 h-24 object-contain border rounded-md"
-                  />
+  // ✅ Use the normalizeImage helper
+  const imageUrl = normalizeImage(
+    orderedProduct.thumbnail ??
+      product.images?.[0] ??
+      "/placeholder.png"
+  );
 
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Sold by: {product.manufacturerName || "Unknown Seller"}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <p className="text-xl font-bold text-green-700">
-                    ₹{orderedProduct.discountPrice}
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      <Header />
+
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <OrderBreadcrum orderId={order._id} />
+
+        <div className="grid md:grid-cols-3 gap-6 mt-6">
+          {/* ---------------- LEFT SECTION ---------------- */}
+          <div className="md:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
+            {/* Product Header */}
+            <div className="flex items-start justify-between border-b pb-6">
+              <div className="flex gap-4">
+                <img
+                  src={imageUrl}
+                  alt={product.name}
+                  className="w-24 h-24 rounded-xl border object-cover shadow-sm"
+                />
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-900">
+                    {product.name}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {orderedProduct.colorOption &&
+                      `Color: ${orderedProduct.colorOption}`}{" "}
+                    {orderedProduct.size && `| Size: ${orderedProduct.size}`}
                   </p>
-                  <p className="text-sm text-gray-600">Quantity: {order.qty}</p>
-                  <p className="text-sm text-gray-600">
-                    Total: ₹{ orderedProduct.discountPrice* order.qty}
+                  <p className="text-sm text-gray-500 mt-1">
+                    Seller:{" "}
+                    <span className="font-medium text-gray-700">
+                      {product.manufacturerName || "Unknown Seller"}
+                    </span>
                   </p>
+
                 </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-semibold">
+                  ₹{orderedProduct.discountPrice.toLocaleString("en-IN")}
+                </p>
+                <p className="text-xs text-gray-500">Qty: {order.qty}</p>
               </div>
             </div>
 
-            {/* Order Status */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Order Status</h3>
-              <p className="text-gray-700 font-medium">{order.status}</p>
-              <p className="text-sm text-gray-500">
-                Delivered At:{" "}
-                {order.deliveredAt
-                  ? new Date(order.deliveredAt).toLocaleString()
-                  : "Not delivered yet"}
-              </p>
+            {/* Order Timeline */}
+            <div className="mt-8 relative">
+              <h3 className="font-semibold text-gray-800 mb-3">
+                Order Progress
+              </h3>
+
+              <div className="relative ml-5">
+                {/* Vertical line behind icons */}
+                <div className="absolute left-3 top-2 bottom-2 border-l-2 border-green-400 z-0"></div>
+
+                {/* Order Confirmed */}
+                <div className="relative flex items-start gap-3 mb-6 z-10">
+                  <div className="relative">
+                    <FaBoxOpen className="text-green-500 mt-1.5 text-lg bg-white rounded-full z-10 relative" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Order Confirmed
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(order.createdAt || "").toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Delivered */}
+                <div className="relative flex items-start gap-3 z-10">
+                  <div className="relative">
+                    <FaCheckCircle className="text-green-500 mt-1.5 text-lg bg-white rounded-full z-10 relative" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Delivered
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {order.deliveredAt
+                        ? new Date(order.deliveredAt).toLocaleDateString()
+                        : "Pending"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Return Policy */}
+              <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Return policy valid till:</span>{" "}
+                  {order.returnValidTill
+                    ? new Date(order.returnValidTill).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
             </div>
 
-            {/* Payment Info */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Payment Information</h3>
-              {order.paymentInfo ? (
-                <>
-                  <p>
-                    Payment Type:{" "}
-                    <span className="font-medium">{order.paymentInfo.method}</span>
-                  </p>
-                  <p>
-                    Payment Status:{" "}
-                    <span className="font-medium">{order.paymentInfo.status}</span>
-                  </p>
-                  <p>
-                    Paid At:{" "}
-                    <span className="font-medium">
-                      {order.paidAt
-                        ? new Date(order.paidAt).toLocaleString()
-                        : "N/A"}
-                    </span>
-                  </p>
-                </>
-              ) : (
-                <p>Payment info not available</p>
-              )}
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center mt-8 border-t pt-5">
+              <button className="border border-gray-300 text-sm font-medium rounded-lg px-4 py-2 hover:bg-gray-100 transition">
+                Return
+              </button>
+              <button className="flex items-center gap-2 border border-yellow-400 text-yellow-600 font-medium text-sm px-4 py-2 rounded-lg hover:bg-yellow-50 transition">
+                <FaStar className="text-yellow-500" />
+                Rate Product
+              </button>
             </div>
           </div>
 
-          {/* Right Section */}
-          <div className="w-full md:max-w-sm space-y-6">
-            <button
-              onClick={downloadInvoice}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            >
-              Download Invoice
-            </button>
-
-            {/* Delivery Info */}
-            <div>
-              <h4 className="text-md font-semibold mb-2">Delivery Details</h4>
+          {/* ---------------- RIGHT SECTION ---------------- */}
+          <div className="space-y-6">
+            {/* Delivery Details */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
+              <h3 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                Delivery Details
+              </h3>
               {order.shippingAddress ? (
-                <div className="bg-gray-50 p-4 rounded-md text-sm space-y-1">
-                  <p>
-                    <span className="font-medium">State:</span> {order.shippingAddress.state}
-                  </p>
-                  <p>
-                    <span className="font-medium">District:</span>{" "}
-                    {order.shippingAddress.district}
-                  </p>
-                  <p>
-                    <span className="font-medium">Address 1:</span>{" "}
-                    {order.shippingAddress.instituteAddress1}
-                  </p>
-                  {order.shippingAddress.instituteAddress2 && (
-                    <p>
-                      <span className="font-medium">Address 2:</span>{" "}
-                      {order.shippingAddress.instituteAddress2}
-                    </p>
-                  )}
-                  <p>
-                    <span className="font-medium">Pincode:</span>{" "}
-                    {order.shippingAddress.pincode}
-                  </p>
-                  {order.shippingAddress.landmark && (
-                    <p>
-                      <span className="font-medium">Landmark:</span>{" "}
-                      {order.shippingAddress.landmark}
-                    </p>
-                  )}
+                <div className="bg-gray-50 p-3 rounded-lg space-y-3 text-sm text-gray-700 border border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <FaUser className="text-gray-600" />
+                    <span>
+                      <strong>{order.shippingAddress.reciever_name}</strong>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FaPhoneAlt className="text-gray-600" />
+                    <span>{order.shippingAddress.phone}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FaHome className="text-gray-600" />
+                    <span>
+                      {order.shippingAddress.instituteAddress1},{" "}
+                      {order.shippingAddress.district},{" "}
+                      {order.shippingAddress.state} -{" "}
+                      {order.shippingAddress.pincode}
+                    </span>
+                  </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Shipping address not available</p>
+                <p className="text-sm text-gray-500">
+                  Shipping address not available
+                </p>
               )}
+            </div>
+
+            {/* Price Details */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
+              <h3 className="text-md font-semibold text-gray-800 mb-3">
+                Price Details
+              </h3>
+
+              <div className="text-sm text-gray-700 space-y-1">
+                <div className="flex justify-between">
+                  <span>Listing price</span>
+                  <span className="line-through text-gray-400">
+                    ₹{orderedProduct.originalPrice.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <div className="flex justify-between font-semibold">
+                  <span>Special price</span>
+                  <span>
+                    ₹{orderedProduct.discountPrice.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between font-bold text-gray-800">
+                  <span>Total amount</span>
+                  <span>
+                    ₹
+                    {(orderedProduct.discountPrice * order.qty).toLocaleString(
+                      "en-IN"
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment Info */}
+              <div className="mt-4 bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-sm text-gray-600">Paid by</span>
+                <div className="flex items-center gap-1 text-xs font-semibold border rounded-md px-2 py-1 bg-white">
+                  <span>{order.paymentInfo?.method || "N/A"}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
