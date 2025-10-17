@@ -1,34 +1,41 @@
 // File: src/components/Account/MyProfile.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useUserStore } from "@/store/userStore";
-import { FaPen, FaCheck, FaTimes, FaSpinner } from "react-icons/fa";
+import { FaPen, FaCheck, FaTimes, FaSpinner,FaChevronDown } from "react-icons/fa";
 
 type ProfileState = {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
+  instituteName: string;
 };
 
-const validateEmail = (s: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
-const validatePhone = (s: string) =>
-  /^\+?\d{7,15}$/.test(s.replace(/\s+/g, ""));
+const validateEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+const validatePhone = (s: string) => /^\+?\d{7,15}$/.test(s.replace(/\s+/g, ""));
 
-const InlineFlash: React.FC<{ text: string; tone?: "success" | "error" | "info" }> = ({ text, tone = "info" }) => {
+const InlineFlash: React.FC<{ text: string; tone?: "success" | "error" | "info" }> = ({
+  text,
+  tone = "info",
+}) => {
   const bg =
-    tone === "success" ? "bg-green-50 text-green-700 ring-green-100" :
-    tone === "error" ? "bg-red-50 text-red-700 ring-red-100" :
-    "bg-sky-50 text-sky-700 ring-sky-100";
+    tone === "success"
+      ? "bg-green-50 text-green-700 ring-green-100"
+      : tone === "error"
+      ? "bg-red-50 text-red-700 ring-red-100"
+      : "bg-sky-50 text-sky-700 ring-sky-100";
   return (
-    <div className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-md ring-1 ${bg}`}>
+    <div
+      className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-md ring-1 ${bg}`}
+    >
       {text}
     </div>
   );
 };
 
-const MyProfile: React.FC = () => {
+const MyProfile = () => {
   const user = useUserStore((s) => s.user);
+  const [showFaqs, setShowFaqs] = useState(false);
   const updateUser = useUserStore((s) => s.updateUser);
 
   const [profile, setProfile] = useState<ProfileState>({
@@ -36,21 +43,31 @@ const MyProfile: React.FC = () => {
     lastName: "",
     email: "",
     phoneNumber: "",
+    instituteName: "",
   });
 
   const [editing, setEditing] = useState({
     name: false,
     email: false,
     phone: false,
+    instituteName: false,
   });
 
   const [errors, setErrors] = useState<{ email?: string; phone?: string }>({});
-  const [saving, setSaving] = useState({ name: false, email: false, phone: false });
-  const [flash, setFlash] = useState<{ text: string; tone?: "success" | "error" } | null>(null);
+  const [saving, setSaving] = useState({
+    name: false,
+    email: false,
+    phone: false,
+    instituteName: false,
+  });
+  const [flash, setFlash] = useState<{ text: string; tone?: "success" | "error" } | null>(
+    null
+  );
 
   const firstNameRef = useRef<HTMLInputElement | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
   const phoneRef = useRef<HTMLInputElement | null>(null);
+  const instituteRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -59,6 +76,7 @@ const MyProfile: React.FC = () => {
         lastName: user.lastName || "",
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
+        instituteName: user.instituteName || "",
       });
     }
   }, [user]);
@@ -67,6 +85,7 @@ const MyProfile: React.FC = () => {
     if (editing.name && firstNameRef.current) firstNameRef.current.focus();
     if (editing.email && emailRef.current) emailRef.current.focus();
     if (editing.phone && phoneRef.current) phoneRef.current.focus();
+    if (editing.instituteName && instituteRef.current) instituteRef.current.focus();
   }, [editing]);
 
   useEffect(() => {
@@ -84,14 +103,25 @@ const MyProfile: React.FC = () => {
 
   const handleCancel = (section: keyof typeof editing) => {
     if (!user) return;
-    if (section === "name") {
-      setProfile((p) => ({ ...p, firstName: user.firstName || "", lastName: user.lastName || "" }));
-    } else if (section === "email") {
-      setProfile((p) => ({ ...p, email: user.email || "" }));
-      setErrors((e) => ({ ...e, email: undefined }));
-    } else if (section === "phone") {
-      setProfile((p) => ({ ...p, phoneNumber: user.phoneNumber || "" }));
-      setErrors((e) => ({ ...e, phone: undefined }));
+    switch (section) {
+      case "name":
+        setProfile((p) => ({
+          ...p,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+        }));
+        break;
+      case "email":
+        setProfile((p) => ({ ...p, email: user.email || "" }));
+        setErrors((e) => ({ ...e, email: undefined }));
+        break;
+      case "phone":
+        setProfile((p) => ({ ...p, phoneNumber: user.phoneNumber || "" }));
+        setErrors((e) => ({ ...e, phone: undefined }));
+        break;
+      case "instituteName":
+        setProfile((p) => ({ ...p, instituteName: user.instituteName || "" }));
+        break;
     }
     setEditing((s) => ({ ...s, [section]: false }));
   };
@@ -128,7 +158,10 @@ const MyProfile: React.FC = () => {
 
   const savePhone = () => {
     if (!validatePhone(profile.phoneNumber)) {
-      setErrors((e) => ({ ...e, phone: "Enter a valid phone (digits, optional +, 7–15 chars)." }));
+      setErrors((e) => ({
+        ...e,
+        phone: "Enter a valid phone (digits, optional +, 7–15 chars).",
+      }));
       return;
     }
     setSaving((s) => ({ ...s, phone: true }));
@@ -143,7 +176,20 @@ const MyProfile: React.FC = () => {
     }
   };
 
-  // FAQ data (easy to extend)
+  const saveInstituteName = () => {
+    setSaving((s) => ({ ...s, instituteName: true }));
+    try {
+      updateUser({ instituteName: profile.instituteName });
+      setFlash({ text: "Institute name updated", tone: "success" });
+      setEditing((s) => ({ ...s, instituteName: false }));
+    } catch {
+      setFlash({ text: "Could not save institute name", tone: "error" });
+    } finally {
+      setSaving((s) => ({ ...s, instituteName: false }));
+    }
+  };
+
+  // FAQ data
   const faqs: { q: string; a: React.ReactNode }[] = [
     {
       q: "What happens when I update my email address (or mobile number)?",
@@ -179,7 +225,7 @@ const MyProfile: React.FC = () => {
     },
     {
       q: "How do I control notifications and communication preferences?",
-      a: "Go to <strong>Notification Settings</strong> (or Communication Preferences) to toggle email/SMS/push notifications for offers, order updates, and newsletters.",
+      a: <> Go to <strong>Notification Settings</strong> (or Communication Preferences) to toggle email/SMS/push notifications for offers, order updates, and newsletters.</>,
     },
     {
       q: "How do I deactivate or delete my account?",
@@ -191,30 +237,45 @@ const MyProfile: React.FC = () => {
     },
   ];
 
+
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
-      {/* note: removed overflow-hidden and added bottom padding so mobile FAQs are visible */}
       <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
         <div className="px-5 py-4 border-b flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Personal Information</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage your account details</p>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+              Personal Information
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage your account details
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            {flash ? <InlineFlash text={flash.text} tone={flash.tone === "error" ? "error" : "success"} /> : null}
-            <div className="text-xs sm:text-sm text-gray-500">Member since {user?.createdAt ? new Date(user.createdAt).getFullYear() : "—"}</div>
+            {flash ? (
+              <InlineFlash
+                text={flash.text}
+                tone={flash.tone === "error" ? "error" : "success"}
+              />
+            ) : null}
+            <div className="text-xs sm:text-sm text-gray-500">
+              Member since{" "}
+              {user?.createdAt
+                ? new Date(user.createdAt).getFullYear()
+                : "—"}
+            </div>
           </div>
         </div>
 
-        {/* make content scrollable on small screens so FAQ can be reached */}
         <div className="p-5 sm:p-6 space-y-5 max-h-[calc(100vh-160px)] sm:max-h-none overflow-auto">
           {/* NAME */}
           <section className="rounded-lg border bg-white p-4 shadow-sm hover:shadow transition-shadow">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-medium text-gray-800">Name</h3>
-                <p className="text-xs text-gray-500">Your full name shown on orders</p>
+                <p className="text-xs text-gray-500">
+                  Your full name shown on orders
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -233,7 +294,12 @@ const MyProfile: React.FC = () => {
                       disabled={saving.name}
                       className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-sky-600 text-white text-sm hover:brightness-105"
                     >
-                      {saving.name ? <FaSpinner className="animate-spin" /> : <FaCheck />} Save
+                      {saving.name ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaCheck />
+                      )}{" "}
+                      Save
                     </button>
                   </>
                 ) : (
@@ -256,7 +322,9 @@ const MyProfile: React.FC = () => {
                 readOnly={!editing.name}
                 placeholder="First name"
                 className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
-                  editing.name ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                  editing.name
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
                 }`}
               />
               <input
@@ -266,7 +334,9 @@ const MyProfile: React.FC = () => {
                 readOnly={!editing.name}
                 placeholder="Last name"
                 className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
-                  editing.name ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                  editing.name
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
                 }`}
               />
             </div>
@@ -277,7 +347,9 @@ const MyProfile: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-medium text-gray-800">Email Address</h3>
-                <p className="text-xs text-gray-500">Used for sign-in and notifications</p>
+                <p className="text-xs text-gray-500">
+                  Used for sign-in and notifications
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -295,7 +367,12 @@ const MyProfile: React.FC = () => {
                       disabled={saving.email}
                       className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-sky-600 text-white text-sm hover:brightness-105"
                     >
-                      {saving.email ? <FaSpinner className="animate-spin" /> : <FaCheck />} Save
+                      {saving.email ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaCheck />
+                      )}{" "}
+                      Save
                     </button>
                   </>
                 ) : (
@@ -318,10 +395,14 @@ const MyProfile: React.FC = () => {
                 readOnly={!editing.email}
                 placeholder="you@example.com"
                 className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
-                  editing.email ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                  editing.email
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
                 }`}
               />
-              {errors.email ? <div className="text-sm text-red-600 mt-2">{errors.email}</div> : null}
+              {errors.email ? (
+                <div className="text-sm text-red-600 mt-2">{errors.email}</div>
+              ) : null}
             </div>
           </section>
 
@@ -330,7 +411,9 @@ const MyProfile: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-medium text-gray-800">Mobile Number</h3>
-                <p className="text-xs text-gray-500">Used for order updates and OTP</p>
+                <p className="text-xs text-gray-500">
+                  Used for order updates and OTP
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -348,7 +431,12 @@ const MyProfile: React.FC = () => {
                       disabled={saving.phone}
                       className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-sky-600 text-white text-sm hover:brightness-105"
                     >
-                      {saving.phone ? <FaSpinner className="animate-spin" /> : <FaCheck />} Save
+                      {saving.phone ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaCheck />
+                      )}{" "}
+                      Save
                     </button>
                   </>
                 ) : (
@@ -371,25 +459,105 @@ const MyProfile: React.FC = () => {
                 readOnly={!editing.phone}
                 placeholder="+919876543210"
                 className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
-                  editing.phone ? "bg-white border-sky-200" : "bg-gray-100 border-transparent"
+                  editing.phone
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
                 }`}
               />
-              {errors.phone ? <div className="text-sm text-red-600 mt-2">{errors.phone}</div> : null}
+              {errors.phone ? (
+                <div className="text-sm text-red-600 mt-2">{errors.phone}</div>
+              ) : null}
             </div>
           </section>
 
-          {/* FAQs */}
-          <section className="rounded-lg border bg-white p-4 text-sm text-gray-700">
-            <h4 className="font-semibold text-gray-800 mb-4">FAQs</h4>
-            <div className="space-y-3 pb-6">
-              {faqs.map((f, i) => (
-                <div key={i}>
-                  <div className="font-medium text-gray-800">{f.q}</div>
-                  <div className="text-gray-600 mt-1">{f.a}</div>
-                </div>
-              ))}
+          {/* INSTITUTE NAME */}
+          <section className="rounded-lg border bg-white p-4 shadow-sm hover:shadow transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-medium text-gray-800">Institute Name</h3>
+                <p className="text-xs text-gray-500">
+                  Your organization
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {editing.instituteName ? (
+                  <>
+                    <button
+                      onClick={() => handleCancel("instituteName")}
+                      className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-gray-50"
+                    >
+                      <FaTimes className="text-gray-500" /> Cancel
+                    </button>
+
+                    <button
+                      onClick={saveInstituteName}
+                      disabled={saving.instituteName}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-sky-600 text-white text-sm hover:brightness-105"
+                    >
+                      {saving.instituteName ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaCheck />
+                      )}{" "}
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setEditing((s) => ({ ...s, instituteName: true }))}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm text-sky-600 hover:bg-sky-50"
+                  >
+                    <FaPen /> Edit
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <input
+                ref={instituteRef}
+                name="instituteName"
+                value={profile.instituteName}
+                onChange={handleChange}
+                readOnly={!editing.instituteName}
+                placeholder="Your institute name"
+                className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none ${
+                  editing.instituteName
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
+                }`}
+              />
             </div>
           </section>
+
+         {/* FAQs (dropdown) */}
+            <section className="rounded-lg border bg-white p-4 text-sm text-gray-700">
+              <button
+                onClick={() => setShowFaqs((prev) => !prev)}
+                className="w-full flex justify-between items-center font-semibold text-gray-800 text-base focus:outline-none"
+              >
+              <span>FAQs</span>
+              <FaChevronDown
+                className={`transition-transform duration-200 ${
+                  showFaqs ? "rotate-180 text-sky-600" : "rotate-0 text-gray-500"
+                }`}
+                size={16}
+              />
+              </button>
+
+              {showFaqs && (
+                <div className="mt-4 space-y-3 animate-fadeIn">
+                  {faqs.map((f, i) => (
+                    <div key={i}>
+                      <div className="font-medium text-gray-800">{f.q}</div>
+                      <div className="text-gray-600 mt-1">{f.a}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
         </div>
       </div>
     </div>

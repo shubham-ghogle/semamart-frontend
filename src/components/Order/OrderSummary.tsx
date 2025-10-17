@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
 import OrderBreadcrum from "../ui/OrderBredcrum";
+import { FiDownload } from "react-icons/fi";
 
 // React Icons
 import { FaUser, FaPhoneAlt, FaHome, FaBoxOpen, FaCheckCircle, FaStar } from "react-icons/fa";
@@ -167,46 +168,98 @@ const OrderSummary = () => {
 
             {/* Order Timeline */}
             <div className="mt-8 relative">
-              <h3 className="font-semibold text-gray-800 mb-3">
-                Order Progress
-              </h3>
+              {/* ---------------- Order Progress Section ---------------- */}
+              <div className="mt-8">
+                <h3 className="font-semibold text-gray-800 mb-3">Order Progress</h3>
 
-              <div className="relative ml-5">
-                {/* Vertical line behind icons */}
-                <div className="absolute left-3 top-2 bottom-2 border-l-2 border-green-400 z-0"></div>
+              <div className="relative flex justify-between items-start mt-6">
+                  {/* Base blue line */}
+                  <div className="absolute top-[10px] left-0 w-full h-[2px] bg-blue-300 z-0"></div>
 
-                {/* Order Confirmed */}
-                <div className="relative flex items-start gap-3 mb-6 z-10">
-                  <div className="relative">
-                    <FaBoxOpen className="text-green-500 mt-1.5 text-lg bg-white rounded-full z-10 relative" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Order Confirmed
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(order.createdAt || "").toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
+                  {[
+                    { label: "Placed", date: order.createdAt },
+                    { label: "Shipped",  },
+                    { label: "Out for Delivery", },
+                    { label: "Delivered", date: order.deliveredAt },
+                  ].map((step, index) => {
+                    const stepOrder = ["Placed", "Shipped", "Out for Delivery", "Delivered"];
+                    const currentIndex = stepOrder.indexOf(order.status);
+                    const isActive = index <= currentIndex;
+                    const isCompleted = index < currentIndex;
 
-                {/* Delivered */}
-                <div className="relative flex items-start gap-3 z-10">
-                  <div className="relative">
-                    <FaCheckCircle className="text-green-500 mt-1.5 text-lg bg-white rounded-full z-10 relative" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Delivered
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {order.deliveredAt
-                        ? new Date(order.deliveredAt).toLocaleDateString()
-                        : "Pending"}
-                    </p>
-                  </div>
+                    return (
+                      <div key={step.label} className="relative flex flex-col items-center flex-1 z-10">
+                        {/* Connecting line for completed part */}
+                        {index > 0 && (
+                          <div
+                            className={`absolute top-[10px] left-[-50%] w-full h-[2px] ${
+                              isActive ? "bg-blue-500" : "bg-blue-200"
+                            }`}
+                          ></div>
+                        )}
+
+                        {/* Circle or Tick */}
+                        <div
+                          className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-300 ${
+                            isActive
+                              ? "bg-blue-500 border-blue-500 text-white shadow-[0_0_0_3px_rgba(59,130,246,0.2)]"
+                              : "bg-white border-blue-200 text-blue-300"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-3 h-3"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={3}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <span className="text-[10px] font-bold">
+                              {index + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Label + Date below */}
+                        <div className="flex flex-col items-center mt-3">
+                          <span
+                            className={`text-xs font-semibold ${
+                              isActive ? "text-black" : "text-gray-400"
+                            }`}
+                          >
+                            {step.label.toUpperCase()}
+                          </span>
+
+                          <span
+                            className={`text-[10px] mt-1 ${
+                              isActive ? "text-black" : "text-gray-400"
+                            }`}
+                          >
+                            {step.date
+                              ? new Date(step.date).toLocaleString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })
+                              : "--"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
+
+
+                
+              
 
               {/* Return Policy */}
               <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
@@ -269,9 +322,7 @@ const OrderSummary = () => {
 
             {/* Price Details */}
             <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
-              <h3 className="text-md font-semibold text-gray-800 mb-3">
-                Price Details
-              </h3>
+              <h3 className="text-md font-semibold text-gray-800 mb-3">Price Details</h3>
 
               <div className="text-sm text-gray-700 space-y-1">
                 <div className="flex justify-between">
@@ -282,18 +333,14 @@ const OrderSummary = () => {
                 </div>
                 <div className="flex justify-between font-semibold">
                   <span>Special price</span>
-                  <span>
-                    ₹{orderedProduct.discountPrice.toLocaleString("en-IN")}
-                  </span>
+                  <span>₹{orderedProduct.discountPrice.toLocaleString("en-IN")}</span>
                 </div>
                 <hr className="my-2" />
                 <div className="flex justify-between font-bold text-gray-800">
                   <span>Total amount</span>
                   <span>
                     ₹
-                    {(orderedProduct.discountPrice * order.qty).toLocaleString(
-                      "en-IN"
-                    )}
+                    {(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>
@@ -305,9 +352,25 @@ const OrderSummary = () => {
                   <span>{order.paymentInfo?.method || "N/A"}</span>
                 </div>
               </div>
+
+              {/* Download Invoice Button */}
+              <button
+                type="button"
+                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 
+                          text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 
+                          transition-all duration-200 shadow-sm"
+                onClick={() => {
+                  console.log("Download invoice clicked");
+                }}
+              >
+                <FiDownload size={18} className="text-blue-600" />
+                Download Invoice
+                
+              </button>
+
             </div>
           </div>
-        </div>
+          </div>
       </div>
     </div>
   );
