@@ -43,15 +43,15 @@ export default function VariantsDisplay() {
               <EditVariantDialog addNew={false} variant={el} />
             </article>
           </article>
-          <section className="mt-4 space-y-2">
-            <p className="text-lg">Bulk orders</p>
-            {el.bulkOrders.map((v) => (
+          {el.bulkOrders.map((v) => (
+            <section className="mt-4 space-y-2">
+              <p className="text-lg">Bulk orders</p>
               <article key={v._id} className="flex gap-2">
                 <ReadOnlyField label="Quantity" value={v.qty} />
                 <ReadOnlyField label="Price" value={v.price} />
               </article>
-            ))}
-          </section>
+            </section>
+          ))}
         </div>
       ))}
       <section className="mt-2 flex justify-start">

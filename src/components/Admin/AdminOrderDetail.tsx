@@ -5,7 +5,6 @@ import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { BASE_URL } from "@/data";
 import { formatDate } from "../UIComponents/Inputs";
 import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
-import TrackingDetailDialog from "./TrackingDetailDialog";
 
 type AdminOrderDetailProps = {
   data: Order;
@@ -120,9 +119,6 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
           <div>
             <article className="mb-2 flex gap-2">
               <OrderDetailsField label={data?.status || ""} value="" />
-              {data.status==="Shipped" && (
-                <TrackingDetailDialog/>
-                )}
             </article>
             <article>
               <select

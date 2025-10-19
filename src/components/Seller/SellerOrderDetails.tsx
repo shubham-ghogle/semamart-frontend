@@ -5,6 +5,7 @@ import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
 import { formatDate } from "../UIComponents/Inputs";
 import { BASE_URL } from "@/data";
+import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -20,7 +21,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       default: [
         "Processing",
         "Packed",
-        // "Shipping",
+        "Shipping",
         // "Received",
         // "On the way",
         // "Delivered",
@@ -101,8 +102,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
           <div>
-            <article className="mb-2">
+            <article className="mb-2 flex gap-2">
               <OrderDetailsField label={data.status} value="" />
+              {data.status === "Shipped" && <TrackingDetailDialog />}
             </article>
             <article>
               <select
