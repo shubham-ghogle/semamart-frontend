@@ -90,20 +90,21 @@ export default function PopularCategories() {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  // state used for scrollbar indicator
   const [progress, setProgress] = useState(0);
   const [visibleFrac, setVisibleFrac] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
 
-  // movement detection (ref so listeners read latest)
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
   const movedRef = useRef(false);
   const startXRef = useRef<number | null>(null);
   const startLeftRef = useRef(0);
 
   const CARD_WIDTH = 320;
+  const CARD_GAP = 16; // matches `gap-4` => 16px
   const CARD_HEIGHT = 260;
 
-  // update progress & visible fraction whenever layout/scroll changes
   useEffect(() => {
     const el = scrollerRef.current;
     const track = trackRef.current;
@@ -115,6 +116,9 @@ export default function PopularCategories() {
       setProgress(Math.max(0, Math.min(1, p)));
       const vf = Math.min(1, el.clientWidth / Math.max(el.scrollWidth, 1));
       setVisibleFrac(vf);
+
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(el.scrollLeft < totalScroll - 1);
     };
 
     update();
@@ -132,14 +136,12 @@ export default function PopularCategories() {
     };
   }, []);
 
-  // Drag handling WITHOUT pointer capture + click suppression after drag
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
 
-    const MOVE_THRESHOLD = 6; // px - movement greater than this counts as drag
+    const MOVE_THRESHOLD = 6; // px
 
-    // pointer handlers (works for mouse + touch with pointer events enabled)
     const onPointerDown = (ev: PointerEvent) => {
       if (ev.isPrimary === false) return;
       startXRef.current = ev.clientX;
@@ -155,7 +157,7 @@ export default function PopularCategories() {
       el.scrollLeft = Math.round(startLeftRef.current + dx);
     };
 
-    const onPointerUp = (_ev: PointerEvent) => {
+    const onPointerUp = () => {
       startXRef.current = null;
       setIsDragging(false);
       setTimeout(() => {
@@ -183,7 +185,6 @@ export default function PopularCategories() {
     };
   }, []);
 
-  // click-on-track behavior (unchanged)
   const onTrackClick = (e: React.MouseEvent) => {
     const track = trackRef.current;
     const scroller = scrollerRef.current;
@@ -198,100 +199,129 @@ export default function PopularCategories() {
   const leftPercent = Math.max(0, Math.min(100, progress * (1 - visibleFrac) * 100));
   const widthPercent = Math.max(visibleFrac * 100, 6);
 
+  const scrollBy = (delta: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  const onClickLeft = () => scrollBy(-(CARD_WIDTH + CARD_GAP));
+  const onClickRight = () => scrollBy(CARD_WIDTH + CARD_GAP);
+
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
-        {/* title: smaller and less heavy */}
         <h2 className="text-xl sm:text-2xl font-semibold text-[#1C170D] mb-4">
           Popular Categories
         </h2>
 
         <div className="h-1.5 w-28 rounded-full bg-[#f2efe9] mb-6" />
 
-        {/* scroller */}
-        <div
-          ref={scrollerRef}
-          className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
-          style={{
-            msOverflowStyle: "none",
-            scrollbarWidth: "none",
-            touchAction: "pan-x",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          <style>{`
-            .scroll-smooth::-webkit-scrollbar { display: none; }
-            .cat-title-clamp {
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-              overflow: hidden;
-            }
+        <div className="relative">
+          {/* NOTE: buttons are completely hidden on small screens (hidden),
+              and on md+ they become either flex (visible) or hidden depending on canScrollLeft/Right */}
+          <button
+            aria-label="Scroll left"
+            onClick={onClickLeft}
+            className={`${canScrollLeft ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M15 18L9 12L15 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
 
-            /* subtle scrollbar for list inside cards */
-            .cat-card .items-list::-webkit-scrollbar{height:6px;width:6px}
-            .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
-          `}</style>
+          <button
+            aria-label="Scroll right"
+            onClick={onClickRight}
+            className={`${canScrollRight ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M9 18L15 12L9 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
 
-          {sampleCategories.map((c) => (
-            <div
-              key={c.id}
-              className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
-              style={{
-                width: CARD_WIDTH,
-                height: CARD_HEIGHT,
-                minWidth: CARD_WIDTH,
-                boxSizing: "border-box",
-                scrollSnapAlign: "start",
-              }}
-            >
-              {/* Image column (image links to category) */}
-              <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
-                  <div
-                    style={{
-                      width: 112,
-                      height: 184,
-                      background: "rgba(0,0,0,0.03)",
-                      borderRadius: 12,
-                    }}
-                    className="flex items-center justify-center"
-                  >
-                    <img
-                      src={c.image}
-                      alt={c.title}
-                      className="w-full h-full object-contain p-3"
-                      onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                    />
-                  </div>
-                </Link>
-              </div>
+          {/* scroller */}
+          <div
+            ref={scrollerRef}
+            className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
+            style={{
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+              touchAction: "pan-x",
+              scrollSnapType: "x mandatory",
+            }}
+          >
+            <style>{` 
+              .scroll-smooth::-webkit-scrollbar { display: none; }
+              .cat-title-clamp {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+              }
 
-              {/* Right text column */}
-              <div className="flex-1 flex flex-col min-h-0">
-                <h3 className="mb-2 cat-title-clamp">
-                  <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
-                    {c.title}
+              /* subtle scrollbar for list inside cards */
+              .cat-card .items-list::-webkit-scrollbar{height:6px;width:6px}
+              .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
+            `}</style>
+
+            {sampleCategories.map((c) => (
+              <div
+                key={c.id}
+                className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
+                style={{
+                  width: CARD_WIDTH,
+                  height: CARD_HEIGHT,
+                  minWidth: CARD_WIDTH,
+                  boxSizing: "border-box",
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
+                  <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
+                    <div
+                      style={{
+                        width: 112,
+                        height: 184,
+                        background: "rgba(0,0,0,0.03)",
+                        borderRadius: 12,
+                      }}
+                      className="flex items-center justify-center"
+                    >
+                      <img
+                        src={c.image}
+                        alt={c.title}
+                        className="w-full h-full object-contain p-3"
+                        onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                      />
+                    </div>
                   </Link>
-                </h3>
+                </div>
 
-                <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
-                  <ul className="flex flex-col">
-                    {c.items.map((it, i) => (
-                      <li key={i} className="py-2">
-                        <Link to={it.link} className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]">
-                          {it.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex-1 flex flex-col min-h-0">
+                  <h3 className="mb-2 cat-title-clamp">
+                    <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
+                      {c.title}
+                    </Link>
+                  </h3>
+
+                  <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
+                    <ul className="flex flex-col">
+                      {c.items.map((it, i) => (
+                        <li key={i} className="py-2">
+                          <Link to={it.link} className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]">
+                            {it.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* slider track — viewport indicator segment (green) */}
         <div className="mt-4">
           <div
             ref={trackRef}
@@ -301,7 +331,7 @@ export default function PopularCategories() {
               userSelect: "none",
               touchAction: "none",
               height: 6,
-              background: "#ECFDF0", // pale green track
+              background: "#ECFDF0",
             }}
           >
             <div

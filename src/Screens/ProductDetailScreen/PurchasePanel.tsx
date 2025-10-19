@@ -5,7 +5,7 @@ import {
   AiOutlineArrowRight,
   AiOutlineCheckCircle,
 } from "react-icons/ai"
-
+ 
 export default function PurchasePanel({
   product,
   selectedVariant,
@@ -22,7 +22,7 @@ export default function PurchasePanel({
   const displayDiscountPrice =
     selectedVariant?.discountPrice ?? product.discountPrice
   const GREEN = "#3bc177"
-
+ 
   // ✅ Ensure "1 Pack" is default
   useEffect(() => {
     if (!selectedPack) {
@@ -33,7 +33,7 @@ export default function PurchasePanel({
       })
     }
   }, [selectedPack, displayOriginalPrice, displayDiscountPrice, setSelectedPack])
-
+ 
   // ✅ discount for 1 Pack
   const onePackDiscount =
     displayOriginalPrice && displayDiscountPrice
@@ -43,11 +43,11 @@ export default function PurchasePanel({
             100
         )
       : 0
-
+ 
   return (
     <div
-      className="w-full lg:w-1/2 bg-gray-50 p-6 rounded-lg shadow-lg space-y-5"
-      style={{ minHeight: "540px" }}
+       className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100"
+      style={{ minHeight: "600px" }}
     >
       <div className="space-y-3">
         {/* 1 Pack option */}
@@ -98,7 +98,7 @@ export default function PurchasePanel({
             </div>
           </div>
         </label>
-
+ 
         {/* Other bulk orders */}
         {variantBulkOrders && variantBulkOrders.length > 0
           ? variantBulkOrders.map((b: any) => {
@@ -165,7 +165,7 @@ export default function PurchasePanel({
             })
           : null}
       </div>
-
+ 
       {/* Bulk order info */}
       <label className="flex justify-between items-center p-3 rounded-xl border border-gray-300 cursor-pointer">
         <AiOutlineQuestionCircle className="text-3xl text-[#1C647C] mb-5" />
@@ -177,7 +177,7 @@ export default function PurchasePanel({
           <AiOutlineArrowRight className="text-blue-600 text-lg" />
         </div>
       </label>
-
+ 
       {/* Buttons */}
       <div className="flex gap-4">
         <button
@@ -193,7 +193,7 @@ export default function PurchasePanel({
             </span>
           )}
         </button>
-
+ 
         <button
           onClick={handleToggleWishlist}
           className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-black border border-[#1C647C] font-semibold"
@@ -201,7 +201,7 @@ export default function PurchasePanel({
           {inWishlist ? "Remove Wishlist" : "Add to Wish List"}
         </button>
       </div>
-
+ 
       <button
         className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2"
         style={{

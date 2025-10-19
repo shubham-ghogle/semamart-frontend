@@ -24,8 +24,10 @@ type Props = {
   textColor?: string; // primary text color in the left column
 
   /** Layout tweaks */
-  mobileColumns?: number; // kept for API compatibility but ignored for mobile carousel
   maxItems?: number; // how many items to show (default 12)
+
+  /** View all button link (optional). Defaults to /products when not provided */
+  viewAllLink?: string;
 };
 
 export default function BestSellerShowcase({
@@ -43,49 +45,83 @@ export default function BestSellerShowcase({
   accentBg = "#ec4899",
   textColor = "#ffffff",
 
-  // mobileColumns = 2,
   maxItems = 12,
+  viewAllLink = "/products",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+
   const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(true);
+  const [showRight, setShowRight] = useState(false);
+
+  // left arrow position in px from section left (computed)
+  const [leftArrowLeft, setLeftArrowLeft] = useState<number>(20);
 
   const items = useMemo(() => {
-  const arr = Array.isArray(products) ? products : [];
-  return arr.slice(0, maxItems);
-}, [products, maxItems]);
-   
+    const arr = Array.isArray(products) ? products : [];
+    return arr.slice(0, maxItems);
+  }, [products, maxItems]);
+
+  // checks whether left/right arrows should be shown and positions the left arrow
   useEffect(() => {
     const el = scrollRef.current;
-    const checkScroll = () => {
-      if (!el) {
-        setShowLeft(false);
-        setShowRight(false);
-        return;
-      }
+    const section = sectionRef.current;
+    if (!el || !section) {
+      setShowLeft(false);
+      setShowRight(false);
+      return;
+    }
+
+    const checkScrollAndMeasure = () => {
+      const maxScroll = Math.max(el.scrollWidth - el.clientWidth, 0);
       setShowLeft(el.scrollLeft > 5);
-      setShowRight(el.scrollWidth > el.clientWidth + el.scrollLeft + 1);
+      setShowRight(el.scrollLeft < maxScroll - 1);
+
+      // position the left arrow at the left edge of the scroll container (where cards start)
+      try {
+        const sectionRect = section.getBoundingClientRect();
+        const scrollRect = el.getBoundingClientRect();
+        // small padding so the arrow doesn't touch exactly the card's border
+        const left = Math.max(8, Math.round(scrollRect.left - sectionRect.left + 8));
+        setLeftArrowLeft(left);
+      } catch {
+        setLeftArrowLeft(20);
+      }
     };
 
-    checkScroll();
-    el?.addEventListener("scroll", checkScroll, { passive: true });
-    window.addEventListener("resize", checkScroll);
+    // initial
+    checkScrollAndMeasure();
+
+    // listeners
+    el.addEventListener("scroll", checkScrollAndMeasure, { passive: true });
+    const ro = new ResizeObserver(checkScrollAndMeasure);
+    ro.observe(el);
+    ro.observe(section);
+    window.addEventListener("resize", checkScrollAndMeasure);
+
     return () => {
-      el?.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
+      el.removeEventListener("scroll", checkScrollAndMeasure);
+      ro.disconnect();
+      window.removeEventListener("resize", checkScrollAndMeasure);
     };
-  }, []);
+    // note: items.length influences layout; we intentionally watch it in the outer hook deps
+  }, [items.length]);
 
-  const scroll = (dir: "left" | "right", amount = 360) => {
+  const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
+    // adaptive amount: most of visible area (keyboard-friendly)
+    const amount = Math.max(Math.round(el.clientWidth * 0.72), 300);
     el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
   if (status === "pending") {
     return (
       <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
+        <div
+          className="rounded-2xl p-8 text-white"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
           <div className="text-lg font-semibold">Loading Best Sellers…</div>
         </div>
       </section>
@@ -95,21 +131,23 @@ export default function BestSellerShowcase({
   if (status === "error") {
     return (
       <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div className="rounded-2xl p-8 text-red-200" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
+        <div
+          className="rounded-2xl p-8 text-red-200"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
           <div className="text-lg font-semibold">Failed to load best sellers.</div>
         </div>
       </section>
     );
   }
 
-  // memoized deterministic selection — take the first maxItems in incoming order
-
-
-
   if (items.length === 0) {
     return (
       <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
+        <div
+          className="rounded-2xl p-8 text-white"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
           <div className="text-lg">No best sellers found.</div>
         </div>
       </section>
@@ -117,7 +155,9 @@ export default function BestSellerShowcase({
   }
 
   return (
-    <section className="w-full max-w-[1400px] mx-auto mb-16">
+    // Make section relative & overflow-visible so arrows can sit outside the rounded box
+    <section ref={sectionRef} className="w-full max-w-[1400px] mx-auto mb-16 relative overflow-visible">
+      {/* Rounded content box: keep overflow-hidden so the rounded corners stay crisp */}
       <div
         className="rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-5 items-start overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
@@ -131,7 +171,14 @@ export default function BestSellerShowcase({
               aria-hidden
             >
               {icon ?? (
-                <svg width="20" height="16" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <svg
+                  width="20"
+                  height="16"
+                  viewBox="0 0 24 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
+                >
                   <path d="M2 14L6 6L10 14L14 4L18 14L22 6V16H2V14Z" fill="#3B0B68" />
                 </svg>
               )}
@@ -157,30 +204,37 @@ export default function BestSellerShowcase({
           <p className="mt-4 text-sm" style={{ color: `${lightenHex(textColor, 0.25)}` }}>
             {subText}
           </p>
+
+          {/* VIEW ALL button: responsive (full-width on mobile, inline on md+) */}
+          <div className="mt-5 md:mt-6">
+            <a
+              href={viewAllLink}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition-transform duration-150 focus:outline-none focus:ring-4"
+              style={{
+                background: accentBg,
+                color: textColor,
+                width: "100%",
+                display: "inline-flex",
+                textDecoration: "none",
+                justifyContent: "center",
+              }}
+              aria-label="View all best sellers"
+            >
+              View All
+            </a>
+          </div>
         </div>
 
         {/* Right area */}
         <div className="relative flex-1 w-full">
-          {/* Left button (visible on all breakpoints, smaller on mobile) */}
-          <button
-            onClick={() => scroll("left", 300)}
-            aria-label="scroll left"
-            className={`absolute z-20 left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center transition-transform duration-150 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30 md:left-2 md:w-10 md:h-10 ${
-              showLeft ? "opacity-100 scale-100" : "opacity-0 pointer-events-none scale-95"
-            }`}
-          >
-            <svg className="rotate-180" width="12" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M8 5L16 12L8 19" stroke="#2a0450" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          {/* Mobile: single-card carousel (snap) */}
           <div
             ref={scrollRef}
-            className="flex md:hidden gap-4 py-3 px-4 overflow-x-auto scroll-smooth items-start snap-x snap-mandatory"
+            className="flex gap-4 py-3 px-4 md:py-2 md:px-6 overflow-x-auto scroll-smooth items-start snap-x snap-mandatory md:snap-none"
             style={{
               msOverflowStyle: "none",
               scrollbarWidth: "none",
+              paddingRight: 96,
+              scrollPaddingRight: 96,
             }}
           >
             <style>{`div::-webkit-scrollbar{ display: none !important; }`}</style>
@@ -188,51 +242,59 @@ export default function BestSellerShowcase({
             {items.map((p) => (
               <div
                 key={p._id}
-                className="flex-shrink-0 snap-center w-[calc(100%-48px)] max-w-[420px] min-w-0"
-                aria-hidden={false}
+                // responsive card sizing:
+                // - mobile: near full width snap card (w-[calc(100%-48px)] up to max-w-[420px])
+                // - md+: fixed card width (220px) so many cards don't overflow the viewport
+                className="flex-shrink-0 snap-center md:snap-start w-[calc(100%-24px)] max-w-[520px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover" style={{ willChange: "transform, box-shadow" }}>
                   <ProductCard product={p} />
                 </div>
               </div>
             ))}
+
+            {/* end spacer: make it at least one card wide so final card never touches container edge */}
+            <div style={{ minWidth: 240 }} aria-hidden />
           </div>
-
-          {/* Desktop/tablet: original horizontal scroll list (unchanged) */}
-          <div
-            className="hidden md:flex gap-6 py-2 px-6 overflow-x-auto scroll-smooth items-start"
-            style={{
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
-          >
-            <style>{`div::-webkit-scrollbar{ display: none !important; }`}</style>
-
-            {items.map((p) => (
-              <div key={p._id} className="flex-shrink-0 min-w-[220px] max-w-[220px]">
-                <div className="bs-hover" style={{ willChange: "transform, box-shadow" }}>
-                  <ProductCard product={p} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right button (visible on all breakpoints) */}
-          <button
-            onClick={() => scroll("right", 300)}
-            aria-label="scroll right"
-            className={`absolute z-20 right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center transition-transform duration-150 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30 md:right-2 md:w-10 md:h-10 ${
-              showRight ? "opacity-100 scale-100" : "opacity-0 pointer-events-none scale-95"
-            }`}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M8 5L16 12L8 19" stroke="#2a0450" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
         </div>
       </div>
 
-      {/* Subtle hover effect CSS (gentle lift + tiny scale) and mobile fixes */}
+      {/* ARROWS: placed as siblings of the rounded box (inside section), so they are not clipped.
+          They are hidden by opacity:0 when not needed (no faint dot). */}
+      <button
+        onClick={() => scroll("left")}
+        aria-label="scroll left"
+        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30"
+        style={{
+          left: leftArrowLeft,
+          zIndex: 60,
+          opacity: showLeft ? 1 : 0,
+          pointerEvents: showLeft ? "auto" : "none",
+          transform: showLeft ? "translateY(-50%) translateX(0)" : "translateY(-50%) translateX(-6px)",
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18L9 12L15 6" stroke="#2a0450" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      <button
+        onClick={() => scroll("right")}
+        aria-label="scroll right"
+        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30"
+        style={{
+          right: 20,
+          zIndex: 60,
+          opacity: showRight ? 1 : 0,
+          pointerEvents: showRight ? "auto" : "none",
+          transform: showRight ? "translateY(-50%) translateX(0)" : "translateY(-50%) translateX(6px)",
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18L15 12L9 6" stroke="#2a0450" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
       <style>{`
         .bs-hover {
           transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms;
@@ -242,7 +304,6 @@ export default function BestSellerShowcase({
           transform: translateY(-3px) scale(1.02);
           box-shadow: 0 10px 28px rgba(10,8,20,0.16);
         }
-        /* Ensure inner card fills wrapper and images don't force overflow */
         .bs-hover > * {
           width: 100%;
           max-width: 100%;

@@ -5,6 +5,8 @@ import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useCategoriesMap } from "./useCategoriesMap";
+
 
 interface Props {
   product: Product;
@@ -22,7 +24,7 @@ export default function ProductCard({ product }: Props) {
     variant?.discountPrice != null ? variant.discountPrice : null;
   const stock: number = variant?.stock ?? 0;
 
-  // discount percent: only when originalPrice > 0 and discountPrice is a valid number lower than original
+  // discount percent
   let discountPercent: number = 0;
   if (
     typeof originalPrice === "number" &&
@@ -31,10 +33,10 @@ export default function ProductCard({ product }: Props) {
     discountPrice < originalPrice
   ) {
     const rawPercent = ((originalPrice - discountPrice) / originalPrice) * 100;
-    discountPercent = Number(rawPercent.toFixed(2)); // keeps up to 2 decimals and trims trailing zeros
+    discountPercent = Number(rawPercent.toFixed(2));
   }
 
-  // image selection (product.images is prioritized)
+  // image selection
   const imageUrl =
     (product.images && product.images.length > 0 && `/images/${product.images[0]}`) ||
     (variant?.thumbnail && `/images/${variant.thumbnail}`) ||
@@ -94,17 +96,42 @@ export default function ProductCard({ product }: Props) {
     }
   };
 
-  // ratings (0..5). Handle undefined gracefully.
+  // ratings (0..5)
   const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
   const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
 
-  // category string (product.category is an array)
-  const categoryLabel =
-    Array.isArray(product.category) && product.category.length > 0
-      ? product.category[0]
-      : typeof product.category === "string"
-      ? product.category
-      : "General";
+  // --- resolve category name using categoriesMap fetched from backend ---
+  const categoriesMap = useCategoriesMap();
+
+  const getCategoryLabel = (): string => {
+    const cat = product.category;
+
+    // Case: populated array of objects [{ _id, name }]
+    if (Array.isArray(cat) && cat.length > 0) {
+      const first = cat[0];
+      if (first && typeof first === "object" && "name" in first) {
+        return (first as any).name ?? "General";
+      }
+      // if first is string (id)
+      if (typeof first === "string") {
+        return categoriesMap[first] ?? "General";
+      }
+    }
+
+    // Case: single string id
+    if (typeof cat === "string") {
+      return categoriesMap[cat] ?? "General";
+    }
+
+    // Case: single populated object { name }
+    if (cat && typeof cat === "object" && "name" in cat) {
+      return (cat as any).name ?? "General";
+    }
+
+    return "General";
+  };
+
+  const categoryLabel = getCategoryLabel();
 
   return (
     <div className="group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden md:w-[220px] w-full md:h-[340px]">
@@ -187,8 +214,6 @@ export default function ProductCard({ product }: Props) {
         {stock > 0 && (
           <div
             className={
-              /* ADJUSTMENT: added '-translate-y-2 z-10' so on mobile the button lifts ~8px above card bottom.
-                 Desktop behavior remains the same via md: classes. */
               "left-0 w-full flex justify-center transition-all duration-300 " +
               "opacity-100 mt-2 md:mt-0 -translate-y-2 z-10 " +
               "md:opacity-0 md:translate-y-4 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:absolute md:bottom-3"

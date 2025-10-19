@@ -50,7 +50,6 @@ export default function Consumables() {
   iconBg="#ffffff"
   accentBg="#06b6d4"
   textColor="#04263a"
-  mobileColumns={2}
   maxItems={8}
 />
        <PromoBanners
@@ -83,7 +82,6 @@ export default function Consumables() {
   iconBg="#ffffff"
   accentBg="#06b6d4"
   textColor="#04263a"
-  mobileColumns={2}
   maxItems={8}
 />
        <PromoBanners
@@ -116,7 +114,6 @@ export default function Consumables() {
   iconBg="#ffffff"
   accentBg="#06b6d4"
   textColor="#04263a"
-  mobileColumns={2}
   maxItems={8}
 />
        <PromoBanners

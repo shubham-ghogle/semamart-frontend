@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import Header from "../Header/Header";
+import { Link } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
+import { useNavigate } from "react-router-dom";
+
 
 interface Product {
   _id: string;
@@ -82,17 +84,17 @@ const MyOrders = () => {
     return `/images/${src}`;
   };
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "N/A";
-    const d = new Date(dateStr);
-    return isNaN(d.getTime())
-      ? "Invalid Date"
-      : d.toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-  };
+  // const formatDate = (dateStr?: string) => {
+  //   if (!dateStr) return "N/A";
+  //   const d = new Date(dateStr);
+  //   return isNaN(d.getTime())
+  //     ? "Invalid Date"
+  //     : d.toLocaleDateString(undefined, {
+  //         month: "short",
+  //         day: "numeric",
+  //         year: "numeric",
+  //       });
+  // };
 
   // ✅ Filter by product name or order ID
   const filteredOrders = orders.filter((order) => {
@@ -104,27 +106,45 @@ const MyOrders = () => {
   });
 
   // ✅ Status banner styles
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-700";
-      case "Processing":
-        return "bg-yellow-100 text-yellow-700";
-      case "On the way":
-        return "bg-blue-100 text-blue-700";
-      case "Cancelled":
-      case "Returned":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
+  // const getStatusStyle = (status: string) => {
+  //   switch (status) {
+  //     case "Delivered":
+  //       return "bg-green-100 text-green-700";
+  //     case "Processing":
+  //       return "bg-yellow-100 text-yellow-700";
+  //     case "On the way":
+  //       return "bg-blue-100 text-blue-700";
+  //     case "Cancelled":
+  //     case "Returned":
+  //       return "bg-red-100 text-red-700";
+  //     default:
+  //       return "bg-gray-100 text-gray-700";
+  //   }
+  // };
+  const navigate = useNavigate();
+
+const handleOrderClick = (productId: string) => {
+  navigate(`/account/orders/${productId}`);
+};
+
 
   return (
-    <div className="font-montserrat">
-      <Header />
 
-      <div className="flex flex-col md:flex-row p-6 bg-gray-50 min-h-screen">
+      <div>    
+      <nav className="text-sm text-gray-500 mb-6 ml-20 mt-5">
+            <ul className="flex gap-2 items-center">
+              <li>
+                <Link to="/" className="hover:text-blue-600">Home</Link>
+              </li>
+              <li>/</li>
+              <li>
+                <Link to="/account" className="hover:text-blue-600">My Account</Link>
+              </li>
+              <li>/</li>
+              <li className="font-semibold text-gray-800">My Orders</li>
+            </ul>
+          </nav>
+      <div className="flex flex-col md:flex-row ml-20 mr-20 mt-6 bg-gray-50 min-h-screen">
         {/* Sidebar Filters */}
         <aside className="md:w-1/4 mb-6 md:mb-0 bg-white p-4 rounded shadow">
           <h2 className="text-xl font-semibold mb-4">Filters</h2>
@@ -185,11 +205,13 @@ const MyOrders = () => {
           {/* Error */}
           {error && <p className="text-red-600 mb-4">{error}</p>}
 
-          {/* Loading */}
+         {/* Loading / Error / Empty */}
           {loading ? (
             <p>Loading orders...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
               <div className="text-5xl mb-4 animate-bounce">📦</div>
               <h2 className="text-xl font-semibold mb-2">No Orders Found</h2>
               <p className="text-sm text-gray-400">
@@ -197,105 +219,111 @@ const MyOrders = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {filteredOrders.map((order) => {
                 const variant = order.variant;
                 const product = variant?.productId;
-
                 if (!product) return null;
 
-                const imageUrl = variant?.thumbnail
-                  ? normalizeImage(variant.thumbnail)
-                  : product.images && product.images.length > 0
-                  ? normalizeImage(product.images[0])
-                  : "/placeholder.png";
+                const imageUrl = normalizeImage(
+                  variant?.thumbnail ??
+                    product.images?.[0] ??
+                    "/placeholder.png"
+                );
 
                 return (
-                  <div
-                    key={order._id}
-                    className="border rounded-md p-4 bg-white shadow-sm flex flex-col gap-3"
-                  >
-                    {/* Status Banner */}
                     <div
-                      className={`px-3 py-1 rounded-full text-xs font-semibold self-start ${getStatusStyle(
-                        order.status
-                      )}`}
-                    >
-                      {order.status}
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex items-start gap-4">
+                  key={order._id}
+                  onClick={() => handleOrderClick(product._id)}
+                  className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-4 cursor-pointer"
+                >
+                  {/* Row container */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                    {/* 🖼️ Image column */}
+                    <div className="md:col-span-2 flex justify-center md:justify-start">
                       <img
                         src={imageUrl}
                         alt={product.name}
-                        className="w-20 h-20 object-cover rounded border"
+                        className="w-24 h-24 object-cover rounded-lg border"
                       />
+                    </div>
 
-                      <div className="flex flex-1 flex-col">
-                        <h3 className="text-base font-bold">{product.name}</h3>
-                        <p className="text-sm text-gray-600">Quantity: {order.qty}</p>
-                        {variant && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Variant:</span>{" "}
-                            {variant.size ? `Size ${variant.size} ` : ""}
-                            {variant.colorOption ? `Color ${variant.colorOption}` : ""}
-                          </p>
+                    {/* 🏷️ Name & variant column */}
+                    <div className="md:col-span-5">
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
+                        {product.name.split(" ").slice(0, 8).join(" ")}
+                        {product.name.split(" ").length > 8 && "..."}
+                      </h3>
+
+                      <div className="text-gray-600 text-sm mt-1">
+                        {variant?.colorOption && (
+                          <span>
+                            Color:{" "}
+                            <span className="font-medium text-gray-700">{variant.colorOption}</span>
+                          </span>
                         )}
-                        {order.shop?.email && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Seller:</span> {order.shop.email}
-                          </p>
+                        {variant?.size && (
+                          <span className="ml-4">
+                            Size:{" "}
+                            <span className="font-medium text-gray-700">{variant.size}</span>
+                          </span>
                         )}
-                        <p className="text-sm font-bold mt-1">
-                          Total: ₹{order.totalPrice}
-                        </p>
                       </div>
                     </div>
 
-                    {/* Shipping + User */}
-                    {order.shippingAddress && (
-                      <div className="text-xs text-gray-600 mt-2">
-                        <p>
-                          <span className="font-semibold">Ship To:</span>{" "}
-                          {order.shippingAddress.instituteAddress1},{" "}
-                          {order.shippingAddress.district},{" "}
-                          {order.shippingAddress.state} -{" "}
-                          {order.shippingAddress.pincode}
-                        </p>
-                        {order.shippingAddress.landmark && (
-                          <p>Landmark: {order.shippingAddress.landmark}</p>
-                        )}
-                      </div>
-                    )}
-                    {order.user && (
-                      <div className="text-xs text-gray-600">
-                        <p>
-                          <span className="font-semibold">Ordered By:</span>{" "}
-                          {order.user.firstName} {order.user.lastName}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Phone:</span>{" "}
-                          {order.user.phoneNumber}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Dates */}
-                    <div className="text-xs text-gray-500 mt-1">
-                      Placed on: {formatDate(order.createdAt)}
-                      {order.deliveredAt && (
-                        <p>Delivered on: {formatDate(order.deliveredAt)}</p>
-                      )}
+                    {/* 💰 Price column */}
+                    <div className="md:col-span-2 text-center">
+                      <p className="text-lg font-semibold text-gray-900">₹{order.totalPrice}</p>
                     </div>
+
+                    {/* 🚚 Delivery status & review column */}
+                   <div className="md:col-span-3 text-sm text-right">
+                      {/* 🟢 Status */}
+                      <div className="font-medium text-gray-800">
+                        <span
+                          className={`inline-block w-2.5 h-2.5 rounded-full mr-2 ${
+                            order.status === "Delivered"
+                              ? "bg-green-500"
+                              : order.status === "Cancelled"
+                              ? "bg-red-500"
+                              : "bg-yellow-500"
+                          }`}
+                        ></span>
+                        {order.status}
+                      </div>
+
+                      {/* 📦 Delivery text */}
+                      <p className="text-xs text-gray-500 mt-1">
+                        {order.status === "Delivered"
+                          ? `Delivered on ${new Date(order.deliveredAt || "").toLocaleDateString()}`
+                          : `Your item is ${order.status.toLowerCase()}`}
+                      </p>
+
+                      {/* ⭐ Rate & Review */}
+                      <button className="text-blue-600 hover:underline text-sm font-medium mt-2 inline-flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          className="w-4 h-4 text-blue-600"
+                        >
+                          <path d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z" />
+                        </svg>
+                        Rate & Review
+                      </button>
+                    </div>
+
+
                   </div>
+                </div>
+
                 );
               })}
             </div>
           )}
         </main>
       </div>
-    </div>
+      </div>
   );
 };
 
