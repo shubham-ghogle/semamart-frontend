@@ -1,3 +1,4 @@
+// src/pages/seller/SellerAllProductsScreen.tsx
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { Product } from "../../Types/types";
@@ -15,11 +16,7 @@ export default function SellerAllProductsScreen() {
   const errMess = "Something went wrong";
 
   return (
-    <SellerMainWrapper
-      status={status}
-      errorMeassage={errMess}
-      heading="Products"
-    >
+    <SellerMainWrapper status={status} errorMeassage={errMess} heading="Products">
       {data && (
         <div className="p-4 bg-white shadow rounded">
           <SellerProductTable products={data} />
