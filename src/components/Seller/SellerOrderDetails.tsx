@@ -21,7 +21,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       default: [
         "Processing",
         "Packed",
-        "Shipping",
+        "Shipped",
         // "Received",
         // "On the way",
         // "Delivered",
@@ -54,7 +54,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
             className="w-full flex items-center gap-2 mb-5"
           >
             <img
-              src={BASE_URL + "/images/" + data.variant.thumbnail}
+              src={BASE_URL + "/images/" + data.variant?.thumbnail}
               alt="Product item order img"
               className="w-[80x] h-[80px]"
             />
