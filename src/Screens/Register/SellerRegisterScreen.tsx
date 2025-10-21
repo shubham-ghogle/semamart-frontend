@@ -1,7 +1,8 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { NavLink } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLoading, AiOutlineCloseCircle } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 interface SellerForm {
   firstName: string;
@@ -36,6 +37,7 @@ export default function SellerRegistration(): JSX.Element {
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [agree, setAgree] = useState<boolean>(false);
   const [regStatus, setRegStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
+  const navigate = useNavigate();
 
   const steps = [
     { id: 1, title: "Personal Details" },
@@ -137,34 +139,78 @@ export default function SellerRegistration(): JSX.Element {
 
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!validateStep()) return;
-    setRegStatus("pending");
-    setTimeout(() => setRegStatus("success"), 1000);
-  };
+ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!validateStep()) return;
 
-  useEffect(() => {
-    if (regStatus === "success") {
-      alert("Registration successful!");
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        businessName: "",
-        gstNumber: "",
-        phoneNumber: "",
-        businessType: "",
-        password: "",
-        confirmPassword: "",
-      });
-      setBanner(null);
-      setProfilePic(null);
-      setAgree(false);
-      setStep(1);
-      setRegStatus("idle");
+  setRegStatus("pending");
+
+  try {
+    const form = new FormData();
+    Object.entries(formData).forEach(([key, value]) => form.append(key, value));
+    if (profilePic) form.append("profilePic", profilePic);
+    if (banner) form.append("banner", banner);
+
+    const response = await fetch("/api/v2/shop/create-shop", {
+      method: "POST",
+      body: form,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setRegStatus("error");
+      alert(result.message || "Failed to register seller.");
+      return;
     }
-  }, [regStatus]);
+
+   
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      businessName: "",
+      gstNumber: "",
+      phoneNumber: "",
+      businessType: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setBanner(null);
+    setProfilePic(null);
+    setAgree(false);
+    setStep(1);
+    setRegStatus("success");
+    navigate("/seller");
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    setRegStatus("error");
+    alert("Something went wrong. Please try again later.");
+  }
+};
+
+
+  // useEffect(() => {
+  //   if (regStatus === "success") {
+  //     alert("Registration successful!");
+  //     setFormData({
+  //       firstName: "",
+  //       lastName: "",
+  //       email: "",
+  //       businessName: "",
+  //       gstNumber: "",
+  //       phoneNumber: "",
+  //       businessType: "",
+  //       password: "",
+  //       confirmPassword: "",
+  //     });
+  //     setBanner(null);
+  //     setProfilePic(null);
+  //     setAgree(false);
+  //     setStep(1);
+  //     setRegStatus("idle");
+  //   }
+  // }, [regStatus]);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
