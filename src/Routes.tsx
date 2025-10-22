@@ -48,6 +48,7 @@ import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpe
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
 import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
+import MyOrderPage from "./components/Account/Orderpage";
 
 export const router = createBrowserRouter([
   {
@@ -206,11 +207,12 @@ export const router = createBrowserRouter([
       { index: true, element: <MyProfile /> },
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
+      { path: "orders", element: <MyOrderPage /> },
     ],
   },
 
   // ✅ Orders page (Protected)
-  { path: "/account/orders", loader: requireUserAuth, element: <OrderPage /> },
+   { path: "/myorders", loader: requireUserAuth, element: <OrderPage /> },
 
   // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
