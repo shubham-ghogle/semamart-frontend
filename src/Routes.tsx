@@ -31,6 +31,7 @@ import Consumables from "./Screens/Consumables/Consumables";
 import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
 import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
+import SellerActivation from "./Screens/Seller/SellerActivation";
 import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import MyProfile from "./components/Account/MyProfile";
@@ -213,9 +214,12 @@ export const router = createBrowserRouter([
 
   // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
+  { path: "/seller/activation/:activation_token", element: <SellerActivation /> },
   { path: "/account", element: <AccountNavbar /> },
   { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
   { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
   { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+  { path: "*", element: <div>404 - Page Not Found</div> },
+
 ]);

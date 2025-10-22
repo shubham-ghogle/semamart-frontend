@@ -37,6 +37,7 @@ export default function SellerRegistration(): JSX.Element {
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [agree, setAgree] = useState<boolean>(false);
   const [regStatus, setRegStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
+  const [showVerificationDialog, setShowVerificationDialog] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const steps = [
@@ -91,7 +92,7 @@ export default function SellerRegistration(): JSX.Element {
     if (!/[A-Z]/.test(password)) errors.push("1 uppercase");
     if (!/[a-z]/.test(password)) errors.push("1 lowercase");
     if (!/[0-9]/.test(password)) errors.push("1 number");
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("1 special char");
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) errors.push("1 special char");
     return errors;
   };
 
@@ -139,56 +140,61 @@ export default function SellerRegistration(): JSX.Element {
 
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
- const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (!validateStep()) return;
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validateStep()) return;
 
-  setRegStatus("pending");
+    setRegStatus("pending");
 
-  try {
-    const form = new FormData();
-    Object.entries(formData).forEach(([key, value]) => form.append(key, value));
-    if (profilePic) form.append("profilePic", profilePic);
-    if (banner) form.append("banner", banner);
+    try {
+      const form = new FormData();
+      Object.entries(formData).forEach(([key, value]) => form.append(key, value));
+      if (profilePic) form.append("profilePic", profilePic);
+      if (banner) form.append("banner", banner);
 
-    const response = await fetch("/api/v2/shop/create-shop", {
-      method: "POST",
-      body: form,
-    });
+      const response = await fetch("/api/v2/shop/create-shop", {
+        method: "POST",
+        body: form,
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setRegStatus("error");
+        alert(result.message || "Failed to register seller.");
+        return;
+      }
+
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        businessName: "",
+        gstNumber: "",
+        phoneNumber: "",
+        businessType: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setBanner(null);
+      setProfilePic(null);
+      setAgree(false);
+      setStep(1);
+      setRegStatus("success");
+
+      // --- NEW: show verification dialog and auto-redirect after 5s ---
+      setShowVerificationDialog(true);
+      setTimeout(() => {
+        setShowVerificationDialog(false);
+        navigate("/seller");
+      }, 5000);
+      // --- end NEW ---
+    } catch (error) {
+      console.error("Error submitting form:", error);
       setRegStatus("error");
-      alert(result.message || "Failed to register seller.");
-      return;
+      alert("Something went wrong. Please try again later.");
     }
-
-   
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      businessName: "",
-      gstNumber: "",
-      phoneNumber: "",
-      businessType: "",
-      password: "",
-      confirmPassword: "",
-    });
-    setBanner(null);
-    setProfilePic(null);
-    setAgree(false);
-    setStep(1);
-    setRegStatus("success");
-    navigate("/seller");
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    setRegStatus("error");
-    alert("Something went wrong. Please try again later.");
-  }
-};
-
+  };
 
   // useEffect(() => {
   //   if (regStatus === "success") {
@@ -260,11 +266,11 @@ export default function SellerRegistration(): JSX.Element {
                   {errors[key] && <p className="text-red-500 text-xs mt-1">{errors[key]}</p>}
                 </div>
               ))}
-              
+
                 <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">
                   Next
                 </button>
-              
+
             </div>
           )}
 
@@ -420,6 +426,41 @@ export default function SellerRegistration(): JSX.Element {
           )}
         </form>
       </div>
+
+      {/* Verification Dialog (added) */}
+      {showVerificationDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+            <FaCheckCircle className="text-green-500 mx-auto mb-4" size={48} />
+            <h3 className="text-xl font-semibold mb-2">Email Verification Sent</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              A verification link has been sent to your registered email. The link will be active for <strong>10 minutes</strong>.
+            </p>
+            <p className="text-gray-700 mb-6">Waiting for verification...</p>
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => {
+                  // allow user to close dialog and stay on page
+                  setShowVerificationDialog(false);
+                }}
+                className="px-4 py-2 rounded-md bg-gray-200 text-gray-800"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowVerificationDialog(false);
+                  navigate("/seller");
+                }}
+                className="px-4 py-2 rounded-md bg-[#006666] text-white"
+              >
+                Go to Seller area
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">You will be redirected automatically in 5 seconds.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
