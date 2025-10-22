@@ -4,8 +4,9 @@ import { useState } from "react";
 import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
 import { formatDate } from "../UIComponents/Inputs";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
+import { Button } from "../ui/button";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -36,8 +37,35 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
     return statuses.default;
   };
 
+  const handleDownloadInvoice = async (orderId: string | undefined) => {
+    if (!orderId) return;
+    try {
+      const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
+        method: "GET",
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error("Invoice download failed:", err);
+    }
+  };
+
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
+      <section className="flex justify-end items-center">
+        <Button
+          variant="outline"
+          onClick={() => handleDownloadInvoice(orderId)}
+        >
+          Download Invoice
+        </Button>
+      </section>
       <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
         <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField
@@ -65,7 +93,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                US${data.qty} x {data.variant.discountPrice}
+                 ₹{data.qty} x {data.variant.discountPrice}
               </h5>
             </div>
             <OrderDetailsField
