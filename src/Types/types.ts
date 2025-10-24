@@ -6,7 +6,7 @@ export interface Review {
   product: string | Product;
   createdAt: Date;
   updatedAt: Date;
-  _id: string
+  _id: string;
 }
 
 // interface Shop {
@@ -26,103 +26,105 @@ export interface Review {
 // }
 
 export interface Variant {
-  size?: string | null
-  colorOption?: string | null
-  thumbnail?: string | null
-  originalPrice: number
-  discountPrice?: number
-  stock: number
-  _id: string
-  productId:string | Product
-  bulkOrders:{qty:number,price:number,_id:string}[]
+  size?: string | null;
+  colorOption?: string | null;
+  thumbnail?: string | null;
+  originalPrice: number;
+  discountPrice?: number;
+  stock: number;
+  _id: string;
+  productId: string | Product;
+  bulkOrders: { qty: number; price: number; _id: string }[];
 }
 
 export interface Product {
-  _id: string
-  name: string
-  category: string[]   // fixed
-  subCategory: string[]   // fixed
-  tags: string[]
-  productType: string
-  intendedUse: string   // fixed (required)
-  sku: string
-  gtin: string
-  hsn: string
-  unspsc?: string
-  upsells?: string[]
-  crosssells?: string[]
-  specialityPackage: string   // fixed (required)
-  specialityPackageType: string   // fixed (required)
-  manufacturer:string | {
-    manufacturerName: string 
-    email: string
-    phone: string
-    origin: string
-  }
+  _id: string;
+  name: string;
+  category: string[]; // fixed
+  subCategory: string[]; // fixed
+  tags: string[];
+  productType: string;
+  intendedUse: string; // fixed (required)
+  sku: string;
+  gtin: string;
+  hsn: string;
+  unspsc?: string;
+  upsells?: string[];
+  crosssells?: string[];
+  specialityPackage: string; // fixed (required)
+  specialityPackageType: string; // fixed (required)
+  manufacturer:
+    | string
+    | {
+        manufacturerName: string;
+        email: string;
+        phone: string;
+        origin: string;
+      };
   // manufacturerName?: string   // fixed
   // email?: string
   // phone?: string
   // origin?: string
-  shortdescription: string
-  description: string
-  attributes?: Record<string, string>[]
-  weight: string
-  dimension: string
-  variants: Variant[]
-  sterile: boolean   // fixed
-  singleUse: boolean // fixed
-  manufacturingDate: Date
-  productCompilance?: string[]
-  msds_ifu_leaflet?: string[]
-  minmaxrule: Record<string, any>
-  taxStatus: string
-  taxClass: number
-  unitOfMeasure: string
-  stockStatus: string // fixed
-  deliveryLeadTime: string
-  warranty: string
-  enableStockManagement: boolean
-  amc_cms: string
-  rma: string
-  dispatchLocation: string
-  dispatchPinCode: number
-  unitsPerCarton: number
-  shippingWeight: number
-  packagingType: string
+  shortdescription: string;
+  description: string;
+  attributes?: Record<string, string>[];
+  weight: string;
+  dimension: string;
+  variants: Variant[];
+  sterile: boolean; // fixed
+  singleUse: boolean; // fixed
+  manufacturingDate: Date;
+  productCompilance?: string[];
+  msds_ifu_leaflet?: string[];
+  minmaxrule: Record<string, any>;
+  taxStatus: string;
+  taxClass: number;
+  unitOfMeasure: string;
+  stockStatus: string; // fixed
+  deliveryLeadTime: string;
+  warranty: string;
+  enableStockManagement: boolean;
+  amc_cms: string;
+  rma: string;
+  dispatchLocation: string;
+  dispatchPinCode: number;
+  unitsPerCarton: number;
+  shippingWeight: number;
+  packagingType: string;
   // deliveryPartner: string
-  deliveryInstruction: string
-  shelfing_storage_req: string
+  deliveryInstruction: string;
+  shelfing_storage_req: string;
   // allowSingleQuantity?: boolean
-  discountOptions?: string
-  productStatus?: string
-  visibility: "public" | "hidden"
-  purchaseNote?: string
-  images: string[]
-  shortVideo?: string
-  certificate?: string[]
-  oemLetter?: string
-  productComparisionSheet?: string
-  allowProductReviews: boolean
-  reviews?: string[] | Review[] // fixed
-  ratings?: number
-  shopId: string | Seller
-  sold_out: number
-  createdAt: Date
-  updatedAt: Date
-  commission?:number
+  discountOptions?: string;
+  productStatus?: string;
+  visibility: "public" | "hidden";
+  purchaseNote?: string;
+  images: string[];
+  shortVideo?: string;
+  certificate?: string[];
+  oemLetter?: string;
+  productComparisionSheet?: string;
+  allowProductReviews: boolean;
+  reviews?: string[] | Review[]; // fixed
+  ratings?: number;
+  shopId: string | Seller;
+  sold_out: number;
+  createdAt: Date;
+  updatedAt: Date;
+  commission?: number;
 }
 
 export type Address = {
-  _id?: string;                
-  reciever_name: string;        
-  phone: string;                
-  instituteAddress1: string;  
-  district: string;            
-  state: string;                
-  pincode: string;              
-  instituteAddress2?: string;  
-  landmark?: string;            
-  alternatePhone?: string;      
+  _id?: string;
+  reciever_name: string;
+  phone: string;
+  instituteAddress1: string;
+  district: string;
+  state: string;
+  pincode: string;
+  instituteAddress2?: string;
+  landmark?: string;
+  alternatePhone?: string;
   addressType?: string;
 };
 
@@ -179,28 +181,52 @@ type PaymentInfo = {
 };
 
 export type Order = {
-  _id: string
-  cart?: { productId: string | Product;variantId:string | Variant; qty: number; shopId: string;   isReviewed?: boolean; // ✅ add this
- }[];
+  _id: string;
+  cart?: {
+    productId: string | Product;
+    variantId: string | Variant;
+    qty: number;
+    shopId: string;
+    isReviewed?: boolean; // ✅ add this
+  }[];
   shippingAddress: Address;
-  user:string | User;
+  user: string | User;
   totalPrice: number;
   status?:
-  "Processing"
-  | "Transferred to delivery partner"
-  | "Shipped"
-  | "Received"
-  | "On the way"
-  | "Delivered"
-  | "Processing refund"
-  | "Refund Success";
+    | "Processing"
+    | "Transferred to delivery partner"
+    | "Shipped"
+    | "Received"
+    | "On the way"
+    | "Delivered"
+    | "Processing refund"
+    | "Refund Success";
   paymentInfo?: PaymentInfo;
   paidAt?: Date;
   deliveredAt?: Date;
   createdAt?: Date;
-  shop?: string|Seller;
-  variant:string|Variant;
-  qty:number
+  shop?: string | Seller;
+  variant: string | Variant;
+  qty: number;
+  statusHistory?: {
+    _id: string;
+    type:
+      | "Processing"
+      | "Transferred to delivery partner"
+      | "Shipped"
+      | "Received"
+      | "On the way"
+      | "Delivered"
+      | "Processing refund"
+      | "Refund Success";
+    updatedAt: string;
+  }[];
+  trackingDetails?:{
+    logisticPartner: string,
+    pickupPerson: string,
+    pickupPersonPhone: number,
+    trackingNumber: string,
+  }
 };
 
 export type CategoryApiRes = {
@@ -209,7 +235,7 @@ export type CategoryApiRes = {
   subcategories: string[];
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export interface SubCategory {
   _id: string;
@@ -227,5 +253,4 @@ export type CategoryDetailApiRes = {
   subcategories: SubCategory[];
   createdAt: Date;
   updatedAt: Date;
-}
-
+};
