@@ -1,23 +1,26 @@
-// File: src/components/AccountLayout.tsx
 import { Outlet } from "react-router-dom";
-import Header from "../Header/Header"; // keep your real header
+import Header from "../Header/Header";
 import AccountNavbar from "../Account/AccountNavbar";
-
 
 export default function AccountLayout() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="bg-gray-50 h-screen overflow-hidden">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Header />
+      </div>
 
-      <section className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-[320px_1fr] gap-6 py-8">
-        {/* Sidebar (AccountNavbar handles its own responsive drawer on small screens) */}
-        <AccountNavbar />
+      <div className="pt-[80px] h-full flex">
+        {/* Fixed Sidebar for desktop */}
+        <div className="hidden md:block fixed mt-12 left-0 w-[320px] h-[calc(100vh-80px)] z-40 pl-4">
+          <AccountNavbar />
+        </div>
 
-        {/* Main content area */}
-        <main className="min-h-[calc(100vh-120px)]">
+        {/* Scrollable main content */}
+        <main className="flex-1 ml-0 md:ml-[320px] h-[calc(100vh-80px)] overflow-y-auto px-4 md:px-6 py-8">
           <Outlet />
         </main>
-      </section>
+      </div>
     </div>
   );
 }

@@ -214,3 +214,39 @@ export function useAdminOrderMutation() {
   });
   return { mutationStatus, mutateOrder };
 }
+
+export interface DashboardSummary {
+  newVendors: number;
+  vendors: number;
+  vendorTrend: string; // percentage string, e.g. "12.3"
+  newInstitutes: number;
+  institutes: number;
+  instituteTrend: string;
+  newOrders: number;
+  orders: number;
+  orderTrend: string;
+  monthlyOrders: { month: string; orders: number }[];
+}
+
+export interface DashboardSummaryApiRes {
+  success: boolean;
+  data: DashboardSummary;
+}
+
+export async function getAdminDashboardSummary(): Promise<DashboardSummary> {
+  const token = localStorage.getItem("user-token"); // if your backend needs auth here
+  const res = await fetch("/api/v2/adminsummary/admin-dashboard-summary", {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+
+  if (!res.ok) {
+    const errMessage = await res.json();
+    throw new Error(errMessage.message || "Failed to fetch dashboard summary");
+  }
+
+  const data = (await res.json()) as DashboardSummaryApiRes;
+  if (!data.success) throw new Error("Failed to fetch dashboard summary");
+  return data.data;
+}

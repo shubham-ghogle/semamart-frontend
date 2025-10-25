@@ -29,7 +29,7 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
     totalPrice: el.totalPrice.toString(),
     orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
     viewOrder: (orderId: string) => {
-      navigate(orderId); 
+      navigate("/seller/orders/"+orderId); 
     },
   }));
 

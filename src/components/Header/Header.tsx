@@ -650,7 +650,7 @@ export default function Header() {
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/account" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><FaRegCircleUser size={16} /><span>My Account</span></Link>
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/wishlist" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineHeart size={16} /><span>Wishlist</span></Link>
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/add-to-cart" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineShoppingCart size={16} /><span>Cart</span></Link>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/account/orders" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><RiShoppingBag4Line size={16} /><span>My Orders</span></Link>
+                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/myorders" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><RiShoppingBag4Line size={16} /><span>My Orders</span></Link>
                         <hr className="my-1" />
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/support" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><MdOutlineSupportAgent size={16} /><span>Support</span></Link>
                         <hr className="my-1" />

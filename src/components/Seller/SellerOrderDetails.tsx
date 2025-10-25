@@ -1,11 +1,13 @@
-import { useState } from "react";
 import { useParams } from "react-router";
-import { useNavigate } from "react-router-dom";
 import { useSellerOrderMutation } from "../../Screens/Seller/Seller.Hooks";
+import { useState } from "react";
 import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
 import { formatDate } from "../UIComponents/Inputs";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
+import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -22,7 +24,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       default: [
         "Processing",
         "Packed",
-        // "Shipping",
+        "Shipped",
         // "Received",
         // "On the way",
         // "Delivered",
@@ -30,18 +32,45 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       refund: ["Processing refund", "Refund Success"],
     };
 
-    // Future: handle refund flow using currentStatus
+    // if (statuses.refund.includes(currentStatus)) {
+    //   return statuses.refund.slice(statuses.refund.indexOf(currentStatus));
+    // }
+
     return statuses.default;
+  };
+
+  const handleDownloadInvoice = async (orderId: string | undefined) => {
+    if (!orderId) return;
+    try {
+      const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
+        method: "GET",
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error("Invoice download failed:", err);
+    }
   };
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
-      {/* Header: Back button + order info */}
-      <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
-        <div className="flex items-center gap-4">
-          <OrderDetailsField label="Order ID:" value={data?._id} />
-        </div>
+      <section className="flex justify-end items-center">
+        <Button
+          variant="outline"
+          onClick={() => handleDownloadInvoice(orderId)}
+        >
+          Download Invoice
+        </Button>
+      </section>
 
+      <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
+        <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField
           label="Placed on:"
           value={formatDate(data?.createdAt)}
@@ -56,7 +85,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
             className="w-full flex items-center gap-2 mb-5"
           >
             <img
-              src={BASE_URL + "/images/" + data.variant.thumbnail}
+              src={BASE_URL + "/images/" + data.variant?.thumbnail}
               alt="Product item order img"
               className="w-[80px] h-[80px] object-cover"
             />
@@ -67,7 +96,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                US${data.qty} x {data.variant.discountPrice}
+                 ₹{data.qty} x {data.variant.discountPrice}
               </h5>
             </div>
             <OrderDetailsField
@@ -104,8 +133,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
           <div className="w-full max-w-xs">
-            <article className="mb-2">
+            <article className="mb-2 flex gap-2">
               <OrderDetailsField label={data.status} value="" />
+              {data.status === "Shipped" && <TrackingDetailDialog />}
             </article>
 
             <article>

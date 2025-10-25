@@ -31,6 +31,7 @@ import Consumables from "./Screens/Consumables/Consumables";
 import Pharmaceutical from "./Screens/Pharmaceutical/Pharamaceutical";
 import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
+import SellerActivation from "./Screens/Seller/SellerActivation";
 import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import MyProfile from "./components/Account/MyProfile";
@@ -47,6 +48,7 @@ import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpe
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
 import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
+import MyOrderPage from "./components/Account/Orderpage";
 
 export const router = createBrowserRouter([
   {
@@ -205,17 +207,21 @@ export const router = createBrowserRouter([
       { index: true, element: <MyProfile /> },
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
+      { path: "orders", element: <MyOrderPage /> },
     ],
   },
 
   // ✅ Orders page (Protected)
-  { path: "/account/orders", loader: requireUserAuth, element: <OrderPage /> },
+   { path: "/myorders", loader: requireUserAuth, element: <OrderPage /> },
 
   // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
+  { path: "/seller/activation/:activation_token", element: <SellerActivation /> },
   { path: "/account", element: <AccountNavbar /> },
   { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
   { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
   { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+  { path: "*", element: <div>404 - Page Not Found</div> },
+
 ]);
