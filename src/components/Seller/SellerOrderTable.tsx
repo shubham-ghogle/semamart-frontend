@@ -92,6 +92,8 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
         docName="orders"
         searchColId="id"
         searchPlaceholder="Search by order id"
+        enableCalender={true}
+        dateFieldId="orderedOn"
       />
     </div>
   );

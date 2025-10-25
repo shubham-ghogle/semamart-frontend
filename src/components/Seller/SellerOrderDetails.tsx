@@ -1,6 +1,7 @@
-import { useParams } from "react-router";
-import { useSellerOrderMutation } from "../../Screens/Seller/Seller.Hooks";
 import { useState } from "react";
+import { useParams } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { useSellerOrderMutation } from "../../Screens/Seller/Seller.Hooks";
 import OrderDetailsField from "./OrderDetailsFields";
 import { Order } from "../../Types/types";
 import { formatDate } from "../UIComponents/Inputs";
@@ -12,6 +13,7 @@ type SellerOrderDetailProps = {
 
 export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const { orderId } = useParams();
+  const navigate = useNavigate();
   const { mutationStatus, mutateOrder } = useSellerOrderMutation();
   const [status, setStatus] = useState("");
 
@@ -28,17 +30,18 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       refund: ["Processing refund", "Refund Success"],
     };
 
-    // if (statuses.refund.includes(currentStatus)) {
-    //   return statuses.refund.slice(statuses.refund.indexOf(currentStatus));
-    // }
-
+    // Future: handle refund flow using currentStatus
     return statuses.default;
   };
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
+      {/* Header: Back button + order info */}
       <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
-        <OrderDetailsField label="Order ID:" value={data?._id} />
+        <div className="flex items-center gap-4">
+          <OrderDetailsField label="Order ID:" value={data?._id} />
+        </div>
+
         <OrderDetailsField
           label="Placed on:"
           value={formatDate(data?.createdAt)}
@@ -55,7 +58,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
             <img
               src={BASE_URL + "/images/" + data.variant.thumbnail}
               alt="Product item order img"
-              className="w-[80x] h-[80px]"
+              className="w-[80px] h-[80px] object-cover"
             />
             <div className="w-full">
               <h5 className="pl-3 text-lg">
@@ -100,15 +103,16 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       <section className="flex justify-between items-start mt-4">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
-          <div>
+          <div className="w-full max-w-xs">
             <article className="mb-2">
               <OrderDetailsField label={data.status} value="" />
             </article>
+
             <article>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
+                className="w-full mt-2 border h-[35px] rounded-[5px] px-2"
                 disabled={data.status === "Delivered"}
               >
                 <option value="">Select status</option>
@@ -119,19 +123,30 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 ))}
               </select>
             </article>
-            <button
-              className="px-3 py-2 bg-accent-yellow rounded-sm mt-4 w-full shadow-md"
-              onClick={async () =>
-                await mutateOrder({
-                  status,
-                  currentStatus: data?.status || "",
-                  orderId: orderId || "",
-                })
-              }
-              disabled={mutationStatus === "pending"}
-            >
-              {mutationStatus === "pending" ? "Updating.." : "Update Status"}
-            </button>
+
+            <div className="flex gap-2 mt-4">
+              <button
+                type="button"
+                className="px-3 py-2 bg-red-400 rounded-sm shadow-sm text-sm"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center"
+                onClick={async () =>
+                  await mutateOrder({
+                    status,
+                    currentStatus: data?.status || "",
+                    orderId: orderId || "",
+                  })
+                }
+                disabled={mutationStatus === "pending"}
+              >
+                {mutationStatus === "pending" ? "Updating.." : "Update Status"}
+              </button>
+            </div>
           </div>
         )}
       </section>
