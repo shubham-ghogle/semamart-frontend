@@ -152,7 +152,7 @@ export const router = createBrowserRouter([
           { path: "view/:id", element: <ViewProductScreen /> },
         ],
       },
-      { path: "*", element: <AllOrderScreen /> }
+      { path: "orders", element: <AllOrderScreen /> }
     ],
   },
 
