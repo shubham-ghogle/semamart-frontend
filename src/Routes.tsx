@@ -49,6 +49,7 @@ import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialP
 import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
 import MyOrderPage from "./components/Account/Orderpage";
+import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 export const router = createBrowserRouter([
   {
@@ -151,7 +152,7 @@ export const router = createBrowserRouter([
           { path: "view/:id", element: <ViewProductScreen /> },
         ],
       },
-      { path: "*", element: <div>niniiii</div> },
+      { path: "orders", element: <AllOrderScreen /> }
     ],
   },
 

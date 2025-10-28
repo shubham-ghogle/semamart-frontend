@@ -55,7 +55,7 @@ import DocumentsDisplay from "./DocumentsDisplay";
 import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants";
-import { useBlocker } from "react-router";
+import { useBlocker, useNavigate } from "react-router";
 import { useDebounce } from "@/hooks";
 
 type AddProductFormProps =
@@ -89,6 +89,8 @@ export default function AddProductForm({
   const [isMultiVariant, setIsMultiVariant] = useState(multiVariant);
 
   const qc = useQueryClient();
+  const navigate = useNavigate();
+ 
 
   const categoryDropDownList = categories.map((c) => ({
     label: c.name,
@@ -102,7 +104,8 @@ export default function AddProductForm({
 
   const isDirty = form.formState.isDirty;
   useBeforeUnload(isDirty);
-  useNavigationBlocker(isDirty);
+  // useNavigationBlocker(isDirty);
+  useNavigationBlocker(false);
 
   const {
     fields: variantFields,
@@ -480,7 +483,43 @@ export default function AddProductForm({
     setThumbnail([]);
   }
 
-  return (
+
+/**
+ * Small style wrappers (DRY):
+ * - MainAccordionTrigger: heading style (no underline on hover + distinct color)
+ * - SubFormLabel: muted, smaller sublabel style
+ *
+ * These accept all normal props so they can replace AccordionTrigger/FormLabel directly.
+ */
+type MainAccordionTriggerProps = React.ComponentProps<typeof AccordionTrigger> & {
+  children?: React.ReactNode;
+  className?: string;
+};
+const MainAccordionTrigger: React.FC<MainAccordionTriggerProps> = ({
+  children,
+  className = "",
+  ...props
+}) => (
+  <AccordionTrigger
+    {...props}
+    className={`text-lg no-underline hover:no-underline focus:no-underline text-[#1C647C] font-semibold ${className}`}
+  >
+    {children}
+  </AccordionTrigger>
+);
+
+/* SubFormLabel: typed to match FormLabel's props */
+type SubFormLabelProps = React.ComponentProps<typeof FormLabel> & {
+  children?: React.ReactNode;
+  className?: string;
+};
+const SubFormLabel: React.FC<SubFormLabelProps> = ({ children, className = "", ...props }) => (
+  <FormLabel {...props} className={`text-sm text-gray-600 ${className}`}>
+    {children}
+  </FormLabel>
+);
+
+return (
   <Form {...form}>
     <form
       onSubmit={form.handleSubmit(onSubmit, (e) => {
@@ -497,14 +536,14 @@ export default function AddProductForm({
     >
       <Accordion type="multiple" defaultValue={["1"]}>
         <AccordionItem value="1">
-          <AccordionTrigger className="text-lg">Product Identification & Classification</AccordionTrigger>
+          <MainAccordionTrigger>Product Identification & Classification</MainAccordionTrigger>
           <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <SubFormLabel>Product Name</SubFormLabel>
                   <FormControl>
                     <Input type="text" {...field} className="w-full" />
                   </FormControl>
@@ -519,7 +558,7 @@ export default function AddProductForm({
                 name="category"
                 render={({}) => (
                   <FormItem>
-                    <FormLabel>Primary category</FormLabel>
+                    <SubFormLabel>Primary category</SubFormLabel>
                     <FormControl>
                       <>
                         {form.getValues("category").map((el) => (
@@ -547,7 +586,7 @@ export default function AddProductForm({
                 name="subCategory"
                 render={({}) => (
                   <FormItem>
-                    <FormLabel>Subcategory</FormLabel>
+                    <SubFormLabel>Subcategory</SubFormLabel>
                     <FormControl>
                       <>
                         {form.getValues("subCategory").map((el, i) => (
@@ -585,7 +624,7 @@ export default function AddProductForm({
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Tags</FormLabel>
+                  <SubFormLabel>Product Tags</SubFormLabel>
                   <FormControl>
                     <TagsInput value={field.value} onValueChange={field.onChange} placeholder="Enter product tags" />
                   </FormControl>
@@ -600,7 +639,7 @@ export default function AddProductForm({
                 name="productType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Type</FormLabel>
+                    <SubFormLabel>Product Type</SubFormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -624,7 +663,7 @@ export default function AddProductForm({
                 name="sku"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product SKU</FormLabel>
+                    <SubFormLabel>Product SKU</SubFormLabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -638,7 +677,7 @@ export default function AddProductForm({
                 name="gtin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>GSTIN</FormLabel>
+                    <SubFormLabel>GSTIN</SubFormLabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -652,7 +691,7 @@ export default function AddProductForm({
                 name="hsn"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>HSN Code</FormLabel>
+                    <SubFormLabel>HSN Code</SubFormLabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -666,9 +705,9 @@ export default function AddProductForm({
                 name="unspsc"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
+                    <SubFormLabel>
                       UNSPSC (United Nations Standard Products and Services Code)
-                    </FormLabel>
+                    </SubFormLabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -679,7 +718,7 @@ export default function AddProductForm({
             </div>
 
             <FormItem>
-              <FormLabel>Upsell Product URLs</FormLabel>
+              <SubFormLabel>Upsell Product URLs</SubFormLabel>
               <div className="space-y-2">
                 {upsellFields.map((_field, index) => (
                   <div key={index} className="flex gap-2">
@@ -697,7 +736,7 @@ export default function AddProductForm({
             </FormItem>
 
             <FormItem>
-              <FormLabel>Cross-sell Product URLs</FormLabel>
+              <SubFormLabel>Cross-sell Product URLs</SubFormLabel>
               <div className="space-y-2">
                 {crossFields.map((_field, index) => (
                   <div key={index} className="flex gap-2">
@@ -719,7 +758,7 @@ export default function AddProductForm({
               name="specialityPackage"
               render={({}) => (
                 <FormItem>
-                  <FormLabel>Speciality Package</FormLabel>
+                  <SubFormLabel>Speciality Package</SubFormLabel>
                   <FormControl>
                     <SpecialityDropdown
                       viewMode={product ? true : false}
@@ -741,14 +780,14 @@ export default function AddProductForm({
         </AccordionItem>
 
         <AccordionItem value="2">
-          <AccordionTrigger className="text-lg">Product Description & Specifications</AccordionTrigger>
+          <MainAccordionTrigger>Product Description & Specifications</MainAccordionTrigger>
           <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
             <FormField
               control={form.control}
               name="manufacturerName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manufacturer Name</FormLabel>
+                  <SubFormLabel>Manufacturer Name</SubFormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -796,7 +835,7 @@ export default function AddProductForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manufacturer email</FormLabel>
+                  <SubFormLabel>Manufacturer email</SubFormLabel>
                   <FormControl>
                     <Input type="text" {...field} className="w-full" />
                   </FormControl>
@@ -810,7 +849,7 @@ export default function AddProductForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manufacturer Phone</FormLabel>
+                  <SubFormLabel>Manufacturer Phone</SubFormLabel>
                   <FormControl>
                     <Input type="text" {...field} className="w-full" />
                   </FormControl>
@@ -824,7 +863,7 @@ export default function AddProductForm({
               name="origin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Origin</FormLabel>
+                  <SubFormLabel>Product Origin</SubFormLabel>
                   <FormControl>
                     <Input type="text" {...field} className="w-full" />
                   </FormControl>
@@ -838,7 +877,7 @@ export default function AddProductForm({
               name="shortdescription"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Short Description</FormLabel>
+                  <SubFormLabel>Short Description</SubFormLabel>
                   <FormControl>
                     <Textarea className="resize-none w-full" {...field} />
                   </FormControl>
@@ -852,7 +891,7 @@ export default function AddProductForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Detailed Specification</FormLabel>
+                  <SubFormLabel>Detailed Specification</SubFormLabel>
                   <FormControl>
                     <Textarea className="resize-none w-full" {...field} />
                   </FormControl>
@@ -866,7 +905,7 @@ export default function AddProductForm({
               name="attributes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Custom Attributes</FormLabel>
+                  <SubFormLabel>Custom Attributes</SubFormLabel>
                   <FormControl>
                     <>
                       {field.value?.map((e, i) => (
@@ -912,7 +951,7 @@ export default function AddProductForm({
                 name="productWgt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Weight</FormLabel>
+                    <SubFormLabel>Product Weight</SubFormLabel>
                     <FormControl>
                       <Input type="number" {...field} className="w-full" />
                     </FormControl>
@@ -943,67 +982,75 @@ export default function AddProductForm({
               />
             </section>
 
-            <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              <FormField
-                control={form.control}
-                name="dimension_l"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product dimensions (LxHxW)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} placeholder="Length" className="w-full" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dimension_h"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input type="number" {...field} placeholder="Height" className="w-full" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dimension_w"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input type="number" {...field} placeholder="Width" className="w-full" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dimensionUnit"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select dimension unit" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="cm">cm</SelectItem>
-                        <SelectItem value="meter">meter</SelectItem>
-                        <SelectItem value="inch">inch</SelectItem>
-                        <SelectItem value="feet">feet</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </section>
+{/* --------- Product dimensions (LxHxW) - show 4 side-by-side on desktop --------- */}
+<section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+  <FormField
+    control={form.control}
+    name="dimension_l"
+    render={({ field }) => (
+      <FormItem>
+        <SubFormLabel>Length</SubFormLabel>
+        <FormControl>
+          <Input type="number" {...field} placeholder="Length" className="w-full" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="dimension_h"
+    render={({ field }) => (
+      <FormItem>
+        <SubFormLabel>Height</SubFormLabel>
+        <FormControl>
+          <Input type="number" {...field} placeholder="Height" className="w-full" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="dimension_w"
+    render={({ field }) => (
+      <FormItem>
+        <SubFormLabel>Width</SubFormLabel>
+        <FormControl>
+          <Input type="number" {...field} placeholder="Width" className="w-full" />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="dimensionUnit"
+    render={({ field }) => (
+      <FormItem>
+        <SubFormLabel>Dimension Unit</SubFormLabel>
+        <FormControl>
+          <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select unit" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cm">cm</SelectItem>
+              <SelectItem value="meter">meter</SelectItem>
+              <SelectItem value="inch">inch</SelectItem>
+              <SelectItem value="feet">feet</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</section>
+
 
             <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <FormField
@@ -1011,7 +1058,7 @@ export default function AddProductForm({
                 name="sterileString"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sterile Product</FormLabel>
+                    <SubFormLabel>Sterile Product</SubFormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -1033,7 +1080,7 @@ export default function AddProductForm({
                 name="singleUseString"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Single Use Product</FormLabel>
+                    <SubFormLabel>Single Use Product</SubFormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -1055,7 +1102,7 @@ export default function AddProductForm({
                 name="expiry"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Manufacturing Date</FormLabel>
+                    <SubFormLabel>Manufacturing Date</SubFormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -1083,7 +1130,7 @@ export default function AddProductForm({
                   name="productCompilance"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Product Compilance Documents</FormLabel>
+                      <SubFormLabel>Product Compilance Documents</SubFormLabel>
                       <FormControl>
                         <Input
                           multiple
@@ -1106,7 +1153,7 @@ export default function AddProductForm({
                   name="msds_ifu_leaflet"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Upload MSDS / IFU / Leaflet </FormLabel>
+                      <SubFormLabel>Upload MSDS / IFU / Leaflet </SubFormLabel>
                       <FormControl>
                         <Input
                           type="file"
@@ -1129,7 +1176,7 @@ export default function AddProductForm({
         </AccordionItem>
 
         <AccordionItem value="3">
-          <AccordionTrigger className="text-lg">Commercials</AccordionTrigger>
+          <MainAccordionTrigger>Commercials</MainAccordionTrigger>
           <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
             <section className="grid grid-cols-1 gap-3">
               <FormField
@@ -1137,7 +1184,7 @@ export default function AddProductForm({
                 name="minmaxrule.minQty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Minimum Order Quantity</FormLabel>
+                    <SubFormLabel>Minimum Order Quantity</SubFormLabel>
                     <FormControl>
                       <Input type="number" {...field} className="w-full" />
                     </FormControl>
@@ -1153,7 +1200,7 @@ export default function AddProductForm({
                 name="taxStatus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tax Status</FormLabel>
+                    <SubFormLabel>Tax Status</SubFormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -1176,7 +1223,7 @@ export default function AddProductForm({
                   name="taxClass"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tax Class</FormLabel>
+                      <SubFormLabel>Tax Class</SubFormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -1202,7 +1249,7 @@ export default function AddProductForm({
               name="unitOfMeasure"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unit of Measure</FormLabel>
+                  <SubFormLabel>Unit of Measure</SubFormLabel>
                   <FormControl>
                     <Input {...field} className="w-full" />
                   </FormControl>
@@ -1217,7 +1264,7 @@ export default function AddProductForm({
                 name="stockStatus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stock Status</FormLabel>
+                    <SubFormLabel>Stock Status</SubFormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -1240,7 +1287,7 @@ export default function AddProductForm({
                 name="deliveryLeadTime"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Delivery Leading Time (in days)</FormLabel>
+                    <SubFormLabel>Delivery Leading Time (in days)</SubFormLabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1254,7 +1301,7 @@ export default function AddProductForm({
                 name="warranty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Warranty (in year)</FormLabel>
+                    <SubFormLabel>Warranty (in year)</SubFormLabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1269,7 +1316,7 @@ export default function AddProductForm({
               name="rma"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>RMA (Return merchandise authorization) Policy</FormLabel>
+                  <SubFormLabel>RMA (Return merchandise authorization) Policy</SubFormLabel>
                   <FormControl>
                     <Textarea className="resize-none w-full" {...field} />
                   </FormControl>
@@ -1281,14 +1328,14 @@ export default function AddProductForm({
         </AccordionItem>
 
         <AccordionItem value="4">
-          <AccordionTrigger className="text-lg"> Logistics & Fulfillment</AccordionTrigger>
+          <MainAccordionTrigger> Logistics & Fulfillment</MainAccordionTrigger>
           <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
             <FormField
               control={form.control}
               name="dispatchLocation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dispatch Location</FormLabel>
+                  <SubFormLabel>Dispatch Location</SubFormLabel>
                   <FormControl>
                     <Input {...field} className="w-full" />
                   </FormControl>
@@ -1302,7 +1349,7 @@ export default function AddProductForm({
               name="dispatchPinCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pincode of Dispatch</FormLabel>
+                  <SubFormLabel>Pincode of Dispatch</SubFormLabel>
                   <FormControl>
                     <Input {...field} className="w-full" />
                   </FormControl>
@@ -1316,7 +1363,7 @@ export default function AddProductForm({
               name="unitsPerCarton"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>No. of units per master carton</FormLabel>
+                  <SubFormLabel>No. of units per master carton</SubFormLabel>
                   <FormControl>
                     <Input {...field} className="w-full" />
                   </FormControl>
@@ -1330,7 +1377,7 @@ export default function AddProductForm({
               name="shippingWeight"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shipping Weight (in kgs)</FormLabel>
+                  <SubFormLabel>Shipping Weight (in kgs)</SubFormLabel>
                   <FormControl>
                     <Input {...field} className="w-full" />
                   </FormControl>
@@ -1344,7 +1391,7 @@ export default function AddProductForm({
               name="packagingType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Packaging Type</FormLabel>
+                  <SubFormLabel>Packaging Type</SubFormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Eg. box, polywrap etc." className="w-full" />
                   </FormControl>
@@ -1358,7 +1405,7 @@ export default function AddProductForm({
               name="deliveryInstruction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delivery Instructions</FormLabel>
+                  <SubFormLabel>Delivery Instructions</SubFormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -1380,7 +1427,7 @@ export default function AddProductForm({
               name="shelfing_storage_req"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shelfing / Storage requiremnts</FormLabel>
+                  <SubFormLabel>Shelfing / Storage requiremnts</SubFormLabel>
                   <FormControl>
                     <Textarea className="resize-none w-full" {...field} />
                   </FormControl>
@@ -1394,7 +1441,7 @@ export default function AddProductForm({
               name="purchaseNote"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Purchase Note</FormLabel>
+                  <SubFormLabel>Purchase Note</SubFormLabel>
                   <FormControl>
                     <Textarea className="resize-none w-full" {...field} />
                   </FormControl>
@@ -1407,14 +1454,14 @@ export default function AddProductForm({
 
         {!product && (
           <AccordionItem value="5">
-            <AccordionTrigger className="text-lg">Documents Uploads</AccordionTrigger>
+            <MainAccordionTrigger>Documents Uploads</MainAccordionTrigger>
             <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
               <FormField
                 control={form.control}
                 name="amc_cms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>AMC / CMS Available</FormLabel>
+                    <SubFormLabel>AMC / CMS Available</SubFormLabel>
                     <FormControl>
                       <Input
                         type="file"
@@ -1436,7 +1483,7 @@ export default function AddProductForm({
                 name="certificate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Certifications / Test Reports </FormLabel>
+                    <SubFormLabel>Certifications / Test Reports </SubFormLabel>
                     <FormControl>
                       <Input
                         type="file"
@@ -1459,7 +1506,7 @@ export default function AddProductForm({
                 name="oemLetter"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>OEM Authorization Letter</FormLabel>
+                    <SubFormLabel>OEM Authorization Letter</SubFormLabel>
                     <FormControl>
                       <Input
                         type="file"
@@ -1480,7 +1527,7 @@ export default function AddProductForm({
         )}
 
         <AccordionItem value="6">
-          <AccordionTrigger className="text-lg">{product ? "Media and Variants" : "Pricing and Media"}</AccordionTrigger>
+          <MainAccordionTrigger>{product ? "Media and Variants" : "Pricing and Media"}</MainAccordionTrigger>
           {product ? (
             <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
               <VariantsDisplay />
@@ -1489,7 +1536,7 @@ export default function AddProductForm({
           ) : (
             <AccordionContent className="px-2 sm:px-4 pt-2 pb-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-6">
-                <FormLabel className="text-[16px] font-normal">Does this product have multiple variants (sizes/colors)?</FormLabel>
+                <SubFormLabel className="text-[16px] font-normal">Does this product have multiple variants (sizes/colors)?</SubFormLabel>
                 <Checkbox checked={isMultiVariant} onCheckedChange={switchMultiVarianMode} className="bg-light-blue! text-blue-800!" />
               </div>
 
@@ -1522,7 +1569,7 @@ export default function AddProductForm({
 
               <section className="space-y-4 mt-4">
                 <div>
-                  <FormLabel>Upload other images</FormLabel>
+                  <SubFormLabel>Upload other images</SubFormLabel>
                   <div className="flex gap-3 flex-wrap mt-2">
                     {Array.from({ length: 4 }).map((_, index) => (
                       <div
@@ -1560,7 +1607,7 @@ export default function AddProductForm({
                 </div>
 
                 <div>
-                  <FormLabel>Upload Product Video</FormLabel>
+                  <SubFormLabel>Upload Product Video</SubFormLabel>
                   <div className="border border-gray-300 h-[90px] w-[90px] sm:h-[120px] sm:w-[120px] flex items-center justify-center rounded-md cursor-pointer mt-2 relative overflow-hidden">
                     <label htmlFor="uploadShortVideo" className="cursor-pointer w-full h-full grid place-items-center">
                       {shortVideo ? (
@@ -1610,19 +1657,33 @@ export default function AddProductForm({
 
       {product && <DocumentsDisplay />}
 
-      <div className="flex justify-end mt-4">
-        <Button
-          type="submit"
-          variant="outline"
-          size="sm"
-          disabled={putProductStatus === "pending" || postProductStatus === "pending"}
-        >
-          {putProductStatus === "pending" || postProductStatus === "pending" ? "Wait..." : "Submit"}
-        </Button>
-      </div>
+      <div className="flex items-center justify-end gap-2 mt-4">
+    {/* Cancel button — navigates back */}
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={() => navigate(-1)}
+      className="mr-2"
+    >
+      Cancel
+    </Button>
+
+    {/* Submit */}
+    <Button
+      type="submit"
+      variant="outline"
+      size="sm"
+      disabled={putProductStatus === "pending" || postProductStatus === "pending"}
+    >
+      {putProductStatus === "pending" || postProductStatus === "pending" ? "Wait..." : "Submit"}
+    </Button>
+  </div>
+
     </form>
   </Form>
 );
+
 
 }
 
