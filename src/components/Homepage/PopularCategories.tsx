@@ -1,91 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-/**
- * Now each category object contains:
- *  - link: string         -> where the image/title should go
- *  - items: { label, link }[] -> explicit link for each item
- */
-const sampleCategories = [
-  {
-    id: "veg",
-    title: "Vegetables & Fruits (Long title test to ensure clamp)",
-    image: "/image60.png",
-    link: "/category/veg",
-    items: [
-      { label: "Fresh Fruits", link: "/category/veg/fresh-fruits" },
-      { label: "Fresh Vegetables", link: "/category/veg/fresh-vegetables" },
-      { label: "Frozen Veg", link: "/category/veg/frozen-veg" },
-      { label: "Leafies & Herbs", link: "/category/veg/leafies-herbs" },
-      { label: "Mushrooms", link: "/category/veg/mushrooms" },
-    ],
-  },
-  {
-    id: "sea",
-    title: "Seafood",
-    image: "/image60.png",
-    link: "/category/sea",
-    items: [
-      { label: "Fresh Fish", link: "/category/sea/fresh-fish" },
-      { label: "Fresh Shellfish", link: "/category/sea/fresh-shellfish" },
-      { label: "Frozen Fish", link: "/category/sea/frozen-fish" },
-    ],
-  },
-  {
-    id: "vegan",
-    title: "Vegan Meat",
-    image: "/placeholder.png",
-    link: "/category/vegan",
-    items: [
-      { label: "Bacon", link: "/category/vegan/bacon" },
-      { label: "Beef", link: "/category/vegan/beef" },
-      { label: "Burgers", link: "/category/vegan/burgers" },
-      { label: "Chicken", link: "/category/vegan/chicken" },
-      { label: "Deli Meat", link: "/category/vegan/deli-meat" },
-    ],
-  },
-  {
-    id: "dairy",
-    title: "Dairy",
-    image: "/placeholder.png",
-    link: "/category/dairy",
-    items: [
-      { label: "Butter", link: "/category/dairy/butter" },
-      { label: "Cheese", link: "/category/dairy/cheese" },
-      { label: "Eggs", link: "/category/dairy/eggs" },
-      { label: "Milk & Cream", link: "/category/dairy/milk-cream" },
-      { label: "Yogurt", link: "/category/dairy/yogurt" },
-    ],
-  },
-  {
-    id: "snacks",
-    title: "Snacks",
-    image: "/placeholder.png",
-    link: "/category/snacks",
-    items: [
-      { label: "Chips", link: "/category/snacks/chips" },
-      { label: "Cookies", link: "/category/snacks/cookies" },
-      { label: "Bars", link: "/category/snacks/bars" },
-      { label: "Trail Mix", link: "/category/snacks/trail-mix" },
-      { label: "Nuts", link: "/category/snacks/nuts" },
-      { label: "Biscuits", link: "/category/snacks/biscuits" },
-    ],
-  },
-  {
-    id: "drinks",
-    title: "Beverages",
-    image: "/placeholder.png",
-    link: "/category/drinks",
-    items: [
-      { label: "Juice", link: "/category/drinks/juice" },
-      { label: "Soda", link: "/category/drinks/soda" },
-      { label: "Water", link: "/category/drinks/water" },
-      { label: "Tea", link: "/category/drinks/tea" },
-      { label: "Coffee", link: "/category/drinks/coffee" },
-    ],
-  },
-];
-
 export default function PopularCategories() {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -97,14 +12,58 @@ export default function PopularCategories() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const movedRef = useRef(false);
   const startXRef = useRef<number | null>(null);
   const startLeftRef = useRef(0);
 
   const CARD_WIDTH = 320;
-  const CARD_GAP = 16; // matches `gap-4` => 16px
+  const CARD_GAP = 16;
   const CARD_HEIGHT = 260;
 
+  // ---------------------- FETCH CATEGORIES + SUBCATEGORIES ----------------------
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 1️⃣ Fetch all categories
+        const res = await fetch("/api/v2/category/");
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const categoriesData = await res.json();
+
+        // 2️⃣ For each category, fetch subcategories
+        const categoriesWithSubs = await Promise.all(
+          categoriesData.map(async (cat: any) => {
+            try {
+              const subRes = await fetch(`/api/v2/category/${cat._id}/subcategories`);
+              if (!subRes.ok) throw new Error(`Failed subcategories for ${cat._id}`);
+              const subData = await subRes.json();
+              return { ...cat, subcategories: subData || [] };
+            } catch (subErr) {
+              console.warn("Subcategory fetch failed for", cat._id, subErr);
+              return { ...cat, subcategories: [] };
+            }
+          })
+        );
+
+        setCategories(categoriesWithSubs);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Failed to fetch categories");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ---------------------- SCROLL PROGRESS ----------------------
   useEffect(() => {
     const el = scrollerRef.current;
     const track = trackRef.current;
@@ -122,7 +81,6 @@ export default function PopularCategories() {
     };
 
     update();
-
     el.addEventListener("scroll", update, { passive: true });
     const ro = new ResizeObserver(update);
     ro.observe(el);
@@ -136,11 +94,12 @@ export default function PopularCategories() {
     };
   }, []);
 
+  // ---------------------- DRAG SCROLL ----------------------
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
 
-    const MOVE_THRESHOLD = 6; // px
+    const MOVE_THRESHOLD = 6;
 
     const onPointerDown = (ev: PointerEvent) => {
       if (ev.isPrimary === false) return;
@@ -185,6 +144,7 @@ export default function PopularCategories() {
     };
   }, []);
 
+  // ---------------------- SCROLLBAR CLICK ----------------------
   const onTrackClick = (e: React.MouseEvent) => {
     const track = trackRef.current;
     const scroller = scrollerRef.current;
@@ -208,6 +168,7 @@ export default function PopularCategories() {
   const onClickLeft = () => scrollBy(-(CARD_WIDTH + CARD_GAP));
   const onClickRight = () => scrollBy(CARD_WIDTH + CARD_GAP);
 
+  // ---------------------- RENDER ----------------------
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
@@ -218,14 +179,13 @@ export default function PopularCategories() {
         <div className="h-1.5 w-28 rounded-full bg-[#f2efe9] mb-6" />
 
         <div className="relative">
-          {/* NOTE: buttons are completely hidden on small screens (hidden),
-              and on md+ they become either flex (visible) or hidden depending on canScrollLeft/Right */}
+          {/* Scroll Buttons */}
           <button
             aria-label="Scroll left"
             onClick={onClickLeft}
-            className={`${canScrollLeft ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
+            className={`${canScrollLeft ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 left-2 w-9 h-9 rounded-full shadow-sm bg-white`}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M15 18L9 12L15 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -233,14 +193,14 @@ export default function PopularCategories() {
           <button
             aria-label="Scroll right"
             onClick={onClickRight}
-            className={`${canScrollRight ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1`}
+            className={`${canScrollRight ? "md:flex" : "md:hidden"} hidden items-center justify-center absolute z-10 top-1/2 transform -translate-y-1/2 right-2 w-9 h-9 rounded-full shadow-sm bg-white`}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M9 18L15 12L9 6" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
 
-          {/* scroller */}
+          {/* SCROLLER */}
           <div
             ref={scrollerRef}
             className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
@@ -251,7 +211,7 @@ export default function PopularCategories() {
               scrollSnapType: "x mandatory",
             }}
           >
-            <style>{` 
+            <style>{`
               .scroll-smooth::-webkit-scrollbar { display: none; }
               .cat-title-clamp {
                 display: -webkit-box;
@@ -259,15 +219,25 @@ export default function PopularCategories() {
                 -webkit-box-orient: vertical;
                 overflow: hidden;
               }
-
-              /* subtle scrollbar for list inside cards */
               .cat-card .items-list::-webkit-scrollbar{height:6px;width:6px}
               .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
             `}</style>
 
-            {sampleCategories.map((c) => (
+            {loading && (
+              <div className="text-gray-400 text-center py-8 w-full">
+                Loading categories...
+              </div>
+            )}
+
+            {error && (
+              <div className="text-red-500 text-center py-8 w-full">
+                {error}
+              </div>
+            )}
+
+            {!loading && !error && categories.length > 0 && categories.map((c) => (
               <div
-                key={c.id}
+                key={c._id}
                 className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
                 style={{
                   width: CARD_WIDTH,
@@ -278,7 +248,11 @@ export default function PopularCategories() {
                 }}
               >
                 <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                  <Link to={c.link} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.title}`}>
+                  <Link
+                    to={`/category/${c._id}`}
+                    className="rounded-lg overflow-hidden flex items-center justify-center"
+                    aria-label={`Go to ${c.name}`}
+                  >
                     <div
                       style={{
                         width: 112,
@@ -289,8 +263,8 @@ export default function PopularCategories() {
                       className="flex items-center justify-center"
                     >
                       <img
-                        src={c.image}
-                        alt={c.title}
+                        src={c.image || "/placeholder.png"}
+                        alt={c.name}
                         className="w-full h-full object-contain p-3"
                         onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                       />
@@ -300,20 +274,30 @@ export default function PopularCategories() {
 
                 <div className="flex-1 flex flex-col min-h-0">
                   <h3 className="mb-2 cat-title-clamp">
-                    <Link to={c.link} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
-                      {c.title}
+                    <Link
+                      to={`/category/${c._id}`}
+                      className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400"
+                    >
+                      {c.name}
                     </Link>
                   </h3>
 
                   <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
                     <ul className="flex flex-col">
-                      {c.items.map((it, i) => (
-                        <li key={i} className="py-2">
-                          <Link to={it.link} className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]">
-                            {it.label}
-                          </Link>
-                        </li>
-                      ))}
+                      {c.subcategories && c.subcategories.length > 0 ? (
+                        c.subcategories.map((sub: any) => (
+                          <li key={sub._id} className="py-2">
+                            <Link
+                              to={`/category/${c._id}/${sub._id}`}
+                              className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]"
+                            >
+                              {sub.name}
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="py-2 text-gray-400">No subcategories</li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -322,6 +306,7 @@ export default function PopularCategories() {
           </div>
         </div>
 
+        {/* PROGRESS BAR */}
         <div className="mt-4">
           <div
             ref={trackRef}

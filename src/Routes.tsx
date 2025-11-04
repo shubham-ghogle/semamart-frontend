@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
-import { getUserFromLocalLoader, requireUserAuth } from "./Screens/LoginScreen/Login.Hooks";
+import { getUserFromLocalLoader, requireUserAuth, protectSellerRoute } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
@@ -224,5 +224,14 @@ export const router = createBrowserRouter([
   { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
   { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
   { path: "*", element: <div>404 - Page Not Found</div> },
+   {
+    path: "/seller-account",
+     loader: protectSellerRoute,
+    element: <AccountLayout />,
+    children: [
+      { index: true, element: <MyProfile /> },
+    ],
+  },
+
 
 ]);
