@@ -23,7 +23,9 @@ export default function CheckoutScreen(): JSX.Element {
   const { cart, clearCart } = useCartStore((s) => s);
   const navigate = useNavigate();
 
-  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<
+    number | null
+  >(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -33,11 +35,18 @@ export default function CheckoutScreen(): JSX.Element {
   });
 
   const address =
-    selectedAddressIndex !== null ? user?.addresses?.[selectedAddressIndex] : null;
+    selectedAddressIndex !== null
+      ? user?.addresses?.[selectedAddressIndex]
+      : null;
 
   const normalizeImage = (src?: string | null) => {
     if (!src) return null;
-    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src;
+    if (
+      src.startsWith("http://") ||
+      src.startsWith("https://") ||
+      src.startsWith("/")
+    )
+      return src;
     return `/images/${src}`;
   };
 
@@ -52,7 +61,7 @@ export default function CheckoutScreen(): JSX.Element {
   const { subTotal, totalGST, grandTotal } = (cart || []).reduce(
     (acc, curr) => {
       const price = getUnitPrice(curr);
-      const gstRate = curr.taxClass ?? 0;
+      const gstRate = curr.taxClass || 0;
       const gstAmount = (price * gstRate) / 100;
 
       acc.subTotal += curr.qty * price;
@@ -67,6 +76,7 @@ export default function CheckoutScreen(): JSX.Element {
     const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
     const unitPrice = getUnitPrice(el);
 
+      const gstAmount = (unitPrice * (el.taxClass || 0)) / 100;
     return {
       shopId:
         typeof el.product?.shopId === "string"
@@ -75,7 +85,9 @@ export default function CheckoutScreen(): JSX.Element {
       productId: el.product!._id,
       variantId: el.variant?._id ?? fallbackVariantId,
       qty: el.qty,
-      totalPrice: unitPrice * el.qty,
+      totalPrice: (unitPrice + gstAmount) * el.qty,
+      tax: el.taxClass || 0,
+      unitPrice: unitPrice,
     };
   });
 
@@ -107,7 +119,9 @@ export default function CheckoutScreen(): JSX.Element {
       const data = await res.json();
 
       if (!data.success || !data.orders) {
-        toast.error("Failed to create orders: " + (data.message || "Unknown error"));
+        toast.error(
+          "Failed to create orders: " + (data.message || "Unknown error")
+        );
         setPlacingOrder(false);
         return;
       }
@@ -115,7 +129,9 @@ export default function CheckoutScreen(): JSX.Element {
       const orderIds = data.orders.map((o: any) => o._id);
 
       // 2️⃣ Load Razorpay
-      const loaded = await loadRazorpayScript("https://checkout.razorpay.com/v1/checkout.js");
+      const loaded = await loadRazorpayScript(
+        "https://checkout.razorpay.com/v1/checkout.js"
+      );
       if (!loaded) {
         toast.error("Failed to load Razorpay SDK");
         setPlacingOrder(false);
@@ -183,7 +199,9 @@ export default function CheckoutScreen(): JSX.Element {
       rzp.open();
     } catch (err) {
       console.error("Order error", err);
-      toast.error("Something went wrong placing the order.", { position: "top-left" });
+      toast.error("Something went wrong placing the order.", {
+        position: "top-left",
+      });
       setPlacingOrder(false);
     }
   }
@@ -198,7 +216,8 @@ export default function CheckoutScreen(): JSX.Element {
             🎉 Payment Successful & Order Placed!
           </h1>
           <p className="text-gray-700 mb-4">
-            Thank you for your order. We've received it and will begin processing.
+            Thank you for your order. We've received it and will begin
+            processing.
           </p>
           <div className="flex justify-center">
             <button
@@ -256,13 +275,17 @@ export default function CheckoutScreen(): JSX.Element {
                     className="w-[80px] h-[80px] object-cover rounded shadow-sm"
                   />
                   <div className="flex-1">
-                    <h5 className="text-lg font-medium">{item.product?.name}</h5>
+                    <h5 className="text-lg font-medium">
+                      {item.product?.name}
+                    </h5>
                     <p className="text-gray-600">
                       {item.qty} × {formatter.format(price)} (Excl. GST)
                     </p>
                     <p className="text-sm text-gray-500">
                       GST: {gstRate}% • Incl. GST:{" "}
-                      <strong>{formatter.format(item.qty * priceInclGST)}</strong>
+                      <strong>
+                        {formatter.format(item.qty * priceInclGST)}
+                      </strong>
                     </p>
                   </div>
                 </article>
@@ -360,7 +383,10 @@ export default function CheckoutScreen(): JSX.Element {
             }`}
             style={
               selectedAddressIndex !== null && !placingOrder
-                ? { background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }
+                ? {
+                    background:
+                      "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
+                  }
                 : {}
             }
             disabled={selectedAddressIndex === null || placingOrder}

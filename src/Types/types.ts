@@ -192,6 +192,8 @@ export type Order = {
   shippingAddress: Address;
   user: string | User;
   totalPrice: number;
+  tax?:number;
+  unitPrice?:number;
   status?:
     | "Processing"
     | "Transferred to delivery partner"

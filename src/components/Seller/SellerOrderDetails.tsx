@@ -81,7 +81,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       <section className="mt-4 bg-white border-b">
         {data && typeof data.variant !== "string" && (
           <article
-            key={data.variant._id}
+            key={data.variant?._id}
             className="w-full flex items-center gap-2 mb-5"
           >
             <img
@@ -90,21 +90,22 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               className="w-[80px] h-[80px] object-cover"
             />
             <div className="w-full">
-              <h5 className="pl-3 text-lg">
-                {typeof data.variant.productId === "object"
-                  ? data.variant.productId.name
+              <h5 className="pl-3 text-sm">
+                {typeof data.variant?.productId === "object"
+                  ? data.variant.productId?.name
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                 ₹{data.qty} x {data.variant.discountPrice}
+                 ₹{data.qty} x {data.variant?.discountPrice}
               </h5>
             </div>
             <OrderDetailsField
+              label="Tax (%):"
+              value={ (data.tax || 0)}
+            />
+            <OrderDetailsField
               label="Total:"
-              value={
-                data.qty *
-                (data.variant?.discountPrice ?? data.variant.originalPrice)
-              }
+              value={ data.totalPrice}
             />
           </article>
         )}
