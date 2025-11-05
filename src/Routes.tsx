@@ -50,6 +50,7 @@ import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
 import MyOrderPage from "./components/Account/Orderpage";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
 
 export const router = createBrowserRouter([
   {
@@ -232,6 +233,7 @@ export const router = createBrowserRouter([
       { index: true, element: <MyProfile /> },
     ],
   },
+  { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory/> },
 
 
 ]);

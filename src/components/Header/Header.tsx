@@ -367,7 +367,7 @@ export default function Header() {
                               className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === category._id ? "bg-gray-100" : ""}`}
                               onMouseEnter={() => handleMouseEnter(category)}
                               onClick={() => {
-                                navigate(`/category/${category._id}`);
+                                navigate(`/get-products-by-category/${category._id}`);
                                 setIsCategoryOpen(false);
                                 setHoveredCategory(null);
                               }}

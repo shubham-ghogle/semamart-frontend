@@ -275,7 +275,7 @@ export default function PopularCategories() {
                 <div className="flex-1 flex flex-col min-h-0">
                   <h3 className="mb-2 cat-title-clamp">
                     <Link
-                      to={`/category/${c._id}`}
+                       to={`/get-products-by-category/${c._id}`}
                       className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400"
                     >
                       {c.name}
@@ -288,7 +288,7 @@ export default function PopularCategories() {
                         c.subcategories.map((sub: any) => (
                           <li key={sub._id} className="py-2">
                             <Link
-                              to={`/category/${c._id}/${sub._id}`}
+                              to={`/get-products-by-subcategory/${sub._id}`}
                               className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]"
                             >
                               {sub.name}
