@@ -148,14 +148,6 @@ export const router = createBrowserRouter([
     path: "/shop/:shopId",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables /> },
-      { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetails /> },
-      {
-        path: "checkout",
-        loader: requireUserAuth,
-        element: <CheckoutScreen />,
-      }, // 🔐
       { index: true, element: <SellerProducts /> },
       // seller-scoped search (calls /api/v2/product/searchseller?q=&shopId=)
       { path: "search", element: <SearchResultsPageSeller /> },
