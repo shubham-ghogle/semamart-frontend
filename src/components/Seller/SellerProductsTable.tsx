@@ -16,6 +16,7 @@ type VariantRow = {
   discountPrice: number;
   createdAt: string;
   productId: string;
+  commission: number;
 };
 
 type SellerProductTableProps = {
@@ -37,7 +38,8 @@ export default function SellerProductTable({
       discountPrice: v.discountPrice ?? 0,
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
-    })),
+      commission: pro.commission || 0,
+    }))
   );
 
   const columns: ColumnDef<VariantRow>[] = [
@@ -64,7 +66,9 @@ export default function SellerProductTable({
       accessorKey: "productName",
       header: "Product Name",
       cell: ({ row }) => (
-        <p className="w-32 text-ellipsis overflow-hidden">{row.original.productName}</p>
+        <p className="w-32 text-ellipsis overflow-hidden">
+          {row.original.productName}
+        </p>
       ),
     },
     {
@@ -87,6 +91,7 @@ export default function SellerProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
+    { accessorKey: "commission", header: "Commission",cell:({row})=><p>{row.original.commission} %</p> },
     {
       id: "action",
       header: "Actions",
