@@ -5,6 +5,7 @@ import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import {
   getUserFromLocalLoader,
+  protectSellerRoute,
   requireUserAuth,
 } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
@@ -56,7 +57,6 @@ import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks";
 import MyOrderPage from "./components/Account/Orderpage";
 import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
-import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
 
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
