@@ -76,3 +76,9 @@ export function requireUserAuth() {
   }
   return null;
 }
+
+export function protectSellerRoute() {
+  const seller = localStorage.getItem("seller-storage");
+  if (!seller) return redirect("/login");
+  return null;
+}

@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
-import { getUserFromLocalLoader, requireUserAuth } from "./Screens/LoginScreen/Login.Hooks";
+import { getUserFromLocalLoader, requireUserAuth, protectSellerRoute } from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
@@ -53,6 +53,8 @@ import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialP
 import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks";
 import MyOrderPage from "./components/Account/Orderpage";
+import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
 
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
@@ -160,7 +162,7 @@ export const router = createBrowserRouter([
           { path: "view/:id", element: <ViewProductScreen /> },
         ],
       },
-      { path: "*", element: <div>niniiii</div> },
+      { path: "orders", element: <AllOrderScreen /> }
     ],
   },
 
@@ -232,4 +234,14 @@ export const router = createBrowserRouter([
   { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
   { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
   { path: "*", element: <div>404 - Page Not Found</div> },
+   {
+    path: "/seller-account",
+     loader: protectSellerRoute,
+    element: <AccountLayout />,
+    children: [
+      { index: true, element: <MyProfile /> },
+    ],
+  },
+  { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory/> },
+
 ]);

@@ -367,7 +367,7 @@ export default function Header() {
                               className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === category._id ? "bg-gray-100" : ""}`}
                               onMouseEnter={() => handleMouseEnter(category)}
                               onClick={() => {
-                                navigate(`/category/${category._id}`);
+                                navigate(`/get-products-by-category/${category._id}`);
                                 setIsCategoryOpen(false);
                                 setHoveredCategory(null);
                               }}
@@ -597,29 +597,36 @@ export default function Header() {
                 tabIndex={-1}
               >
                 <div className="flex items-center">
-                  {user ? (
-                    <button
-                      className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}
-                      aria-haspopup="true"
-                      aria-expanded={isUserHovered || mobileProfileOpen}
-                      onClick={() => {
-                        // on desktop clicking the button toggles hover-open state
-                        setIsUserHovered((p) => !p);
-                        setMobileProfileOpen(false);
-                      }}
-                    >
-                      <FaRegCircleUser size={18} />
-                      <span>{user.firstName?.split(" ")[0] || "Profile"}</span>
-                    </button>
-                  ) : (
-                    <Link
-                      to="/user"
-                      className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"}`}
-                    >
-                      <FaRegCircleUser size={18} />
-                      <span>Login</span>
-                    </Link>
-                  )}
+                  {user || seller ? (
+  <button
+    className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
+      isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
+    }`}
+    aria-haspopup="true"
+    aria-expanded={isUserHovered || mobileProfileOpen}
+    onClick={() => {
+      setIsUserHovered((p) => !p);
+      setMobileProfileOpen(false);
+    }}
+  >
+    <FaRegCircleUser size={18} />
+    <span>
+      {user?.firstName?.split(" ")[0] ||
+        seller?.firstName?.split(" ")[0] ||
+        "Profile"}
+    </span>
+  </button>
+) : (
+  <Link
+    to="/user"
+    className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
+      isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
+    }`}
+  >
+    <FaRegCircleUser size={18} />
+    <span>Login</span>
+  </Link>
+)}
 
                   {/* mobile small icon: tap to open profile menu if logged in, otherwise go to /user */}
                   <button
@@ -645,9 +652,9 @@ export default function Header() {
                     onMouseEnter={clearProfileCloseTimeout}
                     onMouseLeave={handleProfileMouseLeave}
                   >
-                    {user ? (
+                    {user || seller ? (
                       <>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/account" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><FaRegCircleUser size={16} /><span>My Account</span></Link>
+                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to={user ? "/account" : seller ? "/seller-account" : "/user"} className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><FaRegCircleUser size={16} /><span>My Account</span></Link>
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/wishlist" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineHeart size={16} /><span>Wishlist</span></Link>
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/add-to-cart" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineShoppingCart size={16} /><span>Cart</span></Link>
                         <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/myorders" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><RiShoppingBag4Line size={16} /><span>My Orders</span></Link>
