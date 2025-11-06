@@ -2,7 +2,10 @@ import { createBrowserRouter } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
-import { getUserFromLocalLoader, requireUserAuth } from "./Screens/LoginScreen/Login.Hooks";
+import {
+  getUserFromLocalLoader,
+  requireUserAuth,
+} from "./Screens/LoginScreen/Login.Hooks";
 import AdminLayout from "./components/Layouts/AdminLayout";
 import AdminRequestScreen from "./Screens/Admin/AdminRequestScreen";
 import AllSellerScreen from "./Screens/Admin/AllSellerScreen";
@@ -21,7 +24,6 @@ import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
-import AdminProductRequestScreen from "./Screens/Admin/AdminProductScreen";
 import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
 import CheckoutScreen from "./Screens/CheckoutScreen/CheckoutScreen";
 import UserAddressScreen from "./Screens/User/UserAddressScreen";
@@ -49,7 +51,7 @@ import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialP
 import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks"; // ✅ added
 import MyOrderPage from "./components/Account/Orderpage";
-import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
 
 export const router = createBrowserRouter([
   {
@@ -68,7 +70,11 @@ export const router = createBrowserRouter([
         loader: requireUserAuth, // 🔐
         element: <PaymentScreen />,
       },
-      { path: "wishlist", loader: requireUserAuth, element: <WishlistProduct /> }, // 🔐
+      {
+        path: "wishlist",
+        loader: requireUserAuth,
+        element: <WishlistProduct />,
+      }, // 🔐
       { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> }, // 🔐
     ],
   },
@@ -98,7 +104,11 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
+      {
+        path: "checkout",
+        loader: requireUserAuth,
+        element: <CheckoutScreen />,
+      }, // 🔐
     ],
   },
 
@@ -114,7 +124,11 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
+      {
+        path: "checkout",
+        loader: requireUserAuth,
+        element: <CheckoutScreen />,
+      }, // 🔐
     ],
   },
 
@@ -125,7 +139,11 @@ export const router = createBrowserRouter([
       { index: true, element: <Consumables /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
-      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> }, // 🔐
+      {
+        path: "checkout",
+        loader: requireUserAuth,
+        element: <CheckoutScreen />,
+      }, // 🔐
     ],
   },
 
@@ -143,16 +161,28 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen /> },
-      { path: "sellers", element: <AllSellerScreen /> },
-      { path: "users", element: <AllUserScreen /> },
       {
-        path: "products",
+        path: "sellers",
         children: [
-          { index: true, element: <AdminProductRequestScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> },
+          { index: true, element: <AllSellerScreen /> },
+          {
+            path: ":sellerId",
+            children: [
+              { index: true, element: <AdminSellerProductScreen /> },
+              { path:"view/:id", element: <ViewProductScreen /> },
+            ],
+          },
         ],
       },
-      { path: "orders", element: <AllOrderScreen /> }
+      { path: "users", element: <AllUserScreen /> },
+      // {
+      //   path: "products",
+      //   children: [
+      //     { index: true, element: <AdminProductRequestScreen /> },
+      //     { path: "view/:id", element: <ViewProductScreen /> },
+      //   ],
+      // },
+      // { path: "orders", element: <AllOrderScreen /> },
     ],
   },
 
@@ -213,16 +243,28 @@ export const router = createBrowserRouter([
   },
 
   // ✅ Orders page (Protected)
-   { path: "/myorders", loader: requireUserAuth, element: <OrderPage /> },
+  { path: "/myorders", loader: requireUserAuth, element: <OrderPage /> },
 
   // Other routes
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  { path: "/seller/activation/:activation_token", element: <SellerActivation /> },
+  {
+    path: "/seller/activation/:activation_token",
+    element: <SellerActivation />,
+  },
   { path: "/account", element: <AccountNavbar /> },
-  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
+  {
+    path: "account/orders/:productId",
+    loader: requireUserAuth,
+    element: <OrderSummary />,
+  },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
-  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
-  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+  {
+    path: "/get-products-by-speciality-package-type/:id",
+    element: <ProductBasedOnSpecialPackagetypes />,
+  },
+  {
+    path: "/get-products-by-speciality-package/:id",
+    element: <ProductBasedOnSpecialPackage />,
+  },
   { path: "*", element: <div>404 - Page Not Found</div> },
-
 ]);

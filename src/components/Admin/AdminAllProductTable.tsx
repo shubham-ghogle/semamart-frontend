@@ -65,7 +65,7 @@ export default function AdminAllProductTable({
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "productName", header: "Product Name" },
+    { accessorKey: "productName", header: "Product Name",cell:({row})=> <p className="max-w-xs text-ellipsis overflow-hidden">{row.original.productName}</p> },
     { accessorKey: "sku", header: "SKU" },
     {
       accessorKey: "thumbnail",
@@ -97,7 +97,7 @@ export default function AdminAllProductTable({
       cell: ({ row }) => (
         <article className="flex items-center gap-4">
           {/* <Link to={`/admin/products/view/${row.original.productId}`}> */}
-          <Link to={row.original.productId}>
+          <Link to={"view/"+row.original.productId}>
             <AiOutlineEye size={20} />
           </Link>
           <UpdateCommissionDialog
@@ -110,7 +110,7 @@ export default function AdminAllProductTable({
   ];
 
   return (
-    <div className="p-4 bg-white shadow rounded">
+    <div className="p-4 bg-white shadow rounded w-[70vw] overflow-x-scroll">
       <DataTable data={rows} columns={columns} docName="products" />
     </div>
   );
