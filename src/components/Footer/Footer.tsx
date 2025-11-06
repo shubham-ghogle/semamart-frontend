@@ -65,9 +65,9 @@ export default function Footer() {
           <p className="font-semibold text-dark-blue">
             SEMA Healthcare Private Limited
           </p>
-          <p>
+          {/* <p>
             Shyam Plaza, Third Floor, Mahaveer Enclave, Dwarka, Delhi – 110045
-          </p>
+          </p> */}
           <p>
             <a
               href="mailto:info@semamart.com"
@@ -79,7 +79,7 @@ export default function Footer() {
           <p>GST: 07ABKCS8538F1ZX</p>
           <p>
             <a href="tel:+919319654455" className="hover:text-dark-blue">
-              +91 93196 54455
+              +91 93196 54455 +91 73037 69555
             </a>
           </p>
         </article>
