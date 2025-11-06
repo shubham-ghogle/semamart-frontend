@@ -1,10 +1,8 @@
-// src/Screens/Search/SearchResultsPageSeller.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
 import { Product, Variant } from "../../Types/types";
 import { fetchShopInfo } from "../SellerProducts/SellerProducts.hooks";
 import ProductCard from "@/components/Homepage/ProductCard";
-
 
 //const PLACEHOLDER = "/placeholder.png";
 
@@ -21,13 +19,9 @@ function getDisplayDiscountPrice(p: Product) {
   const v = pickBestVariant(p.variants);
   return v?.discountPrice ?? v?.originalPrice ?? 0;
 }
-// function getDisplayOriginalPrice(p: Product) {
-//   const v = pickBestVariant(p.variants);
-//   return v?.originalPrice ?? 0;
-// }
 
 export default function SearchResultsPageSeller() {
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
   const routeParams = useParams<{ shopId?: string }>();
 
   const q = params.get("q") || "";
@@ -41,6 +35,14 @@ export default function SearchResultsPageSeller() {
   const [shopName, setShopName] = useState<string | null>(null);
   const [shopLoading, setShopLoading] = useState(false);
   const [shopError, setShopError] = useState<string | null>(null);
+
+  // search input state (so user can search again)
+  const [searchInput, setSearchInput] = useState<string>(q);
+
+  // keep local input in sync when URL changes externally
+  useEffect(() => {
+    setSearchInput(q);
+  }, [q]);
 
   // filters / sort
   const [category, setCategory] = useState("All");
@@ -106,6 +108,17 @@ export default function SearchResultsPageSeller() {
     })();
   }, [q, shopId]);
 
+  // submit search: updates URL params (which triggers the effect above)
+  const submitSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!shopId) return;
+    const trimmed = (searchInput || "").trim();
+    // keep shopId in params, remove q if empty
+    const newParams: Record<string, string> = { shopId };
+    if (trimmed.length > 0) newParams.q = trimmed;
+    setSearchParams(newParams);
+  };
+
   // Filtering
   let filtered = results.filter((p) => {
     const inCat =
@@ -130,7 +143,7 @@ export default function SearchResultsPageSeller() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
-        {/* Header: title + seller */}
+        {/* Header: title + seller + search input */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">Search results for “{q}”</h1>
@@ -150,19 +163,40 @@ export default function SearchResultsPageSeller() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600">Sort</label>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="appearance-none border border-gray-200 bg-white rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
-            >
-              <option value="relevance">Relevance</option>
-              <option value="lowToHigh">Price: Low to High</option>
-              <option value="highToLow">Price: High to Low</option>
-              <option value="rating">Rating</option>
-            </select>
-          </div>
+<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto md:ml-auto">
+
+  {/* search form - full width on mobile, fixed on sm+ */}
+  <form onSubmit={submitSearch} className="flex items-center gap-2 w-full sm:w-auto">
+    <input
+      type="search"
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)}
+      placeholder="Search this shop"
+      className="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+    />
+    <button
+      type="submit"
+      className="px-3 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
+    >
+      Search
+    </button>
+  </form>
+
+  {/* sort control grouped to the right on sm+, stacked on mobile */}
+  <div className="flex items-center gap-2 sm:ml-2">
+    <label className="text-sm text-gray-600">Sort</label>
+    <select
+      value={sort}
+      onChange={(e) => setSort(e.target.value)}
+      className="appearance-none border border-gray-200 bg-white rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+    >
+      <option value="relevance">Relevance</option>
+      <option value="lowToHigh">Price: Low to High</option>
+      <option value="highToLow">Price: High to Low</option>
+      <option value="rating">Rating</option>
+    </select>
+  </div>
+</div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
