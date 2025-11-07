@@ -6,7 +6,7 @@ import { GiCrown } from "react-icons/gi";
 import { FaShippingFast } from "react-icons/fa";
 import { fetchShopInfo, getProductsByShop } from "./SellerProducts.hooks";
 import { Product } from "@/Types/types";
-import CategoryNav, { Category as CategoryType } from "./CategoryNav";
+import CategoryNav from "./CategoryNav";
 
 type BestSellerStatus = "pending" | "error" | "success";
 
@@ -48,7 +48,6 @@ export default function SellerProducts(): JSX.Element {
     staleTime: Infinity,
   });
 
-  // New: fetch orders for this shop (uses the backend route you provided)
   const {
     data: ordersData,
     isLoading: ordersLoading,
@@ -75,46 +74,14 @@ export default function SellerProducts(): JSX.Element {
 
   const shopName = shopData?.shop?.businessName ?? "Shop";
 
-  // ---- demo categories array (replace with real data or fetch categories from API) ----
-  const categories: CategoryType[] = [
-    { id: "c1", name: "Home", slug: "/shop/home" },
-    {
-      id: "c2",
-      name: "What's New",
-      slug: "/shop/whats-new",
-      subcategories: [
-        { id: "c2s1", name: "All Models", slug: "/shop/whats-new/all" },
-        { id: "c2s2", name: "New Arrivals", slug: "/shop/whats-new/arrivals" },
-      ],
-    },
-    { id: "c3", name: "Shop Deals", slug: "/shop/deals" },
-    {
-      id: "c4",
-      name: "iPhone",
-      slug: "/shop/iphone",
-      subcategories: [
-        { id: "c4s1", name: "iPhone 15", slug: "/shop/iphone/15" },
-        { id: "c4s2", name: "Cases", slug: "/shop/iphone/cases" },
-      ],
-    },
-    { id: "c5", name: "iPad", slug: "/shop/ipad" },
-    { id: "c6", name: "Apple Watch", slug: "/shop/watch" },
-    { id: "c7", name: "AirPods", slug: "/shop/airpods" },
-    { id: "c8", name: "Mac Laptops", slug: "/shop/mac-laptops" },
-    { id: "c9", name: "Accessories", slug: "/shop/accessories" },
-  ];
-  // -------------------------------------------------------
-
-  // onSearch handler: navigate to search route with q + shopId as query params
   const handleSearch = (q: string) => {
     if (!shopId) return;
     navigate(`/shop/${encodeURIComponent(shopId)}/search?q=${encodeURIComponent(q)}&shopId=${encodeURIComponent(shopId)}`);
   };
 
-  // Derived counts + hardcoded rating for now
   const productsCount = Array.isArray(products) ? products.length : 0;
   const ordersCount = ordersData?.orders ? ordersData.orders.length : 0;
-  const rating = 4.3; // hardcoded for now, will be replaced by API later
+  const rating = 4.3;
 
   const renderStars = (value: number) => {
     const full = Math.floor(value);
@@ -132,48 +99,55 @@ export default function SellerProducts(): JSX.Element {
 
   return (
     <section className="max-w-[1460px] mx-auto bg-gray-100">
-      {/* Shop name above banner - reduced top padding and tighter heading */}
-      <div className="w-full text-center pt-2 pb-1 mt-10">
-        <h1 className="text-4xl md:text-5xl lg:text-5xl font-semibold text-black leading-tight">{shopName}</h1>
+      {/* Left-aligned header: shop name + quick stats aligned to the left */}
+      <div className="w-full pt-4 pb-2 mt-8 px-6">
+        <div className="max-w-[1460px] mx-auto flex flex-col md:flex-row md:items-start md:justify-start gap-4">
+          <div className="flex-1">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-black leading-tight text-left">{shopName}</h1>
 
-        {/* quick stats row */}
-        <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-center">
-            <span className="text-xs text-gray-500">Products</span>
-            <span className="text-lg font-medium text-gray-900">{productsLoading ? "..." : productsCount}</span>
-          </div>
+            <div className="mt-3 flex flex-wrap items-center justify-start gap-4">
+              <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                <span className="text-xs text-gray-500">Products</span>
+                <span className="text-lg font-medium text-gray-900">{productsLoading ? "..." : productsCount}</span>
+              </div>
 
-          <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-center">
-            <span className="text-xs text-gray-500">Orders</span>
-            <span className="text-lg font-medium text-gray-900">{ordersLoading ? "..." : ordersCount}</span>
-          </div>
+              <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                <span className="text-xs text-gray-500">Orders</span>
+                <span className="text-lg font-medium text-gray-900">{ordersLoading ? "..." : ordersCount}</span>
+              </div>
 
-          <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-center">
-            <span className="text-xs text-gray-500">Ratings</span>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-medium text-gray-900">{rating.toFixed(1)}</span>
-              {renderStars(rating)}
+              <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                <span className="text-xs text-gray-500">Ratings</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-medium text-gray-900">{rating.toFixed(1)}</span>
+                  {renderStars(rating)}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* optional right slot for actions or badges — kept empty for now so header stays left-aligned */}
+          <div className="w-full md:w-auto" />
         </div>
       </div>
 
-      {/* Category navigation: pulled up slightly to reduce gap between name and bar */}
+      {/* Category navigation (unchanged) */}
       <div className="-mt-2">
-        <CategoryNav categories={categories} maxVisible={8} onSearch={handleSearch} />
+        <CategoryNav onSearch={handleSearch} shopId={shopId} />
       </div>
 
-      {/* Top image banner */}
-      <div className="w-full">
-        <div className="w-full h-[28vh] sm:h-[36vh] md:h-[44vh] lg:h-[60vh] xl:h-[72vh] 2xl:h-[92vh] overflow-hidden">
-          <img
-            src={bannerSrc}
-            alt={`${shopName} banner`}
-            className="w-full h-full object-cover object-top sm:object-center"
-            loading="lazy"
-          />
-        </div>
-      </div>
+      {/* Top image banner (reduced height) */}
+<div className="w-full">
+  <div className="w-full h-[20vh] sm:h-[28vh] md:h-[36vh] lg:h-[44vh] xl:h-[52vh] 2xl:h-[60vh] overflow-hidden">
+    <img
+      src={bannerSrc}
+      alt={`${shopName} banner`}
+      className="w-full h-full object-cover object-top sm:object-center"
+      loading="lazy"
+    />
+  </div>
+</div>
+
 
       <div className="w-full px-6 pt-8 space-y-12 mx-auto">
         <div id="shop-products" />

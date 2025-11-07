@@ -1,10 +1,11 @@
+// src/Screens/Search/SearchResultsPageSeller.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Product, Variant } from "../../Types/types";
-import { fetchShopInfo } from "../SellerProducts/SellerProducts.hooks";
+import { fetchShopInfo, getProductsByShop } from "../SellerProducts/SellerProducts.hooks";
 import ProductCard from "@/components/Homepage/ProductCard";
-
-//const PLACEHOLDER = "/placeholder.png";
+import CategoryNav from "@/Screens/SellerProducts/CategoryNav"; // adjust path if needed
 
 function pickBestVariant(variants?: Variant[]) {
   if (!Array.isArray(variants) || variants.length === 0) return undefined;
@@ -28,68 +29,82 @@ export default function SearchResultsPageSeller() {
   const shopIdFromQuery = params.get("shopId") || undefined;
   const shopId = shopIdFromQuery || routeParams.shopId;
 
+  // SEARCH results (from search endpoint)
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // seller/shop info
-  const [shopName, setShopName] = useState<string | null>(null);
-  const [shopLoading, setShopLoading] = useState(false);
-  const [shopError, setShopError] = useState<string | null>(null);
-
-  // search input state (so user can search again)
-  const [searchInput, setSearchInput] = useState<string>(q);
-
-  // keep local input in sync when URL changes externally
-  useEffect(() => {
-    setSearchInput(q);
-  }, [q]);
-
-  // filters / sort
+  // filters / sort (same as before)
   const [category, setCategory] = useState("All");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [sort, setSort] = useState("relevance");
 
-  // categories (can be fetched later)
+  // local categories for filter dropdown (kept as before)
   const categories = ["All", "Consumables", "Pharmaceutical", "Equipment"];
 
-  // fetch seller name
-  useEffect(() => {
-    if (!shopId) {
-      setShopName(null);
-      return;
-    }
-    setShopLoading(true);
-    setShopError(null);
-    (async () => {
-      try {
-        const res = await fetchShopInfo(shopId);
-        setShopName(res.shop?.businessName ?? `Shop ${shopId}`);
-      } catch (err: any) {
-        console.error("fetchShopInfo error", err);
-        setShopError(err?.message ?? "Failed to load shop");
-        setShopName(`Shop ${shopId}`);
-      } finally {
-        setShopLoading(false);
-      }
-    })();
-  }, [shopId]);
+  // --- Seller / Shop data + total products + orders ---
+  // total products for shop (not search results) using getProductsByShop
+  const {
+    data: allProducts = [],
+    isLoading: allProductsLoading,
+    isError: allProductsError,
+    error: allProductsFetchError,
+  } = useQuery<Product[], Error>({
+    queryKey: ["products", "shop", shopId, "all"],
+    queryFn: async () => getProductsByShop(shopId ?? ""),
+    enabled: !!shopId,
+    staleTime: Infinity,
+  });
 
-  // fetch products for seller
+  // shop info
+  const {
+    data: shopData,
+    isError: shopError,
+    error: shopFetchError,
+  } = useQuery<{ success: boolean; shop?: { _id?: string; businessName?: string; banner?: string; profilePic?: string } }, Error>({
+    queryKey: ["shop", shopId],
+    queryFn: async () => fetchShopInfo(shopId ?? ""),
+    enabled: !!shopId,
+    staleTime: Infinity,
+  });
+
+  // orders for seller
+  const {
+    data: ordersData,
+    isLoading: ordersLoading,
+    isError: ordersError,
+    error: ordersFetchError,
+  } = useQuery<{ success: boolean; orders: any[] }, Error>({
+    queryKey: ["shopOrders", shopId],
+    queryFn: async () => {
+      if (!shopId) return { success: false, orders: [] };
+      const res = await fetch(`/api/v2/order/get-seller-all-orders/${encodeURIComponent(shopId)}`);
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      return res.json();
+    },
+    enabled: !!shopId,
+    staleTime: Infinity,
+  });
+
+  // rating (kept hardcoded to match SellerProducts)
+  const rating = 4.3;
+
+  // search (fetch products matching q & shopId) — keep the original behavior
   useEffect(() => {
     if (!shopId) {
       setResults([]);
       return;
     }
     setLoading(true);
+    setFetchError(null);
     (async () => {
       try {
-        const url = `/api/v2/product/searchseller?q=${encodeURIComponent(q || "")}&shopId=${encodeURIComponent(
-          shopId
-        )}`;
+        const url = `/api/v2/product/searchseller?q=${encodeURIComponent(q || "")}&shopId=${encodeURIComponent(shopId)}`;
         const res = await fetch(url);
         if (!res.ok) {
           setResults([]);
+          setFetchError(`Search request failed (${res.status})`);
           return;
         }
         const data = await res.json().catch(() => ({}));
@@ -99,27 +114,30 @@ export default function SearchResultsPageSeller() {
           ? data
           : data?.results || data?.items || [];
         setResults(Array.isArray(products) ? products : []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Search fetch error", err);
         setResults([]);
+        setFetchError(err?.message ?? "Search failed");
       } finally {
         setLoading(false);
       }
     })();
   }, [q, shopId]);
 
-  // submit search: updates URL params (which triggers the effect above)
-  const submitSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  // CategoryNav search handler: update URL params (keeps shopId)
+  const handleNavSearch = (term: string) => {
     if (!shopId) return;
-    const trimmed = (searchInput || "").trim();
-    // keep shopId in params, remove q if empty
+    const trimmed = term.trim();
     const newParams: Record<string, string> = { shopId };
     if (trimmed.length > 0) newParams.q = trimmed;
     setSearchParams(newParams);
   };
 
-  // Filtering
+  // Derived values for header
+  const productsCount = Array.isArray(allProducts) ? allProducts.length : 0;
+  const ordersCount = ordersData?.orders ? ordersData.orders.length : 0;
+
+  // Filtering (same logic)
   let filtered = results.filter((p) => {
     const inCat =
       category === "All" ||
@@ -131,7 +149,7 @@ export default function SearchResultsPageSeller() {
     return inCat && inPrice;
   });
 
-  // Sorting
+  // Sorting (same logic)
   if (sort === "lowToHigh") {
     filtered = filtered.sort((a, b) => getDisplayDiscountPrice(a) - getDisplayDiscountPrice(b));
   } else if (sort === "highToLow") {
@@ -140,65 +158,79 @@ export default function SearchResultsPageSeller() {
     filtered = filtered.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
   }
 
+  const renderStars = (value: number) => {
+    const full = Math.floor(value);
+    const max = 5;
+    const stars = [] as JSX.Element[];
+    for (let i = 0; i < max; i++) {
+      stars.push(
+        <span key={i} className={`text-sm ${i < full ? "text-yellow-500" : "text-gray-300"}`}>
+          ★
+        </span>
+      );
+    }
+    return <span className="inline-flex items-center">{stars}</span>;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
-        {/* Header: title + seller + search input */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">Search results for “{q}”</h1>
-            <div className="mt-1 flex items-center gap-3">
-              <p className="text-sm text-gray-500">
-                {filtered.length} item{filtered.length !== 1 ? "s" : ""}
-              </p>
-              {shopLoading ? (
-                <p className="text-sm text-gray-400">Loading seller…</p>
-              ) : shopError ? (
-                <p className="text-sm text-red-500">Seller load error</p>
-              ) : shopName ? (
-                <p className="text-sm text-gray-600">
-                  Sold by <span className="font-medium text-gray-800">{shopName}</span>
-                </p>
-              ) : null}
+        {/* --- Seller header at the top (left-aligned) --- */}
+        <div className="w-full pt-4 pb-2 mt-2 px-0">
+          <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-start md:justify-start gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
+                { /* seller name at very top */ }
+                {shopData?.shop?.businessName ?? "Shop"}
+              </h1>
+
+              <div className="mt-3 flex flex-wrap items-center justify-start gap-4">
+                <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                  <span className="text-xs text-gray-500">Products</span>
+                  <span className="text-lg font-medium text-gray-900">{allProductsLoading ? "..." : productsCount}</span>
+                </div>
+
+                <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                  <span className="text-xs text-gray-500">Orders</span>
+                  <span className="text-lg font-medium text-gray-900">{ordersLoading ? "..." : ordersCount}</span>
+                </div>
+
+                <div className="bg-white shadow rounded-md px-4 py-2 flex flex-col items-start">
+                  <span className="text-xs text-gray-500">Ratings</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-medium text-gray-900">{rating.toFixed(1)}</span>
+                    {renderStars(rating)}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div className="w-full md:w-auto" />
           </div>
-
-<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto md:ml-auto">
-
-  {/* search form - full width on mobile, fixed on sm+ */}
-  <form onSubmit={submitSearch} className="flex items-center gap-2 w-full sm:w-auto">
-    <input
-      type="search"
-      value={searchInput}
-      onChange={(e) => setSearchInput(e.target.value)}
-      placeholder="Search this shop"
-      className="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
-    />
-    <button
-      type="submit"
-      className="px-3 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-    >
-      Search
-    </button>
-  </form>
-
-  {/* sort control grouped to the right on sm+, stacked on mobile */}
-  <div className="flex items-center gap-2 sm:ml-2">
-    <label className="text-sm text-gray-600">Sort</label>
-    <select
-      value={sort}
-      onChange={(e) => setSort(e.target.value)}
-      className="appearance-none border border-gray-200 bg-white rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
-    >
-      <option value="relevance">Relevance</option>
-      <option value="lowToHigh">Price: Low to High</option>
-      <option value="highToLow">Price: High to Low</option>
-      <option value="rating">Rating</option>
-    </select>
-  </div>
-</div>
         </div>
 
+        {/* --- CategoryNav under header --- */}
+        <div className="-mt-2 mb-4">
+          {/* use same categories shape as SellerProducts so drawer shows items */}
+          <CategoryNav
+            onSearch={handleNavSearch}
+            shopId={shopId}
+          />
+        </div>
+
+        {/* --- Search-results title (moved below the navbar) --- */}
+        {q && (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Search results for “{q}”
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {filtered.length} item{filtered.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+        )}
+
+        {/* --- rest of the page (filters, sort, product grid) kept exactly as before --- */}
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar filters (desktop only) */}
           <aside className="hidden lg:block w-64">
@@ -259,7 +291,7 @@ export default function SearchResultsPageSeller() {
 
           {/* Main column */}
           <div className="flex-1">
-            {/* Mobile filters placed once here (visible only on small screens) */}
+            {/* Mobile filters placed here (visible only on small screens) */}
             <div className="lg:hidden mb-4">
               <div className="bg-white rounded-xl p-3 shadow-sm">
                 <details className="group">
@@ -306,6 +338,21 @@ export default function SearchResultsPageSeller() {
                   </div>
                 </details>
               </div>
+
+              {/* keep sort control on mobile too */}
+              <div className="mt-2 flex items-center gap-2">
+                <label className="text-sm text-gray-600">Sort</label>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="appearance-none border border-gray-200 bg-white rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="lowToHigh">Price: Low to High</option>
+                  <option value="highToLow">Price: High to Low</option>
+                  <option value="rating">Rating</option>
+                </select>
+              </div>
             </div>
 
             {/* product grid */}
@@ -329,6 +376,12 @@ export default function SearchResultsPageSeller() {
                 <p className="text-sm text-gray-500">Try clearing filters or searching with a different term.</p>
               </div>
             )}
+
+            {/* errors / loading messages (kept) */}
+            {fetchError && <div className="text-sm text-red-600 mt-4">Search error: {fetchError}</div>}
+            {shopError && <div className="text-sm text-red-600 mt-4">Shop load error: {shopFetchError?.message ?? "Unknown error"}</div>}
+            {ordersError && <div className="text-sm text-red-600 mt-4">Orders load error: {ordersFetchError?.message ?? "Unknown error"}</div>}
+            {allProductsError && <div className="text-sm text-red-600 mt-4">Products load error: {allProductsFetchError?.message ?? "Unknown error"}</div>}
           </div>
         </div>
       </div>
