@@ -19,6 +19,8 @@ type VariantRow = {
   productId: string;
   sku: string;
   commission: number;
+  commissionHistoryDate: string;
+  commissionHistoryAmount: number;
 };
 
 type AdminAllProductTableProps = {
@@ -42,6 +44,16 @@ export default function AdminAllProductTable({
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
       commission: pro.commission || 0,
+      commissionHistoryDate: pro.commissionHistory?.[
+        pro.commissionHistory.length - 1
+      ].updatedAt
+        ? new Date(
+            pro.commissionHistory?.[pro.commissionHistory.length - 1].updatedAt
+          ).toLocaleDateString("en-IN")
+        : "-",
+      commissionHistoryAmount:
+        pro.commissionHistory?.[pro.commissionHistory?.length - 1].commission ||
+        0,
     }))
   );
 
@@ -65,7 +77,15 @@ export default function AdminAllProductTable({
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "productName", header: "Product Name",cell:({row})=> <p className="max-w-xs text-ellipsis overflow-hidden">{row.original.productName}</p> },
+    {
+      accessorKey: "productName",
+      header: "Product Name",
+      cell: ({ row }) => (
+        <p className="max-w-xs text-ellipsis overflow-hidden">
+          {row.original.productName}
+        </p>
+      ),
+    },
     { accessorKey: "sku", header: "SKU" },
     {
       accessorKey: "thumbnail",
@@ -87,17 +107,24 @@ export default function AdminAllProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
-    { accessorKey: "commission", header: "Commission (%)" },
-    { accessorKey: "earning", header: "SEMA Earning",cell:({row})=>(
-      <span>{row.original.originalPrice * row.original.commission / 100}</span>
-    ) },
+    { accessorKey: "commission", header: "Commission Amount" },
+    {
+      accessorKey: "commissionHistory",
+      header: "Commission History",
+      cell: ({ row }) => (
+        <p>
+          <span>Previous Amount: {row.original.commissionHistoryAmount}</span>{" "}
+          <span>Updated At: {row.original.commissionHistoryDate}</span>
+        </p>
+      ),
+    },
     {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
         <article className="flex items-center gap-4">
           {/* <Link to={`/admin/products/view/${row.original.productId}`}> */}
-          <Link to={"view/"+row.original.productId}>
+          <Link to={"view/" + row.original.productId}>
             <AiOutlineEye size={20} />
           </Link>
           <UpdateCommissionDialog

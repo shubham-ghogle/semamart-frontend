@@ -112,6 +112,7 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
   commission?: number;
+  commissionHistory?:{commission:number,updatedAt:string}[];
 }
 
 export type Address = {

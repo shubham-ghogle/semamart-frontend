@@ -72,12 +72,12 @@ export default function UpdateCommissionDialog({
 
           <div className="space-y-4">
             <div className="flex flex-col space-y-2">
-              <Label className="text-sm font-medium">Old Commission</Label>
+              <Label className="text-sm font-medium">Old Commission Amount</Label>
               <Input value={currentCommission} disabled readOnly />
             </div>
 
             <div className="flex flex-col space-y-2">
-              <Label className="text-sm font-medium">New Commission</Label>
+              <Label className="text-sm font-medium">New Commission Amount</Label>
               <Input
                 type="number"
                 value={newCommission}

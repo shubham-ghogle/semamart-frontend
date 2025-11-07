@@ -61,6 +61,7 @@ import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
 
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
+import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 
 export const router = createBrowserRouter([
   {
@@ -197,7 +198,7 @@ export const router = createBrowserRouter([
       //     { path: "view/:id", element: <ViewProductScreen /> },
       //   ],
       // },
-      // { path: "orders", element: <AllOrderScreen /> },
+      { path: "orders", element: <AllOrderScreen /> },
     ],
   },
 
