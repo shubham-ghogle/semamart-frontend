@@ -6,7 +6,7 @@ import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck } from "react-icons/ci";
 import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
-
+import { FaRegCircleUser } from "react-icons/fa6";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import SidebarNavlinks from "./SidebarNavlinks";
@@ -32,8 +32,11 @@ export default function SellerNavbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const fallbackAvatar = seller?.avatar || seller?.profilePic || "https://cdn-icons-png.flaticon.com/512/2922/2922510.png";
-
+  // const fallbackAvatar =  seller?.profilePic || "https://cdn-icons-png.flaticon.com/512/2922/2922510.png";
+  const fallbackAvatar = seller?.profilePic
+    ? `/baseUrl/${seller?.profilePic}`
+    : "/image60.png";
+  
   const logoutHandler = async () => {
     if (loggingOut) return;
     setLoggingOut(true);
@@ -110,6 +113,7 @@ export default function SellerNavbar() {
 
           <nav className="p-3">
             <SidebarNavlinks icon={<RxDashboard />} to="/seller" end label="Dashboard" />
+            <SidebarNavlinks icon={<FaRegCircleUser />} to="/seller/my-account" label="My Account" />
             <SidebarNavlinks icon={<TiDocumentAdd />} to="/seller/add-product" label="Add Product" />
             <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="All Products" />
             <SidebarNavlinks icon={<CiDeliveryTruck />} to="/seller/orders" label="All Orders" />

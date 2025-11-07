@@ -58,6 +58,7 @@ import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks";
 import MyOrderPage from "./components/Account/Orderpage";
 import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
 import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
+import SellerAccount from "./components/Seller/SellerAccount";
 
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
@@ -201,6 +202,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
+      { path: "my-account", element: <SellerAccount/> },
       {
         path: "products",
         children: [
