@@ -21,7 +21,7 @@ export default function AdminHeader() {
         {/* Logo */}
         <div>
           <Link to="/admin">
-            <img src="/logo.svg" alt="brand-logo" width={250} />
+            <img src="/logo.png" alt="brand-logo" width={250} />
           </Link>
         </div>
 

@@ -10,7 +10,7 @@ export default function SellerHeader() {
       <div className="container mx-auto h-[80px] flex items-center justify-between">
         <div>
           <Link to="/">
-            <img src="/logo.svg" alt="brand-logo" width={250} />
+            <img src="/logo.png" alt="brand-logo" width={250} />
           </Link>
         </div>
 
