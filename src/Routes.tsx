@@ -58,6 +58,7 @@ import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks";
 import MyOrderPage from "./components/Account/Orderpage";
 import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
 import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
+import SellerAccount from "./components/Seller/SellerAccount";
 
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
@@ -149,14 +150,6 @@ export const router = createBrowserRouter([
     path: "/shop/:shopId",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables /> },
-      { path: "product", element: <ProductsScreen /> },
-      { path: "product/:id", element: <ProductDetails /> },
-      {
-        path: "checkout",
-        loader: requireUserAuth,
-        element: <CheckoutScreen />,
-      }, // 🔐
       { index: true, element: <SellerProducts /> },
       // seller-scoped search (calls /api/v2/product/searchseller?q=&shopId=)
       { path: "search", element: <SearchResultsPageSeller /> },
@@ -210,6 +203,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
+      { path: "my-account", element: <SellerAccount/> },
       {
         path: "products",
         children: [

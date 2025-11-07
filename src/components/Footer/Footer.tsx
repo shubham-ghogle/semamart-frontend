@@ -50,7 +50,7 @@ export default function Footer() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap- sm:px-8 px-5 pt-5">
         {/* Brand Section */}
         <article className="px-5 text-center sm:text-start flex flex-col items-center sm:items-center">
-          <img src="/logo.svg" alt="brand logo" width={400} className="mb-4" />
+          <img src="/logo.png" alt="brand logo" width={400} className="mb-4" />
           <section className="grid grid-cols-2 place-items-center gap-4">
             <img src="/footer-lion.png" alt="lion art" width={200} />
             <img src="/footer-art.png" alt="footer art" width={100} />

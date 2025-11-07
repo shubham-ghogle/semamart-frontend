@@ -653,45 +653,146 @@ export default function Header() {
                     onMouseLeave={handleProfileMouseLeave}
                   >
                     {user || seller ? (
-                      <>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to={user ? "/account" : seller ? "/seller-account" : "/user"} className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><FaRegCircleUser size={16} /><span>My Account</span></Link>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/wishlist" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineHeart size={16} /><span>Wishlist</span></Link>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/add-to-cart" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><AiOutlineShoppingCart size={16} /><span>Cart</span></Link>
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/myorders" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><RiShoppingBag4Line size={16} /><span>My Orders</span></Link>
-                        <hr className="my-1" />
-                        <Link onClick={() => { setMobileProfileOpen(false); setIsUserHovered(false); }} to="/support" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"><MdOutlineSupportAgent size={16} /><span>Support</span></Link>
-                        <hr className="my-1" />
-                        <button onClick={async () => { await logoutHandler(); setMobileProfileOpen(false); setIsUserHovered(false); }} className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-gray-100 text-sm"><FaSignOutAlt size={16} /><span>Logout</span></button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex justify-between items-center px-4 py-2"><span>New customer?</span><Link onClick={() => { setMobileProfileOpen(false); }} to="/signup" className="text-blue-600 text-sm">Sign Up</Link></div>
-                        <hr />
-                      </>
-                    )}
+  <>
+    {/* My Account - always visible */}
+    <Link
+      onClick={() => {
+        setMobileProfileOpen(false);
+        setIsUserHovered(false);
+      }}
+      to={user ? "/account" : seller ? "/seller-account" : "/user"}
+      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+    >
+      <FaRegCircleUser size={16} />
+      <span>My Account</span>
+    </Link>
+
+    {/* Only show these if NOT seller */}
+    {!seller && (
+      <>
+        <Link
+          onClick={() => {
+            setMobileProfileOpen(false);
+            setIsUserHovered(false);
+          }}
+          to="/wishlist"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+          <AiOutlineHeart size={16} />
+          <span>Wishlist</span>
+        </Link>
+
+        <Link
+          onClick={() => {
+            setMobileProfileOpen(false);
+            setIsUserHovered(false);
+          }}
+          to="/add-to-cart"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+          <AiOutlineShoppingCart size={16} />
+          <span>Cart</span>
+        </Link>
+
+        <Link
+          onClick={() => {
+            setMobileProfileOpen(false);
+            setIsUserHovered(false);
+          }}
+          to="/myorders"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+          <RiShoppingBag4Line size={16} />
+          <span>My Orders</span>
+        </Link>
+
+        <hr className="my-1" />
+
+        <Link
+          onClick={() => {
+            setMobileProfileOpen(false);
+            setIsUserHovered(false);
+          }}
+          to="/support"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+          <MdOutlineSupportAgent size={16} />
+          <span>Support</span>
+        </Link>
+
+        <hr className="my-1" />
+      </>
+    )}
+
+    {/* Logout - always visible */}
+    <button
+      onClick={async () => {
+        await logoutHandler();
+        setMobileProfileOpen(false);
+        setIsUserHovered(false);
+      }}
+      className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-gray-100 text-sm"
+    >
+      <FaSignOutAlt size={16} />
+      <span>Logout</span>
+    </button>
+  </>
+) : (
+  <>
+    <div className="flex justify-between items-center px-4 py-2">
+      <span>New customer?</span>
+      <Link
+        onClick={() => {
+          setMobileProfileOpen(false);
+        }}
+        to="/signup"
+        className="text-blue-600 text-sm"
+      >
+        Sign Up
+      </Link>
+    </div>
+    <hr />
+  </>
+)}
+
                   </div>
                 )}
               </div>
 
               {/* Become seller - hide on xs */}
-              <div className="hidden sm:block">
-                {user ? (
-                  <button onClick={() => setShowSellerDialog(true)} className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</button>
-                ) : (
-                  <Link to="/signup-seller" className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</Link>
-                )}
-              </div>
+              {!seller && (
+                <>
+                  {/* Become a Seller */}
+                  <div className="hidden sm:block">
+                    {user ? (
+                      <button onClick={() => setShowSellerDialog(true)} className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</button>
+                    ) : (
+                      <Link to="/signup-seller" className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</Link>
+                    )}
+                  </div>
 
-              {/* Wishlist & Cart icons (always visible) */}
-              <button onClick={openWishlistHandler} aria-label="Open Wishlist" className="relative p-2 rounded-full hover:bg-gray-100">
-                <AiOutlineHeart size={20} />
-                {wishlist.length > 0 && <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">{wishlist.length}</span>}
-              </button>
+                  {/* Wishlist */}
+                  <button onClick={openWishlistHandler} aria-label="Open Wishlist" className="relative p-2 rounded-full hover:bg-gray-100">
+                    <AiOutlineHeart size={20} />
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </button>
 
-              <button onClick={openCartHandler} aria-label="Open Cart" className="relative p-2 rounded-full hover:bg-gray-100">
-                <AiOutlineShoppingCart size={20} />
-                {cart.length > 0 && <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">{cart.length}</span>}
-              </button>
+                  {/* Cart */}
+                  <button onClick={openCartHandler} aria-label="Open Cart" className="relative p-2 rounded-full hover:bg-gray-100">
+                    <AiOutlineShoppingCart size={20} />
+                    {cart.length > 0 && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">
+                        {cart.length}
+                      </span>
+                    )}
+                  </button>
+                </>
+              )}
+
             </div>
           </div>
         </div>
