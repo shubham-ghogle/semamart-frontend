@@ -59,23 +59,30 @@ const addProductFormSchema = z
       message:
         "SKU must be 6–16 characters long and can only contain letters, numbers, or hyphens",
     }),
-    gtin: z.string().regex(/^[A-Za-z0-9]{15}$/, "Invalid GSTIN"),
+    gtin: z
+      .string()
+      .regex(/^[A-Za-z0-9]{15}$/, "Invalid GSTIN")
+      .optional(),
     hsn: z.string().regex(/^[A-Za-z0-9]{2,8}$/, {
       message: "Invalid HSN",
     }),
-    unspsc: z.string(),
+    unspsc: z.string().optional(),
     upsells: z.array(z.url()).optional(),
     crosssells: z.array(z.url()).optional(),
-    specialityPackage: z.string().min(1, "Speciality Package Required"),
-    specialityPackageType: z
+    specialityPackage: z.string().optional(),
+    specialityPackageType: z.string().optional(),
+    manufacturerName: z
       .string()
-      .min(2, "Speciality Package Type Required"),
-    manufacturerName: z.string().min(1, "Required").max(100,"Must have less then 100 character"),
+      .min(1, "Required")
+      .max(100, "Must have less then 100 character"),
     email: z.email(),
     phone: z
       .string()
       .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit phone number"),
-    origin: z.string().min(1, "Required").regex(/^[A-Za-z\s]+$/, "Only alphabets are allowed"),
+    origin: z
+      .string()
+      .min(1, "Required")
+      .regex(/^[A-Za-z\s]+$/, "Only alphabets are allowed"),
     shortdescription: z
       .string()
       .min(100, "Must have atleast 100 characters")
