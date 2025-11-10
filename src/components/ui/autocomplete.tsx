@@ -34,7 +34,7 @@ export function Autocomplete({ listItems, placeholder, value, setValue }: Autoco
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandList className="w-full">
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No Items</CommandEmpty>
             <CommandGroup>
               {listItems.map((item) => (
                 <CommandItem
