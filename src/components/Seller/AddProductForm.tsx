@@ -404,7 +404,7 @@ export default function AddProductForm({
     newForm.append("stockStatus", values.stockStatus);
     newForm.append("deliveryLeadTime", values.deliveryLeadTime.toString());
     if (values.warranty) {
-      newForm.append("warranty", values.stockStatus);
+      newForm.append("warranty", values.warranty);
     }
     newForm.append("rma", values.rma);
     newForm.append("dispatchLocation", values.dispatchLocation);
