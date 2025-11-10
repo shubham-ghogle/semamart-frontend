@@ -178,18 +178,18 @@ export default function AddProductFormVariants({
 
       <div className="space-y-2 mt-4">
         <FormLabel>Bulk Orders (max 3)</FormLabel>
-        {fields.map((field, index) => (
+        {fields.map((field, i) => (
           <div key={field.id} className="flex items-center gap-2">
             <Input
               placeholder="Qty"
-              {...form.register(`variants.${index}.bulkOrders.${index}.qty`, {
+              {...form.register(`variants.${index}.bulkOrders.${i}.qty`, {
                 valueAsNumber: true,
               })}
               className="w-20"
             />
             <Input
               placeholder="Price"
-              {...form.register(`variants.${index}.bulkOrders.${index}.price`, {
+              {...form.register(`variants.${index}.bulkOrders.${i}.price`, {
                 valueAsNumber: true,
               })}
               className="w-28"
@@ -198,7 +198,7 @@ export default function AddProductFormVariants({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => remove(index)}
+              onClick={() => remove(i)}
             >
               ✕
             </Button>
