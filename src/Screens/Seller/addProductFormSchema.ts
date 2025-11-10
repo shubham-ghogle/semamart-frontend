@@ -62,7 +62,8 @@ const addProductFormSchema = z
     gtin: z
       .string()
       .regex(/^[A-Za-z0-9]{15}$/, "Invalid GSTIN")
-      .optional(),
+      .optional()
+      .or(z.literal("")),
     hsn: z.string().regex(/^[A-Za-z0-9]{2,8}$/, {
       message: "Invalid HSN",
     }),
@@ -167,7 +168,6 @@ const addProductFormSchema = z
   })
   .refine(
     (data) => {
-      console.log(data.taxClass);
       if (data.taxStatus === "taxable") {
         return data.taxClass && data.taxClass.trim() !== "";
       }
@@ -176,17 +176,6 @@ const addProductFormSchema = z
     {
       message: "Tax class is required for tax status 'Taxable'",
       path: ["taxClass"],
-    }
-  )
-  .refine(
-    (data) => {
-      return (
-        data.specialityPackageType && data.specialityPackageType.trim() !== ""
-      );
-    },
-    {
-      message: "Speciality package type required",
-      path: ["specialityPackage"],
     }
   );
 

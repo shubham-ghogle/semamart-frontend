@@ -300,12 +300,15 @@ export default function AddProductForm({
   });
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
-    if (thumbnail.length === 0) {
-      form.setError("thumbnail" as any, {
-        type: "manual",
-        message: "Please upload thumbnail image",
-      });
-      return;
+
+    if (!product) {
+      if (thumbnail.length === 0) {
+        form.setError("thumbnail" as any, {
+          type: "manual",
+          message: "Please upload thumbnail image",
+        });
+        return;
+      }
     }
 
     if (putProductStatus === "pending" || postProductStatus === "pending") {
@@ -347,7 +350,7 @@ export default function AddProductForm({
       newForm.append("gtin", values.gtin);
     }
     newForm.append("hsn", values.hsn);
-    if(values.unspsc){
+    if (values.unspsc) {
       newForm.append("unspsc", values.unspsc);
     }
     if (values.crosssells) {
@@ -849,11 +852,13 @@ export default function AddProductForm({
                     <FormControl>
                       <SpecialityDropdown
                         viewMode={product ? true : false}
-                        value={form.watch("specialityPackage")||""}
+                        value={form.watch("specialityPackage") || ""}
                         setValue={(v) => {
                           form.setValue("specialityPackage", v);
                         }}
-                        packageTypeValue={form.watch("specialityPackageType")||""}
+                        packageTypeValue={
+                          form.watch("specialityPackageType") || ""
+                        }
                         setPackageValue={(v) => {
                           form.setValue("specialityPackageType", v);
                         }}
@@ -1366,7 +1371,10 @@ export default function AddProductForm({
                     <FormItem>
                       <SubFormLabel>Tax Status</SubFormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(e) => {
+                          form.setValue("taxClass", "0");
+                          field.onChange(e);
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>

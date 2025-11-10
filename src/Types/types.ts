@@ -46,7 +46,7 @@ export interface Product {
   productType: string;
   intendedUse: string; // fixed (required)
   sku: string;
-  gtin: string;
+  gtin?: string;
   hsn: string;
   unspsc?: string;
   upsells?: string[];

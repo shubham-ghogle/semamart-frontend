@@ -110,7 +110,7 @@ export default function ViewProductScreen() {
     unitOfMeasure: product?.unitOfMeasure || "",
     stockStatus: product?.stockStatus || "",
     deliveryLeadTime: product?.deliveryLeadTime || "",
-    warranty: product?.warranty || "",
+    warranty: product?.warranty ? product.warranty.toString() : "",
     amc_cms: null,
     rma: product?.rma || "",
     dispatchLocation: product?.dispatchLocation || "",
