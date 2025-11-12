@@ -63,6 +63,14 @@ import SellerAccount from "./components/Seller/SellerAccount";
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+import FooterLayout from "./components/Layouts/FooterLayout";
+import About from "./components/Footer/About";
+import CookiePolicy from "./components/Footer/CookiePolicy";
+import DisclaimerPage from "./components/Footer/DisclaimerPage";
+import ReturnsPolicy from "./components/Footer/ReturnPolicy";
+import Shipping from "./components/Footer/Shipping";
+import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
+import Term from "./components/Footer/Term";
 
 export const router = createBrowserRouter([
   {
@@ -286,5 +294,19 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory/> },
+   
+     {
+    path: "/",
+    element: <FooterLayout />, // Header + Footer
+    children: [
+       { path: "about", element: <About /> },
+       { path: "privacy-policy", element: <PrivacyPolicy /> },
+       { path: "cookie-policy", element: <CookiePolicy /> },
+       { path: "refund-and-cancellation", element: <ReturnsPolicy /> },
+       { path: "disclaimer", element: <DisclaimerPage /> },
+       { path: "shipping-delivery-policy", element: <Shipping /> },
+       { path: "terms-and-conditions", element: <Term /> },
+    ],
+  },
 
 ]);
