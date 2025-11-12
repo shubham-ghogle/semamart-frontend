@@ -1,19 +1,19 @@
 "use client";
-import { Link, useNavigate } from "react-router";
+import { Link} from "react-router";
 import { CiMoneyBill } from "react-icons/ci";
 import { GrWorkshop } from "react-icons/gr";
 import { MdOutlineLocalOffer } from "react-icons/md";
-import { useUserStore } from "../../store/userStore";
+//import { useUserStore } from "../../store/userStore";
 
 export default function AdminHeader() {
-  const user = useUserStore((state) => state.user);
-  const removeUser = useUserStore((state) => state.removeUser);
-  const navigate = useNavigate();
+  //const user = useUserStore((state) => state.user);
+  // const removeUser = useUserStore((state) => state.removeUser);
+  // const navigate = useNavigate();
 
-  const handleLogout = () => {
-    removeUser(); // clears user + localStorage
-    navigate("/admin-login"); // redirect back to login
-  };
+  // const handleLogout = () => {
+  //   removeUser(); // clears user + localStorage
+  //   navigate("/admin-login"); // redirect back to login
+  // };
 
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 left-0 z-30 px-4">
@@ -51,7 +51,7 @@ export default function AdminHeader() {
             </Link>
 
             {/* Avatar */}
-            <img
+            {/* <img
               src={
                 user?.avatar
                   ? `/baseUrl/${user.avatar}`
@@ -60,15 +60,15 @@ export default function AdminHeader() {
               width={40}
               alt="admin avatar"
               className="w-[50px] h-[50px] rounded-full object-cover"
-            />
+            /> */}
 
             {/* Logout button */}
-            <button
+            {/* <button
               onClick={handleLogout}
               className="ml-4 px-4 py-2 bg-[#1C647C] hover:bg-[#14506A] text-white text-sm font-semibold rounded-md transition-all"
             >
               Logout
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
