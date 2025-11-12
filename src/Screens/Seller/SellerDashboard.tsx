@@ -1,18 +1,18 @@
-// src/pages/seller/SellerDashboard.tsx  (or the path you use)
-import { AiOutlineMoneyCollect } from "react-icons/ai";
+// src/pages/seller/SellerDashboard.tsx
+import { AiOutlineMoneyCollect, AiOutlineProduct } from "react-icons/ai";
+import { CiDeliveryTruck } from "react-icons/ci";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
-import { DashboardCard } from "../../components/UIComponents/Dashboard";
-import { AiOutlineProduct } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
-import { CiDeliveryTruck } from "react-icons/ci";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
+import { useNavigate } from "react-router-dom";
 
 type status = "pending" | "success" | "error";
 
 export default function SellerDashboard() {
   const { seller } = useSellerStore((state) => state);
+  const navigate = useNavigate();
 
   const { data: orders, error: orderErr, status: orderStatus } = useQuery({
     queryKey: ["seller-orders", seller?._id],
@@ -41,34 +41,73 @@ export default function SellerDashboard() {
     orderErr?.message ||
     "Something went wrong";
 
-  const variants = products?.flatMap((p) => p.variants) || [];
+  const variants = products?.flatMap((p: any) => p.variants) || [];
+
+  // Items arranged to match Admin cards look & behavior
+  const CARDS = [
+    {
+      key: "balance",
+      label: "Available Balance",
+      color: "from-yellow-400 to-yellow-600",
+      Icon: AiOutlineMoneyCollect,
+      value: seller?.availableBalance ?? 0,
+      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
+    },
+    {
+      key: "orders",
+      label: "All Orders",
+      color: "from-pink-500 to-rose-500",
+      Icon: CiDeliveryTruck,
+      value: orders?.length ?? 0,
+      onClick: () => navigate("orders"),
+    },
+    {
+      key: "products",
+      label: "All Products",
+      color: "from-sky-500 to-indigo-600",
+      Icon: AiOutlineProduct,
+      value: variants?.length ?? 0,
+      onClick: () => navigate("products"),
+    },
+  ];
+
+  const formatMoney = (v: number) => {
+    try {
+      return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(v);
+    } catch {
+      return String(v);
+    }
+  };
 
   return (
     <SellerMainWrapper status={overAllStatus} errorMeassage={overAllError} heading="Seller Dashboard">
       {isSuccess && (
         <>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <DashboardCard
-              heading="Available Balance"
-              icon={<AiOutlineMoneyCollect size={20} />}
-              value={seller?.availableBalance || 0}
-              linkTo="#"
-              linkLabel="Withdraw Money"
-            />
-            <DashboardCard
-              heading="All Orders"
-              icon={<CiDeliveryTruck size={20} />}
-              value={orders?.length || 0}
-              linkTo="orders"
-              linkLabel="View Orders"
-            />
-            <DashboardCard
-              heading="All Products"
-              icon={<AiOutlineProduct size={20} />}
-              value={variants?.length || 0}
-              linkTo="products"
-              linkLabel="View Products"
-            />
+            {CARDS.map((c) => {
+              const Icon = c.Icon as any;
+              return (
+                <div
+                  key={c.key}
+                  onClick={c.onClick}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && c.onClick()}
+                  className={`bg-gradient-to-r ${c.color} text-white rounded-2xl p-6 shadow-lg cursor-pointer relative overflow-hidden hover:scale-105 transition-transform`}
+                >
+                  <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-8 -translate-y-8" />
+                  <div className="flex items-center justify-between relative z-10">
+                    <Icon className="text-4xl text-white" />
+                    <span className="text-4xl font-bold">
+                      {c.key === "balance" ? formatMoney(Number(c.value)) : c.value}
+                    </span>
+                  </div>
+                  <p className="text-lg mt-4 font-medium">{c.label}</p>
+                  {/* placeholder for monthly trend; keep for parity with admin cards */}
+                  <p className="text-sm mt-2 text-white/80">Overview</p>
+                </div>
+              );
+            })}
           </section>
 
           <section className="mt-8">
