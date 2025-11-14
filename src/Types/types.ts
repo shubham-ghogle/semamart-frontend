@@ -170,6 +170,7 @@ export type Seller = {
   availableBalance: number;
   createdAt: string;
   verified: boolean;
+  password: string;
   transections: Transaction[];
   __v: number;
 };
