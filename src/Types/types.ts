@@ -113,6 +113,8 @@ export interface Product {
   updatedAt: Date;
   commission?: number;
   commissionHistory?:{commission:number,updatedAt:string}[];
+  visibilityBySeller:boolean;
+  visibilityByAdmin:boolean;
 }
 
 export type Address = {

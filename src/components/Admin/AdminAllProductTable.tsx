@@ -3,8 +3,12 @@ import { DataTable } from "../ui/data-table";
 import { Link } from "react-router";
 import { AiOutlineEye } from "react-icons/ai";
 import { ColumnDef } from "@tanstack/react-table";
-import { BASE_URL } from "../../data";
+import { API_URL, BASE_URL } from "../../data";
 import UpdateCommissionDialog from "./UpdateCommissionDialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Switch } from "../ui/switch";
+import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
+import { toast } from "react-toastify";
 
 type VariantRow = {
   id: string;
@@ -21,6 +25,8 @@ type VariantRow = {
   commission: number;
   commissionHistoryDate: string;
   commissionHistoryAmount: number;
+  sellerVisibility: boolean;
+  adminVisibility: boolean;
 };
 
 type AdminAllProductTableProps = {
@@ -54,6 +60,8 @@ export default function AdminAllProductTable({
       commissionHistoryAmount:
         pro.commissionHistory?.[pro.commissionHistory?.length - 1].commission ||
         0,
+      adminVisibility: pro.visibilityByAdmin,
+      sellerVisibility: pro.visibilityBySeller,
     }))
   );
 
@@ -119,6 +127,42 @@ export default function AdminAllProductTable({
       ),
     },
     {
+      accessorKey: "adminVisibility",
+      header: "Admin Visibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="admin-prodcut-visibiity"
+              checked={row.original.adminVisibility}
+              onCheckedChange={(e) => {
+                mutateVisibility({
+                  proIds: [row.original.productId],
+                  isVisible: e,
+                });
+              }}
+              disabled={status==="pending"}
+            />
+          </article>
+        </section>
+      ),
+    },
+    {
+      accessorKey: "sellerVisibility",
+      header: "Seller Visibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="seller-prodcut-visibiity"
+              checked={row.original.sellerVisibility}
+              disabled
+            />
+          </article>
+        </section>
+      ),
+    },
+    {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
@@ -136,9 +180,49 @@ export default function AdminAllProductTable({
     },
   ];
 
+  const qc = useQueryClient();
+  const { mutate: mutateVisibility, status } = useMutation({
+    mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
+      updateVisibility(data.proIds, data.isVisible),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["seller-products"],
+      });
+    },
+    onError(error) {
+      qc.invalidateQueries({
+        queryKey: ["seller-products"],
+      });
+     toast.error(error.message) 
+    },
+  });
+
   return (
-    <div className="p-4 bg-white shadow rounded w-[70vw] overflow-x-scroll">
-      <DataTable data={rows} columns={columns} docName="products" />
+    <div className="p-4 w-full">
+      <DataTable
+        data={rows}
+        columns={columns}
+        docName="products"
+        disabeAdminVisibilitySwitch={false}
+        onVisibilityChange={(proIds: string[], isVisible: boolean) =>
+          mutateVisibility({ isVisible: isVisible, proIds: proIds })
+        }
+      />
+      {status === "pending" && <ScreenOverlayLoaderUi />}
     </div>
   );
+}
+
+async function updateVisibility(productIds: string[], isVisible: boolean) {
+  const res = await fetch(API_URL + "product/admin-visibility", {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productIds, isVisible }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Could not update")
+  }
+  return res;
 }

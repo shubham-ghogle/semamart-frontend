@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 // import reportLogo from "../../assets/report_logo.png"
 // import semaLogo from "../../assets/report_sema.png"
@@ -20,31 +20,54 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "./button"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./select"
-import { ChevronDown, ChevronLeft, ChevronRight, DownloadIcon, FilterIcon } from "lucide-react"
-import { useMemo, useState } from "react"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuItem } from "./dropdown-menu"
-import { Input } from "./input"
-import jsPDF from "jspdf"
-import autoTable from "jspdf-autotable"
-import { cn } from "@/lib/utils"
-import { CalendarPopoverWithPresets } from "../UIComponents/CalendarPopoverWithPresets"
+} from "@/components/ui/table";
+import { Button } from "./button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./select";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  DownloadIcon,
+  FilterIcon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
+} from "./dropdown-menu";
+import { Input } from "./input";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { cn } from "@/lib/utils";
+import { CalendarPopoverWithPresets } from "../UIComponents/CalendarPopoverWithPresets";
+import { Switch } from "./switch";
+import { Label } from "./label";
 // import { useQueryClient } from "@tanstack/react-query"
 // import { Hospital } from "@/types"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[],
-  disableSearch?: boolean
-  disableBtns?: boolean
-  searchColId?: string
-  searchPlaceholder?: string
-  bordered?: boolean
-  enableCalender?: boolean
-  dateFieldId?: string
-  docName: string
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  disableSearch?: boolean;
+  disableBtns?: boolean;
+  searchColId?: string;
+  searchPlaceholder?: string;
+  bordered?: boolean;
+  enableCalender?: boolean;
+  dateFieldId?: string;
+  docName: string;
+  disabeAdminVisibilitySwitch?: boolean;
+  disabeSellerVisibilitySwitch?: boolean;
+  onVisibilityChange?:(proIds:string[],isVisible:boolean)=>void
 }
 
 export function DataTable<TData, TValue>({
@@ -57,29 +80,29 @@ export function DataTable<TData, TValue>({
   bordered = false,
   enableCalender = false,
   dateFieldId = "date",
-  docName
+  docName,
+  disabeAdminVisibilitySwitch = true,
+  disabeSellerVisibilitySwitch = true,
+  onVisibilityChange
 }: DataTableProps<TData, TValue>) {
-
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
 
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({});
 
-  const [rowSelection, setRowSelection] = useState({})
-
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-
-
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const parseDate = (dateStr: string) => {
     if (!dateStr) return null;
     const [day, month, year] = dateStr.split("/").map(Number);
     if (!day || !month || !year) return null;
     return new Date(year, month - 1, day);
-  }
+  };
 
-  const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const normalizeDate = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
   const filteredData = useMemo(() => {
     if (!startDate || !endDate) {
@@ -88,7 +111,6 @@ export function DataTable<TData, TValue>({
 
     const normalizedStart = normalizeDate(startDate);
     const normalizedEnd = normalizeDate(endDate);
-
 
     return data.filter((row: any) => {
       const rawDate = row[dateFieldId];
@@ -102,9 +124,11 @@ export function DataTable<TData, TValue>({
       }
 
       const normalizedRowDate = normalizeDate(rowDate);
-      return normalizedRowDate >= normalizedStart && normalizedRowDate <= normalizedEnd;
+      return (
+        normalizedRowDate >= normalizedStart &&
+        normalizedRowDate <= normalizedEnd
+      );
     });
-
   }, [data, startDate, endDate]);
 
   const minDate: Date = useMemo(() => {
@@ -117,7 +141,6 @@ export function DataTable<TData, TValue>({
       return !min || dateObj < min ? dateObj : min;
     }, new Date());
   }, [data, dateFieldId]);
-
 
   const table = useReactTable({
     data: filteredData,
@@ -132,68 +155,58 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
-    }
-  })
-  // console.log(data);
+    },
+  });
+
   // NOTE: to access selected rows
-  const visibleColumns = table.getVisibleFlatColumns().filter(col => col.id !== "select").map(col => col.id);
-  const selectedData = table.getFilteredSelectedRowModel().rows.map(row => {
+  const visibleColumns = table
+    .getVisibleFlatColumns()
+    .filter((col) => col.id !== "select")
+    .map((col) => col.id);
+
+  const selectedRows = table.getFilteredSelectedRowModel();
+  const selectedData = selectedRows.rows.map((row) => {
     const filteredRow: Record<string, any> = {};
-    visibleColumns.forEach(colId => {
-      if (colId === "select") return
-      if (colId === "action") return
+    visibleColumns.forEach((colId) => {
+      if (colId === "select") return;
+      if (colId === "action") return;
       filteredRow[colId] = row.getValue(colId);
     });
     return filteredRow;
   });
 
-  const tableHeader = table.getFlatHeaders().filter(col => (col.id !== "select" && col.id !== "action")).map(col => col.column.columnDef.header as string)
-  const rows = selectedData.map(row => visibleColumns.map(col => row[col]))
-
-  // const hospitalId = localStorage.getItem("hospitalId")
-  // const qc = useQueryClient()
-  // const hos = qc.getQueryData(["hospital", hospitalId]) as { document: Hospital[] }
-  // const hospitalName = hos?.document[0]?.hospitalname || "-"
-  // const hospitalAdd = hos?.document[0]?.address || "-"
+  const tableHeader = table
+    .getFlatHeaders()
+    .filter((col) => col.id !== "select" && col.id !== "action")
+    .map((col) => col.column.columnDef.header as string);
+  const rows = selectedData.map((row) => visibleColumns.map((col) => row[col]));
 
   function exportPdf() {
-    const doc = new jsPDF({ orientation: "landscape" })
+    const doc = new jsPDF({ orientation: "landscape" });
     const pageWidth = doc.internal.pageSize.getWidth();
-    // const pageHeight = doc.internal.pageSize.getHeight()
 
     const date = new Date().toLocaleDateString("en-IN");
 
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text(docName + " Report", 11, 20)
-
-    // const imgWidth = 120;
-    // const imgHeight = 20.4;
-    // const imgX = pageWidth - imgWidth;
-    // const imgY = 0;
-
-    // doc.addImage(reportLogo, "PNG", imgX, imgY, imgWidth, imgHeight);
-    // doc.addImage(semaLogo, "PNG", pageWidth - 38, 10, 30, 8, "MEDIUM");
-    // doc.addImage(rgtFooter, "PNG", pageWidth - 80, pageHeight - 5, 80, 5)
+    doc.text(docName + " Report", 11, 20);
 
     doc.setDrawColor(150);
     doc.line(14, 25, pageWidth - 14, 25);
 
-    const hospitalTextY = 32
+    const hospitalTextY = 32;
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Hospital Name: ", 14, hospitalTextY);
     doc.setFont("helvetica", "normal");
-    // doc.text(hospitalName, 17 + doc.getTextWidth("Hospital Name: "), hospitalTextY);
 
-    const hosAddTextY = 38
+    const hosAddTextY = 38;
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Hospital Address: ", 14, hosAddTextY);
     doc.setFont("helvetica", "normal");
-    // doc.text(hospitalAdd, 17 + doc.getTextWidth("Hospital Address: "), hosAddTextY);
 
-    const dateY = 44
+    const dateY = 44;
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Date: ", 14, dateY);
@@ -209,26 +222,28 @@ export function DataTable<TData, TValue>({
       headStyles: {
         fillColor: [64, 117, 140],
       },
-      body: rows
-    })
+      body: rows,
+    });
 
-
-    doc.save(docName.replace(" ", "_"))
+    doc.save(docName.replace(" ", "_"));
   }
 
   function exportCsv() {
-
     const rowsForCsv = rows.map((row: (string | undefined)[]) => {
       return row
         .filter((cell) => cell !== undefined)
-        .map((cell) => typeof cell === "string" ? cell.replace(/ /g, "_").replace(/"/g, "") : cell);
+        .map((cell) =>
+          typeof cell === "string"
+            ? cell.replace(/ /g, "_").replace(/"/g, "")
+            : cell
+        );
     });
 
-    const a = rowsForCsv.map(el => el.join(" "))
+    const a = rowsForCsv.map((el) => el.join(" "));
 
-    const headersForCsv = tableHeader.map(el => el.replace(" ", "_"))
+    const headersForCsv = tableHeader.map((el) => el.replace(" ", "_"));
 
-    const csvContent = [headersForCsv.join(" "), ...a].join("\n")
+    const csvContent = [headersForCsv.join(" "), ...a].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -240,22 +255,28 @@ export function DataTable<TData, TValue>({
     document.body.removeChild(link);
   }
 
-  const pageIndex = table.getState().pagination.pageIndex
-  const pageSize = table.getState().pagination.pageSize
-  const total = table.getRowCount()
-  const start = total === 0 ? 0 : pageIndex * pageSize + 1
-  const end = Math.min(total, (pageIndex + 1) * pageSize)
-
+  const pageIndex = table.getState().pagination.pageIndex;
+  const pageSize = table.getState().pagination.pageSize;
+  const total = table.getRowCount();
+  const start = total === 0 ? 0 : pageIndex * pageSize + 1;
+  const end = Math.min(total, (pageIndex + 1) * pageSize);
 
   return (
     <div className="w-full">
-      <section className={"mb-4 flex items-center " + (disableSearch ? "justify-end" : "justify-between")}>
+      <section
+        className={
+          "mb-4 flex items-center " +
+          (disableSearch ? "justify-end" : "justify-between")
+        }
+      >
         {/* serach input */}
         {!disableSearch && (
           <Input
             type="text"
             placeholder={searchPlaceholder}
-            value={(table.getColumn(searchColId)?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn(searchColId)?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
               table.getColumn(searchColId)?.setFilterValue(event.target.value)
             }
@@ -263,11 +284,28 @@ export function DataTable<TData, TValue>({
           />
         )}
 
+        {!disabeSellerVisibilitySwitch && (
+          <Switch id="seller-prodcut-visibiity" />
+        )}
+
         {!disableBtns && (
-          <article className="flex items-center gap-2 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
+          <article className="flex items-center gap-3 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
+            {!disabeAdminVisibilitySwitch && selectedRows.rows.length > 0 && (
+              <article className="justify-self-end flex items-center gap-1">
+                <Switch id="admin-prodcut-visibiity" onCheckedChange={(e)=>{
+                  const proIds = selectedRows.flatRows.map(el=>(el.original as any ).productId)
+                  if(onVisibilityChange){
+                    onVisibilityChange(proIds,e)
+                  }
+                }} />
+                <Label htmlFor="admin-prodcut-visibiity">
+                  Switch product visibility
+                </Label>
+              </article>
+            )}
+
             {enableCalender && (
               <div className="min-w-fit">
-
                 <CalendarPopoverWithPresets
                   startDate={startDate}
                   endDate={endDate}
@@ -276,36 +314,35 @@ export function DataTable<TData, TValue>({
                   minDate={minDate}
                 />
               </div>
-
             )}
             {/* export buttons */}
             <div className="min-w-fit">
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto bg-background text-txt-drk-gray">
+                  <Button
+                    variant="outline"
+                    className="ml-auto bg-background text-txt-drk-gray"
+                  >
                     <DownloadIcon />
                     <span>Export</span>
                     <ChevronDown />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={exportPdf}>
-                    PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={exportCsv}>
-                    CSV
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportPdf}>PDF</DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportCsv}>CSV</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             {/* column visibility */}
             <div className="min-w-fit">
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto bg-background text-txt-drk-gray">
+                  <Button
+                    variant="outline"
+                    className="ml-auto bg-background text-txt-drk-gray"
+                  >
                     <FilterIcon />
                     Columns
                     <ChevronDown />
@@ -314,9 +351,7 @@ export function DataTable<TData, TValue>({
                 <DropdownMenuContent align="end">
                   {table
                     .getAllColumns()
-                    .filter(
-                      (column) => column.getCanHide()
-                    )
+                    .filter((column) => column.getCanHide())
                     .map((column) => {
                       return (
                         <DropdownMenuCheckboxItem
@@ -329,7 +364,7 @@ export function DataTable<TData, TValue>({
                         >
                           {column.columnDef.header as string}
                         </DropdownMenuCheckboxItem>
-                      )
+                      );
                     })}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -345,15 +380,22 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id} className="bg-background">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className={cn("text-primary font-medium", bordered && "border")} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        "text-primary font-medium",
+                        bordered && "border"
+                      )}
+                      colSpan={header.colSpan}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -366,15 +408,27 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={cn("text-sm text-[#1E1E1E]", bordered && "border")}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "text-sm text-[#1E1E1E]",
+                        bordered && "border"
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -426,15 +480,24 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 export function EmergencyCell({ text }: { text: string }) {
   return (
-    <p className={"flex items-center gap-1 " + (text === "Critical" ? "text-red-500" : "text-green-600")}>
-      <span className={"h-2 aspect-square rounded-full " + (text === "Critical" ? "bg-red-500" : "bg-green-600")}></span>
+    <p
+      className={
+        "flex items-center gap-1 " +
+        (text === "Critical" ? "text-red-500" : "text-green-600")
+      }
+    >
+      <span
+        className={
+          "h-2 aspect-square rounded-full " +
+          (text === "Critical" ? "bg-red-500" : "bg-green-600")
+        }
+      ></span>
       <span> {text}</span>
     </p>
-  )
+  );
 }
-
