@@ -1,9 +1,14 @@
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { Product } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { DataTable } from "../ui/data-table";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
+import { Switch } from "../ui/switch";
+import { useSellerStore } from "@/store/sellerStore";
 
 type VariantRow = {
   id: string;
@@ -17,6 +22,7 @@ type VariantRow = {
   createdAt: string;
   productId: string;
   commission: number;
+  sellerVisibility: boolean;
 };
 
 type SellerProductTableProps = {
@@ -26,6 +32,8 @@ type SellerProductTableProps = {
 export default function SellerProductTable({
   products,
 }: SellerProductTableProps) {
+    const { seller } = useSellerStore((state) => state);
+
   const rows: VariantRow[] = products.flatMap((pro) =>
     pro.variants.map((v) => ({
       id: v._id,
@@ -39,6 +47,7 @@ export default function SellerProductTable({
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
       commission: pro.commission || 0,
+      sellerVisibility: pro.visibilityBySeller,
     }))
   );
 
@@ -91,7 +100,32 @@ export default function SellerProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
-    { accessorKey: "commission", header: "Commission",cell:({row})=><p>{row.original.commission} %</p> },
+    {
+      accessorKey: "commission",
+      header: "Commission Amount",
+      cell: ({ row }) => <p>{row.original.commission}</p>,
+    },
+    {
+      accessorKey: "sellerVisibility",
+      header: "ProductVisibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="seller-prodcut-visibiity"
+              checked={row.original.sellerVisibility}
+              onCheckedChange={(e) => {
+                mutateVisibility({
+                  proIds: [row.original.productId],
+                  isVisible: e,
+                });
+              }}
+              disabled={status==="pending"}
+            />
+          </article>
+        </section>
+      ),
+    },
     {
       id: "action",
       header: "Actions",
@@ -103,5 +137,49 @@ export default function SellerProductTable({
     },
   ];
 
-  return <DataTable data={rows} columns={columns} docName="products" />;
+  const qc = useQueryClient();
+  const { mutate: mutateVisibility, status } = useMutation({
+    mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
+      updateVisibility(data.proIds, data.isVisible),
+    onSuccess: async() => {
+      qc.invalidateQueries({
+        queryKey: ["seller-products",seller?._id],
+      });
+    },
+    onError(error) {
+      toast.error(error.message);
+      qc.invalidateQueries({
+        queryKey: ["seller-products",seller?._id],
+      });
+    },
+  });
+
+  return (
+    <>
+    <DataTable
+      data={rows}
+      columns={columns}
+      docName="products"
+      disabeSellerVisibilitySwitch={false}
+      onVisibilityChange={(proIds: string[], isVisible: boolean) =>
+        mutateVisibility({ isVisible: isVisible, proIds: proIds })
+      }
+    />
+      {status === "pending" && <ScreenOverlayLoaderUi />}
+    </>
+  );
+}
+
+async function updateVisibility(productIds: string[], isVisible: boolean) {
+  const res = await fetch(API_URL + "product/seller-visibility", {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productIds, isVisible }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Could not update");
+  }
+  return res;
 }

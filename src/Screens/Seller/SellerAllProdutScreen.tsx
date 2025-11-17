@@ -1,24 +1,27 @@
 // src/pages/seller/SellerAllProductsScreen.tsx
+import { useQuery } from "@tanstack/react-query";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
-import { Product } from "../../Types/types";
-import { getProductsForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
+import { getProductsForSeller  } from "./Seller.Hooks";
 import SellerProductTable from "@/components/Seller/SellerProductsTable";
 
 export default function SellerAllProductsScreen() {
   const { seller } = useSellerStore((state) => state);
-  const { data, status } = useCustomEnsureQuerty<Product[]>(
-    ["seller-products", seller?._id],
-    () => getProductsForSeller(seller?._id),
-    seller?._id,
-  );
+  const { data, status } = useQuery({
+    queryKey: ["seller-products", seller?._id],
+    queryFn: () => getProductsForSeller(seller?._id),
+  });
 
   const errMess = "Something went wrong";
 
   return (
-    <SellerMainWrapper status={status} errorMeassage={errMess} heading="Products">
+    <SellerMainWrapper
+      status={status}
+      errorMeassage={errMess}
+      heading="Products"
+    >
       {data && (
-        <div className="p-4 bg-white shadow rounded">
+        <div className="p-4">
           <SellerProductTable products={data} />
         </div>
       )}

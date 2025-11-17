@@ -67,7 +67,7 @@ interface DataTableProps<TData, TValue> {
   docName: string;
   disabeAdminVisibilitySwitch?: boolean;
   disabeSellerVisibilitySwitch?: boolean;
-  onVisibilityChange?:(proIds:string[],isVisible:boolean)=>void
+  onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
   docName,
   disabeAdminVisibilitySwitch = true,
   disabeSellerVisibilitySwitch = true,
-  onVisibilityChange
+  onVisibilityChange,
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -284,21 +284,41 @@ export function DataTable<TData, TValue>({
           />
         )}
 
-        {!disabeSellerVisibilitySwitch && (
-          <Switch id="seller-prodcut-visibiity" />
-        )}
-
         {!disableBtns && (
           <article className="flex items-center gap-3 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
             {!disabeAdminVisibilitySwitch && selectedRows.rows.length > 0 && (
               <article className="justify-self-end flex items-center gap-1">
-                <Switch id="admin-prodcut-visibiity" onCheckedChange={(e)=>{
-                  const proIds = selectedRows.flatRows.map(el=>(el.original as any ).productId)
-                  if(onVisibilityChange){
-                    onVisibilityChange(proIds,e)
-                  }
-                }} />
+                <Switch
+                  id="admin-prodcut-visibiity"
+                  onCheckedChange={(e) => {
+                    const proIds = selectedRows.flatRows.map(
+                      (el) => (el.original as any).productId
+                    );
+                    if (onVisibilityChange) {
+                      onVisibilityChange(proIds, e);
+                    }
+                  }}
+                />
                 <Label htmlFor="admin-prodcut-visibiity">
+                  Switch product visibility
+                </Label>
+              </article>
+            )}
+
+            {!disabeSellerVisibilitySwitch && selectedRows.rows.length > 0 && (
+              <article className="justify-self-end flex items-center gap-1">
+                <Switch
+                  id="seller-prodcut-visibiity"
+                  onCheckedChange={(e) => {
+                    const proIds = selectedRows.flatRows.map(
+                      (el) => (el.original as any).productId
+                    );
+                    if (onVisibilityChange) {
+                      onVisibilityChange(proIds, e);
+                    }
+                  }}
+                />
+                <Label htmlFor="seller-prodcut-visibiity">
                   Switch product visibility
                 </Label>
               </article>
