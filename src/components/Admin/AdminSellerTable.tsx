@@ -98,6 +98,8 @@ export default function AdminSellerTable({
         data={rows}
         columns={columns}
         searchPlaceholder="Search by business name"
+        // enableCalender={true}
+        // dateFieldId="joinedOn"
       />
     </div>
   );
