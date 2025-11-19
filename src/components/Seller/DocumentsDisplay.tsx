@@ -48,7 +48,7 @@ export default function DocumentsDisplay() {
   }
 
   function handleUpdateDoc() {
-    console.log(file)
+    console.log(file);
     if (file) {
       mutate({ file: file, docType: docType, idx: idx });
     }
@@ -62,7 +62,7 @@ export default function DocumentsDisplay() {
       <p className="text-lg font-semibold">Documents</p>
 
       <section className="grid grid-cols-3">
-        {product.amc_cms ? (
+        {product?.amc_cms ? (
           <DocCard
             title="AMC/CMS"
             fileName={product.amc_cms}
@@ -124,7 +124,7 @@ export default function DocumentsDisplay() {
         <EmptyDocCard
           title="Add MSDS/IFU Leaflet"
           onClick={() => {
-            openDialog("msds_ifu_leaflet",0);
+            openDialog("msds_ifu_leaflet", 0);
           }}
         />
 
@@ -262,5 +262,6 @@ async function editDoc(
   await fetch(API_URL + "product/upload-doc/" + productId, {
     method: "PUT",
     body: formData,
+    credentials: "include",
   });
 }
