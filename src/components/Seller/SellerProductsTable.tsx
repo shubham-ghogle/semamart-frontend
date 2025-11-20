@@ -32,7 +32,7 @@ type SellerProductTableProps = {
 export default function SellerProductTable({
   products,
 }: SellerProductTableProps) {
-    const { seller } = useSellerStore((state) => state);
+  const { seller } = useSellerStore((state) => state);
 
   const rows: VariantRow[] = products.flatMap((pro) =>
     pro.variants.map((v) => ({
@@ -48,7 +48,7 @@ export default function SellerProductTable({
       productId: pro._id,
       commission: pro.commission || 0,
       sellerVisibility: pro.visibilityBySeller,
-    }))
+    })),
   );
 
   const columns: ColumnDef<VariantRow>[] = [
@@ -70,6 +70,27 @@ export default function SellerProductTable({
       ),
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      accessorKey: "sellerVisibility",
+      header: "ProductVisibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="seller-prodcut-visibiity"
+              checked={row.original.sellerVisibility}
+              onCheckedChange={(e) => {
+                mutateVisibility({
+                  proIds: [row.original.productId],
+                  isVisible: e,
+                });
+              }}
+              disabled={status === "pending"}
+            />
+          </article>
+        </section>
+      ),
     },
     {
       accessorKey: "productName",
@@ -106,27 +127,6 @@ export default function SellerProductTable({
       cell: ({ row }) => <p>{row.original.commission}</p>,
     },
     {
-      accessorKey: "sellerVisibility",
-      header: "ProductVisibility",
-      cell: ({ row }) => (
-        <section>
-          <article>
-            <Switch
-              id="seller-prodcut-visibiity"
-              checked={row.original.sellerVisibility}
-              onCheckedChange={(e) => {
-                mutateVisibility({
-                  proIds: [row.original.productId],
-                  isVisible: e,
-                });
-              }}
-              disabled={status==="pending"}
-            />
-          </article>
-        </section>
-      ),
-    },
-    {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
@@ -141,30 +141,30 @@ export default function SellerProductTable({
   const { mutate: mutateVisibility, status } = useMutation({
     mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
       updateVisibility(data.proIds, data.isVisible),
-    onSuccess: async() => {
+    onSuccess: async () => {
       qc.invalidateQueries({
-        queryKey: ["seller-products",seller?._id],
+        queryKey: ["seller-products", seller?._id],
       });
     },
     onError(error) {
       toast.error(error.message);
       qc.invalidateQueries({
-        queryKey: ["seller-products",seller?._id],
+        queryKey: ["seller-products", seller?._id],
       });
     },
   });
 
   return (
     <>
-    <DataTable
-      data={rows}
-      columns={columns}
-      docName="products"
-      disabeSellerVisibilitySwitch={false}
-      onVisibilityChange={(proIds: string[], isVisible: boolean) =>
-        mutateVisibility({ isVisible: isVisible, proIds: proIds })
-      }
-    />
+      <DataTable
+        data={rows}
+        columns={columns}
+        docName="products"
+        disabeSellerVisibilitySwitch={false}
+        onVisibilityChange={(proIds: string[], isVisible: boolean) =>
+          mutateVisibility({ isVisible: isVisible, proIds: proIds })
+        }
+      />
       {status === "pending" && <ScreenOverlayLoaderUi />}
     </>
   );

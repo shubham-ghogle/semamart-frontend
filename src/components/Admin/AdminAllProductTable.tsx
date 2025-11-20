@@ -54,7 +54,7 @@ export default function AdminAllProductTable({
         pro.commissionHistory.length - 1
       ].updatedAt
         ? new Date(
-            pro.commissionHistory?.[pro.commissionHistory.length - 1].updatedAt
+            pro.commissionHistory?.[pro.commissionHistory.length - 1].updatedAt,
           ).toLocaleDateString("en-IN")
         : "-",
       commissionHistoryAmount:
@@ -62,7 +62,7 @@ export default function AdminAllProductTable({
         0,
       adminVisibility: pro.visibilityByAdmin,
       sellerVisibility: pro.visibilityBySeller,
-    }))
+    })),
   );
 
   const columns: ColumnDef<VariantRow>[] = [
@@ -84,6 +84,42 @@ export default function AdminAllProductTable({
       ),
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      accessorKey: "adminVisibility",
+      header: "Admin Visibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="admin-prodcut-visibiity"
+              checked={row.original.adminVisibility}
+              onCheckedChange={(e) => {
+                mutateVisibility({
+                  proIds: [row.original.productId],
+                  isVisible: e,
+                });
+              }}
+              disabled={status === "pending"}
+            />
+          </article>
+        </section>
+      ),
+    },
+    {
+      accessorKey: "sellerVisibility",
+      header: "Seller Visibility",
+      cell: ({ row }) => (
+        <section>
+          <article>
+            <Switch
+              id="seller-prodcut-visibiity"
+              checked={row.original.sellerVisibility}
+              disabled
+            />
+          </article>
+        </section>
+      ),
     },
     {
       accessorKey: "productName",
@@ -127,42 +163,6 @@ export default function AdminAllProductTable({
       ),
     },
     {
-      accessorKey: "adminVisibility",
-      header: "Admin Visibility",
-      cell: ({ row }) => (
-        <section>
-          <article>
-            <Switch
-              id="admin-prodcut-visibiity"
-              checked={row.original.adminVisibility}
-              onCheckedChange={(e) => {
-                mutateVisibility({
-                  proIds: [row.original.productId],
-                  isVisible: e,
-                });
-              }}
-              disabled={status==="pending"}
-            />
-          </article>
-        </section>
-      ),
-    },
-    {
-      accessorKey: "sellerVisibility",
-      header: "Seller Visibility",
-      cell: ({ row }) => (
-        <section>
-          <article>
-            <Switch
-              id="seller-prodcut-visibiity"
-              checked={row.original.sellerVisibility}
-              disabled
-            />
-          </article>
-        </section>
-      ),
-    },
-    {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
@@ -193,7 +193,7 @@ export default function AdminAllProductTable({
       qc.invalidateQueries({
         queryKey: ["seller-products"],
       });
-     toast.error(error.message) 
+      toast.error(error.message);
     },
   });
 
@@ -222,7 +222,7 @@ async function updateVisibility(productIds: string[], isVisible: boolean) {
   });
 
   if (!res.ok) {
-    throw new Error("Could not update")
+    throw new Error("Could not update");
   }
   return res;
 }
