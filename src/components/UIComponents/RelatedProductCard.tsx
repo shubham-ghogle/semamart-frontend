@@ -1,5 +1,4 @@
 // RelatedProducts.tsx
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../Screens/ProductDetailScreen/GetAllProduct.Hooks";
 import ProductCard from "../Homepage/ProductCard";
