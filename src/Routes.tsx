@@ -71,6 +71,7 @@ import ReturnsPolicy from "./components/Footer/ReturnPolicy";
 import Shipping from "./components/Footer/Shipping";
 import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
 import Term from "./components/Footer/Term";
+import AdminProduct from "./components/Admin/AllProducts/AdminProducts";
 
 export const router = createBrowserRouter([
   {
@@ -192,6 +193,8 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "users", element: <AllUserScreen /> },
+            { path: "products", element: <AdminProduct /> },
+
       // {
       //   path: "products",
       //   children: [

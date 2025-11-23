@@ -47,7 +47,7 @@ export default function SellerProductTable({
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
       commission: pro.commission || 0,
-      sellerVisibility: pro.visibilityBySeller,
+sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
     })),
   );
 
@@ -146,12 +146,11 @@ export default function SellerProductTable({
         queryKey: ["seller-products", seller?._id],
       });
     },
-    onError(error) {
-      toast.error(error.message);
-      qc.invalidateQueries({
-        queryKey: ["seller-products", seller?._id],
-      });
-    },
+   onError(error: any) {
+  const msg = error?.message || "Failed to update visibility";
+  toast.error(msg);
+  qc.invalidateQueries({ queryKey: ["seller-products", seller?._id] });
+},
   });
 
   return (
