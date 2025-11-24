@@ -130,10 +130,10 @@ const Orderpage = () => {
       if (!orderDate) return false;
 
       timeMatch = timeFilters.some((filter) => {
+        const diffDays =
+          (now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
         switch (filter) {
           case "Last 30 days":
-            const diffDays =
-              (now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
             return diffDays <= 30;
           case "2025":
             return orderDate.getFullYear() === 2025;
