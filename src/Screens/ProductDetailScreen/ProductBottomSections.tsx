@@ -17,7 +17,7 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
   const [activeTabIdx, setActiveTabIdx] = useState(0);
 
   const technicalPairs = [
-    ["Brand", product?.manufacturerName ?? "N/A"],
+    // ["Manufacturee", product?.manufacturerName ?? "N/A"],
     ["SKU", product?.sku ?? "N/A"],
     ["HSN", product?.hsn ?? "N/A"],
     ["Product Type", product?.productType ?? "N/A"],
