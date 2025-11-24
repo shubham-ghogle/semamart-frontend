@@ -282,7 +282,7 @@ export default function Header() {
     const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
     const res = await fetch(url);
     if (!res.ok) throw new Error("Something went wrong");
-    
+
     removeUser();
     removeSeller();
 
@@ -675,7 +675,7 @@ export default function Header() {
             setMobileProfileOpen(false);
             setIsUserHovered(false);
           }}
-          to="/wishlist"
+          to="/account/wishlist"
           className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
         >
           <AiOutlineHeart size={16} />
@@ -699,7 +699,7 @@ export default function Header() {
             setMobileProfileOpen(false);
             setIsUserHovered(false);
           }}
-          to="/myorders"
+          to="/account/orders"
           className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
         >
           <RiShoppingBag4Line size={16} />

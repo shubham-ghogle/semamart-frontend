@@ -2,21 +2,14 @@
 import { useState } from "react";
 import { useCartStore, CartItem } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
-import { Seller } from "../../Types/types";
+import { Address, Seller } from "../../Types/types";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import { toast } from "react-toastify";
+import { API_URL } from "@/data";
+import { useMutation } from "@tanstack/react-query";
 
-function loadRazorpayScript(src: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
 
 export default function CheckoutScreen(): JSX.Element {
   const { user } = useUserStore((s) => s);
@@ -26,8 +19,6 @@ export default function CheckoutScreen(): JSX.Element {
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<
     number | null
   >(null);
-  const [placingOrder, setPlacingOrder] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -99,6 +90,31 @@ export default function CheckoutScreen(): JSX.Element {
     paymentInfo: { id: "pending", status: "Pending", method: "Razorpay" },
   };
 
+  async function postOrder(data:any){
+   const res = await fetch(API_URL +"order/create-order",{
+     method:"POST",
+     headers:{
+       "Content-Type":"application/json"
+     },
+     body:JSON.stringify(data)
+   })
+
+   if(!res.ok){
+     throw new Error("Could not create order")
+   }
+   return res
+  }
+
+  const { mutateAsync,status} = useMutation({
+    mutationFn:(data:any)=>postOrder(data),
+    onError:(err)=>{
+      toast.error(err.message)
+    },
+    onSuccess:()=>{
+     clearCart()
+    }
+  })
+
   async function handlePlaceOrder() {
     if (!address) {
       toast.warning("Please select a shipping address before placing order.", {
@@ -106,118 +122,20 @@ export default function CheckoutScreen(): JSX.Element {
       });
       return;
     }
-
-    setPlacingOrder(true);
-
-    try {
-      // 1️⃣ Create orders in DB
-      const res = await fetch("/api/v2/order/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload),
-      });
-      const data = await res.json();
-
-      if (!data.success || !data.orders) {
-        toast.error(
-          "Failed to create orders: " + (data.message || "Unknown error")
-        );
-        setPlacingOrder(false);
-        return;
-      }
-
-      const orderIds = data.orders.map((o: any) => o._id);
-
-      // 2️⃣ Load Razorpay
-      const loaded = await loadRazorpayScript(
-        "https://checkout.razorpay.com/v1/checkout.js"
-      );
-      if (!loaded) {
-        toast.error("Failed to load Razorpay SDK");
-        setPlacingOrder(false);
-        return;
-      }
-
-      // 3️⃣ Create Razorpay order from backend
-      const razorRes = await fetch("/api/v2/payment/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: grandTotal }),
-      });
-      const razorData = await razorRes.json();
-
-      if (!razorData.success) {
-        toast.error("Failed to initiate payment");
-        setPlacingOrder(false);
-        return;
-      }
-
-      // 4️⃣ Razorpay options
-      const options = {
-        key: "rzp_test_RP4Pp63egmufYa", // hardcoded test key
-        amount: razorData.order.amount,
-        currency: "INR",
-        name: "Semamart",
-        description: "Order Payment",
-        order_id: razorData.order.id,
-        handler: async function (response: any) {
-          try {
-            // 5️⃣ Verify payment
-            const verifyRes = await fetch("/api/v2/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderIds,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-
-            if (verifyData.success) {
-              clearCart();
-              setSuccess(true);
-            } else {
-              toast.error("Payment verification failed!");
-            }
-          } catch (err) {
-            toast.error("Payment verification error!");
-          } finally {
-            setPlacingOrder(false);
-          }
-        },
-        prefill: {
-          name: user?.firstName + " " + user?.lastName,
-          email: user?.email,
-          contact: user?.phoneNumber,
-        },
-        theme: { color: "#1C647C" },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      console.error("Order error", err);
-      toast.error("Something went wrong placing the order.", {
-        position: "top-left",
-      });
-      setPlacingOrder(false);
-    }
+    await mutateAsync(orderPayload)
   }
 
   // ✅ Success screen
-  if (success) {
+  if (status==="success") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
         <Confetti />
         <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-lg mx-4">
           <h1 className="text-3xl font-bold text-green-600 mb-3">
-            🎉 Payment Successful & Order Placed!
+            🎉 Order Created Successful!
           </h1>
           <p className="text-gray-700 mb-4">
-            Thank you for your order. We've received it and will begin
-            processing.
+            You can make payments for your order items by going in your order history.
           </p>
           <div className="flex justify-center">
             <button
@@ -297,7 +215,7 @@ export default function CheckoutScreen(): JSX.Element {
           <h2 className="text-xl font-semibold mt-8 mb-4">Select Address</h2>
           {user?.addresses?.length ? (
             <div className="flex flex-col gap-4">
-              {user.addresses.map((el: any, i: number) => (
+              {user.addresses.map((el: Address, i: number) => (
                 <article
                   key={i}
                   className={`rounded-lg cursor-pointer transition-all border p-4 ${
@@ -377,21 +295,21 @@ export default function CheckoutScreen(): JSX.Element {
           <button
             onClick={handlePlaceOrder}
             className={`w-full mt-6 py-3 rounded font-semibold shadow cursor-pointer ${
-              selectedAddressIndex === null || placingOrder
+              selectedAddressIndex === null || status==="pending"
                 ? "bg-gray-400 text-white"
                 : "text-white"
             }`}
             style={
-              selectedAddressIndex !== null && !placingOrder
+              selectedAddressIndex !== null && status!=="pending"
                 ? {
                     background:
                       "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
                   }
                 : {}
             }
-            disabled={selectedAddressIndex === null || placingOrder}
+            disabled={selectedAddressIndex === null || status==="pending"}
           >
-            {placingOrder ? "Placing Order..." : "Pay & Place Order"}
+            {status==="pending" ? "Creating Order..." : "Create Order"}
           </button>
         </aside>
       </div>

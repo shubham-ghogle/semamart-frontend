@@ -112,9 +112,9 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
   commission?: number;
-  commissionHistory?:{commission:number,updatedAt:string}[];
-  visibilityBySeller:boolean;
-  visibilityByAdmin:boolean;
+  commissionHistory?: { commission: number; updatedAt: string }[];
+  visibilityBySeller: boolean;
+  visibilityByAdmin: boolean;
 }
 
 export type Address = {
@@ -196,15 +196,16 @@ export type Order = {
   shippingAddress: Address;
   user: string | User;
   totalPrice: number;
-  tax?:number;
-  unitPrice?:number;
-  status?:
+  tax?: number;
+  unitPrice?: number;
+  status:
+    | "Created"
+    | "Paid"
     | "Processing"
-    | "Transferred to delivery partner"
+    | "Packed"
     | "Shipped"
-    | "Received"
-    | "On the way"
     | "Delivered"
+    | "Cancelled"
     | "Processing refund"
     | "Refund Success";
   paymentInfo?: PaymentInfo;
@@ -214,25 +215,26 @@ export type Order = {
   shop?: string | Seller;
   variant: string | Variant;
   qty: number;
-  statusHistory?: {
+  statusHistory: {
     _id: string;
     type:
+      | "Created"
+      | "Paid"
       | "Processing"
-      | "Transferred to delivery partner"
+      | "Packed"
       | "Shipped"
-      | "Received"
-      | "On the way"
       | "Delivered"
+      | "Cancelled"
       | "Processing refund"
       | "Refund Success";
     updatedAt: string;
   }[];
-  trackingDetails?:{
-    logisticPartner: string,
-    pickupPerson: string,
-    pickupPersonPhone: number,
-    trackingNumber: string,
-  }
+  trackingDetails?: {
+    logisticPartner: string;
+    pickupPerson: string;
+    pickupPersonPhone: number;
+    trackingNumber: string;
+  };
 };
 
 export type CategoryApiRes = {

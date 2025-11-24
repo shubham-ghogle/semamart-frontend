@@ -1,44 +1,8 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useNavigate } from "react-router-dom";
-
-interface Product {
-  _id: string;
-  name: string;
-  images?: string[];
-}
-
-interface Variant {
-  _id: string;
-  size?: string | null;
-  colorOption?: string | null;
-  thumbnail?: string | null;
-  productId?: Product;
-}
-
-interface Order {
-  _id: string;
-  variant?: Variant | null;
-  qty?: number;
-  totalPrice: number;
-  status: string;
-  deliveredAt?: string;
-  createdAt?: string;
-  shop?: { _id: string; email: string };
-  shippingAddress?: {
-    state: string;
-    district: string;
-    instituteAddress1: string;
-    instituteAddress2?: string;
-    pincode: string;
-    landmark?: string;
-  };
-  user?: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-  };
-}
+import { Order, Product, Variant } from "@/Types/types";
+import MakePaymentDialog from "./MakePaymentDialog";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,21 +60,26 @@ const Orderpage = () => {
     setStatusFilters((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status]
+        : [...prev, status],
     );
   };
 
   const toggleTimeFilter = (time: string) => {
     setTimeFilters((prev) =>
-      prev.includes(time)
-        ? prev.filter((t) => t !== time)
-        : [...prev, time]
+      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time],
     );
   };
 
   // Filter orders based on search, status and time filters
   const filteredOrders = orders.filter((order) => {
-    const productName = order.variant?.productId?.name || "";
+    let productName = "";
+    if (typeof order.variant !== "string" && order.variant) {
+      const product = order.variant.productId;
+
+      if (typeof product !== "string" && product) {
+        productName = product.name ?? "";
+      }
+    }
     const statusMatch =
       statusFilters.length === 0 || statusFilters.includes(order.status);
     const searchMatch =
@@ -124,16 +93,16 @@ const Orderpage = () => {
       const orderDate = order.createdAt
         ? new Date(order.createdAt)
         : order.deliveredAt
-        ? new Date(order.deliveredAt)
-        : null;
+          ? new Date(order.deliveredAt)
+          : null;
 
       if (!orderDate) return false;
 
       timeMatch = timeFilters.some((filter) => {
+        const diffDays =
+          (now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
         switch (filter) {
           case "Last 30 days":
-            const diffDays =
-              (now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
             return diffDays <= 30;
           case "2025":
             return orderDate.getFullYear() === 2025;
@@ -149,7 +118,6 @@ const Orderpage = () => {
 
     return statusMatch && timeMatch && searchMatch;
   });
-
   const handleOrderClick = (productId: string) => {
     navigate(`/account/orders/${productId}`);
   };
@@ -159,9 +127,7 @@ const Orderpage = () => {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Filters */}
         <aside className="md:w-1/4 bg-white rounded-xl p-4 shadow-md sticky top-24 self-start max-h-[calc(100vh-96px)] overflow-auto">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-900">
-            Filters
-          </h2>
+          <h2 className="text-2xl font-semibold mb-6 text-gray-900">Filters</h2>
 
           <div className="mb-8">
             <h3 className="font-semibold mb-3 text-gray-800 uppercase tracking-wide">
@@ -182,7 +148,7 @@ const Orderpage = () => {
                     />
                     {status}
                   </label>
-                )
+                ),
               )}
             </div>
           </div>
@@ -247,18 +213,24 @@ const Orderpage = () => {
           ) : (
             <div className="space-y-6">
               {filteredOrders.map((order) => {
-                const variant = order.variant;
-                const product = variant?.productId;
+                const variant = order.variant as Variant;
+                const product = variant?.productId as Product;
                 if (!product) return null;
 
                 const imageUrl = normalizeImage(
-                  variant?.thumbnail ?? product.images?.[0] ?? "/placeholder.png"
+                  variant?.thumbnail ??
+                    product.images?.[0] ??
+                    "/placeholder.png",
                 );
 
                 return (
                   <div
                     key={order._id}
-                    onClick={() => handleOrderClick(product._id)}
+                    onClick={() => {
+                      if (order.status !== "Created") {
+                        handleOrderClick(product._id);
+                      }
+                    }}
                     className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg cursor-pointer transition p-5 grid grid-cols-1 md:grid-cols-12 gap-6 items-center"
                   >
                     {/* Image */}
@@ -294,6 +266,12 @@ const Orderpage = () => {
                             {variant.size}
                           </span>
                         )}
+                        <span>
+                          <span className="font-semibold text-gray-800">
+                            Quantity:
+                          </span>{" "}
+                          {order.qty || 1}
+                        </span>
                       </div>
                     </div>
 
@@ -307,35 +285,44 @@ const Orderpage = () => {
                     {/* Status & Review */}
                     <div className="md:col-span-3 text-right text-sm space-y-1">
                       <div className="font-semibold flex items-center justify-end gap-2 text-gray-900">
+                        {order.status ==="Created" && (
+                          <MakePaymentDialog/>
+                        )}
                         <span
                           className={`inline-block w-3 h-3 rounded-full ${
                             order.status === "Delivered"
                               ? "bg-green-500"
                               : order.status === "Cancelled"
-                              ? "bg-red-500"
-                              : "bg-yellow-500"
+                                ? "bg-red-500"
+                                : "bg-yellow-500"
                           }`}
                         ></span>
                         {order.status}
                       </div>
-                      <p className="text-gray-500 truncate max-w-full">
-                        {order.status === "Delivered"
-                          ? `Delivered on ${new Date(
-                              order.deliveredAt || ""
-                            ).toLocaleDateString()}`
-                          : `Your item is ${order.status.toLowerCase()}`}
-                      </p>
-                      <button className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          className="w-5 h-5"
-                        >
-                          <path d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z" />
-                        </svg>
-                        Rate & Review
-                      </button>
+
+
+                      {order.status === "Delivered" && (
+                        <p className="text-gray-500 truncate max-w-full">
+                          {`Delivered on ${new Date(
+                            order.deliveredAt || "",
+                          ).toLocaleDateString()}`}
+                        </p>
+                      )}
+
+                      {order.status === "Delivered" && (
+                        <button className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            className="w-5 h-5"
+                          >
+                            <path d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z" />
+                          </svg>
+                          Rate & Review
+                        </button>
+                      )}
+
                     </div>
                   </div>
                 );

@@ -260,8 +260,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Orders page
-  { path: "/myorders", loader: requireUserAuth, element: <OrderPage /> },
 
   // Other routes & helpers
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
@@ -294,7 +292,7 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory/> },
-   
+
      {
     path: "/",
     element: <FooterLayout />, // Header + Footer

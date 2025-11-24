@@ -1,6 +1,7 @@
 // 🟢 Login.Hooks.js
 import { redirect } from "react-router";
 import { Seller, User } from "../../Types/types";
+import { API_URL } from "@/data";
 
 type UserData = {
   email: string;
@@ -23,11 +24,12 @@ type PostSellerApiResponse = {
 
 export async function postUser(userData: UserData) {
   try {
-    const res = await fetch("/api/v2/user/login-user", {
+    const res = await fetch(API_URL+"user/login-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(userData),
     });
     const data = (await res.json()) as PostUserApiResponse;
@@ -41,11 +43,12 @@ export async function postUser(userData: UserData) {
 
 export async function postSeller(userData: UserData) {
   try {
-    const res = await fetch("/api/v2/shop/login-shop", {
+    const res = await fetch(API_URL+"shop/login-shop", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(userData),
     });
     const data = (await res.json()) as PostSellerApiResponse;
