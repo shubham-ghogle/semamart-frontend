@@ -63,6 +63,7 @@ export default function ProductInfoSection({
 )}
 
 
+
       {/* Rating */}
       <div className="flex items-center text-base text-gray-500 gap-3">
         <div className="text-yellow-400 text-xl">
