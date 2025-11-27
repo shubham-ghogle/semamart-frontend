@@ -40,6 +40,7 @@ export interface Variant {
 export interface Product {
   _id: string;
   name: string;
+  brand?: string;
   category: string[]; // fixed
   subCategory: string[]; // fixed
   tags: string[];

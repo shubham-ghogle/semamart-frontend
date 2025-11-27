@@ -1,3 +1,4 @@
+// src/Screens/ProductDetailScreen/ProductDetailsScreen.tsx
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import ProductMedia from "../../components/Product/ProductMedia";
@@ -10,15 +11,22 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import ProductDetailsInfo from "../../components/Product/ProductDetailsInfo";
 import { getProductDetail } from "./ProductDetails.HooksUtils";
 
+/**
+ * Product details screen
+ *
+ * - Shows product name and brand (brand displayed below name)
+ * - Keeps all existing logic for cart / wishlist / pricing
+ */
+
 export default function ProductDetailsScreen() {
   const { id } = useParams();
   const { data: product, status } = useQuery({
     queryKey: ["product", id],
-    queryFn: () => getProductDetail(id),
+    queryFn: () => getProductDetail(id as string),
+    // optional: keep previous data etc.
   });
 
   const [count, setCount] = useState(1);
-
   const { addToCart, cart } = useCartStore((state) => state);
 
   function addToCartHandler() {
@@ -44,10 +52,9 @@ export default function ProductDetailsScreen() {
       return;
     }
 
-    // ✅ per-piece price calculation
+    // per-piece price calculation
     let perPiece = 0;
     if (Array.isArray(variant.bulkOrders) && variant.bulkOrders.length > 0) {
-      // use smallest pack price / qty as base per piece
       const firstPack = variant.bulkOrders[0];
       perPiece = firstPack.price / Math.max(firstPack.qty, 1);
     } else {
@@ -59,8 +66,8 @@ export default function ProductDetailsScreen() {
       variantId: variant._id,
       product,
       variant,
-      qty: count, // store will build total using count
-      price: perPiece, // ✅ pass per-piece only
+      qty: count,
+      price: perPiece,
       shopId: (product.shopId as any)?._id || (product.shopId as string),
       taxClass: (product as any).taxClass ?? 0,
     };
@@ -68,7 +75,7 @@ export default function ProductDetailsScreen() {
     addToCart(item);
   }
 
-  // ✅ wishlist logic
+  // wishlist logic
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlistStore(
     (state) => state
   );
@@ -85,8 +92,7 @@ export default function ProductDetailsScreen() {
   function addToWishlistHandler() {
     if (!product || !currentVariant) return;
     if (isInWishlist) return;
-
-    addToWishlist(product, currentVariant); // ✅ new store signature
+    addToWishlist(product, currentVariant);
   }
 
   function removeFromWishlistHandler() {
@@ -111,9 +117,24 @@ export default function ProductDetailsScreen() {
         {product && <ProductMedia product={product} />}
         <article>
           <div className="border-b pb-3">
-            <h1 className="text-3xl font-semibold mb-2">{product?.name}</h1>
-            <RatingsStarView rating={product.ratings || 0} />
+            {/* Product name */}
+            <h1 className="text-3xl font-semibold mb-1">{product?.name}</h1>
+
+            {/* --- BRAND: displayed below the name --- */}
+            {product?.brand ? (
+              <div className="text-sm font-medium text-slate-700 mb-2">
+                {product.brand}
+              </div>
+            ) : (
+              /* If you prefer a muted placeholder, uncomment next line */
+              // <div className="text-sm text-gray-400 mb-2">Brand not specified</div>
+              null
+            )}
+
+            {/* Ratings */}
+            <RatingsStarView rating={product?.ratings || 0} />
           </div>
+
           <div className="mt-6 border-b pb-6">
             <ProductPrice product={product} />
             <ProductPageBtns
@@ -126,11 +147,14 @@ export default function ProductDetailsScreen() {
               removeFromWishlistHandler={removeFromWishlistHandler}
             />
           </div>
+
           <div className="mt-5 border-t-slate-200">
             <p>{product?.description}</p>
           </div>
         </article>
       </div>
+
+      {/* bottom info section */}
       <ProductDetailsInfo product={product} />
     </section>
   );
