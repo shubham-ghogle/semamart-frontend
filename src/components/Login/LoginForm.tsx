@@ -33,7 +33,7 @@ export default function LoginForm() {
   const sellerMutation = useMutation({
     mutationFn: postSeller,
     onSuccess: (data) => {
-      addSeller(data.user);
+      addSeller(data.seller);
       navigate("/seller");
     },
     onError: (a) => {

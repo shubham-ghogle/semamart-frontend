@@ -32,7 +32,29 @@ export const useSellerStore = create<SellerStore>()(
       seller: null,
 
       addSeller: (seller) => {
-        set({ seller });
+        try {
+          console.debug("[sellerStore] addSeller called with:", seller);
+
+          // Basic guard
+          if (!seller || typeof seller !== "object") {
+            console.warn("[sellerStore] addSeller received invalid seller:", seller);
+            set({ seller: null });
+            return;
+          }
+
+          set({ seller });
+
+          // Fallback: attempt to write explicitly to localStorage so we can inspect it
+          try {
+            const payload = { state: { seller } };
+            localStorage.setItem("seller-storage", JSON.stringify(payload));
+            console.debug("[sellerStore] fallback localStorage write succeeded");
+          } catch (e) {
+            console.warn("[sellerStore] fallback localStorage write failed:", e);
+          }
+        } catch (err) {
+          console.error("[sellerStore] addSeller unexpected error:", err);
+        }
       },
 
       /**
@@ -42,7 +64,8 @@ export const useSellerStore = create<SellerStore>()(
        */
       updateSeller: async (updatedFields: Partial<Seller>) => {
         try {
-          // NOTE: Adjust endpoint if your backend expects a different path
+          console.debug("[sellerStore] updateSeller called with:", updatedFields);
+
           const res = await fetch("/api/v2/shop/update-seller-info", {
             method: "PUT",
             headers: {
@@ -61,7 +84,7 @@ export const useSellerStore = create<SellerStore>()(
 
           // Backend should return updated seller under body.shop or body.seller or body
           const updatedSeller: Seller | undefined =
-            body?.shop ?? body?.seller ?? body?.seller ?? body ?? null;
+            body?.shop ?? body?.seller ?? body ?? null;
 
           if (!updatedSeller) {
             // If backend did not return full seller, fallback to merge locally
@@ -69,11 +92,25 @@ export const useSellerStore = create<SellerStore>()(
             if (!current) return null;
             const merged = { ...current, ...updatedFields };
             set({ seller: merged as Seller });
+
+            // fallback localStorage write for debugging
+            try {
+              localStorage.setItem("seller-storage", JSON.stringify({ state: { seller: merged } }));
+            } catch (e) {
+              console.warn("[sellerStore] localStorage write after merge failed:", e);
+            }
+
             return merged as Seller;
           }
 
-          // Save returned seller to store
           set({ seller: updatedSeller });
+
+          try {
+            localStorage.setItem("seller-storage", JSON.stringify({ state: { seller: updatedSeller } }));
+          } catch (e) {
+            console.warn("[sellerStore] localStorage write after updateSeller failed:", e);
+          }
+
           return updatedSeller as Seller;
         } catch (err: any) {
           console.error("sellerStore.updateSeller error:", err);
@@ -85,11 +122,17 @@ export const useSellerStore = create<SellerStore>()(
        * removeSeller - clears seller from state and localStorage
        */
       removeSeller: () => {
-        set({ seller: null });
         try {
-          localStorage.removeItem("seller-storage");
-        } catch (e) {
-          /* ignore */
+          console.debug("[sellerStore] removeSeller called");
+          set({ seller: null });
+          try {
+            localStorage.removeItem("seller-storage");
+            console.debug("[sellerStore] localStorage seller-storage removed");
+          } catch (e) {
+            console.warn("[sellerStore] removeSeller localStorage remove failed:", e);
+          }
+        } catch (err) {
+          console.error("[sellerStore] removeSeller error:", err);
         }
       },
 
@@ -130,6 +173,7 @@ export const useSellerStore = create<SellerStore>()(
        */
       reloadSeller: async () => {
         try {
+          console.debug("[sellerStore] reloadSeller called");
           const res = await fetch("/api/v2/shop/getSeller", {
             method: "GET",
             credentials: "include",
@@ -150,6 +194,13 @@ export const useSellerStore = create<SellerStore>()(
           if (!fetched) return null;
 
           set({ seller: fetched as Seller });
+
+          try {
+            localStorage.setItem("seller-storage", JSON.stringify({ state: { seller: fetched } }));
+          } catch (e) {
+            console.warn("[sellerStore] localStorage write after reloadSeller failed:", e);
+          }
+
           return fetched as Seller;
         } catch (err: any) {
           console.error("sellerStore.reloadSeller error:", err);
@@ -160,6 +211,10 @@ export const useSellerStore = create<SellerStore>()(
     {
       name: "seller-storage",
       storage: createJSONStorage(() => localStorage),
+      // debug hook: run after rehydration (if available)
+      onRehydrateStorage: () => (state) => {
+        console.debug("[sellerStore] rehydrated from storage:", state);
+      },
     }
   )
 );
