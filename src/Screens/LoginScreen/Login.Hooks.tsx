@@ -74,14 +74,25 @@ export async function postSeller(userData: UserData) {
 
 // Redirect if user already logged in (for login page)
 export function getUserFromLocalLoader() {
-  const user = localStorage.getItem("user-storage");
-  const seller = localStorage.getItem("seller-storage");
+  const userRaw = localStorage.getItem("user-storage");
+  const sellerRaw = localStorage.getItem("seller-storage");
 
-  if (user || seller) {
+  // 🎯 If seller is logged in → go to seller dashboard
+  if (sellerRaw) {
+    console.log("Seller is logged in, redirecting to /seller");
+    return redirect("/seller");
+  }
+
+  // 🎯 If normal user is logged in → go to user home (same as before)
+  if (userRaw) {
+    console.log("User is logged in, redirecting to /");
     return redirect("/");
   }
+
+  // otherwise allow login page to load
   return null;
 }
+
 
 // Protect user routes
 export function requireUserAuth() {
