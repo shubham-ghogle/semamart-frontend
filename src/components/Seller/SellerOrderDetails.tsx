@@ -8,6 +8,7 @@ import { API_URL, BASE_URL } from "@/data";
 import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import OrderPaymentViewDialog from "../Admin/OrderPaymentViewDialog";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -60,7 +61,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
-      <section className="flex justify-end items-center">
+      <section className="flex justify-between items-center">
+        <OrderPaymentViewDialog paymentData={data.paymentFile } />
         <Button
           variant="outline"
           onClick={() => handleDownloadInvoice(orderId)}

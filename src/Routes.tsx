@@ -68,6 +68,7 @@ import Shipping from "./components/Footer/Shipping";
 import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
 import Term from "./components/Footer/Term";
 import AdminProduct from "./components/Admin/AllProducts/AdminProducts";
+import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 
 /**
  * redirectToDashboard loader
@@ -302,7 +303,11 @@ export const router = createBrowserRouter([
       },
       { path: "users", element: <AllUserScreen /> },
       { path: "products", element: <AdminProduct /> },
-      { path: "orders", element: <AllOrderScreen /> },
+      { path: "orders",children:[
+        {index:true,element: <AllOrderScreen />},
+        { path: ":orderId", element: <OrderDetailsScreen /> },
+      ],
+         },
     ],
   },
 
@@ -325,7 +330,7 @@ export const router = createBrowserRouter([
         path: "orders",
         children: [
           { index: true, element: <SellerAllOrders /> },
-          { path: ":orderId", element: <OrderDetailsScreen /> },
+          { path: ":orderId", element: <AdminOrderDetailsScreen /> },
         ],
       },
     ],

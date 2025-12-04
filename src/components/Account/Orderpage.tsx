@@ -280,7 +280,7 @@ const Orderpage = () => {
                             <MakePaymentDialog orderId={order._id} />
                           ))}
                         <span
-                          className={`${order.paymentFile ? "hidden": "inline-block"} w-3 h-3 rounded-full ${
+                          className={`inline-block w-3 h-3 rounded-full ${
                             order.status === "Delivered"
                               ? "bg-green-500"
                               : order.status === "Cancelled"
@@ -288,7 +288,7 @@ const Orderpage = () => {
                                 : "bg-yellow-500"
                           }`}
                         ></span>
-                        {!order.paymentFile && <p>{order.status}</p>}
+                        {order.status}
                       </div>
 
                       {order.status === "Delivered" && (

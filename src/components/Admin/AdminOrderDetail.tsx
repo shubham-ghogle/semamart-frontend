@@ -18,7 +18,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
 
   const getOptionsForStatus = () => {
     const statuses = {
-      default: ["Shipped", "Delivered"],
+      default: ["Paid","Shipped", "Delivered"],
       refund: ["Processing refund", "Refund Success"],
     };
 
