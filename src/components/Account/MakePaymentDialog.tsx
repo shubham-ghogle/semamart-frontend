@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 
@@ -19,6 +19,8 @@ type MakePaymentDialogProps = {
 export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
   const [open, setOpen] = useState(false);
   const[paymentFile,setPaymentFile] = useState<File|null>(null)
+
+  const qc = useQueryClient()
 
   const { mutate: mutateOrder } = useMutation({
     mutationFn: async function addOrderPayment(file:File|null) {
@@ -36,6 +38,10 @@ export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
     },
     onError:(err)=>{
       toast.error(err.message)
+    },
+    onSuccess:()=>{
+      qc.invalidateQueries({queryKey:["user-orders"]})
+      setOpen(false)
     }
   });
 

@@ -3,12 +3,11 @@ import { useUserStore } from "@/store/userStore";
 import { useNavigate } from "react-router-dom";
 import { Order, Product, Variant } from "@/Types/types";
 import MakePaymentDialog from "./MakePaymentDialog";
+import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@/data";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useUserStore((state) => state);
   const navigate = useNavigate();
 
@@ -16,31 +15,20 @@ const Orderpage = () => {
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [timeFilters, setTimeFilters] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user?._id) return;
+  const{data:orders,status:loading,error } =useQuery({
+    queryKey:["user-orders",user?._id],
+    queryFn:async()=>{
+      if (!user?._id) throw new Error();
+      const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
+      const data = await res.json();
 
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
-        const data = await res.json();
-
-        if (data.success) {
-          setOrders(data.orders);
-          setError(null);
-        } else {
-          setError(data.message || "Failed to fetch orders.");
-        }
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        setError("Error fetching orders.");
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        return data.orders as Order[];
+      } else {
+        throw new Error(data.message || "Failed to fetch orders.");
       }
-    };
-
-    fetchOrders();
-  }, [user]);
+    }
+  })
 
   // Normalize image (handles relative filenames & URLs)
   const normalizeImage = (src?: string | null) => {
@@ -71,7 +59,7 @@ const Orderpage = () => {
   };
 
   // Filter orders based on search, status and time filters
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = orders?.filter((order) => {
     let productName = "";
     if (typeof order.variant !== "string" && order.variant) {
       const product = order.variant.productId;
@@ -194,15 +182,15 @@ const Orderpage = () => {
 
           {/* Error */}
           {error && (
-            <p className="text-red-600 mb-6 font-medium text-center">{error}</p>
+            <p className="text-red-600 mb-6 font-medium text-center">{error.message}</p>
           )}
 
           {/* Loading / Error / Empty */}
-          {loading ? (
+          {loading==="pending" ? (
             <p className="text-center text-gray-600">Loading orders...</p>
-          ) : error ? (
-            <p className="text-red-600 text-center">{error}</p>
-          ) : filteredOrders.length === 0 ? (
+          ) : loading==="error" ? (
+            <p className="text-red-600 text-center">{error.message}</p>
+          ) : filteredOrders?.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-gray-400">
               <div className="text-6xl mb-5 animate-bounce select-none">📦</div>
               <h2 className="text-2xl font-semibold mb-2">No Orders Found</h2>
@@ -212,7 +200,7 @@ const Orderpage = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredOrders.map((order) => {
+              {filteredOrders?.map((order) => {
                 const variant = order.variant as Variant;
                 const product = variant?.productId as Product;
                 if (!product) return null;
