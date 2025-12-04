@@ -91,15 +91,48 @@ export default function AddProductForm({
   const qc = useQueryClient();
   const navigate = useNavigate();
 
+  // --- NORMALIZE incoming product so form always has attributes & brand ---
+// --- NORMALIZE incoming product so form always has attributes & brand ---
+const normalizedProduct = product
+  ? (() => {
+      // ensure attributes is an array
+      const attrs = Array.isArray(product.attributes) ? product.attributes : [];
+
+      // normalize brand robustly (string | populated object | ObjectId)
+      const rawBrand = (product as any).brand;
+      let brandVal = "";
+
+      if (rawBrand) {
+        if (typeof rawBrand === "string") {
+          brandVal = rawBrand;
+        } else if (typeof rawBrand === "object") {
+          // populated object (e.g. { _id, name }) OR maybe mongoose ObjectId (which is object but has no name)
+          brandVal = (rawBrand && (rawBrand.name || rawBrand.brand || rawBrand._id)) ? (rawBrand.name || rawBrand.brand || String(rawBrand._id)) : "";
+        } else {
+          brandVal = String(rawBrand);
+        }
+      }
+
+      // create normalized product copy
+      return {
+        ...product,
+        attributes: attrs,
+        brand: brandVal,
+      };
+    })()
+  : undefined;
+
+
   const categoryDropDownList = categories.map((c) => ({
     label: c.name,
     value: c._id,
   }));
 
-  const form = useForm<ProductFormType>({
-    resolver: zodResolver(addProductFormSchema),
-    defaultValues: product ? product : addProductFormDefaultValues,
-  });
+ const form = useForm<ProductFormType>({
+  resolver: zodResolver(addProductFormSchema),
+  defaultValues: normalizedProduct ? normalizedProduct : addProductFormDefaultValues,
+});
+
 
   const isDirty = form.formState.isDirty;
   useBeforeUnload(isDirty);
@@ -332,6 +365,11 @@ export default function AddProductForm({
 
     newForm.append("shopId", seller?._id || "");
     newForm.append("name", values.name);
+    // append brand if present
+if (values.brand) {
+  newForm.append("brand", values.brand);
+}
+
     values.category.forEach((el) => {
       newForm.append("category", el.val);
     });
@@ -375,11 +413,16 @@ export default function AddProductForm({
     newForm.append("origin", values.origin);
     newForm.append("shortdescription", values.shortdescription);
     newForm.append("description", values.description);
-    if (values.attributes) {
-      values.attributes.forEach((v) => {
-        newForm.append("attributes", JSON.stringify(v));
-      });
-    }
+   // safe attributes serialization
+const attributesArr = values.attributes || [];
+attributesArr.forEach((v) => {
+  try {
+    newForm.append("attributes", JSON.stringify(v));
+  } catch (err) {
+    newForm.append("attributes", JSON.stringify({ value: String(v) }));
+  }
+});
+
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
@@ -571,6 +614,8 @@ export default function AddProductForm({
                 )}
               />
 
+
+
               <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
@@ -668,6 +713,25 @@ export default function AddProductForm({
                   )}
                 />
               </section>
+
+              <FormField
+  control={form.control}
+  name="brand"
+  render={({ field }) => (
+    <FormItem>
+      <SubFormLabel>Brand</SubFormLabel>
+      <FormControl>
+        <Input
+          type="text"
+          {...field}
+          className="w-full"
+          placeholder="Brand name (optional)"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
               <FormField
                 control={form.control}
@@ -1000,78 +1064,84 @@ export default function AddProductForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="attributes"
-                render={({ field }) => (
-                  <FormItem>
-                    <SubFormLabel>Custom Attributes</SubFormLabel>
-                    <FormControl>
-                      <>
-                        {field.value?.map((e, i) => (
-                          <div className="flex gap-3 mb-3" key={i}>
-                            <Input
-                              value={Object.keys(e)[0]}
-                              readOnly
-                              className="w-2/5"
-                            />
-                            <Input
-                              value={Object.values(e)[0]}
-                              readOnly
-                              className="w-3/5"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              onClick={() => {
-                                removeAttri(i);
-                              }}
-                            >
-                              <IoRemoveCircle />
-                            </Button>
-                          </div>
-                        ))}
-                        <div className="flex gap-3">
-                          <Input
-                            placeholder="Attribute name"
-                            value={currentAttri.key}
-                            onChange={(e) => {
-                              setCurrentAttri((p) => ({
-                                ...p,
-                                key: e.target.value,
-                              }));
-                            }}
-                            className="w-1/2"
-                          />
-                          <Input
-                            placeholder="Attribute value"
-                            value={currentAttri.val}
-                            onChange={(e) => {
-                              setCurrentAttri((p) => ({
-                                ...p,
-                                val: e.target.value,
-                              }));
-                            }}
-                            className="w-1/2"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() =>
-                              addAddtri({
-                                [currentAttri.key]: currentAttri.val,
-                              })
-                            }
-                          >
-                            Add
-                          </Button>
-                        </div>
-                      </>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+             <FormField
+  control={form.control}
+  name="attributes"
+  render={({ field }) => {
+    const attrs = field.value || [];
+    return (
+      <FormItem>
+        <SubFormLabel>Custom Attributes</SubFormLabel>
+        <FormControl>
+          <>
+            {attrs.map((e, i) => (
+              <div className="flex gap-3 mb-3" key={i}>
+                <Input
+                  value={Object.keys(e)[0]}
+                  readOnly
+                  className="w-2/5"
+                />
+                <Input
+                  value={Object.values(e)[0]}
+                  readOnly
+                  className="w-3/5"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    removeAttri(i);
+                  }}
+                >
+                  <IoRemoveCircle />
+                </Button>
+              </div>
+            ))}
+            <div className="flex gap-3">
+              <Input
+                placeholder="Attribute name"
+                value={currentAttri.key}
+                onChange={(e) => {
+                  setCurrentAttri((p) => ({
+                    ...p,
+                    key: e.target.value,
+                  }));
+                }}
+                className="w-1/2"
               />
+              <Input
+                placeholder="Attribute value"
+                value={currentAttri.val}
+                onChange={(e) => {
+                  setCurrentAttri((p) => ({
+                    ...p,
+                    val: e.target.value,
+                  }));
+                }}
+                className="w-1/2"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  if (!currentAttri.key?.trim() || !currentAttri.val?.trim()) {
+                    toast.warn("Attribute name and value are required");
+                    return;
+                  }
+                  addAddtri({ [currentAttri.key.trim()]: currentAttri.val.trim() });
+                }}
+              >
+                Add
+              </Button>
+            </div>
+          </>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
 
               <section className="grid grid-cols-1 sm:grid-cols-2 items-end gap-3">
                 <FormField

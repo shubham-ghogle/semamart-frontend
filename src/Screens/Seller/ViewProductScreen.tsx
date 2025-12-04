@@ -66,6 +66,7 @@ export default function ViewProductScreen() {
     // attributes: JSON.parse(product?.attributes as unknown as string) || [],
     attributes: product?.attributes || [],
     name: product?.name || "",
+    brand: product?.brand || "",
     category: category,
     subCategory: subCategory || [],
     productType: product?.productType || "",

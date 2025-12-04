@@ -110,6 +110,8 @@ export default function AdminNavbar() {
             <SidebarNavlinks icon={<LuMessageSquare />} to="/admin/requests" label="Requests" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/sellers" label="All Sellers" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/users" label="All Users" />
+                        <SidebarNavlinks icon={<GrWorkshop />} to="/admin/products" label="All Products" />
+
 
             <div className="mt-6 pt-4 px-3">
               <button
@@ -172,6 +174,8 @@ export default function AdminNavbar() {
             <SidebarNavlinks icon={<LuMessageSquare />} to="/admin/requests" label="Requests" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/sellers" label="All Sellers" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/users" label="All Users" onClick={() => setOpen(false)} />
+                        <SidebarNavlinks icon={<GrWorkshop />} to="/admin/products" label="All Products" onClick={() => setOpen(false)} />
+
 
             <div className="mt-6 pt-4 px-3">
               <button

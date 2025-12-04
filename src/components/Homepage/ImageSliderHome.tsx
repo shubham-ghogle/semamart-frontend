@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 
 /**
- * ImageSliderHome
- * - left large slider (arrows appear on hover)
- * - two right small banners (subtle hover animation)
+ * ImageSliderHome — robust slider
+ *
+ * Fixes transform math by moving the track in whole container widths:
+ *  - each slide is flex: 0 0 100%
+ *  - track transform: translateX(-current * 100%)
+ *
+ * Also adds a small console.debug so you can confirm current index.
  */
 
 const sliderImages = [
-  "/Cover Photo/E1-1.png",
-  "/Cover Photo/E1-2.png",
-  "/Cover Photo/E1-4.png",
-  "/Cover Photo/E1-3.png",
-  "/placeholder.png",
+  "/Cover%20Photo/2.png",
+  "/Cover%20Photo/4.png",
+  "/Cover%20Photo/6.png",
 ];
 
 const rightImageA = "/banner_Consumables.png";
@@ -26,6 +28,11 @@ export default function ImageSliderHome() {
     return () => clearInterval(t);
   }, [total]);
 
+  // debug — remove in production if you want
+  useEffect(() => {
+    console.debug("[ImageSliderHome] current index:", current);
+  }, [current]);
+
   const prev = () => setCurrent((p) => (p - 1 + total) % total);
   const next = () => setCurrent((p) => (p + 1) % total);
 
@@ -39,17 +46,23 @@ export default function ImageSliderHome() {
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{
-                width: `${total * 100}%`,
-                transform: `translateX(-${current * (100 / total)}%)`,
+                // no explicit width required if each slide is flex: 0 0 100%
+                transform: `translateX(-${current * 100}%)`,
+                width: `${total * 100}%`, // optional, still okay to keep
               }}
             >
               {sliderImages.map((src, i) => (
-                <div key={i} className="min-w-full h-full flex items-center justify-center">
+                <div
+                  key={`${src}-${i}`}
+                  className="flex-shrink-0 flex items-center justify-center w-full h-full"
+                  style={{ flex: "0 0 100%" }}
+                >
                   <img
                     src={src}
                     alt={`hero-${i}`}
                     className="w-full h-full object-cover"
                     onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                    loading="lazy"
                   />
                 </div>
               ))}
@@ -63,7 +76,6 @@ export default function ImageSliderHome() {
                 className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:-translate-x-0 -translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
-                {/* left chevron */}
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
                   <path d="M15 6L9 12L15 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -75,7 +87,6 @@ export default function ImageSliderHome() {
                 className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:translate-x-0 translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
-                {/* right chevron */}
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
                   <path d="M9 6L15 12L9 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -102,10 +113,9 @@ export default function ImageSliderHome() {
           {/* RIGHT SMALL BANNERS */}
           {[rightImageA, rightImageB].map((img, i) => (
             <div
-              key={i}
+              key={img + "-" + i}
               className="group relative rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh] transition-shadow duration-300 hover:shadow-xl"
             >
-              {/* subtle hover animation: slight lift + scale + smoother transition */}
               <a
                 href="#"
                 aria-label={`promo-${i}`}
@@ -116,6 +126,7 @@ export default function ImageSliderHome() {
                   alt={`promo-${i}`}
                   className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1 will-change-transform"
                   onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                  loading="lazy"
                 />
               </a>
             </div>

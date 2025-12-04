@@ -1,5 +1,5 @@
 // src/router.tsx
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import RootLayout from "./components/Layouts/RootLayout";
 import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
@@ -37,10 +37,7 @@ import Equipment from "./Screens/Equipment/Equipment";
 import ProductLayout from "./components/Layouts/ProductLayout";
 import SellerActivation from "./Screens/Seller/SellerActivation";
 import SearchLayout from "./components/Layouts/SearchLayout";
-// base search results page (global search)
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
-// seller-scoped search results (new)
-
 import MyProfile from "./components/Account/MyProfile";
 import PaymentScreen from "./Screens/Payment/PaymentScreen";
 import AdminLogin from "./Screens/Admin/AdminLogin";
@@ -59,7 +56,6 @@ import MyOrderPage from "./components/Account/Orderpage";
 import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
 import ProductBasedOnCategory from "./components/ui/ProductBasedOnCategory";
 import SellerAccount from "./components/Seller/SellerAccount";
-
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
@@ -71,15 +67,147 @@ import ReturnsPolicy from "./components/Footer/ReturnPolicy";
 import Shipping from "./components/Footer/Shipping";
 import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
 import Term from "./components/Footer/Term";
+import AdminProduct from "./components/Admin/AllProducts/AdminProducts";
+
+/**
+ * redirectToDashboard loader
+ * - Checks localStorage keys used in your project:
+ *   - "user-storage" (your Login.Hooks + admin loader use this)
+ *   - "seller-storage" (seller login)
+ *   - legacy "user" (older shapes)
+ * - Priority: Admin -> Seller -> Regular User -> Public
+ * - Writes sessionStorage debug info for quick inspection after redirect.
+ */
+// robust redirectToDashboard — drop into src/router.tsx (replace previous)
+
+function safeParse(s: string | null) {
+  if (!s) return null;
+  try { return JSON.parse(s); } catch { return null; }
+}
+
+function looksLikeSeller(obj: any) {
+  if (!obj) return false;
+  if (obj?.role && typeof obj.role === "string" && obj.role.toLowerCase() === "seller") return true;
+  if (obj?.seller && (obj.seller._id || obj.seller.email)) return true;
+  if (obj?.state?.seller && (obj.state.seller._id || obj.state.seller.email)) return true;
+  // some stores store seller at root
+  if (obj?._id && obj?.role && obj.role.toLowerCase?.() === "seller") return true;
+  return false;
+}
+
+function looksLikeAdmin(obj: any) {
+  if (!obj) return false;
+  if (obj?.state?.user?.role === "Admin") return true; // exact parity with your admin loader
+  if (obj?.role && typeof obj.role === "string" && obj.role.toLowerCase() === "admin") return true;
+  if (obj?.user?.role && typeof obj.user.role === "string" && obj.user.role.toLowerCase() === "admin") return true;
+  return false;
+}
+
+function looksLikeUser(obj: any) {
+  if (!obj) return false;
+  if (obj?._id || obj?.id || obj?.email) return true;
+  if (obj?.user && (obj.user._id || obj.user.email)) return true;
+  return false;
+}
+
+export async function redirectToDashboard() {
+  try {
+    // snapshot for debugging
+    const allKeys = Object.keys(localStorage);
+    sessionStorage.setItem("__auth_all_localStorage_keys", JSON.stringify(allKeys));
+
+    // quick explicit checks (existing keys we know)
+    const explicitKeys = ["user-storage", "seller-storage", "user"];
+    for (const k of explicitKeys) {
+      const raw = localStorage.getItem(k);
+      if (!raw) continue;
+      const parsed = safeParse(raw);
+      if (looksLikeAdmin(parsed)) {
+        sessionStorage.setItem("__auth_result", "admin");
+        sessionStorage.setItem("__auth_result_key", k);
+        return redirect("/admin");
+      }
+      if (looksLikeSeller(parsed)) {
+        sessionStorage.setItem("__auth_result", "seller");
+        sessionStorage.setItem("__auth_result_key", k);
+        return redirect("/seller");
+      }
+      if (looksLikeUser(parsed)) {
+        sessionStorage.setItem("__auth_result", "user");
+        sessionStorage.setItem("__auth_result_key", k);
+        return redirect("/user");
+      }
+    }
+
+    // fallback: scan all localStorage keys for something that looks like seller/admin/user
+    for (const key of allKeys) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = safeParse(raw);
+
+      // If parsed is null (parse error) — some libraries store plain strings, check substring
+      if (!parsed && typeof raw === "string") {
+        const low = raw.toLowerCase();
+        if (low.includes('"role":"admin"') || low.includes('"role":"administrator"')) {
+          sessionStorage.setItem("__auth_result", "admin");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/admin");
+        }
+        if (low.includes('"role":"seller"') || low.includes('"seller":')) {
+          sessionStorage.setItem("__auth_result", "seller");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/seller");
+        }
+        if (low.includes('"email"') || low.includes('"@')) {
+          sessionStorage.setItem("__auth_result", "user");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/user");
+        }
+      } else {
+        // parsed object — test shapes
+        if (looksLikeAdmin(parsed)) {
+          sessionStorage.setItem("__auth_result", "admin");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/admin");
+        }
+        if (looksLikeSeller(parsed)) {
+          sessionStorage.setItem("__auth_result", "seller");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/seller");
+        }
+        if (looksLikeUser(parsed)) {
+          sessionStorage.setItem("__auth_result", "user");
+          sessionStorage.setItem("__auth_result_key", key);
+          return redirect("/user");
+        }
+      }
+    }
+
+    // nothing matched
+    sessionStorage.setItem("__auth_result", "public");
+    return null;
+  } catch (err) {
+    sessionStorage.setItem("__auth_result", "error");
+    sessionStorage.setItem("__auth_result_error", String(err));
+    return null;
+  }
+}
+
 
 export const router = createBrowserRouter([
   {
+    // SINGLE root route — every public page uses RootLayout
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Consumables /> },
+      // index runs loader BEFORE rendering to redirect properly
+      { index: true, loader: redirectToDashboard, element: <Consumables /> },
+
+      // public/product flows
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
+
+      // protected checkout / wishlist
       {
         path: "checkout",
         loader: requireUserAuth,
@@ -90,30 +218,24 @@ export const router = createBrowserRouter([
         loader: requireUserAuth,
         element: <PaymentScreen />,
       },
-      {
-        path: "wishlist",
-        loader: requireUserAuth,
-        element: <WishlistProduct />,
-      }, // 🔐
-      { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> }, // 🔐
+      { path: "wishlist", loader: requireUserAuth, element: <WishlistProduct /> },
+      { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
     ],
   },
 
-  // Global search (site-wide)
+  // All other routes remain the same (admin, seller, user, etc.)
   {
     path: "/search",
     element: <SearchLayout />,
     children: [{ index: true, element: <SearchResultsPage /> }],
   },
 
-  // Product details layout
   {
     path: "product/:id",
     element: <ProductLayout />,
     children: [{ index: true, element: <ProductDetails /> }],
   },
 
-  // Equipments section
   {
     path: "/equipments",
     element: <RootLayout />,
@@ -125,15 +247,10 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      {
-        path: "checkout",
-        loader: requireUserAuth,
-        element: <CheckoutScreen />,
-      }, // 🔐
+      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> },
     ],
   },
 
-  // Pharmaceutical section
   {
     path: "/pharmaceutical",
     element: <RootLayout />,
@@ -145,31 +262,23 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      {
-        path: "checkout",
-        loader: requireUserAuth,
-        element: <CheckoutScreen />,
-      }, // 🔐
+      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> },
     ],
   },
 
-  // Seller public storefront and seller-scoped search
   {
     path: "/shop/:shopId",
     element: <RootLayout />,
     children: [
       { index: true, element: <SellerProducts /> },
-      // seller-scoped search (calls /api/v2/product/searchseller?q=&shopId=)
       { path: "search", element: <SearchResultsPageSeller /> },
     ],
   },
 
-  // Login & Registration
   { path: "/login", loader: getUserFromLocalLoader, element: <LoginScreen /> },
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
 
-  // Admin routes
   { path: "/admin-login", element: <AdminLogin /> },
   {
     path: "/admin",
@@ -186,24 +295,17 @@ export const router = createBrowserRouter([
             path: ":sellerId",
             children: [
               { index: true, element: <AdminSellerProductScreen /> },
-              { path:"view/:id", element: <ViewProductScreen /> },
+              { path: "view/:id", element: <ViewProductScreen /> },
             ],
           },
         ],
       },
       { path: "users", element: <AllUserScreen /> },
-      // {
-      //   path: "products",
-      //   children: [
-      //     { index: true, element: <AdminProductRequestScreen /> },
-      //     { path: "view/:id", element: <ViewProductScreen /> },
-      //   ],
-      // },
+      { path: "products", element: <AdminProduct /> },
       { path: "orders", element: <AllOrderScreen /> },
     ],
   },
 
-  // Seller protected area
   {
     path: "/seller",
     loader: requireSellerAuth,
@@ -211,7 +313,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
-      { path: "my-account", element: <SellerAccount/> },
+      { path: "my-account", element: <SellerAccount /> },
       {
         path: "products",
         children: [
@@ -229,7 +331,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // User protected area
   {
     path: "/user",
     loader: requireUserAuth,
@@ -247,7 +348,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Account area
   {
     path: "/account",
     loader: requireUserAuth,
@@ -260,32 +360,19 @@ export const router = createBrowserRouter([
     ],
   },
 
-
-  // Other routes & helpers
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  {
-    path: "/seller/activation/:activation_token",
-    element: <SellerActivation />,
-  },
+  { path: "/seller/activation/:activation_token", element: <SellerActivation /> },
   { path: "/account", element: <AccountNavbar /> },
-  {
-    path: "account/orders/:productId",
-    loader: requireUserAuth,
-    element: <OrderSummary />,
-  },
+  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
-  {
-    path: "/get-products-by-speciality-package-type/:id",
-    element: <ProductBasedOnSpecialPackagetypes />,
-  },
-  {
-    path: "/get-products-by-speciality-package/:id",
-    element: <ProductBasedOnSpecialPackage />,
-  },
+  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
+  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+
   { path: "*", element: <div>404 - Page Not Found</div> },
-   {
+
+  {
     path: "/seller-account",
-     loader: protectSellerRoute,
+    loader: protectSellerRoute,
     element: <AccountLayout />,
     children: [
       { index: true, element: <MyProfile /> },
@@ -307,4 +394,20 @@ export const router = createBrowserRouter([
     ],
   },
 
+  { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory /> },
+
+  // Keep footer pages under their own path so they don't create a second root "/"
+  {
+    path: "/footer",
+    element: <FooterLayout />,
+    children: [
+      { path: "about", element: <About /> },
+      { path: "privacy-policy", element: <PrivacyPolicy /> },
+      { path: "cookie-policy", element: <CookiePolicy /> },
+      { path: "refund-and-cancellation", element: <ReturnsPolicy /> },
+      { path: "disclaimer", element: <DisclaimerPage /> },
+      { path: "shipping-delivery-policy", element: <Shipping /> },
+      { path: "terms-and-conditions", element: <Term /> },
+    ],
+  },
 ]);

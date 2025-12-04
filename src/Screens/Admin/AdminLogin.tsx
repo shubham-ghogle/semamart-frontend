@@ -2,12 +2,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { useMutation } from "@tanstack/react-query";
 
 import { Logo } from "@/components/UIComponents/Logo";
 import { loginFailureToast } from "@/components/UIComponents/Toasts";
-import { useMutation } from "@tanstack/react-query";
 import { postUser } from "../LoginScreen/Login.Hooks";
 import { useUserStore } from "@/store/userStore";
+import type { User } from "@/Types/types";
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
@@ -16,45 +17,34 @@ export default function AdminLoginForm() {
   const navigate = useNavigate();
   const addUser = useUserStore((state) => state.addUser);
 
-  const { mutate } = useMutation({
+  const { mutate, status } = useMutation({
     mutationFn: postUser,
-    onSuccess: (data) => {
-      addUser(data.user);
-       navigate("/admin"); // redirect to dashboard
+    onSuccess: (data: any) => {
+      const maybeUser = data?.user as User | undefined;
+      if (!maybeUser) {
+        console.error("postUser returned unexpected shape:", data);
+        loginFailureToast("Login failed (unexpected response)");
+        return;
+      }
+      addUser(maybeUser);
+      navigate("/admin");
     },
-    onError: () => {
-      loginFailureToast("Invalid email or password");
+    onError: (err: any) => {
+      console.error("Admin login error:", err);
+      loginFailureToast(err?.message || "Invalid email or password");
     },
   });
 
+  const isLoading = status === "pending";
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     mutate({ email, password });
-
-    // if (email === "sema@gmail.com" && password === "Sema@123") {
-    //   // ✅ store Admin in localStorage
-    //   localStorage.setItem(
-    //     "user-storage",
-    //     JSON.stringify({
-    //       state: {
-    //         user: {
-    //           id: "1",
-    //           name: "Super Admin",
-    //           role: "Admin",
-    //           email: "sema@gmail.com",
-    //         },
-    //       },
-    //     })
-    //   );
-    // } else {
-    // }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <Logo />
           <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center">
@@ -65,10 +55,8 @@ export default function AdminLoginForm() {
           </p>
         </div>
 
-        {/* Card */}
         <section className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -79,18 +67,15 @@ export default function AdminLoginForm() {
               <div className="mt-1">
                 <input
                   type="email"
-                  name="email"
-                  autoComplete="email"
                   required
                   placeholder="Enter admin email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C]"
                 />
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -101,13 +86,11 @@ export default function AdminLoginForm() {
               <div className="mt-1 relative">
                 <input
                   type={visible ? "text" : "password"}
-                  name="password"
-                  autoComplete="current-password"
                   required
-                  placeholder="Enter admin password"
+                  placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C]"
                 />
                 {visible ? (
                   <AiOutlineEye
@@ -125,23 +108,19 @@ export default function AdminLoginForm() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div>
               <button
                 type="submit"
-                className="w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all"
+                disabled={isLoading}
+                className="w-full h-[40px] flex justify-center py-2 px-4 text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all disabled:opacity-60"
               >
-                Login
+                {isLoading ? "Signing in..." : "Login"}
               </button>
             </div>
 
-            {/* Back to site */}
             <div className="flex items-center justify-center mt-2">
               <span className="text-sm text-gray-700">Go back to </span>
-              <Link
-                to="/"
-                className="text-[#1C647C] pl-1 font-semibold hover:underline"
-              >
+              <Link to="/" className="text-[#1C647C] pl-1 font-semibold hover:underline">
                 Home
               </Link>
             </div>

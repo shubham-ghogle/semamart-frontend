@@ -3,6 +3,7 @@ export const addProductFormDefaultValues = {
   tags: [] as any[],
   attributes: [] as any[],
   name: "",
+  brand: "",
   category: [] as any[],
   subCategory: [] as any[],
   productType: undefined as string | undefined,
