@@ -285,11 +285,14 @@ const Orderpage = () => {
                     {/* Status & Review */}
                     <div className="md:col-span-3 text-right text-sm space-y-1">
                       <div className="font-semibold flex items-center justify-end gap-2 text-gray-900">
-                        {order.status ==="Created" && (
-                          <MakePaymentDialog/>
-                        )}
+                        {order.status === "Created" &&
+                          (order.paymentFile ? (
+                            <p>Waiting for payment verification</p>
+                          ) : (
+                            <MakePaymentDialog orderId={order._id} />
+                          ))}
                         <span
-                          className={`inline-block w-3 h-3 rounded-full ${
+                          className={`${order.paymentFile ? "hidden": "inline-block"} w-3 h-3 rounded-full ${
                             order.status === "Delivered"
                               ? "bg-green-500"
                               : order.status === "Cancelled"
@@ -297,9 +300,8 @@ const Orderpage = () => {
                                 : "bg-yellow-500"
                           }`}
                         ></span>
-                        {order.status}
+                        {!order.paymentFile && <p>{order.status}</p>}
                       </div>
-
 
                       {order.status === "Delivered" && (
                         <p className="text-gray-500 truncate max-w-full">
@@ -322,7 +324,6 @@ const Orderpage = () => {
                           Rate & Review
                         </button>
                       )}
-
                     </div>
                   </div>
                 );
