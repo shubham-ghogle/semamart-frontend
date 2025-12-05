@@ -83,24 +83,45 @@ import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 
 function safeParse(s: string | null) {
   if (!s) return null;
-  try { return JSON.parse(s); } catch { return null; }
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
 }
 
 function looksLikeSeller(obj: any) {
   if (!obj) return false;
-  if (obj?.role && typeof obj.role === "string" && obj.role.toLowerCase() === "seller") return true;
+  if (
+    obj?.role &&
+    typeof obj.role === "string" &&
+    obj.role.toLowerCase() === "seller"
+  )
+    return true;
   if (obj?.seller && (obj.seller._id || obj.seller.email)) return true;
-  if (obj?.state?.seller && (obj.state.seller._id || obj.state.seller.email)) return true;
+  if (obj?.state?.seller && (obj.state.seller._id || obj.state.seller.email))
+    return true;
   // some stores store seller at root
-  if (obj?._id && obj?.role && obj.role.toLowerCase?.() === "seller") return true;
+  if (obj?._id && obj?.role && obj.role.toLowerCase?.() === "seller")
+    return true;
   return false;
 }
 
 function looksLikeAdmin(obj: any) {
   if (!obj) return false;
   if (obj?.state?.user?.role === "Admin") return true; // exact parity with your admin loader
-  if (obj?.role && typeof obj.role === "string" && obj.role.toLowerCase() === "admin") return true;
-  if (obj?.user?.role && typeof obj.user.role === "string" && obj.user.role.toLowerCase() === "admin") return true;
+  if (
+    obj?.role &&
+    typeof obj.role === "string" &&
+    obj.role.toLowerCase() === "admin"
+  )
+    return true;
+  if (
+    obj?.user?.role &&
+    typeof obj.user.role === "string" &&
+    obj.user.role.toLowerCase() === "admin"
+  )
+    return true;
   return false;
 }
 
@@ -115,7 +136,10 @@ export async function redirectToDashboard() {
   try {
     // snapshot for debugging
     const allKeys = Object.keys(localStorage);
-    sessionStorage.setItem("__auth_all_localStorage_keys", JSON.stringify(allKeys));
+    sessionStorage.setItem(
+      "__auth_all_localStorage_keys",
+      JSON.stringify(allKeys),
+    );
 
     // quick explicit checks (existing keys we know)
     const explicitKeys = ["user-storage", "seller-storage", "user"];
@@ -149,7 +173,10 @@ export async function redirectToDashboard() {
       // If parsed is null (parse error) — some libraries store plain strings, check substring
       if (!parsed && typeof raw === "string") {
         const low = raw.toLowerCase();
-        if (low.includes('"role":"admin"') || low.includes('"role":"administrator"')) {
+        if (
+          low.includes('"role":"admin"') ||
+          low.includes('"role":"administrator"')
+        ) {
           sessionStorage.setItem("__auth_result", "admin");
           sessionStorage.setItem("__auth_result_key", key);
           return redirect("/admin");
@@ -194,7 +221,6 @@ export async function redirectToDashboard() {
   }
 }
 
-
 export const router = createBrowserRouter([
   {
     // SINGLE root route — every public page uses RootLayout
@@ -219,7 +245,11 @@ export const router = createBrowserRouter([
         loader: requireUserAuth,
         element: <PaymentScreen />,
       },
-      { path: "wishlist", loader: requireUserAuth, element: <WishlistProduct /> },
+      {
+        path: "wishlist",
+        loader: requireUserAuth,
+        element: <WishlistProduct />,
+      },
       { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
     ],
   },
@@ -248,7 +278,11 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> },
+      {
+        path: "checkout",
+        loader: requireUserAuth,
+        element: <CheckoutScreen />,
+      },
     ],
   },
 
@@ -263,7 +297,11 @@ export const router = createBrowserRouter([
         element: <ProductLayout />,
         children: [{ index: true, element: <ProductDetails /> }],
       },
-      { path: "checkout", loader: requireUserAuth, element: <CheckoutScreen /> },
+      {
+        path: "checkout",
+        loader: requireUserAuth,
+        element: <CheckoutScreen />,
+      },
     ],
   },
 
@@ -303,11 +341,13 @@ export const router = createBrowserRouter([
       },
       { path: "users", element: <AllUserScreen /> },
       { path: "products", element: <AdminProduct /> },
-      { path: "orders",children:[
-        {index:true,element: <AllOrderScreen />},
-        { path: ":orderId", element: <OrderDetailsScreen /> },
-      ],
-         },
+      {
+        path: "orders",
+        children: [
+          { index: true, element: <AllOrderScreen /> },
+          { path: ":orderId", element: <AdminOrderDetailsScreen /> },
+        ],
+      },
     ],
   },
 
@@ -330,7 +370,7 @@ export const router = createBrowserRouter([
         path: "orders",
         children: [
           { index: true, element: <SellerAllOrders /> },
-          { path: ":orderId", element: <AdminOrderDetailsScreen /> },
+          { path: ":orderId", element: <OrderDetailsScreen /> },
         ],
       },
     ],
@@ -366,12 +406,25 @@ export const router = createBrowserRouter([
   },
 
   { path: "/user/activation/:token", element: <UserActivationScreen /> },
-  { path: "/seller/activation/:activation_token", element: <SellerActivation /> },
+  {
+    path: "/seller/activation/:activation_token",
+    element: <SellerActivation />,
+  },
   { path: "/account", element: <AccountNavbar /> },
-  { path: "account/orders/:productId", loader: requireUserAuth, element: <OrderSummary /> },
+  {
+    path: "account/orders/:productId",
+    loader: requireUserAuth,
+    element: <OrderSummary />,
+  },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
-  { path: "/get-products-by-speciality-package-type/:id", element: <ProductBasedOnSpecialPackagetypes /> },
-  { path: "/get-products-by-speciality-package/:id", element: <ProductBasedOnSpecialPackage /> },
+  {
+    path: "/get-products-by-speciality-package-type/:id",
+    element: <ProductBasedOnSpecialPackagetypes />,
+  },
+  {
+    path: "/get-products-by-speciality-package/:id",
+    element: <ProductBasedOnSpecialPackage />,
+  },
 
   { path: "*", element: <div>404 - Page Not Found</div> },
 
@@ -379,27 +432,31 @@ export const router = createBrowserRouter([
     path: "/seller-account",
     loader: protectSellerRoute,
     element: <AccountLayout />,
-    children: [
-      { index: true, element: <MyProfile /> },
-    ],
+    children: [{ index: true, element: <MyProfile /> }],
   },
-  { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory/> },
+  {
+    path: "/get-products-by-category/:id",
+    element: <ProductBasedOnCategory />,
+  },
 
-     {
+  {
     path: "/",
     element: <FooterLayout />, // Header + Footer
     children: [
-       { path: "about", element: <About /> },
-       { path: "privacy-policy", element: <PrivacyPolicy /> },
-       { path: "cookie-policy", element: <CookiePolicy /> },
-       { path: "refund-and-cancellation", element: <ReturnsPolicy /> },
-       { path: "disclaimer", element: <DisclaimerPage /> },
-       { path: "shipping-delivery-policy", element: <Shipping /> },
-       { path: "terms-and-conditions", element: <Term /> },
+      { path: "about", element: <About /> },
+      { path: "privacy-policy", element: <PrivacyPolicy /> },
+      { path: "cookie-policy", element: <CookiePolicy /> },
+      { path: "refund-and-cancellation", element: <ReturnsPolicy /> },
+      { path: "disclaimer", element: <DisclaimerPage /> },
+      { path: "shipping-delivery-policy", element: <Shipping /> },
+      { path: "terms-and-conditions", element: <Term /> },
     ],
   },
 
-  { path: "/get-products-by-category/:id", element: <ProductBasedOnCategory /> },
+  {
+    path: "/get-products-by-category/:id",
+    element: <ProductBasedOnCategory />,
+  },
 
   // Keep footer pages under their own path so they don't create a second root "/"
   {

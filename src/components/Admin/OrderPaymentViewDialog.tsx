@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -8,7 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { BASE_URL } from "@/data";
-import { BsFlower2 } from "react-icons/bs";
+import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
+import { useParams } from "react-router";
 
 type AdminPaymentProofDialogProps = {
   paymentData: string | null;
@@ -19,6 +21,12 @@ export default function OrderPaymentViewDialog({
   const [open, setOpen] = useState(false);
 
   const isPDF = paymentData?.toLowerCase().endsWith(".pdf");
+
+  const { mutationStatus, mutateOrder } = useAdminOrderMutation(() => {
+    setOpen(false);
+  });
+
+  const { orderId } = useParams();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -44,12 +52,23 @@ export default function OrderPaymentViewDialog({
               />
             ) : (
               <img
-                src={BASE_URL +"images/"+ paymentData}
+                src={BASE_URL + "images/" + paymentData}
                 alt="Payment Proof"
                 className="max-h-[500px] rounded-md border object-contain"
               />
             )}
           </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                mutateOrder({ orderId: orderId ?? "", status: "Processing" });
+              }}
+              disabled={mutationStatus === "pending"}
+            >
+              Verify
+            </Button>
+          </DialogFooter>
         </DialogContent>
       )}
     </Dialog>

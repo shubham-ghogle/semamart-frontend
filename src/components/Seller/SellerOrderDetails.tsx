@@ -8,9 +8,6 @@ import { API_URL, BASE_URL } from "@/data";
 import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import OrderPaymentViewDialog from "../Admin/OrderPaymentViewDialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -19,49 +16,12 @@ type SellerOrderDetailProps = {
 export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const { orderId } = useParams();
   const navigate = useNavigate();
-
-  const qc =useQueryClient()
-  const {status: mutationStatus, mutate:mutateOrder } = useMutation({
-    mutationFn: async function ({
-      status,
-      orderId,
-    }: {
-      status: string;
-      orderId: string;
-    }) {
-
-        const url = "/api/v2/order/update-order-status-admin/" + orderId;
-
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (!res.ok) throw new Error();
-
-      return null;
-    },
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["seller-order-detail"] });
-      await qc.invalidateQueries({
-        queryKey: ["seller-orders"],
-        refetchType: "all",
-      });
-      toast.success("Order updated successfully!");
-    },
-    onError: () => {
-      toast.error("Something went wrong!");
-    },
-  });
+  const { mutationStatus, mutateOrder } = useSellerOrderMutation();
   const [status, setStatus] = useState("");
 
   const getOptionsForStatus = () => {
     const statuses = {
       default: [
-        "Processing",
         "Packed",
         "Shipped",
         // "Received",
@@ -99,8 +59,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
-      <section className="flex justify-between items-center">
-        <OrderPaymentViewDialog paymentData={data.paymentFile } />
+      <section className="flex justify-end items-center">
         <Button
           variant="outline"
           onClick={() => handleDownloadInvoice(orderId)}
@@ -207,8 +166,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               <button
                 className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center"
                 onClick={async () =>
-                   mutateOrder({
+                  await mutateOrder({
                     status,
+                    currentStatus: data?.status || "",
                     orderId: orderId || "",
                   })
                 }

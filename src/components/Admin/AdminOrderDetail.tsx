@@ -6,6 +6,7 @@ import { API_URL, BASE_URL } from "@/data";
 import { formatDate } from "../UIComponents/Inputs";
 import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
 import { Button } from "../ui/button";
+import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
 
 type AdminOrderDetailProps = {
   data: Order;
@@ -18,7 +19,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
 
   const getOptionsForStatus = () => {
     const statuses = {
-      default: ["Paid","Shipped", "Delivered"],
+      default: ["Processing"],
       refund: ["Processing refund", "Refund Success"],
     };
 
@@ -29,7 +30,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     return statuses.default;
   };
 
-    const handleDownloadInvoice = async (orderId: string | undefined) => {
+  const handleDownloadInvoice = async (orderId: string | undefined) => {
     if (!orderId) return;
     try {
       const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
@@ -50,7 +51,8 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
-      <section className="flex justify-end items-center">
+      <section className="flex justify-between items-center">
+        <OrderPaymentViewDialog paymentData={data.paymentFile} />
         <Button
           variant="outline"
           onClick={() => handleDownloadInvoice(orderId)}

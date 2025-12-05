@@ -174,7 +174,7 @@ export async function getAdminOrderDetails(orderId?: string) {
   return data;
 }
 
-export function useAdminOrderMutation() {
+export function useAdminOrderMutation(onSuccessFn?:()=>void) {
   const qc = useQueryClient();
 
   const { status: mutationStatus, mutateAsync: mutateOrder } = useMutation({
@@ -185,7 +185,7 @@ export function useAdminOrderMutation() {
       status: string;
       orderId: string;
     }) {
-      let url = "/api/v2/order/update-order-status-admin/" + orderId;
+      const url = "/api/v2/order/update-order-status-admin/" + orderId;
 
       const res = await fetch(url, {
         method: "PUT",
@@ -207,6 +207,10 @@ export function useAdminOrderMutation() {
         queryKey: ["admin-all-orders"],
       });
       toast.success("Order updates successfully!");
+
+      if(onSuccessFn){
+        onSuccessFn()
+      }
     },
     onError: () => {
       toast.error("Something went wrong!");

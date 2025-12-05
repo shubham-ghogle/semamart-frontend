@@ -15,9 +15,13 @@ const Orderpage = () => {
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [timeFilters, setTimeFilters] = useState<string[]>([]);
 
-  const{data:orders,status:loading,error } =useQuery({
-    queryKey:["user-orders",user?._id],
-    queryFn:async()=>{
+  const {
+    data: orders,
+    status: loading,
+    error,
+  } = useQuery({
+    queryKey: ["user-orders", user?._id],
+    queryFn: async () => {
       if (!user?._id) throw new Error();
       const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
       const data = await res.json();
@@ -27,8 +31,8 @@ const Orderpage = () => {
       } else {
         throw new Error(data.message || "Failed to fetch orders.");
       }
-    }
-  })
+    },
+  });
 
   // Normalize image (handles relative filenames & URLs)
   const normalizeImage = (src?: string | null) => {
@@ -182,13 +186,15 @@ const Orderpage = () => {
 
           {/* Error */}
           {error && (
-            <p className="text-red-600 mb-6 font-medium text-center">{error.message}</p>
+            <p className="text-red-600 mb-6 font-medium text-center">
+              {error.message}
+            </p>
           )}
 
           {/* Loading / Error / Empty */}
-          {loading==="pending" ? (
+          {loading === "pending" ? (
             <p className="text-center text-gray-600">Loading orders...</p>
-          ) : loading==="error" ? (
+          ) : loading === "error" ? (
             <p className="text-red-600 text-center">{error.message}</p>
           ) : filteredOrders?.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -288,7 +294,9 @@ const Orderpage = () => {
                                 : "bg-yellow-500"
                           }`}
                         ></span>
-                        {order.status}
+                        {order.status === "Paid"
+                          ? "Waiting for payment verification"
+                          : order.status}
                       </div>
 
                       {order.status === "Delivered" && (
