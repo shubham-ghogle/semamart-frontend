@@ -115,6 +115,7 @@ export interface Product {
   commissionHistory?: { commission: number; updatedAt: string }[];
   visibilityBySeller: boolean;
   visibilityByAdmin: boolean;
+  brand?: string;
 }
 
 export type Address = {

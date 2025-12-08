@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useNavigate } from "react-router-dom";
 import { Order, Product, Variant } from "@/Types/types";

@@ -50,7 +50,6 @@ import ProductBasedOnType from "./components/ui/ProductBasedOnType";
 import AllUserScreen from "./Screens/Admin/AllUserScreen";
 import ProductBasedOnSpecialPackagetypes from "./components/ui/ProductBasedOnSpecialPackagetypes";
 import ProductBasedOnSpecialPackage from "./components/ui/ProductBasedOnSpecialPackage";
-import OrderPage from "./components/Layouts/OrderLayout";
 import { requireSellerAuth } from "./Screens/Seller/Seller.Hooks";
 import MyOrderPage from "./components/Account/Orderpage";
 import AdminSellerProductScreen from "./Screens/Admin/AdminSellerProductScreen";
