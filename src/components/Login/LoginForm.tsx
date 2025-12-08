@@ -41,24 +41,15 @@ export default function LoginForm() {
   });
 
   const sellerMutation = useMutation({
-    mutationFn: postSeller,
-    onSuccess: (data: any) => {
-      // backend returns { success: true, seller: {...}, token }
-      // or sometimes { success: true, user: seller } depending on endpoint - check both
-      const maybeSeller = data?.seller ?? data?.user;
-      if (!maybeSeller) {
-        console.error("postSeller returned unexpected shape:", data);
-        loginFailureToast("Login failed (unexpected response)");
-        return;
-      }
-      addSeller(maybeSeller as Seller);
-      navigate("/seller");
-    },
-    onError: (err: any) => {
-      console.error("Seller login error:", err);
-      loginFailureToast(err?.message || "Login failed");
-    },
-  });
+     mutationFn: postSeller,
+     onSuccess: (data) => {
+       addSeller(data.user);
+       navigate("/seller");
+     },
+     onError: (a) => {
+       loginFailureToast(a.message);
+     },
+   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
