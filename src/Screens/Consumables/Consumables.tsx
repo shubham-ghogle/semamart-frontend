@@ -3,9 +3,10 @@ import { getProducts } from "./Consumables.Hooks";
 import ImageSliderHome from "../../components/Homepage/ImageSliderHome";
 import PopularCategories from "../../components/Homepage/PopularCategories";
 import BestSellerShowcase from "../../components/Homepage/BestSellerShowcase";
-import PromoBanners from "@/components/Homepage/PromoBanner";
+// import PromoBanners from "@/components/Homepage/PromoBanner";
 import { GiCrown } from "react-icons/gi"; // optional
 import { FaShippingFast } from "react-icons/fa"; 
+import BannerSection from "@/components/Homepage/BanerSection";
 
 export default function Consumables() {
   const {
@@ -52,10 +53,11 @@ export default function Consumables() {
   textColor="#04263a"
   maxItems={8}
 />
-       <PromoBanners
+       {/* <PromoBanners
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
-       />
+       /> */}
+        <BannerSection/>
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -84,10 +86,11 @@ export default function Consumables() {
   textColor="#04263a"
   maxItems={8}
 />
-       <PromoBanners
+       {/* <PromoBanners
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
-       />
+       /> */}
+        <BannerSection/>
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -116,11 +119,11 @@ export default function Consumables() {
   textColor="#04263a"
   maxItems={8}
 />
-       <PromoBanners
+       {/* <PromoBanners
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
-       />
-       
+       /> */}
+       <BannerSection/>
 
         {/* Most Popular (regular product showcase row) */}
         {/* <div>

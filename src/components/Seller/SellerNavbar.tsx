@@ -10,6 +10,8 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import SidebarNavlinks from "./SidebarNavlinks";
+import { MdStorefront } from "react-icons/md";
+
 
 export default function SellerNavbar() {
   const seller = useSellerStore((s) => s.seller);
@@ -117,6 +119,7 @@ export default function SellerNavbar() {
             <SidebarNavlinks icon={<TiDocumentAdd />} to="/seller/add-product" label="Add Product" />
             <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="All Products" />
             <SidebarNavlinks icon={<CiDeliveryTruck />} to="/seller/orders" label="All Orders" />
+            <SidebarNavlinks icon={<MdStorefront />}    to={`/shop/${seller?._id}`} external label="My Shop" />
 
             <div className="mt-6 pt-4 px-3">
               <button
@@ -178,6 +181,8 @@ export default function SellerNavbar() {
             <SidebarNavlinks icon={<TiDocumentAdd />} to="/seller/add-product" label="Add Product" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="All Products" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<CiDeliveryTruck />} to="/seller/orders" label="All Orders" onClick={() => setOpen(false)} />
+            <SidebarNavlinks icon={<MdStorefront />}    to={`/shop/${seller?._id}`} label="My Shop" />
+           
 
             <div className="mt-6 pt-4 px-3">
               <button

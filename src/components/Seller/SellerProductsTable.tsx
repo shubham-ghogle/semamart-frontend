@@ -1,7 +1,7 @@
 import { API_URL, BASE_URL } from "@/data";
 import { Product } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { AiOutlineEye } from "react-icons/ai";
+import { AiOutlineEdit, AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { DataTable } from "../ui/data-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
 import { useSellerStore } from "@/store/sellerStore";
+import { FaRupeeSign } from "react-icons/fa";
+
 
 type VariantRow = {
   id: string;
@@ -123,34 +125,54 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
     },
     {
       accessorKey: "commission",
-      header: "Commission Amount",
-      cell: ({ row }) => <p>{row.original.commission}</p>,
-    },
-    {
-      id: "action",
-      header: "Actions",
+      header: () => (
+        <div className="flex items-center gap-1">
+         
+          Commission <FaRupeeSign size={14} />
+        </div>
+      ),
       cell: ({ row }) => (
-        <Link to={`view/${row.original.productId}`}>
-          <AiOutlineEye size={20} />
-        </Link>
+        <div className="flex items-center gap-1">
+        
+          {row.original.commission}  <FaRupeeSign size={14} />
+        </div>
       ),
     },
-  ];
 
-  const qc = useQueryClient();
-  const { mutate: mutateVisibility, status } = useMutation({
-    mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
-      updateVisibility(data.proIds, data.isVisible),
-    onSuccess: async () => {
-      qc.invalidateQueries({
-        queryKey: ["seller-products", seller?._id],
-      });
+        {
+            id: "action",
+            header: "Actions",
+            cell: ({ row }) => (
+              <div className="flex gap-4">
+                {/* Edit button */}
+                <Link to={`edit/${row.original.productId}`}>
+                  <AiOutlineEdit size={20} className="text-blue-500" />
+                </Link>
+
+                {/* View/Preview button */}
+                <Link to={`view/${row.original.productId}`}>
+                  <AiOutlineEye size={20} className="text-gray-500" />
+                </Link>
+              </div>
+            ),
+          },
+
+      ];
+
+      const qc = useQueryClient();
+      const { mutate: mutateVisibility, status } = useMutation({
+        mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
+          updateVisibility(data.proIds, data.isVisible),
+        onSuccess: async () => {
+          qc.invalidateQueries({
+            queryKey: ["seller-products", seller?._id],
+          });
+        },
+      onError(error: any) {
+      const msg = error?.message || "Failed to update visibility";
+      toast.error(msg);
+      qc.invalidateQueries({ queryKey: ["seller-products", seller?._id] });
     },
-   onError(error: any) {
-  const msg = error?.message || "Failed to update visibility";
-  toast.error(msg);
-  qc.invalidateQueries({ queryKey: ["seller-products", seller?._id] });
-},
   });
 
   return (

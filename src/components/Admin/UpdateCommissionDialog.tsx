@@ -10,7 +10,7 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Clipboard } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
@@ -61,7 +61,7 @@ export default function UpdateCommissionDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon">
-          <Clipboard />
+         <FaRupeeSign  />
         </Button>
       </DialogTrigger>
       {open && (

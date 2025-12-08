@@ -68,6 +68,8 @@ import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
 import Term from "./components/Footer/Term";
 import AdminProduct from "./components/Admin/AllProducts/AdminProducts";
 import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
+import AdminSellerAccount from "./components/Admin/AdminSellerAccount";
+import AdminImageUploader from "./components/Admin/AdminImageUploader";
 
 /**
  * redirectToDashboard loader
@@ -325,10 +327,12 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen /> },
+      { path: "img-upload", element: <AdminImageUploader /> },
       {
         path: "sellers",
         children: [
           { index: true, element: <AllSellerScreen /> },
+          {path: "profile/:sellerId", element:<AdminSellerAccount /> },
           {
             path: ":sellerId",
             children: [
@@ -362,7 +366,10 @@ export const router = createBrowserRouter([
         path: "products",
         children: [
           { index: true, element: <SellerAllProductsScreen /> },
-          { path: "view/:id", element: <ViewProductScreen /> },
+          { path: "edit/:id", element: <ViewProductScreen /> },
+          { path: "view/:id", element: <ProductLayout />,
+            children: [{ index: true, element: <ProductDetails /> }],
+          },
         ],
       },
       {

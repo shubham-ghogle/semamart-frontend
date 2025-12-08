@@ -110,7 +110,8 @@ export default function AdminNavbar() {
             <SidebarNavlinks icon={<LuMessageSquare />} to="/admin/requests" label="Requests" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/sellers" label="All Sellers" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/users" label="All Users" />
-                        <SidebarNavlinks icon={<GrWorkshop />} to="/admin/products" label="All Products" />
+            <SidebarNavlinks icon={<GrWorkshop />} to="/admin/products" label="All Products" />
+            <SidebarNavlinks icon={<GrWorkshop />} to="/admin/img-upload" label="Image Upload" />
 
 
             <div className="mt-6 pt-4 px-3">

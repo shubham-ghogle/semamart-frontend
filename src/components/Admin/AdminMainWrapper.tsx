@@ -1,5 +1,6 @@
 // src/components/Admin/AdminMainWrapper.tsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 type Status = "pending" | "success" | "error";
 
@@ -14,6 +15,11 @@ export default function AdminMainWrapper({
   errorMeassage?: string;
   heading?: string;
 }) {
+  const navigate = useNavigate();
+
+  // Show back button only for "Products" heading
+  const showBackButton = heading === "Products";
+
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
       <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
@@ -23,13 +29,26 @@ export default function AdminMainWrapper({
             <p className="text-sm text-gray-500 mt-1">Manage the Admin account</p>
           </div>
 
-          {/* optional status area (commented UI for compact badges if you want later)
           <div className="flex items-center gap-3">
-            {status === "pending" && <InlineFlash text="Loading…" />}
-            {status === "success" && <InlineFlash text="Loaded" tone="success" />}
-            {status === "error" && <InlineFlash text="Error" tone="error" />}
+            {showBackButton && (
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Go Back
+              </button>
+            )}
           </div>
-          */}
         </div>
 
         <div className="p-5 sm:p-6 space-y-5 max-h-[calc(100vh-160px)] sm:max-h-none overflow-auto">

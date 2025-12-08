@@ -2,7 +2,7 @@ import { Seller } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { EyeIcon, Trash } from "lucide-react";
+import { EyeIcon, UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 
 type Row = {
@@ -67,7 +67,7 @@ export default function AdminSellerTable({
       header: "Actions",
       cell: ({ row }) => (
         <article className="flex gap-4">
-          <Button
+          {/* <Button
             onClick={() => {
               row.original.deleteSeller(row.original.id);
             }}
@@ -75,6 +75,15 @@ export default function AdminSellerTable({
             size="icon"
           >
             <Trash />
+          </Button> */}
+          <Button
+            onClick={() => {
+              navigate(`/admin/sellers/profile/${row.original.id}`);
+            }}
+            variant="outline"
+            size="icon"
+          >
+            <UserIcon />
           </Button>
           <Button
             onClick={() => {
