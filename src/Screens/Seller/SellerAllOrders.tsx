@@ -13,7 +13,7 @@ export default function SellerAllOrders() {
   const errMess = "Something went wrong"
 
 
-  return <SellerMainWrapper status={status} errorMeassage={errMess} heading="Orders">
+  return <SellerMainWrapper status={status} errorMessage={errMess} heading="Orders">
     {orders && (
       <SellerOrderTable orders={orders} />
     )}

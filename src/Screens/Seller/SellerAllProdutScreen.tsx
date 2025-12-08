@@ -17,7 +17,7 @@ export default function SellerAllProductsScreen() {
   return (
     <SellerMainWrapper
       status={status}
-      errorMeassage={errMess}
+      errorMessage={errMess}
       heading="Products"
     >
       {data && (

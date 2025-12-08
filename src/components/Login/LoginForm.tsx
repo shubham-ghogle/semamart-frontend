@@ -9,7 +9,7 @@ import { useSellerStore } from "../../store/sellerStore";
 import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
 import { loginFailureToast } from "../UIComponents/Toasts";
 import { Logo } from "../UIComponents/Logo";
-import type { User, Seller } from "../../Types/types";
+import type { User } from "../../Types/types";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -43,7 +43,7 @@ export default function LoginForm() {
   const sellerMutation = useMutation({
      mutationFn: postSeller,
      onSuccess: (data) => {
-       addSeller(data.user);
+       addSeller(data.seller);
        navigate("/seller");
      },
      onError: (a) => {

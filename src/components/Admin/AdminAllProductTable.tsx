@@ -9,7 +9,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Switch } from "../ui/switch";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { toast } from "react-toastify";
-import { FaRupeeSign } from "react-icons/fa";
 
 type VariantRow = {
   id: string;
@@ -156,13 +155,13 @@ export default function AdminAllProductTable({
   accessorKey: "commission",
   header: () => (
     <span className="flex items-center gap-1">
-     Commission   
+     Commission
     </span>
   ),
   cell: ({ row }) => (
     <span className="flex items-center gap-1">
-    
-      {row.original.commission}  
+
+      {row.original.commission}
     </span>
   ),
 },

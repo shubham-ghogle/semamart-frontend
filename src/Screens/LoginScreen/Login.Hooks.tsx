@@ -17,7 +17,7 @@ type PostUserApiResponse = {
 
 type PostSellerApiResponse = {
   success: boolean;
-  seller?: Seller; // <-- corrected field name
+  seller: Seller; // <-- corrected field name
   token?: string;
   message?: string;
 };
