@@ -17,9 +17,7 @@ type PostUserApiResponse = {
 
 type PostSellerApiResponse = {
   success: boolean;
-  seller: Seller; // <-- corrected field name
-  token?: string;
-  message?: string;
+  user: Seller; // <-- corrected field name
 };
 
 export async function postUser(userData: UserData) {
@@ -57,8 +55,8 @@ export async function postSeller(userData: UserData) {
       body: JSON.stringify(userData),
     });
     const data = (await res.json()) as PostSellerApiResponse;
-    if (!res.ok) throw new Error(data.message);
-    if (!data.success) throw new Error(data.message);
+    if (!res.ok) throw new Error(res.statusText);
+    if (!data.success) throw new Error(res.statusText);
     return data;
   } catch {
     throw new Error("Something went wrong");
