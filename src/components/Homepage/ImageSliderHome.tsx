@@ -1,15 +1,5 @@
 import { useEffect, useState } from "react";
 
-/**
- * ImageSliderHome — robust slider
- *
- * Fixes transform math by moving the track in whole container widths:
- *  - each slide is flex: 0 0 100%
- *  - track transform: translateX(-current * 100%)
- *
- * Also adds a small console.debug so you can confirm current index.
- */
-
 const sliderImages = [
   "/Cover%20Photo/2.png",
   "/Cover%20Photo/4.png",
@@ -28,7 +18,6 @@ export default function ImageSliderHome() {
     return () => clearInterval(t);
   }, [total]);
 
-  // debug — remove in production if you want
   useEffect(() => {
     console.debug("[ImageSliderHome] current index:", current);
   }, [current]);
@@ -38,17 +27,27 @@ export default function ImageSliderHome() {
 
   return (
     <section className="w-full px-6 py-6">
+      {/* Mobile scaling logic */}
+      <style>{`
+        @media (max-width: 767px) {
+          .promo-tile {
+            width: calc((100vw - 64px) / 2);
+            height: calc(((100vw - 64px) / 2) * (550 / 450));
+            max-height: 50vh;
+          }
+        }
+      `}</style>
+
       <div className="max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
+
           {/* LEFT: LARGE SLIDER */}
           <div className="relative rounded-xl overflow-hidden bg-white shadow-lg h-[40vh] sm:h-[42vh] lg:h-[44vh] group">
-            {/* slider track */}
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{
-                // no explicit width required if each slide is flex: 0 0 100%
                 transform: `translateX(-${current * 100}%)`,
-                width: `${total * 100}%`, // optional, still okay to keep
+                width: `${total * 100}%`,
               }}
             >
               {sliderImages.map((src, i) => (
@@ -61,39 +60,37 @@ export default function ImageSliderHome() {
                     src={src}
                     alt={`hero-${i}`}
                     className="w-full h-full object-cover"
-                    onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                     loading="lazy"
+                    onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                   />
                 </div>
               ))}
             </div>
 
-            {/* arrows: become visible only when hovering the big card (.group:hover) */}
+            {/* arrows */}
             <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
               <button
                 onClick={prev}
                 aria-label="previous"
-                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:-translate-x-0 -translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
-                style={{ WebkitTapHighlightColor: "transparent" }}
+                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:-translate-x-0 -translate-x-1 hover:scale-105 bg-white rounded-full p-2 shadow-md"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
-                  <path d="M15 6L9 12L15 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 6L9 12L15 18" stroke="#2b2b2b" strokeWidth="1.8" />
                 </svg>
               </button>
 
               <button
                 onClick={next}
                 aria-label="next"
-                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:translate-x-0 translate-x-1 hover:scale-105 focus:scale-105 bg-white rounded-full p-2 shadow-md"
-                style={{ WebkitTapHighlightColor: "transparent" }}
+                className="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 transform group-hover:translate-x-0 translate-x-1 hover:scale-105 bg-white rounded-full p-2 shadow-md"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-gray-700">
-                  <path d="M9 6L15 12L9 18" stroke="#2b2b2b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 6L15 12L9 18" stroke="#2b2b2b" strokeWidth="1.8" />
                 </svg>
               </button>
             </div>
 
-            {/* pilled dots indicator (centered bottom) */}
+            {/* dots */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
               <div className="bg-white/95 px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
                 {sliderImages.map((_, i) => (
@@ -110,27 +107,49 @@ export default function ImageSliderHome() {
             </div>
           </div>
 
-          {/* RIGHT SMALL BANNERS */}
+          {/* ===== MOBILE TWO-UP BANNERS ===== */}
+          <div className="grid grid-cols-2 gap-4 block md:hidden mt-0">
+            {[rightImageA, rightImageB].map((img, i) => (
+              <a
+                key={`m-${i}`}
+                className="block rounded-xl overflow-hidden shadow-md promo-tile"
+                href="#"
+              >
+                <img
+                  src={img}
+                  alt={`mobile-promo-${i}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                />
+              </a>
+            ))}
+          </div>
+
+          {/* ===== DESKTOP VERTICAL BANNERS (UNCHANGED) ===== */}
           {[rightImageA, rightImageB].map((img, i) => (
             <div
-              key={img + "-" + i}
-              className="group relative rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh] transition-shadow duration-300 hover:shadow-xl"
+              key={`d-${i}`}
+              className="hidden md:block group relative rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh] transition-shadow duration-300 hover:shadow-xl"
             >
               <a
                 href="#"
                 aria-label={`promo-${i}`}
-                className="block w-full h-full transform-gpu transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105 cursor-pointer"
+                className="block w-full h-full transform-gpu duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105"
               >
                 <img
                   src={img}
                   alt={`promo-${i}`}
-                  className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1 will-change-transform"
-                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                  className="w-full h-full object-cover object-right"
                   loading="lazy"
+                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                  width={450}
+                  height={550}
                 />
               </a>
             </div>
           ))}
+
         </div>
       </div>
     </section>

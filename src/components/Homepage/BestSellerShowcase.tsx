@@ -10,41 +10,33 @@ type Props = {
   products: Product[];
   status: Status;
 
-  /** Dynamic pieces */
   title?: string;
   badgeText?: string;
   subText?: string;
   icon?: React.ReactNode;
 
-  /** Colors (can be any valid CSS color) */
-  bgFrom?: string; // left/top gradient color
-  bgTo?: string; // right/bottom gradient color
-  iconBg?: string; // background color of the icon square
-  accentBg?: string; // badge background
-  textColor?: string; // primary text color in the left column
+  bgFrom?: string;
+  bgTo?: string;
+  iconBg?: string;
+  accentBg?: string;
+  textColor?: string;
 
-  /** Layout tweaks */
-  maxItems?: number; // how many items to show (default 12)
-
-  /** View all button link (optional). Defaults to /products when not provided */
+  maxItems?: number;
   viewAllLink?: string;
 };
 
 export default function BestSellerShowcase({
   products,
   status,
-
   title = "Best Seller",
   badgeText = "Guaranteed discounts",
   subText = "Shop from our top-selling items.",
   icon,
-
   bgFrom = "#2a0450",
   bgTo = "#2a0450",
   iconBg = "#fbbf24",
   accentBg = "#ec4899",
   textColor = "#ffffff",
-
   maxItems = 12,
   viewAllLink = "/products",
 }: Props) {
@@ -53,8 +45,6 @@ export default function BestSellerShowcase({
 
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
-
-  // left arrow position in px from section left (computed)
   const [leftArrowLeft, setLeftArrowLeft] = useState<number>(20);
 
   const items = useMemo(() => {
@@ -62,26 +52,19 @@ export default function BestSellerShowcase({
     return arr.slice(0, maxItems);
   }, [products, maxItems]);
 
-  // checks whether left/right arrows should be shown and positions the left arrow
   useEffect(() => {
     const el = scrollRef.current;
     const section = sectionRef.current;
-    if (!el || !section) {
-      setShowLeft(false);
-      setShowRight(false);
-      return;
-    }
+    if (!el || !section) return;
 
-    const checkScrollAndMeasure = () => {
+    const check = () => {
       const maxScroll = Math.max(el.scrollWidth - el.clientWidth, 0);
       setShowLeft(el.scrollLeft > 5);
-      setShowRight(el.scrollLeft < maxScroll - 1);
+      setShowRight(el.scrollLeft < maxScroll - 5);
 
-      // position the left arrow at the left edge of the scroll container (where cards start)
       try {
         const sectionRect = section.getBoundingClientRect();
         const scrollRect = el.getBoundingClientRect();
-        // small padding so the arrow doesn't touch exactly the card's border
         const left = Math.max(8, Math.round(scrollRect.left - sectionRect.left + 8));
         setLeftArrowLeft(left);
       } catch {
@@ -89,188 +72,161 @@ export default function BestSellerShowcase({
       }
     };
 
-    // initial
-    checkScrollAndMeasure();
-
-    // listeners
-    el.addEventListener("scroll", checkScrollAndMeasure, { passive: true });
-    const ro = new ResizeObserver(checkScrollAndMeasure);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = new ResizeObserver(check);
     ro.observe(el);
     ro.observe(section);
-    window.addEventListener("resize", checkScrollAndMeasure);
+    window.addEventListener("resize", check);
 
     return () => {
-      el.removeEventListener("scroll", checkScrollAndMeasure);
+      el.removeEventListener("scroll", check);
       ro.disconnect();
-      window.removeEventListener("resize", checkScrollAndMeasure);
+      window.removeEventListener("resize", check);
     };
-    // note: items.length influences layout; we intentionally watch it in the outer hook deps
   }, [items.length]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    // adaptive amount: most of visible area (keyboard-friendly)
     const amount = Math.max(Math.round(el.clientWidth * 0.72), 300);
     el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
-  if (status === "pending") {
+  if (status === "pending")
     return (
-      <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div
-          className="rounded-2xl p-8 text-white"
-          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
-        >
+      <section className="w-full mb-12">
+        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
           <div className="text-lg font-semibold">Loading Best Sellers…</div>
         </div>
       </section>
     );
-  }
 
-  if (status === "error") {
+  if (status === "error")
     return (
-      <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div
-          className="rounded-2xl p-8 text-red-200"
-          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
-        >
+      <section className="w-full mb-12">
+        <div className="rounded-2xl p-8 text-red-200" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
           <div className="text-lg font-semibold">Failed to load best sellers.</div>
         </div>
       </section>
     );
-  }
 
-  if (items.length === 0) {
+  if (items.length === 0)
     return (
-      <section className="w-full mb-12" style={{ fontFamily: "var(--font-sans)" }}>
-        <div
-          className="rounded-2xl p-8 text-white"
-          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
-        >
+      <section className="w-full mb-12">
+        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
           <div className="text-lg">No best sellers found.</div>
         </div>
       </section>
     );
-  }
 
   return (
-    // Make section relative & overflow-visible so arrows can sit outside the rounded box
     <section ref={sectionRef} className="w-full max-w-[1400px] mx-auto mb-16 relative overflow-visible">
-      {/* Rounded content box: keep overflow-hidden so the rounded corners stay crisp */}
+      {/* Rounded content box */}
       <div
-        className="rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-5 items-start overflow-hidden"
+        className="
+          rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row 
+          gap-6 md:gap-5 items-start overflow-hidden
+        "
         style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
       >
-        {/* Left info column - full width on mobile, fixed width on md+ */}
-        <div className="flex-shrink-0 w-full md:w-56" style={{ color: textColor }}>
-          <div className="flex items-center gap-3">
+        {/* LEFT BLOCK — improved on mobile */}
+        <div
+          className="
+            flex-shrink-0 w-full md:w-56
+            text-center md:text-left
+            flex flex-col items-center md:items-start
+            gap-3
+          "
+          style={{ color: textColor }}
+        >
+          <div className="flex items-center gap-3 md:gap-2">
             <div
               className="w-12 h-12 rounded-lg flex items-center justify-center shadow"
               style={{ background: iconBg }}
               aria-hidden
             >
-              {icon ?? (
-                <svg
-                  width="20"
-                  height="16"
-                  viewBox="0 0 24 18"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
-                >
-                  <path d="M2 14L6 6L10 14L14 4L18 14L22 6V16H2V14Z" fill="#3B0B68" />
-                </svg>
-              )}
+              {icon}
             </div>
 
-            <div>
-              <h3 className="text-2xl font-extrabold leading-tight" style={{ color: textColor }}>
-                {title}
-              </h3>
-            </div>
+            <h3 className="text-2xl font-extrabold leading-tight">{title}</h3>
           </div>
 
-          <div className="mt-3 md:mt-4">
-            <div
-              className="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm font-semibold"
-              style={{ background: accentBg }}
-            >
-              <span className="text-xs">₹</span>
-              <span>{badgeText}</span>
-            </div>
+          <div
+            className="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm font-semibold"
+            style={{ background: accentBg }}
+          >
+            <span className="text-xs">₹</span>
+            {badgeText}
           </div>
 
-          <p className="mt-4 text-sm" style={{ color: `${lightenHex(textColor, 0.25)}` }}>
-            {subText}
+          <p className="mt-1 text-sm opacity-90">{subText}</p>
+
+          {/* CTA optimized for mobile */}
+          <a
+            href={viewAllLink}
+            className="
+              mt-3 md:mt-4
+              w-full md:w-auto
+              inline-flex items-center justify-center
+              px-5 py-3 rounded-xl font-semibold
+              text-sm md:text-base
+              shadow-md transition-transform duration-200
+              hover:scale-[1.03] active:scale-[0.97]
+            "
+            style={{ background: accentBg, color: textColor }}
+          >
+            View All →
+          </a>
+
+          <p className="text-xs mt-1 opacity-80 md:hidden" style={{ color: textColor }}>
+            Swipe → to explore products
           </p>
-
-          {/* VIEW ALL button: responsive (full-width on mobile, inline on md+) */}
-          <div className="mt-5 md:mt-6">
-            <a
-              href={viewAllLink}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition-transform duration-150 focus:outline-none focus:ring-4"
-              style={{
-                background: accentBg,
-                color: textColor,
-                width: "100%",
-                display: "inline-flex",
-                textDecoration: "none",
-                justifyContent: "center",
-              }}
-              aria-label="View all best sellers"
-            >
-              View All
-            </a>
-          </div>
         </div>
 
-        {/* Right area */}
+        {/* RIGHT SWIPER */}
         <div className="relative flex-1 w-full">
           <div
             ref={scrollRef}
-            className="flex gap-4 py-3 px-4 md:py-2 md:px-6 overflow-x-auto scroll-smooth items-start snap-x snap-mandatory md:snap-none"
-            style={{
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-              paddingRight: 96,
-              scrollPaddingRight: 96,
-            }}
+            className="
+              flex gap-4 py-3 px-3 md:px-6 
+              overflow-x-auto scroll-smooth items-start 
+              snap-x snap-mandatory md:snap-none
+            "
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            <style>{`div::-webkit-scrollbar{ display: none !important; }`}</style>
+            <style>{`div::-webkit-scrollbar { display: none !important; }`}</style>
 
             {items.map((p) => (
               <div
                 key={p._id}
-                // responsive card sizing:
-                // - mobile: near full width snap card (w-[calc(100%-48px)] up to max-w-[420px])
-                // - md+: fixed card width (220px) so many cards don't overflow the viewport
-                className="flex-shrink-0 snap-center md:snap-start w-[calc(100%-24px)] max-w-[520px] md:w-[220px] md:max-w-[220px] min-w-0"
+                className="
+                  flex-shrink-0 snap-center md:snap-start
+                  w-[82vw] max-w-[320px]
+                  md:w-[220px] md:max-w-[220px]
+                  min-w-0
+                "
               >
-                <div className="bs-hover" style={{ willChange: "transform, box-shadow" }}>
+                <div className="bs-hover">
                   <ProductCard product={p} />
                 </div>
               </div>
             ))}
-
-            {/* end spacer: make it at least one card wide so final card never touches container edge */}
             <div style={{ minWidth: 240 }} aria-hidden />
           </div>
         </div>
       </div>
 
-      {/* ARROWS: placed as siblings of the rounded box (inside section), so they are not clipped.
-          They are hidden by opacity:0 when not needed (no faint dot). */}
+      {/* ARROWS (desktop only) */}
       <button
         onClick={() => scroll("left")}
         aria-label="scroll left"
-        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30"
+        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow hover:scale-105 transition-opacity"
         style={{
           left: leftArrowLeft,
           zIndex: 60,
           opacity: showLeft ? 1 : 0,
           pointerEvents: showLeft ? "auto" : "none",
-          transform: showLeft ? "translateY(-50%) translateX(0)" : "translateY(-50%) translateX(-6px)",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -281,13 +237,12 @@ export default function BestSellerShowcase({
       <button
         onClick={() => scroll("right")}
         aria-label="scroll right"
-        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/30"
+        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow hover:scale-105 transition-opacity"
         style={{
           right: 20,
           zIndex: 60,
           opacity: showRight ? 1 : 0,
           pointerEvents: showRight ? "auto" : "none",
-          transform: showRight ? "translateY(-50%) translateX(0)" : "translateY(-50%) translateX(6px)",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -295,51 +250,16 @@ export default function BestSellerShowcase({
         </svg>
       </button>
 
+      {/* Hover style */}
       <style>{`
         .bs-hover {
           transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms;
-          display: block;
         }
         .bs-hover:hover {
           transform: translateY(-3px) scale(1.02);
           box-shadow: 0 10px 28px rgba(10,8,20,0.16);
         }
-        .bs-hover > * {
-          width: 100%;
-          max-width: 100%;
-          min-width: 0;
-          display: block;
-        }
-        .bs-hover img {
-          max-width: 100%;
-          height: auto;
-          object-fit: cover;
-          display: block;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bs-hover { transition: none !important; }
-          .bs-hover:hover { transform: none !important; box-shadow: none !important; }
-        }
       `}</style>
     </section>
   );
-}
-
-/**
- * tiny helper to lighten hex colors for the subText color fallback.
- * Accepts hex like #fff or #123456. If parsing fails returns 'rgba(255,255,255,0.85)'.
- */
-function lightenHex(hex: string, amount = 0.2) {
-  try {
-    const h = hex.replace("#", "");
-    const r = parseInt(h.length === 3 ? h[0] + h[0] : h.slice(0, 2), 16);
-    const g = parseInt(h.length === 3 ? h[1] + h[1] : h.slice(2, 4), 16);
-    const b = parseInt(h.length === 3 ? h[2] + h[2] : h.slice(4, 6), 16);
-    const nr = Math.min(255, Math.round(r + (255 - r) * amount));
-    const ng = Math.min(255, Math.round(g + (255 - g) * amount));
-    const nb = Math.min(255, Math.round(b + (255 - b) * amount));
-    return `rgb(${nr} ${ng} ${nb} / 0.85)`;
-  } catch {
-    return "rgba(255,255,255,0.85)";
-  }
 }
