@@ -38,27 +38,34 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
     <section className="w-full mt-8">
       <div className="bg-white rounded-lg shadow-sm border">
         {/* Tab row */}
-        <div role="tablist" aria-label="Product sections" className="overflow-x-auto px-3 py-3 border-b">
-          <div className="flex w-full min-w-[600px] md:min-w-0">
-            {tabs.map((t, i) => {
-              const active = activeTabIdx === i;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setActiveTabIdx(i)}
-                  role="tab"
-                  aria-selected={active}
-                  aria-controls={`tabpanel-${t.id}`}
-                  id={`tab-${t.id}`}
-                  className={`flex-1 text-center min-w-0 px-4 py-2 rounded-full text-sm font-medium transition
-                    ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                >
-                  <span className="inline-block truncate">{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <div
+  role="tablist"
+  aria-label="Product sections"
+  className="overflow-x-auto px-3 py-3 border-b scrollbar-hide"
+  style={{ WebkitOverflowScrolling: "touch" }}
+>
+  <div className="flex gap-2 w-max">
+    {tabs.map((t, i) => {
+      const active = activeTabIdx === i;
+      return (
+        <button
+          key={t.id}
+          onClick={() => setActiveTabIdx(i)}
+          role="tab"
+          aria-selected={active}
+          aria-controls={`tabpanel-${t.id}`}
+          id={`tab-${t.id}`}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap
+            ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
+          `}
+        >
+          {t.label}
+        </button>
+      );
+    })}
+  </div>
+</div>
+
 
         {/* Content */}
         <div className="p-4">
