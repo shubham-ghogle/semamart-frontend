@@ -92,47 +92,52 @@ export default function AddProductForm({
   const navigate = useNavigate();
 
   // --- NORMALIZE incoming product so form always has attributes & brand ---
-// --- NORMALIZE incoming product so form always has attributes & brand ---
-const normalizedProduct = product
-  ? (() => {
-      // ensure attributes is an array
-      const attrs = Array.isArray(product.attributes) ? product.attributes : [];
+  // --- NORMALIZE incoming product so form always has attributes & brand ---
+  const normalizedProduct = product
+    ? (() => {
+        // ensure attributes is an array
+        const attrs = Array.isArray(product.attributes)
+          ? product.attributes
+          : [];
 
-      // normalize brand robustly (string | populated object | ObjectId)
-      const rawBrand = (product as any).brand;
-      let brandVal = "";
+        // normalize brand robustly (string | populated object | ObjectId)
+        const rawBrand = (product as any).brand;
+        let brandVal = "";
 
-      if (rawBrand) {
-        if (typeof rawBrand === "string") {
-          brandVal = rawBrand;
-        } else if (typeof rawBrand === "object") {
-          // populated object (e.g. { _id, name }) OR maybe mongoose ObjectId (which is object but has no name)
-          brandVal = (rawBrand && (rawBrand.name || rawBrand.brand || rawBrand._id)) ? (rawBrand.name || rawBrand.brand || String(rawBrand._id)) : "";
-        } else {
-          brandVal = String(rawBrand);
+        if (rawBrand) {
+          if (typeof rawBrand === "string") {
+            brandVal = rawBrand;
+          } else if (typeof rawBrand === "object") {
+            // populated object (e.g. { _id, name }) OR maybe mongoose ObjectId (which is object but has no name)
+            brandVal =
+              rawBrand && (rawBrand.name || rawBrand.brand || rawBrand._id)
+                ? rawBrand.name || rawBrand.brand || String(rawBrand._id)
+                : "";
+          } else {
+            brandVal = String(rawBrand);
+          }
         }
-      }
 
-      // create normalized product copy
-      return {
-        ...product,
-        attributes: attrs,
-        brand: brandVal,
-      };
-    })()
-  : undefined;
-
+        // create normalized product copy
+        return {
+          ...product,
+          attributes: attrs,
+          brand: brandVal,
+        };
+      })()
+    : undefined;
 
   const categoryDropDownList = categories.map((c) => ({
     label: c.name,
     value: c._id,
   }));
 
- const form = useForm<ProductFormType>({
-  resolver: zodResolver(addProductFormSchema),
-  defaultValues: normalizedProduct ? normalizedProduct : addProductFormDefaultValues,
-});
-
+  const form = useForm<ProductFormType>({
+    resolver: zodResolver(addProductFormSchema),
+    defaultValues: normalizedProduct
+      ? normalizedProduct
+      : addProductFormDefaultValues,
+  });
 
   const isDirty = form.formState.isDirty;
   useBeforeUnload(isDirty);
@@ -239,7 +244,7 @@ const normalizedProduct = product
   const [thumbnail, setThumbnail] = useState<(File | null)[]>([]);
   const handleThumbnailChange = (
     e: ChangeEvent<HTMLInputElement>,
-    i: number
+    i: number,
   ) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -264,7 +269,7 @@ const normalizedProduct = product
   const [images, setImages] = useState<File[]>([]);
   const handleImageChange = (
     e: ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     e.preventDefault();
     if (!e.target.files) return;
@@ -333,7 +338,6 @@ const normalizedProduct = product
   });
 
   function onSubmit(values: z.infer<typeof addProductFormSchema>) {
-
     if (!product) {
       if (thumbnail.length === 0) {
         form.setError("thumbnail" as any, {
@@ -359,16 +363,16 @@ const normalizedProduct = product
           discountPrice: el.discountPrice,
           stock: el.stocks,
           bulkOrders: el.bulkOrders ?? [],
-        }))
-      )
+        })),
+      ),
     );
 
     newForm.append("shopId", seller?._id || "");
     newForm.append("name", values.name);
     // append brand if present
-if (values.brand) {
-  newForm.append("brand", values.brand);
-}
+    if (values.brand) {
+      newForm.append("brand", values.brand);
+    }
 
     values.category.forEach((el) => {
       newForm.append("category", el.val);
@@ -413,20 +417,16 @@ if (values.brand) {
     newForm.append("origin", values.origin);
     newForm.append("shortdescription", values.shortdescription);
     newForm.append("description", values.description);
-   // safe attributes serialization
-const attributesArr = values.attributes || [];
-attributesArr.forEach((v) => {
-  try {
-    newForm.append("attributes", JSON.stringify(v));
-  } catch (err) {
-    newForm.append("attributes", JSON.stringify({ value: String(v) }));
-  }
-});
-
+    // safe attributes serialization
+    if (values.attributes) {
+      values.attributes.forEach((v) => {
+        newForm.append("attributes", JSON.stringify(v));
+      });
+    }
     newForm.append("weight", values.productWgt + " " + values.productWgtUnit);
     newForm.append(
       "dimension",
-      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`
+      `${values.dimension_l}x${values.dimension_h}x${values.dimension_w} ${values.dimensionUnit}`,
     );
     if (values.sterileString) {
       newForm.append("sterile", values.sterileString);
@@ -438,7 +438,7 @@ attributesArr.forEach((v) => {
       JSON.stringify({
         minQty: values.minmaxrule.minQty,
         maxQty: values.minmaxrule.maxQty || "",
-      })
+      }),
     );
     newForm.append("taxStatus", values.taxStatus);
     if (values.taxClass) {
@@ -583,7 +583,7 @@ attributesArr.forEach((v) => {
         onSubmit={form.handleSubmit(onSubmit, (e) => {
           console.log(e);
           const missingThumbnail = thumbnail.some(
-            (t) => t === null || t === undefined
+            (t) => t === null || t === undefined,
           );
           if (missingThumbnail) {
             form.setError("thumbnail" as any, {
@@ -614,8 +614,6 @@ attributesArr.forEach((v) => {
                 )}
               />
 
-
-
               <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
@@ -640,7 +638,7 @@ attributesArr.forEach((v) => {
                             setValue={(value) => {
                               const catName =
                                 categoryDropDownList.find(
-                                  (el) => el.value === value
+                                  (el) => el.value === value,
                                 )?.label || "";
                               setCurrCategory({ name: catName, val: value });
                             }}
@@ -689,7 +687,7 @@ attributesArr.forEach((v) => {
                               setValue={(value) => {
                                 const subCatName =
                                   subCatDropDownList.find(
-                                    (el) => el.value === value
+                                    (el) => el.value === value,
                                   )?.label || "";
                                 setCurrSubcategory({
                                   name: subCatName,
@@ -715,23 +713,23 @@ attributesArr.forEach((v) => {
               </section>
 
               <FormField
-  control={form.control}
-  name="brand"
-  render={({ field }) => (
-    <FormItem>
-      <SubFormLabel>Brand</SubFormLabel>
-      <FormControl>
-        <Input
-          type="text"
-          {...field}
-          className="w-full"
-          placeholder="Brand name (optional)"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+                control={form.control}
+                name="brand"
+                render={({ field }) => (
+                  <FormItem>
+                    <SubFormLabel>Brand</SubFormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        {...field}
+                        className="w-full"
+                        placeholder="Brand name (optional)"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -972,7 +970,7 @@ attributesArr.forEach((v) => {
                                     e.preventDefault();
                                     form.setValue(
                                       "manufacturerName",
-                                      m.manufacturerName
+                                      m.manufacturerName,
                                     );
                                     form.setValue("origin", m.origin);
                                     form.setValue("phone", m.phone);
@@ -1064,84 +1062,91 @@ attributesArr.forEach((v) => {
                 )}
               />
 
-             <FormField
-  control={form.control}
-  name="attributes"
-  render={({ field }) => {
-    const attrs = field.value || [];
-    return (
-      <FormItem>
-        <SubFormLabel>Custom Attributes</SubFormLabel>
-        <FormControl>
-          <>
-            {attrs.map((e, i) => (
-              <div className="flex gap-3 mb-3" key={i}>
-                <Input
-                  value={Object.keys(e)[0]}
-                  readOnly
-                  className="w-2/5"
-                />
-                <Input
-                  value={Object.values(e)[0]}
-                  readOnly
-                  className="w-3/5"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    removeAttri(i);
-                  }}
-                >
-                  <IoRemoveCircle />
-                </Button>
-              </div>
-            ))}
-            <div className="flex gap-3">
-              <Input
-                placeholder="Attribute name"
-                value={currentAttri.key}
-                onChange={(e) => {
-                  setCurrentAttri((p) => ({
-                    ...p,
-                    key: e.target.value,
-                  }));
+              <FormField
+                control={form.control}
+                name="attributes"
+                render={({ field }) => {
+                  const attrs = field.value || [];
+                  return (
+                    <FormItem>
+                      <SubFormLabel>Custom Attributes</SubFormLabel>
+                      <FormControl>
+                        <>
+                          {attrs.map((e, i) => (
+                            <div className="flex gap-3 mb-3" key={i}>
+                              <Input
+                                value={Object.keys(e)[0]}
+                                readOnly
+                                className="w-2/5"
+                              />
+                              <Input
+                                value={Object.values(e)[0]}
+                                readOnly
+                                className="w-3/5"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => {
+                                  removeAttri(i);
+                                }}
+                              >
+                                <IoRemoveCircle />
+                              </Button>
+                            </div>
+                          ))}
+                          <div className="flex gap-3">
+                            <Input
+                              placeholder="Attribute name"
+                              value={currentAttri.key}
+                              onChange={(e) => {
+                                setCurrentAttri((p) => ({
+                                  ...p,
+                                  key: e.target.value,
+                                }));
+                              }}
+                              className="w-1/2"
+                            />
+                            <Input
+                              placeholder="Attribute value"
+                              value={currentAttri.val}
+                              onChange={(e) => {
+                                setCurrentAttri((p) => ({
+                                  ...p,
+                                  val: e.target.value,
+                                }));
+                              }}
+                              className="w-1/2"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => {
+                                if (
+                                  !currentAttri.key?.trim() ||
+                                  !currentAttri.val?.trim()
+                                ) {
+                                  toast.warn(
+                                    "Attribute name and value are required",
+                                  );
+                                  return;
+                                }
+                                addAddtri({
+                                  [currentAttri.key.trim()]:
+                                    currentAttri.val.trim(),
+                                });
+                              }}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        </>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
                 }}
-                className="w-1/2"
               />
-              <Input
-                placeholder="Attribute value"
-                value={currentAttri.val}
-                onChange={(e) => {
-                  setCurrentAttri((p) => ({
-                    ...p,
-                    val: e.target.value,
-                  }));
-                }}
-                className="w-1/2"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  if (!currentAttri.key?.trim() || !currentAttri.val?.trim()) {
-                    toast.warn("Attribute name and value are required");
-                    return;
-                  }
-                  addAddtri({ [currentAttri.key.trim()]: currentAttri.val.trim() });
-                }}
-              >
-                Add
-              </Button>
-            </div>
-          </>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    );
-  }}
-/>
-
 
               <section className="grid grid-cols-1 sm:grid-cols-2 items-end gap-3">
                 <FormField
@@ -1333,7 +1338,7 @@ attributesArr.forEach((v) => {
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -2022,6 +2027,7 @@ async function editProduct(formData: FormData, productId: string) {
   const res = await fetch(API_URL + "product/update-product/" + productId, {
     method: "PUT",
     body: formData,
+    credentials: "include",
   });
 
   if (!res.ok) throw new Error();
@@ -2047,7 +2053,7 @@ function useNavigationBlocker(when: boolean) {
   useEffect(() => {
     if (blocker.state === "blocked") {
       const confirm = window.confirm(
-        "You have unsaved changes. Are you sure you want to leave this page?"
+        "You have unsaved changes. Are you sure you want to leave this page?",
       );
       if (confirm) blocker.proceed();
       else blocker.reset();
