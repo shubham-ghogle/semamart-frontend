@@ -8,8 +8,10 @@ import AddProductForm from "@/components/Seller/AddProductForm";
 import { LoaderIcon } from "lucide-react";
 import { API_URL } from "@/data";
 
+
 export default function ViewProductScreen() {
   const { id } = useParams();
+ 
 
   const { data: product, status } = useQuery({
     queryKey: ["product", id],
@@ -141,8 +143,9 @@ export default function ViewProductScreen() {
   return (
     <SellerMainWrapper
       status={status}
-      errorMeassage="Something went wrong"
+      errorMessage="Something went wrong"
       heading="Product Detail"
+      
     >
       {status === "success" && catStatus === "success" && data && product && (
         <>
@@ -163,5 +166,5 @@ async function getSubcats() {
   const res = await fetch(url);
   if (!res.ok) throw new Error();
   const data = await res.json();
-  return data;
+  return data; 
 }

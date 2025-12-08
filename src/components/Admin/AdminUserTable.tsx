@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { EyeIcon, Trash } from "lucide-react";
+import { EyeIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { User } from "@/Screens/Admin/Admin.HooksAndUtils";
 
@@ -66,7 +66,7 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
       header: "Actions",
       cell: ({ row }) => (
         <article className="flex gap-2">
-          <Button
+          {/* <Button
             onClick={() => {
               row.original.deleteUser(row.original.id);
             }}
@@ -75,7 +75,7 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
             title="Delete user"
           >
             <Trash />
-          </Button>
+          </Button> */}
           <Button
             onClick={() => {
               row.original.viewUser(row.original.id);

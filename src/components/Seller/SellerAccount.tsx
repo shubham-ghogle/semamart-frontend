@@ -1,4 +1,3 @@
-// SellerAccount.tsx
 import React, { useEffect, useState, useRef } from "react";
 import { FaPen, FaTimes, FaCheck, FaSpinner, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSellerStore } from "@/store/sellerStore";
@@ -9,6 +8,7 @@ interface Profile {
   email: string;
   phoneNumber: string;
   businessName: string;
+  businessType?: string;
   gstNumber: string;
   password?: string;
 }
@@ -25,6 +25,7 @@ const SellerAccount: React.FC = () => {
     email: "",
     phoneNumber: "",
     businessName: "",
+    businessType: "",
     gstNumber: "",
     password: "",
   });
@@ -35,6 +36,7 @@ const SellerAccount: React.FC = () => {
     email: false,
     phoneNumber: false,
     businessName: false,
+    businessType: false,
     gstNumber: false,
     password: false,
   });
@@ -45,6 +47,7 @@ const SellerAccount: React.FC = () => {
     email: false,
     phoneNumber: false,
     businessName: false,
+    businessType: false,
     gstNumber: false,
     password: false,
   });
@@ -55,14 +58,13 @@ const SellerAccount: React.FC = () => {
     email: useRef<HTMLInputElement>(null),
     phoneNumber: useRef<HTMLInputElement>(null),
     businessName: useRef<HTMLInputElement>(null),
+    businessType: useRef<HTMLInputElement>(null),
     gstNumber: useRef<HTMLInputElement>(null),
     password: useRef<HTMLInputElement>(null),
   };
 
-  // Modal state for password change
   const [showModal, setShowModal] = useState(false);
 
-  // Password modal state
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -72,18 +74,17 @@ const SellerAccount: React.FC = () => {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
-  // Password visibility states
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Notification state (toast)
   const [notification, setNotification] = useState<{ visible: boolean; type: "success" | "error" | "info"; message: string }>({
     visible: false,
     type: "info",
     message: "",
   });
 
+  // Populate profile from seller store
   useEffect(() => {
     if (seller) {
       setProfile({
@@ -92,16 +93,18 @@ const SellerAccount: React.FC = () => {
         email: seller.email || "",
         phoneNumber: seller.phoneNumber || "",
         businessName: seller.businessName || "",
-        gstNumber: (seller as any).gstNumber || (seller as any).gstNumber || "",
+        businessType: (seller as any).businessType || "",
+        gstNumber: seller.gstNumber || "",
         password: "",
       });
     }
   }, [seller]);
 
+  // Focus input when editing
   useEffect(() => {
     (Object.keys(editing) as EditableField[]).forEach((field) => {
       if (editing[field] && refs[field]?.current) {
-        refs[field]!.current!.focus();
+        refs[field].current!.focus();
       }
     });
   }, [editing]);
@@ -120,17 +123,13 @@ const SellerAccount: React.FC = () => {
 
   const handleCancel = (field: EditableField) => {
     if (!seller) return;
-    // revert to seller value
     setProfile((prev) => ({ ...prev, [field]: (seller as any)[field] || "" }));
     setEditing((prev) => ({ ...prev, [field]: false }));
   };
 
-  // Save a single field: send partial update to backend and update store
   const saveField = async (field: EditableField) => {
     setSaving((prev) => ({ ...prev, [field]: true }));
 
-    // Fields that should not be editable (we keep them read-only): email, phoneNumber, gstNumber
-    // But function can still be called for editable ones: firstName, lastName, businessName
     try {
       if (!seller) throw new Error("Seller not loaded");
 
@@ -138,12 +137,11 @@ const SellerAccount: React.FC = () => {
         firstName: "firstName",
         lastName: "lastName",
         businessName: "businessName",
-        // don't update email/phone/gst from here because they're read-only in UI
+        businessType: "businessType",
       };
 
       const serverKey = allowedServerFieldMap[field];
       if (!serverKey) {
-        // nothing to do (non-editable) — just close edit mode
         setEditing((prev) => ({ ...prev, [field]: false }));
         setSaving((prev) => ({ ...prev, [field]: false }));
         return;
@@ -155,9 +153,7 @@ const SellerAccount: React.FC = () => {
       const res = await fetch("/api/v2/shop/update-seller-info", {
         method: "PUT",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -169,24 +165,18 @@ const SellerAccount: React.FC = () => {
         throw new Error(msg);
       }
 
-      // server returns updated shop (attempt to use returned shop), else refresh store manually
       const updatedShop = body?.shop || body?.seller || null;
 
       if (updatedShop) {
-        // update zustand store
         updateSellerStore(updatedShop);
-        // update local profile
         setProfile((prev) => ({ ...prev, ...updatedShop }));
         showNotification("Profile updated successfully", "success");
       } else {
-        // fallback: apply local changes to store
         updateSellerStore(payload as any);
         showNotification("Profile updated", "success");
       }
     } catch (err: any) {
       console.error("Failed to update seller:", err);
-      // error notification already shown earlier if server returned message,
-      // but show fallback message if none
       if (!notification.visible) showNotification(err.message || "Failed to update profile", "error");
     } finally {
       setEditing((prev) => ({ ...prev, [field]: false }));
@@ -194,7 +184,6 @@ const SellerAccount: React.FC = () => {
     }
   };
 
-  // Password modal handlers
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));
@@ -255,7 +244,6 @@ const SellerAccount: React.FC = () => {
     }
   };
 
-  // Utility to render editable block. For email/phone/gst we make them readOnly & hide edit button.
   const renderEditableField = (
     label: string,
     field: EditableField,
@@ -285,7 +273,6 @@ const SellerAccount: React.FC = () => {
                 <FaPen /> Edit
               </button>
             ) : (
-              // For read-only fields we optionally show a small badge to indicate "read only"
               <div className="text-xs text-gray-500 px-2 py-1 rounded bg-gray-100">Read only</div>
             )}
           </div>
@@ -314,8 +301,9 @@ const SellerAccount: React.FC = () => {
             <p className="text-sm text-gray-500 mt-1">Manage your seller profile and account details.</p>
           </div>
           <div className="text-sm text-gray-500 mt-2 sm:mt-0">
-            Member since {seller?.createdAt ? new Date(seller.createdAt).getFullYear() : "—"}
+            Member since {seller?.createdAt ? new Date(seller.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : "—"}
           </div>
+
         </div>
 
         {/* Profile sections */}
@@ -335,6 +323,7 @@ const SellerAccount: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-700 mt-8 mb-3">Business Information</h2>
           <div className="grid sm:grid-cols-2 gap-6">
             {renderEditableField("Business Name", "businessName", "Enter your business name")}
+            {renderEditableField("Business Type", "businessType", "Enter your business type")}
             {renderEditableField("GST Number", "gstNumber", "Enter your GST number")}
           </div>
 
@@ -346,17 +335,11 @@ const SellerAccount: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <input
-                type={showCurrent ? "text" : "password"}
-                name="currentPassword"
-                placeholder="Current password"
-                value={passwords.currentPassword}
-                onChange={handlePasswordChange}
-                className="w-full rounded-md border px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-sky-300 outline-none pr-10"
+                type="password"
+                value="********"
                 readOnly
+                className="w-full rounded-md border px-3 py-2 text-sm bg-gray-50 focus:bg-white focus:border-sky-300 outline-none pr-10"
               />
-              <button onClick={() => setShowCurrent(!showCurrent)} className="text-gray-500 hover:text-gray-700">
-                {showCurrent ? <FaEyeSlash /> : <FaEye />}
-              </button>
               <button onClick={() => setShowModal(true)} className="ml-3 text-sm text-sky-600 hover:underline">
                 Change Password
               </button>
@@ -365,7 +348,7 @@ const SellerAccount: React.FC = () => {
 
           {/* Password Modal */}
           {showModal && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
               <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg relative">
                 <h3 className="text-lg font-semibold mb-4">Change Password</h3>
                 <button onClick={() => setShowModal(false)} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">

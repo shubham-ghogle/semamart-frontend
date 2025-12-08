@@ -17,14 +17,12 @@ type PostUserApiResponse = {
 
 type PostSellerApiResponse = {
   success: boolean;
-  seller?: Seller; // <-- corrected field name
-  token?: string;
-  message?: string;
+  user: Seller; // <-- corrected field name
 };
 
 export async function postUser(userData: UserData) {
   try {
-    const res = await fetch(API_URL+"user/login-user", {
+    const res = await fetch(API_URL + "user/login-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +46,7 @@ export async function postUser(userData: UserData) {
 
 export async function postSeller(userData: UserData) {
   try {
-    const res = await fetch(API_URL+"shop/login-shop", {
+    const res = await fetch(API_URL + "shop/login-shop", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,23 +54,12 @@ export async function postSeller(userData: UserData) {
       credentials: "include",
       body: JSON.stringify(userData),
     });
-
     const data = (await res.json()) as PostSellerApiResponse;
-    console.debug("postSeller response:", data);
-
-    if (!res.ok) throw new Error(data?.message || "Login failed");
-    if (!data.success) throw new Error(data?.message || "Login failed");
-
-    // ensure we always return { seller, token, success, message } shape
-    return {
-      success: data.success,
-      seller: data.seller ?? null,
-      token: data.token ?? null,
-      message: data.message ?? "",
-    } as PostSellerApiResponse;
-  } catch (err: any) {
-    console.error("postSeller error:", err);
-    throw new Error(err?.message || "Something went wrong");
+    if (!res.ok) throw new Error(res.statusText);
+    if (!data.success) throw new Error(res.statusText);
+    return data;
+  } catch {
+    throw new Error("Something went wrong");
   }
 }
 
@@ -96,7 +83,6 @@ export function getUserFromLocalLoader() {
   // otherwise allow login page to load
   return null;
 }
-
 
 // Protect user routes
 export function requireUserAuth() {

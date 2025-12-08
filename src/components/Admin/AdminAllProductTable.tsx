@@ -1,7 +1,7 @@
 import { Product } from "@/Types/types";
 import { DataTable } from "../ui/data-table";
 import { Link } from "react-router";
-import { AiOutlineEye } from "react-icons/ai";
+import { AiOutlineEdit,  } from "react-icons/ai";
 import { ColumnDef } from "@tanstack/react-table";
 import { API_URL, BASE_URL } from "../../data";
 import UpdateCommissionDialog from "./UpdateCommissionDialog";
@@ -151,7 +151,21 @@ export default function AdminAllProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
-    { accessorKey: "commission", header: "Commission Amount" },
+    {
+  accessorKey: "commission",
+  header: () => (
+    <span className="flex items-center gap-1">
+     Commission
+    </span>
+  ),
+  cell: ({ row }) => (
+    <span className="flex items-center gap-1">
+
+      {row.original.commission}
+    </span>
+  ),
+},
+
     {
       accessorKey: "commissionHistory",
       header: "Commission History",
@@ -169,7 +183,7 @@ export default function AdminAllProductTable({
         <article className="flex items-center gap-4">
           {/* <Link to={`/admin/products/view/${row.original.productId}`}> */}
           <Link to={"view/" + row.original.productId}>
-            <AiOutlineEye size={20} />
+            <AiOutlineEdit size={20} />
           </Link>
           <UpdateCommissionDialog
             currentCommission={row.original.commission}

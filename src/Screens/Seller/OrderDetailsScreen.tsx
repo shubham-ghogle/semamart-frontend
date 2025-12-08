@@ -16,7 +16,7 @@ export default function OrderDetailsScreen() {
 
 
   return (
-    <SellerMainWrapper status={orderStatus} heading="Order Details" errorMeassage={error?.message}>
+    <SellerMainWrapper status={orderStatus} heading="Order Details" errorMessage={error?.message}>
       {orderStatus === "success" && data && (
         <SellerOrderDetail data={data} />
       )}

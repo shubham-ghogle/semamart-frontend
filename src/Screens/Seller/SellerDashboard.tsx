@@ -80,7 +80,7 @@ export default function SellerDashboard() {
   };
 
   return (
-    <SellerMainWrapper status={overAllStatus} errorMeassage={overAllError} heading="Seller Dashboard">
+    <SellerMainWrapper status={overAllStatus} errorMessage={overAllError} heading="Seller Dashboard">
       {isSuccess && (
         <>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
