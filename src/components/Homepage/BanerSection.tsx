@@ -1,44 +1,110 @@
 import { useEffect, useState } from "react";
 
-export default function BannerSection() {
-  const [banners, setBanners] = useState([]);
-  const [index, setIndex] = useState(0);
+// Define a type for each side of the banner
+type BannerSide = {
+  name: string;
+  image: string;
+  link: string;
+};
+
+// Define the full banner type
+type BannerItem = {
+  title?: string;
+  left: BannerSide;
+  right: BannerSide;
+};
+
+// Props for BannerSection
+type BannerSectionProps = {
+  className?: string;
+  bannerIndex?: number; // Which banner to display, default 0
+};
+
+// Helper to normalize image URLs
+const normalizeImage = (src?: string | null): string => {
+  if (!src) return "/placeholder.png"; // fallback
+
+  // Already full URL or absolute path
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+    return src;
+  }
+
+  // Relative path from uploads folder (fallback)
+  return `/uploads${src}`;
+};
+
+
+/* ================= SKELETON LOADER ================= */
+const BannerSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+    <div className="h-[370px] bg-gray-200 rounded-lg animate-pulse" />
+    <div className="h-[370px] bg-gray-200 rounded-lg animate-pulse" />
+  </div>
+);
+
+export default function BannerSection({ className = "", bannerIndex = 0 }: BannerSectionProps) {
+  const [banners, setBanners] = useState<BannerItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/v2/banner")
-      .then(res => res.json())
-      .then(data => setBanners(data))
-      .catch(err => console.error("Banner fetch error:", err));
+    fetch("/api/v2/sectionbanner/getallsectionbanner")
+      .then((res) => res.json())
+      .then((result) => setBanners(result.data || []))
+      .catch((err) => console.error("Banner fetch error:", err));
   }, []);
 
-  // Rotate images every 1 second if more than 2 images
-  useEffect(() => {
-    if (banners.length <= 2) return;
+  // Show animated skeleton while loading
+  if (!banners.length) {
+    return (
+      <div className={`w-full max-w-[1440px] mx-auto px-6 ${className} py-6`}>
+        <BannerSkeleton />
+      </div>
+    );
+  }
 
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 2) % banners.length); 
-    }, 5000); // 5 second
-
-    return () => clearInterval(interval);
-  }, [banners]);
-
-  if (banners.length < 2) return <p className="text-center">Loading banners...</p>;
-
-  const first = banners[index];
-  const second = banners[(index + 1) % banners.length];
+  // Use the bannerIndex prop; fallback to first banner if out of bounds
+  const banner = banners[bannerIndex] || banners[0];
 
   return (
-    <div className="flex gap-4 mt-4">
-      <img
-        src={first}
-        className="w-1/2 rounded-lg object-cover"
-        alt="Banner 1"
-      />
-      <img
-        src={second}
-        className="w-1/2 rounded-lg object-cover"
-        alt="Banner 2"
-      />
+    <div className={`w-full max-w-[1440px] mx-auto px-6 ${className} py-6`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        {/* Left Banner */}
+        <a
+          href={banner.left.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative rounded-lg overflow-hidden h-[370px] flex items-center justify-center"
+        >
+          {banner.left.image ? (
+            <img
+              src={normalizeImage(banner.left.image)}
+              alt={banner.left.name}
+              className="w-full h-full object-cover object-left"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-lg" />
+          )}
+        </a>
+
+        {/* Right Banner */}
+        <a
+          href={banner.right.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative rounded-lg overflow-hidden h-[370px] flex items-center justify-center"
+        >
+          {banner.right.image ? (
+            <img
+              src={normalizeImage(banner.right.image)}
+              alt={banner.right.name}
+              className="w-full h-full object-cover object-right"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-lg" />
+          )}
+        </a>
+      </div>
     </div>
   );
 }
