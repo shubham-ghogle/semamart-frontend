@@ -21,16 +21,18 @@ type BannerSectionProps = {
 };
 
 // Helper to normalize image URLs
-const normalizeImage = (src?: string | null): string => {
-  if (!src) return "/placeholder.png"; // fallback
+const normalizeImage = (src?: string | null) => {
+  if (!src) return "/placeholder.png";
 
-  // Already full URL or absolute path
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("/")
+  ) {
     return src;
   }
 
-  // Relative path from uploads folder (fallback)
-  return `/uploads${src}`;
+  return `/hero/${src}`;
 };
 
 

@@ -7,18 +7,19 @@ type Banner = {
 };
 
 /* ================= NORMALIZE IMAGE ================= */
-const normalizeImage = (src?: string | null): string => {
-  if (!src) return "/placeholder.png"; // fallback
+const normalizeImage = (src?: string | null) => {
+  if (!src) return "/placeholder.png";
 
-  // Already full URL or absolute path
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("/")
+  ) {
     return src;
   }
 
-  // Relative path from uploads folder (fallback)
-  return `/uploads${src}`;
+  return `/hero/${src}`;
 };
-
 
 /* ================= SKELETON LOADER ================= */
 const Skeleton = ({ className }: { className?: string }) => {
@@ -44,10 +45,8 @@ export default function ImageSliderHome() {
         const hero = json?.data?.[0];
         if (!hero) return;
 
-        // Set sliders
         setSliders(hero.sliders || []);
 
-        // Set right side banners
         const rightSide: Banner[] = [];
         if (hero.leftBanner) rightSide.push(hero.leftBanner);
         if (hero.rightBanner) rightSide.push(hero.rightBanner);
@@ -67,7 +66,7 @@ export default function ImageSliderHome() {
     if (total <= 1) return;
 
     intervalRef.current = window.setInterval(() => {
-      setCurrent((p) => (p + 1) % total);
+      setCurrent((prev) => (prev + 1) % total);
     }, 3000);
 
     return () => {
@@ -84,10 +83,7 @@ export default function ImageSliderHome() {
       <section className="w-full px-6 py-6">
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
-            {/* Large Slider Skeleton */}
             <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
-
-            {/* Right Side Banner Skeletons */}
             <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
             <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
           </div>
@@ -101,7 +97,6 @@ export default function ImageSliderHome() {
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
-
           {/* ----------------- LEFT: LARGE SLIDER ----------------- */}
           <div className="relative rounded-xl overflow-hidden bg-white shadow-lg h-[40vh] sm:h-[42vh] lg:h-[44vh] group">
             <div
@@ -112,11 +107,7 @@ export default function ImageSliderHome() {
               }}
             >
               {sliders.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-full h-full"
-                  style={{ flex: "0 0 100%" }}
-                >
+                <div key={i} className="flex-shrink-0 w-full h-full">
                   <a
                     href={item.link || "#"}
                     target="_blank"
@@ -126,7 +117,7 @@ export default function ImageSliderHome() {
                     <img
                       src={normalizeImage(item.imagePath)}
                       alt={item.name || "Hero Slider"}
-                      className="relative rounded-xl overflow-hidden bg-white shadow-lg aspect-[1440/550] group"
+                      className="w-full h-full object-cover rounded-xl"
                       loading="lazy"
                     />
                   </a>
