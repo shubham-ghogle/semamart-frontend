@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { API_URL } from "@/data";
 import { useMutation } from "@tanstack/react-query";
 
-
 export default function CheckoutScreen(): JSX.Element {
   const { user } = useUserStore((s) => s);
   const { cart, clearCart } = useCartStore((s) => s);
@@ -60,14 +59,14 @@ export default function CheckoutScreen(): JSX.Element {
       acc.grandTotal += curr.qty * (price + gstAmount);
       return acc;
     },
-    { subTotal: 0, totalGST: 0, grandTotal: 0 }
+    { subTotal: 0, totalGST: 0, grandTotal: 0 },
   );
 
   const cartToApi = (cart || []).map((el) => {
     const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
     const unitPrice = getUnitPrice(el);
 
-      const gstAmount = (unitPrice * (el.taxClass || 0)) / 100;
+    const gstAmount = (unitPrice * (el.taxClass || 0)) / 100;
     return {
       shopId:
         typeof el.product?.shopId === "string"
@@ -90,30 +89,30 @@ export default function CheckoutScreen(): JSX.Element {
     paymentInfo: { id: "pending", status: "Pending", method: "Razorpay" },
   };
 
-  async function postOrder(data:any){
-   const res = await fetch(API_URL +"order/create-order",{
-     method:"POST",
-     headers:{
-       "Content-Type":"application/json"
-     },
-     body:JSON.stringify(data)
-   })
+  async function postOrder(data: any) {
+    const res = await fetch(API_URL + "order/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-   if(!res.ok){
-     throw new Error("Could not create order")
-   }
-   return res
+    if (!res.ok) {
+      throw new Error("Could not create order");
+    }
+    return res;
   }
 
-  const { mutateAsync,status} = useMutation({
-    mutationFn:(data:any)=>postOrder(data),
-    onError:(err)=>{
-      toast.error(err.message)
+  const { mutateAsync, status } = useMutation({
+    mutationFn: (data: any) => postOrder(data),
+    onError: (err) => {
+      toast.error(err.message);
     },
-    onSuccess:()=>{
-     clearCart()
-    }
-  })
+    onSuccess: () => {
+      clearCart();
+    },
+  });
 
   async function handlePlaceOrder() {
     if (!address) {
@@ -122,11 +121,30 @@ export default function CheckoutScreen(): JSX.Element {
       });
       return;
     }
-    await mutateAsync(orderPayload)
+
+    for (const c of cart){
+      if (!c.product) return;
+      const minMaxRule = c.product.minmaxrule as unknown as string;
+      const parsedMinMaxRule = JSON.parse(minMaxRule) as {
+        minQty: string;
+        maxQty: string;
+      };
+      const minQty = parseInt(parsedMinMaxRule.minQty);
+      if (!isNaN(minQty)) {
+        if (c.qty < minQty) {
+          toast.error(
+            `${c.product.name} has the minimum order quantity of ${minQty}`,
+          );
+          return;
+        }
+      }
+    };
+
+    await mutateAsync(orderPayload);
   }
 
   // ✅ Success screen
-  if (status==="success") {
+  if (status === "success") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
         <Confetti />
@@ -135,7 +153,8 @@ export default function CheckoutScreen(): JSX.Element {
             🎉 Order Created Successful!
           </h1>
           <p className="text-gray-700 mb-4">
-            You can make payments for your order items by going in your order history.
+            You can make payments for your order items by going in your order
+            history.
           </p>
           <div className="flex justify-center">
             <button
@@ -295,21 +314,21 @@ export default function CheckoutScreen(): JSX.Element {
           <button
             onClick={handlePlaceOrder}
             className={`w-full mt-6 py-3 rounded font-semibold shadow cursor-pointer ${
-              selectedAddressIndex === null || status==="pending"
+              selectedAddressIndex === null || status === "pending"
                 ? "bg-gray-400 text-white"
                 : "text-white"
             }`}
             style={
-              selectedAddressIndex !== null && status!=="pending"
+              selectedAddressIndex !== null && status !== "pending"
                 ? {
                     background:
                       "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
                   }
                 : {}
             }
-            disabled={selectedAddressIndex === null || status==="pending"}
+            disabled={selectedAddressIndex === null || status === "pending"}
           >
-            {status==="pending" ? "Creating Order..." : "Create Order"}
+            {status === "pending" ? "Creating Order..." : "Create Order"}
           </button>
         </aside>
       </div>
