@@ -24,7 +24,9 @@ export default function Consumables() {
 
       <div className="w-full px-6 pt-8 space-y-12 mx-auto">
         {/* Popular categories */}
-        <PopularCategories />
+        <div className="hidden md:block">
+  <PopularCategories />
+</div>
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -57,7 +59,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-        <BannerSection/>
+            <BannerSection bannerIndex={0} />
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -90,7 +92,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-        <BannerSection/>
+            <BannerSection bannerIndex={1} />
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -123,7 +125,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-       <BannerSection/>
+           <BannerSection bannerIndex={2} />
 
         {/* Most Popular (regular product showcase row) */}
         {/* <div>
