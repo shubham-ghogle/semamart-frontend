@@ -57,7 +57,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-        <BannerSection/>
+            <BannerSection bannerIndex={0} />
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -90,7 +90,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-        <BannerSection/>
+            <BannerSection bannerIndex={1} />
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}
@@ -123,7 +123,7 @@ export default function Consumables() {
         leftSrc="/banner_Consumables.png"
         rightSrc="/banner_Equipment.png"
        /> */}
-       <BannerSection/>
+           <BannerSection bannerIndex={2} />
 
         {/* Most Popular (regular product showcase row) */}
         {/* <div>
