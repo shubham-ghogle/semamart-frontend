@@ -41,21 +41,40 @@ export default function Header() {
   const { user, removeUser } = useUserStore((s: any) => s);
   const { seller, removeSeller } = useSellerStore((s: any) => s);
 
+  // derive roles
+  const isSeller = Boolean(seller);
+  // Many apps store admin in the user store with role === "Admin"
+  const isAdmin =
+    Boolean(user) &&
+    (String(user?.role || "").toLowerCase() === "admin" ||
+      String(user?.role || "").toLowerCase() === "administrator");
+  const isRealUser = Boolean(user) && !isAdmin;
+
   // core state
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
-  const [subcategoryMap, setSubcategoryMap] = useState<Record<string, Subcategory[]>>({});
+  const [subcategoryMap, setSubcategoryMap] = useState<
+    Record<string, Subcategory[]>
+  >({});
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
+  const [hoveredCategory, setHoveredCategory] = useState<Category | null>(
+    null,
+  );
 
   // specialties
   const [specialties, setSpecialties] = useState<Subcategory[]>([]);
   const [specialtiesFetched, setSpecialtiesFetched] = useState(false);
   const [isSpecialtyHovered, setIsSpecialtyHovered] = useState(false);
-  const [specialtyPackageTypes, setSpecialtyPackageTypes] = useState<Record<string, PackageType[]>>({});
-  const [hoveredSpecialtyId, setHoveredSpecialtyId] = useState<string | null>(null);
-  const specialtyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [specialtyPackageTypes, setSpecialtyPackageTypes] = useState<
+    Record<string, PackageType[]>
+  >({});
+  const [hoveredSpecialtyId, setHoveredSpecialtyId] = useState<string | null>(
+    null,
+  );
+  const specialtyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -84,7 +103,9 @@ export default function Header() {
   const navigate = useNavigate();
 
   // profile close timeout (fix for desktop hover gap)
-  const profileCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const profileCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const clearProfileCloseTimeout = () => {
     if (profileCloseTimeoutRef.current) {
@@ -187,7 +208,9 @@ export default function Header() {
 
   const fetchPackageTypes = async (specialtyId: string) => {
     try {
-      const res = await fetch(`/api/v2/special-package/${specialtyId}/package-types`);
+      const res = await fetch(
+        `/api/v2/special-package/${specialtyId}/package-types`,
+      );
       if (!res.ok) throw new Error("Failed to fetch package types");
       const data = await res.json();
       setSpecialtyPackageTypes((prev) => ({ ...prev, [specialtyId]: data || [] }));
@@ -278,25 +301,25 @@ export default function Header() {
   }
 
   async function logoutHandler() {
-  try {
-    const url = seller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Something went wrong");
+    try {
+      // keep existing behavior: sellers call shop logout, others call user logout
+      const url = isSeller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Something went wrong");
 
-    removeUser();
-    removeSeller();
+      removeUser();
+      removeSeller();
 
-    // close menus
-    setIsUserHovered(false);
-    setMobileProfileOpen(false);
+      // close menus
+      setIsUserHovered(false);
+      setMobileProfileOpen(false);
 
-    // ✅ navigate to homepage after logout
-    navigate("/");
-  } catch (err) {
-    console.error("Logout error:", err);
+      // ✅ navigate to homepage after logout
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   }
-}
-
 
   // specialty timeout helpers (for hover menus)
   const clearSpecialtyTimeout = () => {
@@ -314,6 +337,13 @@ export default function Header() {
   // open/close cart/wishlist
   const openCartHandler = () => setIsCartOpen((p) => !p);
   const openWishlistHandler = () => setIsWishlistOpen((p) => !p);
+
+  // helper to go to account and close popovers
+  const goToAccount = () => {
+    setMobileProfileOpen(false);
+    setIsUserHovered(false);
+    navigate("/account");
+  };
 
   return (
     <>
@@ -598,42 +628,42 @@ export default function Header() {
               >
                 <div className="flex items-center">
                   {user || seller ? (
-  <button
-    className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
-      isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
-    }`}
-    aria-haspopup="true"
-    aria-expanded={isUserHovered || mobileProfileOpen}
-    onClick={() => {
-      setIsUserHovered((p) => !p);
-      setMobileProfileOpen(false);
-    }}
-  >
-    <FaRegCircleUser size={18} />
-    <span>
-      {user?.firstName?.split(" ")[0] ||
-        seller?.firstName?.split(" ")[0] ||
-        "Profile"}
-    </span>
-  </button>
-) : (
-  <Link
-    to="/user"
-    className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
-      isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
-    }`}
-  >
-    <FaRegCircleUser size={18} />
-    <span>Login</span>
-  </Link>
-)}
+                    <button
+                      className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
+                        isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
+                      }`}
+                      aria-haspopup="true"
+                      aria-expanded={isUserHovered || mobileProfileOpen}
+                      onClick={() => {
+                        setIsUserHovered((p) => !p);
+                        setMobileProfileOpen(false);
+                      }}
+                    >
+                      <FaRegCircleUser size={18} />
+                      <span>
+                        {user?.firstName?.split(" ")[0] ||
+                          seller?.firstName?.split(" ")[0] ||
+                          (isAdmin ? "Admin" : "Profile")}
+                      </span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/user"
+                      className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-full transition-colors duration-200 text-sm ${
+                        isUserHovered ? "bg-[#1C647C] text-white" : "bg-white text-[#1C647C]"
+                      }`}
+                    >
+                      <FaRegCircleUser size={18} />
+                      <span>Login</span>
+                    </Link>
+                  )}
 
                   {/* mobile small icon: tap to open profile menu if logged in, otherwise go to /user */}
                   <button
                     className="sm:hidden p-2 rounded-md hover:bg-gray-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (user) {
+                      if (user || seller) {
                         setMobileProfileOpen((p) => !p);
                         setIsUserHovered(false);
                       } else {
@@ -652,126 +682,165 @@ export default function Header() {
                     onMouseEnter={clearProfileCloseTimeout}
                     onMouseLeave={handleProfileMouseLeave}
                   >
-                    {user || seller ? (
-  <>
-    {/* My Account - always visible */}
-    <Link
-      onClick={() => {
-        setMobileProfileOpen(false);
-        setIsUserHovered(false);
-      }}
-      to={user ? "/account" : seller ? "/seller-account" : "/user"}
-      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
-    >
-      <FaRegCircleUser size={16} />
-      <span>My Account</span>
-    </Link>
+                    {/* If logged in as seller OR admin -> limited menu (same options) */}
+                    {(isSeller || isAdmin) ? (
+                      <>
+                        {/* Explicitly navigate to /account so seller lands on account (not seller dashboard) */}
+                        {/* <button
+                          onClick={() => goToAccount()}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 w-full text-left"
+                        >
+                          <FaRegCircleUser size={16} />
+                          <span>My Account</span>
+                        </button> */}
 
-    {/* Only show these if NOT seller */}
-    {!seller && (
-      <>
-        <Link
-          onClick={() => {
-            setMobileProfileOpen(false);
-            setIsUserHovered(false);
-          }}
-          to="/account/wishlist"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
-        >
-          <AiOutlineHeart size={16} />
-          <span>Wishlist</span>
-        </Link>
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to={isSeller ? "/seller" : "/admin"}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <RiShoppingBag4Line size={16} />
+                          <span>Go to Dashboard</span>
+                        </Link>
 
-        <Link
-          onClick={() => {
-            setMobileProfileOpen(false);
-            setIsUserHovered(false);
-          }}
-          to="/add-to-cart"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
-        >
-          <AiOutlineShoppingCart size={16} />
-          <span>Cart</span>
-        </Link>
+                        <hr className="my-1" />
 
-        <Link
-          onClick={() => {
-            setMobileProfileOpen(false);
-            setIsUserHovered(false);
-          }}
-          to="/account/orders"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
-        >
-          <RiShoppingBag4Line size={16} />
-          <span>My Orders</span>
-        </Link>
+                        <button
+                          onClick={async () => {
+                            await logoutHandler();
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-gray-100 text-sm"
+                        >
+                          <FaSignOutAlt size={16} />
+                          <span>Logout</span>
+                        </button>
+                      </>
+                    ) : user ? (
+                      // Regular user menu (full)
+                      <>
+                        {/* My Account - always visible (explicit navigation to ensure proper closing) */}
+                        <button
+                          onClick={() => goToAccount()}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 w-full text-left"
+                        >
+                          <FaRegCircleUser size={16} />
+                          <span>My Account</span>
+                        </button>
 
-        <hr className="my-1" />
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to="/account/wishlist"
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <AiOutlineHeart size={16} />
+                          <span>Wishlist</span>
+                        </Link>
 
-        <Link
-          onClick={() => {
-            setMobileProfileOpen(false);
-            setIsUserHovered(false);
-          }}
-          to="/support"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
-        >
-          <MdOutlineSupportAgent size={16} />
-          <span>Support</span>
-        </Link>
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to="/add-to-cart"
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <AiOutlineShoppingCart size={16} />
+                          <span>Cart</span>
+                        </Link>
 
-        <hr className="my-1" />
-      </>
-    )}
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to="/account/orders"
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <RiShoppingBag4Line size={16} />
+                          <span>My Orders</span>
+                        </Link>
 
-    {/* Logout - always visible */}
-    <button
-      onClick={async () => {
-        await logoutHandler();
-        setMobileProfileOpen(false);
-        setIsUserHovered(false);
-      }}
-      className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-gray-100 text-sm"
-    >
-      <FaSignOutAlt size={16} />
-      <span>Logout</span>
-    </button>
-  </>
-) : (
-  <>
-    <div className="flex justify-between items-center px-4 py-2">
-      <span>New customer?</span>
-      <Link
-        onClick={() => {
-          setMobileProfileOpen(false);
-        }}
-        to="/signup"
-        className="text-blue-600 text-sm"
-      >
-        Sign Up
-      </Link>
-    </div>
-    <hr />
-  </>
-)}
+                        <hr className="my-1" />
 
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to="/support"
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <MdOutlineSupportAgent size={16} />
+                          <span>Support</span>
+                        </Link>
+
+                        <hr className="my-1" />
+
+                        <button
+                          onClick={async () => {
+                            await logoutHandler();
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-gray-100 text-sm"
+                        >
+                          <FaSignOutAlt size={16} />
+                          <span>Logout</span>
+                        </button>
+                      </>
+                    ) : (
+                      <div className="px-4 py-2">
+                        <div className="flex justify-between items-center">
+                          <span>New customer?</span>
+                          <Link
+                            onClick={() => {
+                              setMobileProfileOpen(false);
+                            }}
+                            to="/signup"
+                            className="text-blue-600 text-sm"
+                          >
+                            Sign Up
+                          </Link>
+                        </div>
+                        <hr className="mt-2" />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
               {/* Become seller - hide on xs */}
-              {!seller && (
+              {!seller && !isAdmin && (
                 <>
                   {/* Become a Seller */}
                   <div className="hidden sm:block">
                     {user ? (
-                      <button onClick={() => setShowSellerDialog(true)} className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</button>
+                      <button
+                        onClick={() => setShowSellerDialog(true)}
+                        className="px-3 py-2 rounded-md text-[#1C647C] text-sm"
+                      >
+                        Become a Seller
+                      </button>
                     ) : (
-                      <Link to="/signup-seller" className="px-3 py-2 rounded-md text-[#1C647C] text-sm">Become a Seller</Link>
+                      <Link to="/signup-seller" className="px-3 py-2 rounded-md text-[#1C647C] text-sm">
+                        Become a Seller
+                      </Link>
                     )}
                   </div>
+                </>
+              )}
 
-                  {/* Wishlist */}
+              {/* Wishlist & Cart (only for regular users) */}
+              {isRealUser && (
+                <>
                   <button onClick={openWishlistHandler} aria-label="Open Wishlist" className="relative p-2 rounded-full hover:bg-gray-100">
                     <AiOutlineHeart size={20} />
                     {wishlist.length > 0 && (
@@ -781,7 +850,6 @@ export default function Header() {
                     )}
                   </button>
 
-                  {/* Cart */}
                   <button onClick={openCartHandler} aria-label="Open Cart" className="relative p-2 rounded-full hover:bg-gray-100">
                     <AiOutlineShoppingCart size={20} />
                     {cart.length > 0 && (
@@ -792,7 +860,6 @@ export default function Header() {
                   </button>
                 </>
               )}
-
             </div>
           </div>
         </div>
@@ -881,9 +948,13 @@ export default function Header() {
 
                 <div className="border-b pb-3">
                   <div className="font-semibold mb-2">Account</div>
-                  {user ? (
+                  {(isSeller || isAdmin || isRealUser) ? (
                     <div className="space-y-1">
-                      <Link onClick={() => setMobileMenuOpen(false)} to="/account" className="block px-2 py-2 rounded hover:bg-gray-50">My Account</Link>
+                      <button onClick={() => { setMobileMenuOpen(false); goToAccount(); }} className="block px-2 py-2 rounded hover:bg-gray-50 text-left w-full">My Account</button>
+                      {/* Go to dashboard for seller/admin */}
+                      {(isSeller || isAdmin) && (
+                        <Link onClick={() => setMobileMenuOpen(false)} to={isSeller ? "/seller" : "/admin"} className="block px-2 py-2 rounded hover:bg-gray-50">Go to Dashboard</Link>
+                      )}
                       <button onClick={async () => { await logoutHandler(); setMobileMenuOpen(false); }} className="w-full text-left px-2 py-2 rounded hover:bg-gray-50 text-red-600">Logout</button>
                     </div>
                   ) : (

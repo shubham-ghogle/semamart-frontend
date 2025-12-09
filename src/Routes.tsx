@@ -80,8 +80,6 @@ import AdminImageUploader from "./components/Admin/AdminImageUploader";
  * - Priority: Admin -> Seller -> Regular User -> Public
  * - Writes sessionStorage debug info for quick inspection after redirect.
  */
-// robust redirectToDashboard — drop into src/router.tsx (replace previous)
-
 function safeParse(s: string | null) {
   if (!s) return null;
   try {
@@ -401,7 +399,7 @@ export const router = createBrowserRouter([
 
   {
     path: "/account",
-    loader: requireUserAuth,
+    // loader: requireAccountAuth, // <-- changed to allow seller/admin to access account
     element: <AccountLayout />,
     children: [
       { index: true, element: <MyProfile /> },
@@ -419,7 +417,7 @@ export const router = createBrowserRouter([
   { path: "/account", element: <AccountNavbar /> },
   {
     path: "account/orders/:productId",
-    loader: requireUserAuth,
+    // loader: requireAccountAuth, // <-- changed here too
     element: <OrderSummary />,
   },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
