@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Product, Variant } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
+import { BASE_URL } from "@/data";
 
 type DefaultProductCardProps = {
   product: Product;
@@ -15,9 +16,13 @@ function getId(obj: any): string | undefined {
   return obj._id ?? undefined;
 }
 
-export default function DefaultProductCard({ product }: DefaultProductCardProps) {
+export default function DefaultProductCard({
+  product,
+}: DefaultProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore(
+    (s) => s,
+  );
 
   // first variant fallback
   const firstVariant: Variant | undefined = product.variants?.[0];
@@ -30,11 +35,11 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
   // or { productId: "...", variantId: "..." } if your store uses that shape).
   const inWishlist = Boolean(
     variantId &&
-      wishlist?.some((w: any) => {
-        const wp = getId(w?.product ?? w?.productId ?? w?.product_id);
-        const wv = getId(w?.variant ?? w?.variantId ?? w?.variant_id);
-        return wp === productId && wv === variantId;
-      })
+    wishlist?.some((w: any) => {
+      const wp = getId(w?.product ?? w?.productId ?? w?.product_id);
+      const wv = getId(w?.variant ?? w?.variantId ?? w?.variant_id);
+      return wp === productId && wv === variantId;
+    }),
   );
 
   const handleAddCart = (e: React.MouseEvent) => {
@@ -57,13 +62,15 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!firstVariant) return;
-    inWishlist
-      ? removeFromWishlist(product._id, firstVariant._id)
-      : addToWishlist(product, firstVariant);
+    if (inWishlist) {
+      removeFromWishlist(product._id, firstVariant._id);
+    } else {
+      addToWishlist(product, firstVariant);
+    }
   };
 
   const imageSrc = product.images?.[0]
-    ? `/baseUrl/${product.images[0]}`
+    ? `${BASE_URL}${product.images[0]}`
     : "/image60.png";
 
   const discountPct =
@@ -71,7 +78,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
       ? Math.floor(
           ((firstVariant.originalPrice - firstVariant.discountPrice) /
             firstVariant.originalPrice) *
-            100
+            100,
         )
       : 0;
 
@@ -83,7 +90,10 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
         </span>
       )}
 
-      <Link to={`/product/${product._id}`} className="flex flex-col gap-2 w-full h-full">
+      <Link
+        to={`/product/${product._id}`}
+        className="flex flex-col gap-2 w-full h-full"
+      >
         <div className="w-full h-44 flex items-center justify-center mb-2">
           <img
             src={imageSrc}
