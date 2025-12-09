@@ -24,7 +24,9 @@ export default function Consumables() {
 
       <div className="w-full px-6 pt-8 space-y-12 mx-auto">
         {/* Popular categories */}
-        <PopularCategories />
+        <div className="hidden md:block">
+  <PopularCategories />
+</div>
         <BestSellerShowcase
   products={products}
   status={productFetchingStatus}

@@ -24,6 +24,23 @@ export default function PopularCategories() {
   const CARD_GAP = 16;
   const CARD_HEIGHT = 260;
 
+  // refs for each card's items-list (vertical list of subcategories)
+  const itemsRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // scroll visibility state per card
+  const [scrollState, setScrollState] = useState<Record<string, { up: boolean; down: boolean }>>({});
+
+  const setItemRef = (id: string) => (el: HTMLDivElement | null) => {
+    itemsRefs.current[id] = el;
+  };
+
+  const updateItemVisibility = (id: string) => {
+    const el = itemsRefs.current[id];
+    if (!el) return;
+    const up = el.scrollTop > 1;
+    const down = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+    setScrollState((s) => ({ ...s, [id]: { up, down } }));
+  };
+
   // ---------------------- FETCH CATEGORIES + SUBCATEGORIES ----------------------
   useEffect(() => {
     const fetchCategories = async () => {
@@ -94,7 +111,7 @@ export default function PopularCategories() {
     };
   }, []);
 
-  // ---------------------- DRAG SCROLL ----------------------
+  // ---------------------- DRAG SCROLL (HORIZONTAL) ----------------------
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -144,6 +161,27 @@ export default function PopularCategories() {
     };
   }, []);
 
+  // ---------------------- Attach scroll listeners to each items-list (vertical) ----------------------
+  useEffect(() => {
+    const listeners: Record<string, any> = {};
+    categories.forEach((c) => {
+      const el = itemsRefs.current[c._id];
+      if (!el) return;
+      const onScroll = () => updateItemVisibility(c._id);
+      el.addEventListener("scroll", onScroll, { passive: true });
+      listeners[c._id] = onScroll;
+      // initial visibility
+      updateItemVisibility(c._id);
+    });
+
+    return () => {
+      Object.entries(listeners).forEach(([id, fn]) => {
+        const el = itemsRefs.current[id];
+        if (el && fn) el.removeEventListener("scroll", fn);
+      });
+    };
+  }, [categories]);
+
   // ---------------------- SCROLLBAR CLICK ----------------------
   const onTrackClick = (e: React.MouseEvent) => {
     const track = trackRef.current;
@@ -168,18 +206,27 @@ export default function PopularCategories() {
   const onClickLeft = () => scrollBy(-(CARD_WIDTH + CARD_GAP));
   const onClickRight = () => scrollBy(CARD_WIDTH + CARD_GAP);
 
+  // ---------------------- VERTICAL SCROLL INSIDE EACH CARD ----------------------
+  const scrollItems = (id: string, direction: "up" | "down") => {
+    const el = itemsRefs.current[id];
+    if (!el) return;
+    const amount = 96; // amount to scroll per click (approx two items)
+    const target = direction === "down" ? el.scrollTop + amount : el.scrollTop - amount;
+    el.scrollTo({ top: target, behavior: "smooth" });
+    // schedule a visibility update after the smooth scroll
+    setTimeout(() => updateItemVisibility(id), 250);
+  };
+
   // ---------------------- RENDER ----------------------
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
-        <h2 className="text-xl sm:text-2xl font-semibold text-[#1C170D] mb-4">
-          Popular Categories
-        </h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-[#1C170D] mb-4">Popular Categories</h2>
 
         <div className="h-1.5 w-28 rounded-full bg-[#f2efe9] mb-6" />
 
         <div className="relative">
-          {/* Scroll Buttons */}
+          {/* Scroll Buttons (horizontal) */}
           <button
             aria-label="Scroll left"
             onClick={onClickLeft}
@@ -200,7 +247,7 @@ export default function PopularCategories() {
             </svg>
           </button>
 
-          {/* SCROLLER */}
+          {/* SCROLLER (horizontal list of cards) */}
           <div
             ref={scrollerRef}
             className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
@@ -223,112 +270,116 @@ export default function PopularCategories() {
               .cat-card .items-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:6px}
             `}</style>
 
-            {loading && (
-              <div className="text-gray-400 text-center py-8 w-full">
-                Loading categories...
-              </div>
-            )}
+            {loading && <div className="text-gray-400 text-center py-8 w-full">Loading categories...</div>}
 
-            {error && (
-              <div className="text-red-500 text-center py-8 w-full">
-                {error}
-              </div>
-            )}
+            {error && <div className="text-red-500 text-center py-8 w-full">{error}</div>}
 
-            {!loading && !error && categories.length > 0 && categories.map((c) => (
-              <div
-                key={c._id}
-                className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start"
-                style={{
-                  width: CARD_WIDTH,
-                  height: CARD_HEIGHT,
-                  minWidth: CARD_WIDTH,
-                  boxSizing: "border-box",
-                  scrollSnapAlign: "start",
-                }}
-              >
-                <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                  <Link
-                    to={`/category/${c._id}`}
-                    className="rounded-lg overflow-hidden flex items-center justify-center"
-                    aria-label={`Go to ${c.name}`}
-                  >
-                    <div
-                      style={{
-                        width: 112,
-                        height: 184,
-                        background: "rgba(0,0,0,0.03)",
-                        borderRadius: 12,
-                      }}
-                      className="flex items-center justify-center"
-                    >
-                      <img
-                        src={c.image || "/placeholder.png"}
-                        alt={c.name}
-                        className="w-full h-full object-contain p-3"
-                        onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                      />
-                    </div>
-                  </Link>
-                </div>
-
-                <div className="flex-1 flex flex-col min-h-0">
-                  <h3 className="mb-2 cat-title-clamp">
-                    <Link
-                       to={`/get-products-by-category/${c._id}`}
-                      className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400"
-                    >
-                      {c.name}
+            {!loading && !error && categories.length > 0 &&
+              categories.map((c) => (
+                <div
+                  key={c._id}
+                  className="cat-card flex-shrink-0 bg-white rounded-xl p-4 shadow-sm flex gap-4 items-start relative"
+                  style={{
+                    width: CARD_WIDTH,
+                    height: CARD_HEIGHT,
+                    minWidth: CARD_WIDTH,
+                    boxSizing: "border-box",
+                    scrollSnapAlign: "start",
+                    paddingBottom: 48, // room for the up/down buttons
+                  }}
+                >
+                  <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
+                    <Link to={`/category/${c._id}`} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.name}`}>
+                      <div
+                        style={{
+                          width: 112,
+                          height: 184,
+                          background: "rgba(0,0,0,0.03)",
+                          borderRadius: 12,
+                        }}
+                        className="flex items-center justify-center"
+                      >
+                        <img src={c.image || "/placeholder.png"} alt={c.name} className="w-full h-full object-contain p-3" onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
+                      </div>
                     </Link>
-                  </h3>
+                  </div>
 
-                  <div className="text-sm text-gray-500 overflow-auto items-list" style={{ maxHeight: 140 }}>
-                    <ul className="flex flex-col">
-                      {c.subcategories && c.subcategories.length > 0 ? (
-                        c.subcategories.map((sub: any) => (
-                          <li key={sub._id} className="py-2">
-                            <Link
-                              to={`/get-products-by-subcategory/${sub._id}`}
-                              className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]"
-                            >
-                              {sub.name}
-                            </Link>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="py-2 text-gray-400">No subcategories</li>
-                      )}
-                    </ul>
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <h3 className="mb-2 cat-title-clamp">
+                      <Link to={`/get-products-by-category/${c._id}`} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
+                        {c.name}
+                      </Link>
+                    </h3>
+
+                    <div
+                      ref={setItemRef(c._id)}
+                      className="text-sm text-gray-500 items-list"
+                      style={{
+                        maxHeight: 140,
+                        transition: "max-height 220ms ease",
+                        overflowY: "auto",
+                      }}
+                    >
+                      <ul className="flex flex-col">
+                        {c.subcategories && c.subcategories.length > 0 ? (
+                          c.subcategories.map((sub: any) => (
+                            <li key={sub._id} className="py-2">
+                              <Link
+                                to={`/get-products-by-subcategory/${sub._id}`}
+                                className="inline-block no-underline hover:no-underline transition-colors duration-150 transform hover:translate-x-1 hover:text-[#16A34A]"
+                              >
+                                {sub.name}
+                              </Link>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="py-2 text-gray-400">No subcategories</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Desktop-only vertical up/down buttons for the inner items-list */}
+                  <div className="hidden md:flex flex-col items-center gap-2 absolute right-3 bottom-3 z-20">
+                    {/* Up button */}
+                    {scrollState[c._id]?.up ? (
+                      <button
+                        aria-label={`Scroll ${c.name} up`}
+                        onClick={() => scrollItems(c._id, "up")}
+                        className="w-9 h-9 rounded-full shadow-sm bg-white flex items-center justify-center border"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 15L12 9L6 15" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <div style={{ width: 36, height: 36 }} />
+                    )}
+
+                    {/* Down button */}
+                    {scrollState[c._id]?.down ? (
+                      <button
+                        aria-label={`Scroll ${c.name} down`}
+                        onClick={() => scrollItems(c._id, "down")}
+                        className="w-9 h-9 rounded-full shadow-sm bg-white flex items-center justify-center border"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M6 9L12 15L18 9" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <div style={{ width: 36, height: 36 }} />
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
         {/* PROGRESS BAR */}
         <div className="mt-4">
-          <div
-            ref={trackRef}
-            className="relative rounded-full cursor-pointer"
-            onClick={onTrackClick}
-            style={{
-              userSelect: "none",
-              touchAction: "none",
-              height: 6,
-              background: "#ECFDF0",
-            }}
-          >
-            <div
-              className={`absolute top-0 rounded-full transition-all duration-150 ${isDragging ? "opacity-90" : "opacity-100"}`}
-              style={{
-                height: "100%",
-                left: `${leftPercent}%`,
-                width: `${widthPercent}%`,
-                background: "#16A34A",
-                transformOrigin: "left",
-              }}
-            />
+          <div ref={trackRef} className="relative rounded-full cursor-pointer" onClick={onTrackClick} style={{ userSelect: "none", touchAction: "none", height: 6, background: "#ECFDF0" }}>
+            <div className={`absolute top-0 rounded-full transition-all duration-150 ${isDragging ? "opacity-90" : "opacity-100"}`} style={{ height: "100%", left: `${leftPercent}%`, width: `${widthPercent}%`, background: "#16A34A", transformOrigin: "left" }} />
           </div>
         </div>
       </div>
