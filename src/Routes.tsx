@@ -226,8 +226,8 @@ export const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     children: [
-      // index runs loader BEFORE rendering to redirect properly
-      { index: true, loader: redirectToDashboard, element: <Consumables /> },
+      // index: do NOT auto-redirect — always show public user portal
+      { index: true, element: <Consumables /> },
 
       // public/product flows
       { path: "product", element: <ProductsScreen /> },
@@ -399,7 +399,7 @@ export const router = createBrowserRouter([
 
   {
     path: "/account",
-    // loader: requireAccountAuth, // <-- changed to allow seller/admin to access account
+    loader: requireUserAuth,
     element: <AccountLayout />,
     children: [
       { index: true, element: <MyProfile /> },
@@ -417,7 +417,7 @@ export const router = createBrowserRouter([
   { path: "/account", element: <AccountNavbar /> },
   {
     path: "account/orders/:productId",
-    // loader: requireAccountAuth, // <-- changed here too
+    loader: requireUserAuth,
     element: <OrderSummary />,
   },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
