@@ -8,16 +8,33 @@ type DefaultProductCardProps = {
   product: Product;
 };
 
+function getId(obj: any): string | undefined {
+  // Works when obj is either { _id: string } OR a string id OR undefined
+  if (!obj) return undefined;
+  if (typeof obj === "string") return obj;
+  return obj._id ?? undefined;
+}
+
 export default function DefaultProductCard({ product }: DefaultProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
 
-  // ✅ first variant fallback
+  // first variant fallback
   const firstVariant: Variant | undefined = product.variants?.[0];
 
-  // ✅ wishlist check by productId + variantId
-  const inWishlist = wishlist.some(
-    (w) => w.product._id === product._id && w.variant?._id === firstVariant?._id
+  // guard: if there's no variant, we cannot be in wishlist for this variant
+  const variantId = getId(firstVariant);
+  const productId = getId(product);
+
+  // wishlist check safely (handles wishlist entries shaped as {product: {...}, variant: {...}}
+  // or { productId: "...", variantId: "..." } if your store uses that shape).
+  const inWishlist = Boolean(
+    variantId &&
+      wishlist?.some((w: any) => {
+        const wp = getId(w?.product ?? w?.productId ?? w?.product_id);
+        const wv = getId(w?.variant ?? w?.variantId ?? w?.variant_id);
+        return wp === productId && wv === variantId;
+      })
   );
 
   const handleAddCart = (e: React.MouseEvent) => {
@@ -30,7 +47,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
       product,
       variant: firstVariant,
       qty: 1,
-      price: firstVariant.discountPrice ?? firstVariant.originalPrice ?? 0, // ✅ added
+      price: firstVariant.discountPrice ?? firstVariant.originalPrice ?? 0,
       shopId: (product as any).shopId?._id || (product as any).shopId,
     });
 
