@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HeroSectionUploader from "../ui/HeroSectionUploader";
 import SectionBannerUploader from "../ui/SectionBannerUploader";
-// import { FiLayers } from "react-icons/fi";
+
 
 const AdminImageUploader: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"hero" | "section">("hero");
