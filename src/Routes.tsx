@@ -80,8 +80,6 @@ import AdminImageUploader from "./components/Admin/AdminImageUploader";
  * - Priority: Admin -> Seller -> Regular User -> Public
  * - Writes sessionStorage debug info for quick inspection after redirect.
  */
-// robust redirectToDashboard — drop into src/router.tsx (replace previous)
-
 function safeParse(s: string | null) {
   if (!s) return null;
   try {
@@ -228,8 +226,8 @@ export const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     children: [
-      // index runs loader BEFORE rendering to redirect properly
-      { index: true, loader: redirectToDashboard, element: <Consumables /> },
+      // index: do NOT auto-redirect — always show public user portal
+      { index: true, element: <Consumables /> },
 
       // public/product flows
       { path: "product", element: <ProductsScreen /> },

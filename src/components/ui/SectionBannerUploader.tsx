@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/data";
 import React, { useEffect, useState } from "react";
 import { FiUploadCloud, FiEdit2,FiSave,
   FiX, } from "react-icons/fi";
@@ -17,17 +18,7 @@ type SectionBanner = {
 };
 
 // Helper to normalize image URLs
-const normalizeImage = (src?: string | null): string => {
-  if (!src) return "/placeholder.png"; // fallback
 
-  // Already full URL or absolute path
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
-    return src;
-  }
-
-  // Relative path from uploads folder (fallback)
-  return `/uploads${src}`;
-};
 
 
 
@@ -241,7 +232,7 @@ const SectionBannerUploader: React.FC = () => {
                     ) : (
                       <div className="relative">
                         <img
-                          src={normalizeImage(item.preview)}
+                          src={BASE_URL+"hero/"+item.preview}
                           className="h-32 w-full object-cover rounded"
                         />
                         {isEditing && (
