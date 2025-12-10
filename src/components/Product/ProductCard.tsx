@@ -25,7 +25,7 @@ export default function DefaultProductCard({
   );
 
   // first variant fallback
-  const firstVariant: Variant | undefined = product.variants?.[0];
+  const firstVariant: Variant = product.variants?.[0];
 
   // guard: if there's no variant, we cannot be in wishlist for this variant
   const variantId = getId(firstVariant);
@@ -69,8 +69,8 @@ export default function DefaultProductCard({
     }
   };
 
-  const imageSrc = product.images?.[0]
-    ? `${BASE_URL}${product.images[0]}`
+  const imageSrc =firstVariant.thumbnail
+    ? `${BASE_URL}images/${firstVariant.thumbnail}`
     : "/image60.png";
 
   const discountPct =
