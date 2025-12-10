@@ -193,6 +193,31 @@ export default function ProductCard() {
     }
   };
 
+  const getMinOrderQtyFromRule = (ruleRaw: any) => {
+  if (!ruleRaw) return null;
+  try {
+    const rule = typeof ruleRaw === "string" ? JSON.parse(ruleRaw) : ruleRaw;
+    // possible keys seen in different payloads
+    const rawMin =
+      rule.minQty ??
+      rule.minqty ??
+      rule.min ??
+      rule.minQuantity ??
+      rule.min_order ??
+      rule.minOrder ??
+      null;
+    const n = Number(rawMin);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : null;
+  } catch (err) {
+    // ignore parse errors
+    return null;
+  }
+};
+
+const productMinFromProduct = getMinOrderQtyFromRule((product as any)?.minmaxrule);
+const variantMinFromVariant = getMinOrderQtyFromRule((selectedVariant as any)?.minmaxrule);
+const minOrderQty = variantMinFromVariant ?? productMinFromProduct ?? null;
+
   if (isPending || !product) {
     return (
       <div className="flex items-center justify-center h-[80vh] w-full">
@@ -261,6 +286,7 @@ export default function ProductCard() {
                 selectedPack={selectedPack}
                 selectedPerPiece={selectedPerPiece}
                 selectedSavedPercent={selectedSavedPercent}
+                minOrderQty={minOrderQty}
               />
             </div>
 
@@ -275,6 +301,7 @@ export default function ProductCard() {
               handleToggleWishlist={handleToggleWishlist}
               inWishlist={inWishlist}
               cartAnimation={cartAnimation}
+              minOrderQty={minOrderQty}
             />
           </div>
 
