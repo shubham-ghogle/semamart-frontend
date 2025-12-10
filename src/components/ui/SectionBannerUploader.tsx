@@ -1,14 +1,13 @@
 import { BASE_URL } from "@/data";
 import React, { useEffect, useState } from "react";
-import { FiUploadCloud, FiEdit2,FiSave,
-  FiX, } from "react-icons/fi";
+import { FiUploadCloud, FiEdit2, FiSave, FiX } from "react-icons/fi";
 
 // Type definitions
 type BannerItem = {
   name: string;
   link: string;
   image?: File;      // newly uploaded file
-  preview?: string;  // backend image URL or blob preview
+  preview?: string;  // backend image filename or blob preview
 };
 
 type SectionBanner = {
@@ -17,10 +16,12 @@ type SectionBanner = {
   right: BannerItem;
 };
 
-// Helper to normalize image URLs
-
-
-
+// Helper to get image source
+const getImageSrc = (item: BannerItem) => {
+  if (item.image) return item.preview; // newly uploaded blob
+  if (item.preview) return BASE_URL + "hero/" + item.preview; // saved image
+  return ""; // fallback placeholder
+};
 
 const SectionBannerUploader: React.FC = () => {
   const [sectionBanners, setSectionBanners] = useState<SectionBanner[]>([]);
@@ -33,7 +34,7 @@ const SectionBannerUploader: React.FC = () => {
       const res = await fetch("/api/v2/sectionbanner/getallsectionbanner");
       const data = await res.json();
 
-      if (data.success && data.data.length === 3) {
+      if (data.success && data.data.length) {
         const banners = data.data.map((s: any) => ({
           title: s.title,
           left: {
@@ -48,7 +49,7 @@ const SectionBannerUploader: React.FC = () => {
           },
         }));
         setSectionBanners(banners);
-        setOriginalBanners(banners);
+        setOriginalBanners(JSON.parse(JSON.stringify(banners)));
         setIsEditing(false);
       }
     } catch (err) {
@@ -60,7 +61,7 @@ const SectionBannerUploader: React.FC = () => {
     fetchBanners();
   }, []);
 
-  // Cleanup blob URLs
+  // Cleanup blob URLs when component unmounts
   useEffect(() => {
     return () => {
       sectionBanners.forEach((b) => {
@@ -80,19 +81,26 @@ const SectionBannerUploader: React.FC = () => {
   // Handle file change
   const handleFileChange = (index: number, side: "left" | "right", file?: File) => {
     if (!file) return;
-
-    const preview = URL.createObjectURL(file);
     const current = sectionBanners[index][side];
 
-    if (current.preview?.startsWith("blob:")) URL.revokeObjectURL(current.preview);
+    // Revoke old blob if exists
+    if (current.image && current.preview?.startsWith("blob:")) {
+      URL.revokeObjectURL(current.preview);
+    }
 
-    updateItem(index, side, { ...current, image: file, preview });
+    updateItem(index, side, {
+      ...current,
+      image: file,
+      preview: URL.createObjectURL(file),
+    });
   };
 
   // Remove image
   const removeImage = (index: number, side: "left" | "right") => {
     const current = sectionBanners[index][side];
-    if (current.preview?.startsWith("blob:")) URL.revokeObjectURL(current.preview);
+    if (current.image && current.preview?.startsWith("blob:")) {
+      URL.revokeObjectURL(current.preview);
+    }
 
     updateItem(index, side, { ...current, image: undefined, preview: undefined });
   };
@@ -115,8 +123,7 @@ const SectionBannerUploader: React.FC = () => {
     }
 
     // Check if anything changed
-    const isChanged =
-      JSON.stringify(sectionBanners) !== JSON.stringify(originalBanners);
+    const isChanged = JSON.stringify(sectionBanners) !== JSON.stringify(originalBanners);
     if (!isChanged) {
       alert("No changes to save");
       setIsEditing(false);
@@ -145,7 +152,7 @@ const SectionBannerUploader: React.FC = () => {
         )
       );
 
-      // Append only newly uploaded images
+      // Append newly uploaded images
       sectionBanners.forEach((b, i) => {
         if (b.left.image) fd.append(`section${i + 1}_left`, b.left.image);
         if (b.right.image) fd.append(`section${i + 1}_right`, b.right.image);
@@ -159,9 +166,9 @@ const SectionBannerUploader: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Upload failed");
 
-      alert(" Promo banners saved successfully");
+      alert("Promo banners saved successfully");
       setIsEditing(false);
-      setOriginalBanners(sectionBanners);
+      setOriginalBanners(JSON.parse(JSON.stringify(sectionBanners)));
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Upload failed");
@@ -170,16 +177,15 @@ const SectionBannerUploader: React.FC = () => {
 
   // Cancel edit
   const cancelEdit = () => {
-    setSectionBanners(originalBanners);
+    setSectionBanners(JSON.parse(JSON.stringify(originalBanners)));
     setIsEditing(false);
   };
 
   return (
     <div className="p-6 bg-white rounded shadow">
-      {/* Header with Edit button on same line */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Section Banners</h2>
-
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
@@ -194,7 +200,6 @@ const SectionBannerUploader: React.FC = () => {
       {sectionBanners.map((banner, index) => (
         <div key={index} className="mb-6">
           <h3 className="font-semibold mb-3">{banner.title}</h3>
-
           <div className="grid grid-cols-2 gap-4">
             {(["left", "right"] as const).map((side) => {
               const item = banner[side];
@@ -213,7 +218,7 @@ const SectionBannerUploader: React.FC = () => {
                     }
                   />
 
-                  {/* Image Upload */}
+                  {/* Image */}
                   <div className="border-2 border-dashed p-4 rounded text-center">
                     {!item.preview ? (
                       isEditing && (
@@ -232,7 +237,7 @@ const SectionBannerUploader: React.FC = () => {
                     ) : (
                       <div className="relative">
                         <img
-                          src={BASE_URL+"hero/"+item.preview}
+                          src={getImageSrc(item) || "/placeholder.png"}
                           className="h-32 w-full object-cover rounded"
                         />
                         {isEditing && (
@@ -266,27 +271,25 @@ const SectionBannerUploader: React.FC = () => {
       ))}
 
       {/* Save / Cancel Buttons */}
-      {/* Save / Cancel Buttons */}
-{isEditing && (
-  <div className="flex gap-4 mt-4">
-    <button
-      onClick={submitSectionBanners}
-      className="flex items-center gap-2 px-6 py-2 rounded text-white bg-green-600 hover:bg-green-700 transition"
-    >
-      <FiSave size={18} />
-      <span>Save Changes</span>
-    </button>
+      {isEditing && (
+        <div className="flex gap-4 mt-4">
+          <button
+            onClick={submitSectionBanners}
+            className="flex items-center gap-2 px-6 py-2 rounded text-white bg-green-600 hover:bg-green-700 transition"
+          >
+            <FiSave size={18} />
+            <span>Save Changes</span>
+          </button>
 
-    <button
-      onClick={cancelEdit}
-      className="flex items-center gap-2 px-6 py-2 rounded text-white bg-red-600 hover:bg-red-700 transition"
-    >
-      <FiX size={18} />
-      <span>Cancel</span>
-    </button>
-  </div>
-)}
-
+          <button
+            onClick={cancelEdit}
+            className="flex items-center gap-2 px-6 py-2 rounded text-white bg-red-600 hover:bg-red-700 transition"
+          >
+            <FiX size={18} />
+            <span>Cancel</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

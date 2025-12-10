@@ -9,9 +9,12 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 
-
-
-
+/* ================= HELPER ================= */
+const resolveImageSrc = (preview?: string) => {
+  if (!preview) return "";
+  if (preview.startsWith("blob:")) return preview; // ✅ new upload
+  return BASE_URL + "hero/" + preview;             // ✅ saved image
+};
 
 /* ================= TYPES ================= */
 type HeroItem = {
@@ -20,7 +23,7 @@ type HeroItem = {
   link: string;
   type: "banner-left" | "banner-right" | "slider";
   file?: File;
-  preview?: string; // local preview OR existing image path
+  preview?: string; // backend path OR blob URL
 };
 
 /* ================= CARD ================= */
@@ -38,7 +41,7 @@ const HeroCard = ({
   onRemove?: () => void;
 }) => (
   <div className="relative rounded-xl border bg-white p-4 shadow-sm space-y-3">
-    {/* Trash icon for saved sliders */}
+    {/* Remove */}
     {editing && onRemove && (
       <button
         onClick={onRemove}
@@ -52,7 +55,9 @@ const HeroCard = ({
       value={item.name}
       readOnly={!editing}
       onChange={(e) => onUpdate(index, { name: e.target.value })}
-      className={`w-full border rounded px-3 py-2 ${!editing && "bg-gray-100"}`}
+      className={`w-full border rounded px-3 py-2 ${
+        !editing && "bg-gray-100"
+      }`}
       placeholder="Name"
     />
 
@@ -60,20 +65,23 @@ const HeroCard = ({
       value={item.link}
       readOnly={!editing}
       onChange={(e) => onUpdate(index, { link: e.target.value })}
-      className={`w-full border rounded px-3 py-2 ${!editing && "bg-gray-100"}`}
+      className={`w-full border rounded px-3 py-2 ${
+        !editing && "bg-gray-100"
+      }`}
       placeholder="Link"
     />
 
-    {/* IMAGE UPLOAD / REPLACE */}
-    {editing && (
+    {/* IMAGE */}
+    {editing ? (
       <div className="relative">
         {item.preview ? (
           <>
             <img
-              src={BASE_URL+"hero/"+item.preview}
+              src={resolveImageSrc(item.preview)}
               className="h-40 w-full object-cover rounded-lg"
               alt=""
             />
+
             <button
               type="button"
               className="absolute top-2 right-2 bg-black text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -86,16 +94,19 @@ const HeroCard = ({
             >
               ×
             </button>
-            {/* Hidden input still allows replacing image */}
+
             <input
               type="file"
               hidden
-              onChange={(e) =>
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
                 onUpdate(index, {
-                  file: e.target.files?.[0],
-                  preview: URL.createObjectURL(e.target.files![0]),
-                })
-              }
+                  file,
+                  preview: URL.createObjectURL(file),
+                });
+              }}
             />
           </>
         ) : (
@@ -105,25 +116,27 @@ const HeroCard = ({
             <input
               type="file"
               hidden
-              onChange={(e) =>
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
                 onUpdate(index, {
-                  file: e.target.files?.[0],
-                  preview: URL.createObjectURL(e.target.files![0]),
-                })
-              }
+                  file,
+                  preview: URL.createObjectURL(file),
+                });
+              }}
             />
           </label>
         )}
       </div>
-    )}
-
-    {/* DISPLAY IMAGE WHEN NOT EDITING */}
-    {!editing && item.preview && (
-      <img
-        src={BASE_URL+"hero/"+item.preview}
-        className="h-40 w-full object-cover rounded-lg"
-        alt=""
-      />
+    ) : (
+      item.preview && (
+        <img
+          src={resolveImageSrc(item.preview)}
+          className="h-40 w-full object-cover rounded-lg"
+          alt=""
+        />
+      )
     )}
   </div>
 );
@@ -134,7 +147,7 @@ export default function HeroSectionUploader() {
   const [editing, setEditing] = useState(false);
   const original = useRef<HeroItem[]>([]);
 
-  /* -------- FETCH DATA -------- */
+  /* -------- FETCH -------- */
   useEffect(() => {
     fetch("/api/v2/heroslider/getallimg")
       .then((r) => r.json())
@@ -185,7 +198,7 @@ export default function HeroSectionUploader() {
   const updateItem = (i: number, d: Partial<HeroItem>) =>
     setItems((p) => p.map((x, idx) => (idx === i ? { ...x, ...d } : x)));
 
-  /* -------- ADD / REMOVE SLIDER -------- */
+  /* -------- ADD / REMOVE -------- */
   const addSlider = () =>
     setItems((p) => [...p, { type: "slider", name: "", link: "" }]);
 
@@ -204,13 +217,12 @@ export default function HeroSectionUploader() {
           name: i.name,
           link: i.link,
           type: i.type,
-          fileName: i.file?.name, // new uploaded file name
-          existingImage: !i.file ? i.preview : undefined, // preserve old image if file not changed
+          fileName: i.file?.name,
+          existingImage: !i.file ? i.preview : undefined,
         }))
       )
     );
 
-    // Only append new files
     items.forEach((i) => i.file && fd.append("heroImages", i.file));
 
     await fetch("/api/v2/heroslider", {
@@ -220,7 +232,7 @@ export default function HeroSectionUploader() {
 
     original.current = structuredClone(items);
     setEditing(false);
-    alert("Slider And Banner Saved");
+    alert("Slider and Banner Saved");
   };
 
   /* -------- CANCEL -------- */
@@ -237,7 +249,6 @@ export default function HeroSectionUploader() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Hero Section</h2>
-
         {!editing && (
           <button
             onClick={() => setEditing(true)}
@@ -251,7 +262,13 @@ export default function HeroSectionUploader() {
       {/* BANNERS */}
       <div className="grid md:grid-cols-2 gap-6">
         {banners.map((b, i) => (
-          <HeroCard key={i} item={b} index={i} editing={editing} onUpdate={updateItem} />
+          <HeroCard
+            key={i}
+            item={b}
+            index={i}
+            editing={editing}
+            onUpdate={updateItem}
+          />
         ))}
       </div>
 
@@ -276,23 +293,23 @@ export default function HeroSectionUploader() {
             index={i + 2}
             editing={editing}
             onUpdate={updateItem}
-           onRemove={editing ? () => removeSlider(i + 2) : undefined}
+            onRemove={() => removeSlider(i + 2)}
           />
         ))}
       </div>
 
-      {/* SAVE / CANCEL BUTTONS */}
+      {/* ACTIONS */}
       {editing && (
         <div className="flex gap-4 mt-6">
           <button
             onClick={save}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded"
           >
             <FiSave /> Save Changes
           </button>
           <button
             onClick={cancel}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded"
           >
             <FiX /> Cancel
           </button>
