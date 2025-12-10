@@ -6,6 +6,7 @@ import { useWishlistStore } from "@/store/wishlistStore";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCategoriesMap } from "./useCategoriesMap";
+import { BASE_URL } from "@/data";
 
 
 interface Props {
@@ -37,10 +38,7 @@ export default function ProductCard({ product }: Props) {
   }
 
   // image selection
-  const imageUrl =
-    (product.images && product.images.length > 0 && `/images/${product.images[0]}`) ||
-    (variant?.thumbnail && `/images/${variant.thumbnail}`) ||
-    PLACEHOLDER;
+  const imageUrl = (variant?.thumbnail && `${BASE_URL}images/${variant.thumbnail}`) || PLACEHOLDER;
 
   // wishlist + cart stores
   const addToCart = useCartStore((s) => s.addToCart);
