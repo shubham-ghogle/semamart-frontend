@@ -1,5 +1,4 @@
 import { BASE_URL } from "@/data";
-import { Item } from "@radix-ui/react-select";
 import { useEffect, useRef, useState } from "react";
 
 type Banner = {
