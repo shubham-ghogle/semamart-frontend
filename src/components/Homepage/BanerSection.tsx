@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/data";
 import { useEffect, useState } from "react";
 
 // Define a type for each side of the banner
@@ -21,19 +22,7 @@ type BannerSectionProps = {
 };
 
 // Helper to normalize image URLs
-const normalizeImage = (src?: string | null) => {
-  if (!src) return "/placeholder.png";
 
-  if (
-    src.startsWith("http://") ||
-    src.startsWith("https://") ||
-    src.startsWith("/")
-  ) {
-    return src;
-  }
-
-  return `/hero/${src}`;
-};
 
 
 /* ================= SKELETON LOADER ================= */
@@ -78,7 +67,7 @@ export default function BannerSection({ className = "", bannerIndex = 0 }: Banne
         >
           {banner.left.image ? (
             <img
-              src={normalizeImage(banner.left.image)}
+              src={BASE_URL+"hero/"+banner.left.image}
               alt={banner.left.name}
               className="w-full h-full object-cover object-left"
               loading="lazy"
@@ -97,7 +86,7 @@ export default function BannerSection({ className = "", bannerIndex = 0 }: Banne
         >
           {banner.right.image ? (
             <img
-              src={normalizeImage(banner.right.image)}
+              src={BASE_URL+"hero/"+banner.right.image}
               alt={banner.right.name}
               className="w-full h-full object-cover object-right"
               loading="lazy"

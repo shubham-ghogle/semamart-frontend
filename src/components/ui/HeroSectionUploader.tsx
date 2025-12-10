@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/data";
 import { useEffect, useRef, useState } from "react";
 import {
   FiEdit2,
@@ -8,20 +9,7 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 
-/* ================= HELPERS ================= */
-const normalizeImage = (src?: string | null) => {
-  if (!src) return "/placeholder.png";
 
-  if (
-    src.startsWith("http://") ||
-    src.startsWith("https://") ||
-    src.startsWith("/")
-  ) {
-    return src;
-  }
-
-  return `/hero/${src}`;
-};
 
 
 
@@ -82,7 +70,7 @@ const HeroCard = ({
         {item.preview ? (
           <>
             <img
-              src={normalizeImage(item.preview)}
+              src={BASE_URL+"hero/"+item.preview}
               className="h-40 w-full object-cover rounded-lg"
               alt=""
             />
@@ -132,7 +120,7 @@ const HeroCard = ({
     {/* DISPLAY IMAGE WHEN NOT EDITING */}
     {!editing && item.preview && (
       <img
-        src={normalizeImage(item.preview)}
+        src={BASE_URL+"hero/"+item.preview}
         className="h-40 w-full object-cover rounded-lg"
         alt=""
       />
@@ -232,7 +220,7 @@ export default function HeroSectionUploader() {
 
     original.current = structuredClone(items);
     setEditing(false);
-    alert("Hero section updated ✅");
+    alert("Slider And Banner Saved");
   };
 
   /* -------- CANCEL -------- */
@@ -288,7 +276,7 @@ export default function HeroSectionUploader() {
             index={i + 2}
             editing={editing}
             onUpdate={updateItem}
-            onRemove={s.id ? () => removeSlider(i + 2) : undefined} // Trash icon only for saved sliders
+           onRemove={editing ? () => removeSlider(i + 2) : undefined}
           />
         ))}
       </div>

@@ -1,3 +1,5 @@
+import { BASE_URL } from "@/data";
+import { Item } from "@radix-ui/react-select";
 import { useEffect, useRef, useState } from "react";
 
 type Banner = {
@@ -6,20 +8,8 @@ type Banner = {
   imagePath: string;
 };
 
-/* ================= NORMALIZE IMAGE ================= */
-const normalizeImage = (src?: string | null) => {
-  if (!src) return "/placeholder.png";
 
-  if (
-    src.startsWith("http://") ||
-    src.startsWith("https://") ||
-    src.startsWith("/")
-  ) {
-    return src;
-  }
 
-  return `/hero/${src}`;
-};
 
 /* ================= SKELETON LOADER ================= */
 const Skeleton = ({ className }: { className?: string }) => {
@@ -115,7 +105,7 @@ export default function ImageSliderHome() {
                     className="block w-full h-full"
                   >
                     <img
-                      src={normalizeImage(item.imagePath)}
+                      src={BASE_URL+"hero/"+item.imagePath}
                       alt={item.name || "Hero Slider"}
                       className="w-full h-full object-cover rounded-xl"
                       loading="lazy"
@@ -173,7 +163,7 @@ export default function ImageSliderHome() {
                 className="block w-full h-full transform transition-transform duration-500 group-hover:scale-105"
               >
                 <img
-                  src={normalizeImage(item.imagePath)}
+                  src={BASE_URL+"hero/"+item.imagePath}
                   alt={item.name || "Banner"}
                   className="w-full h-full object-cover"
                   loading="lazy"
