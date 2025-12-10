@@ -20,7 +20,7 @@ export default function AdminHeader() {
       <div className="container mx-auto h-[80px] flex items-center justify-between">
         {/* Logo */}
         <div>
-          <Link to="/admin">
+          <Link to="/">
             <img src="/logo.png" alt="brand-logo" width={250} />
           </Link>
         </div>
