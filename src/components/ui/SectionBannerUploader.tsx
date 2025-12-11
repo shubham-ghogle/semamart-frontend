@@ -19,7 +19,7 @@ type SectionBanner = {
 // Helper to get image source
 const getImageSrc = (item: BannerItem) => {
   if (item.image) return item.preview; // newly uploaded blob
-  if (item.preview) return BASE_URL + "hero/" + item.preview; // saved image
+  if (item.preview) return BASE_URL + "images/" + item.preview; // saved image
   return ""; // fallback placeholder
 };
 

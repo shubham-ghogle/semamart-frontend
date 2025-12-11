@@ -104,7 +104,7 @@ export default function ImageSliderHome() {
                     className="block w-full h-full"
                   >
                     <img
-                          src={`${BASE_URL}hero/${item.imagePath}`}
+                          src={`${BASE_URL}images/${item.imagePath}`}
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
@@ -162,7 +162,7 @@ export default function ImageSliderHome() {
                 className="block w-full h-full transform transition-transform duration-500 group-hover:scale-105"
               >
                 <img
-                  src={BASE_URL+"hero/"+item.imagePath}
+                  src={BASE_URL+"images/"+item.imagePath}
                   alt={item.name || "Banner"}
                   className="w-full h-full object-cover"
                   loading="lazy"
