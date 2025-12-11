@@ -29,33 +29,36 @@ const SectionBannerUploader: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch banners from API
-  const fetchBanners = async () => {
-    try {
-      const res = await fetch("/api/v2/sectionbanner/getallsectionbanner");
-      const data = await res.json();
+ const fetchBanners = async () => {
+  try {
+    const res = await fetch("/api/v2/sectionbanner/getallsectionbanner");
+    const data = await res.json();
 
-      if (data.success && data.data.length) {
-        const banners = data.data.map((s: any) => ({
-          title: s.title,
-          left: {
-            name: s.left.name,
-            link: s.left.link,
-            preview: s.left.image,
-          },
-          right: {
-            name: s.right.name,
-            link: s.right.link,
-            preview: s.right.image,
-          },
-        }));
-        setSectionBanners(banners);
-        setOriginalBanners(JSON.parse(JSON.stringify(banners)));
-        setIsEditing(false);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
+    if (data.success && data.data.length) {
+      const banners = data.data.map((s: any) => ({
+        title: s.title,
+        left: { name: s.left.name, link: s.left.link, preview: s.left.image },
+        right: { name: s.right.name, link: s.right.link, preview: s.right.image },
+      }));
+      setSectionBanners(banners);
+      setOriginalBanners(JSON.parse(JSON.stringify(banners)));
+      setIsEditing(false);
+    } else {
+      // First-time upload: create 3 empty sections
+      const emptyBanners: SectionBanner[] = [1, 2, 3].map((n) => ({
+        title: `Section ${n}`,
+        left: { name: "", link: "" },
+        right: { name: "", link: "" },
+      }));
+      setSectionBanners(emptyBanners);
+      setOriginalBanners(JSON.parse(JSON.stringify(emptyBanners)));
+      setIsEditing(true); // enable editing for first-time upload
     }
-  };
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
+
 
   useEffect(() => {
     fetchBanners();

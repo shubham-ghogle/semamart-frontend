@@ -1,12 +1,14 @@
 // src/components/Product/ProductInfoSection.tsx
 import { useState } from "react";
 import offer from "../../../public/offer.png";
+import { AiOutlineCheckCircle } from "react-icons/ai";
 
 export default function ProductInfoSection({
   product,
   selectedVariant,
   selectedPack,
   selectedPerPiece,
+  minOrderQty,
 }: any) {
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
 
@@ -18,6 +20,27 @@ export default function ProductInfoSection({
   const mainPrice = selectedPack
     ? selectedPack.price
     : displayDiscountPrice ?? displayOriginalPrice ?? 0;
+  
+   // safe number parser
+const safeNumber = (v: any) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+// compute effective MOQ
+const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
+
+// compute per-piece price
+const perPiecePrice = safeNumber(
+  selectedVariant?.discountPrice ??
+  selectedVariant?.originalPrice ??
+  product?.discountPrice ??
+  product?.originalPrice
+);
+
+// compute total MOQ cost
+const moqTotal = safeNumber(perPiecePrice * moq);
+
 
   let topDiscount = 0;
   if (selectedPack) {
@@ -94,6 +117,7 @@ export default function ProductInfoSection({
               {topDiscount}% off
             </span>
           )}
+          
         </div>
 
         {/* Shipping Info */}
@@ -121,6 +145,38 @@ export default function ProductInfoSection({
           </div>
         </div>
       </div>
+
+
+    {moq > 0 && (
+  <div
+    className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[#E6F6F8] bg-[#F7FFFE] shadow-sm mt-4"
+  >
+    {/* Left: Icon + Title */}
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-xl bg-[#E8F5F8] flex items-center justify-center">
+        <AiOutlineCheckCircle className="text-[#0F666D] text-2xl" />
+      </div>
+
+      <div className="flex flex-col leading-snug">
+        <span className="text-sm text-slate-700 font-medium">
+          Minimum Order Quantity
+        </span>
+      </div>
+    </div>
+
+    {/* Right: Values */}
+    <div className="text-right">
+      <div className="text-lg font-bold text-slate-900">{moq} pcs</div>
+
+      <div className="text-xs text-slate-600 mt-1">
+        ₹{perPiecePrice.toFixed(2)} each ·{" "}
+        <span className="font-semibold">₹{moqTotal.toFixed(2)}</span>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
       {/* Offers Section */}
       <div>
