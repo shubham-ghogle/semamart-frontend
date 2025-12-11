@@ -189,11 +189,12 @@ export default function ProductCard() {
       selectedVariant?.originalPrice ??
       0;
 
-
+     //console.log(selectedPack);
+    // console.log(packPrice);
     const perPiece = selectedPack
       ? packPrice / Math.max(selectedPack.qty, 1)
       : packPrice;
-
+     //console.log(perPiece);
 
     const shopId =
       typeof (product as any).shopId === "string"
@@ -201,7 +202,18 @@ export default function ProductCard() {
         : ((product as any).shopId?._id ?? "");
 
     const taxClass = (product as any).taxClass ?? 0;
-
+   
+    const x = {
+      productId: (product as any)._id,
+      variantId: selectedVariant?._id ?? null,
+      product,
+      variant: selectedVariant,
+      qty: packQty,
+      price: perPiece,
+      shopId,
+      taxClass,
+    }
+    console.log(x);
     addToCart({
       productId: (product as any)._id,
       variantId: selectedVariant?._id ?? null,

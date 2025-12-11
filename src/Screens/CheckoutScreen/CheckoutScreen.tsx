@@ -15,9 +15,7 @@ export default function CheckoutScreen(): JSX.Element {
   const { cart, clearCart } = useCartStore((s) => s);
   const navigate = useNavigate();
 
-  const [selectedAddressIndex, setSelectedAddressIndex] = useState<
-    number | null
-  >(null);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
 
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -25,57 +23,67 @@ export default function CheckoutScreen(): JSX.Element {
   });
 
   const address =
-    selectedAddressIndex !== null
-      ? user?.addresses?.[selectedAddressIndex]
-      : null;
+    selectedAddressIndex !== null ? user?.addresses?.[selectedAddressIndex] : null;
 
   const normalizeImage = (src?: string | null) => {
     if (!src) return null;
-    if (
-      src.startsWith("http://") ||
-      src.startsWith("https://") ||
-      src.startsWith("/")
-    )
-      return src;
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src;
     return `/images/${src}`;
   };
 
-  const getUnitPrice = (item: CartItem) =>
-    item.variant?.discountPrice ??
-    item.variant?.originalPrice ??
-    item.product?.variants?.[0]?.discountPrice ??
-    item.product?.variants?.[0]?.originalPrice ??
-    0;
+  // authoritative unit price resolver: prefer stored item.price -> paymentslip.basePrice -> variant/product fallbacks
+  const getUnitPrice = (item: CartItem) => {
+    const variantObj = item.variant && typeof item.variant === "object" ? (item.variant as any) : null;
+    const prodVariant0 = (item.product as any)?.variants?.[0];
 
-  // ✅ Calculate totals
+    return (
+      Number(item.price) ||
+      Number(item.paymentslip?.basePrice) ||
+      Number(variantObj?.discountPrice) ||
+      Number(variantObj?.originalPrice) ||
+      Number(prodVariant0?.discountPrice) ||
+      Number(prodVariant0?.originalPrice) ||
+      0
+    );
+  };
+
+  // ✅ Calculate totals using authoritative paymentslip when available
   const { subTotal, totalGST, grandTotal } = (cart || []).reduce(
     (acc, curr) => {
-      const price = getUnitPrice(curr);
-      const gstRate = curr.taxClass || 0;
-      const gstAmount = (price * gstRate) / 100;
+      const qty = Number(curr.qty || 0);
+      const taxRate = Number(curr.taxClass || 0);
 
-      acc.subTotal += curr.qty * price;
-      acc.totalGST += curr.qty * gstAmount;
-      acc.grandTotal += curr.qty * (price + gstAmount);
+      const unitPrice = getUnitPrice(curr);
+      const lineExGST = Number(curr.paymentslip?.total) || unitPrice * qty;
+      const gstAmount = Number(curr.paymentslip?.gstAmount) || (lineExGST * taxRate) / 100;
+      const lineGrand = Number(curr.paymentslip?.grandTotal) || lineExGST + gstAmount;
+
+      acc.subTotal += lineExGST;
+      acc.totalGST += gstAmount;
+      acc.grandTotal += lineGrand;
       return acc;
     },
-    { subTotal: 0, totalGST: 0, grandTotal: 0 },
+    { subTotal: 0, totalGST: 0, grandTotal: 0 }
   );
 
+  // Prepare API payload using authoritative stored prices (prefer paymentslip.grandTotal if present)
   const cartToApi = (cart || []).map((el) => {
-    const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
+    const fallbackVariantId = el.variant && typeof el.variant === "object" ? (el.variant as any)?._id ?? null : el.product?.variants?.[0]?._id ?? null;
     const unitPrice = getUnitPrice(el);
+    const gstRate = el.taxClass || 0;
+    const gstAmountPerUnit = (unitPrice * gstRate) / 100;
 
-    const gstAmount = (unitPrice * (el.taxClass || 0)) / 100;
+    const totalPrice = Number(el.paymentslip?.grandTotal) || (unitPrice + gstAmountPerUnit) * el.qty;
+
     return {
       shopId:
         typeof el.product?.shopId === "string"
           ? el.product.shopId
           : (el.product?.shopId as Seller)?._id,
       productId: el.product!._id,
-      variantId: el.variant?._id ?? fallbackVariantId,
+      variantId: el.variant && typeof el.variant === "object" ? el.variant._id ?? fallbackVariantId : fallbackVariantId,
       qty: el.qty,
-      totalPrice: (unitPrice + gstAmount) * el.qty,
+      totalPrice,
       tax: el.taxClass || 0,
       unitPrice: unitPrice,
     };
@@ -106,8 +114,8 @@ export default function CheckoutScreen(): JSX.Element {
 
   const { mutateAsync, status } = useMutation({
     mutationFn: (data: any) => postOrder(data),
-    onError: (err) => {
-      toast.error(err.message);
+    onError: (err: any) => {
+      toast.error(err.message || "Order creation failed");
     },
     onSuccess: () => {
       clearCart();
@@ -122,23 +130,22 @@ export default function CheckoutScreen(): JSX.Element {
       return;
     }
 
-    for (const c of cart){
+    for (const c of cart) {
       if (!c.product) return;
       const minMaxRule = c.product.minmaxrule as unknown as string;
-      const parsedMinMaxRule = JSON.parse(minMaxRule) as {
-        minQty: string;
-        maxQty: string;
-      };
-      const minQty = parseInt(parsedMinMaxRule.minQty);
-      if (!isNaN(minQty)) {
-        if (c.qty < minQty) {
-          toast.error(
-            `${c.product.name} has the minimum order quantity of ${minQty}`,
-          );
-          return;
+      try {
+        const parsedMinMaxRule = JSON.parse(minMaxRule) as { minQty: string; maxQty: string };
+        const minQty = parseInt(parsedMinMaxRule.minQty);
+        if (!isNaN(minQty)) {
+          if (c.qty < minQty) {
+            toast.error(`${c.product.name} has the minimum order quantity of ${minQty}`);
+            return;
+          }
         }
+      } catch (err) {
+        // ignore parse error and continue
       }
-    };
+    }
 
     await mutateAsync(orderPayload);
   }
@@ -149,18 +156,12 @@ export default function CheckoutScreen(): JSX.Element {
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
         <Confetti />
         <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-lg mx-4">
-          <h1 className="text-3xl font-bold text-green-600 mb-3">
-            🎉 Order Created Successful!
-          </h1>
+          <h1 className="text-3xl font-bold text-green-600 mb-3">🎉 Order Created Successful!</h1>
           <p className="text-gray-700 mb-4">
-            You can make payments for your order items by going in your order
-            history.
+            You can make payments for your order items by going in your order history.
           </p>
           <div className="flex justify-center">
-            <button
-              onClick={() => navigate("/")}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
-            >
+            <button onClick={() => navigate("/")} className="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
               OK
             </button>
           </div>
@@ -189,40 +190,33 @@ export default function CheckoutScreen(): JSX.Element {
           <h2 className="text-xl font-semibold mb-4">Your Items</h2>
           <div className="divide-y">
             {cart.map((item) => {
-              const price = getUnitPrice(item);
+              const unitPrice = getUnitPrice(item);
               const gstRate = item.taxClass ?? 0;
-              const gstAmount = (price * gstRate) / 100;
-              const priceInclGST = price + gstAmount;
+              const gstAmount = (unitPrice * gstRate) / 100;
+              const priceInclGST = unitPrice + gstAmount;
 
               const thumb =
-                normalizeImage(item.variant?.thumbnail) ??
-                (item.product?.images?.[0]
-                  ? `/images/${item.product.images[0]}`
-                  : "/placeholder.png");
+                normalizeImage(item.variant && typeof item.variant === "object" ? (item.variant as any).thumbnail : null) ??
+                (item.product?.images?.[0] ? `/images/${item.product.images[0]}` : "/placeholder.png");
 
-              const key = item.variant
-                ? `${item.product!._id}-${item.variant._id}`
+              const key = item.variant && typeof item.variant === "object"
+                ? `${item.product!._id}-${(item.variant as any)._id}`
                 : item.product!._id;
+
+              // Prefer authoritative paymentslip display values if available
+              const displayExcl = Number(item.paymentslip?.total) || unitPrice * item.qty;
+              const displayIncl = Number(item.paymentslip?.grandTotal) || (unitPrice + gstAmount) * item.qty;
 
               return (
                 <article key={key} className="flex items-center gap-4 py-4">
-                  <img
-                    src={thumb}
-                    alt={item.product?.name ?? "Product"}
-                    className="w-[80px] h-[80px] object-cover rounded shadow-sm"
-                  />
+                  <img src={thumb} alt={item.product?.name ?? "Product"} className="w-[80px] h-[80px] object-cover rounded shadow-sm" />
                   <div className="flex-1">
-                    <h5 className="text-lg font-medium">
-                      {item.product?.name}
-                    </h5>
+                    <h5 className="text-lg font-medium">{item.product?.name}</h5>
                     <p className="text-gray-600">
-                      {item.qty} × {formatter.format(price)} (Excl. GST)
+                      {item.qty} × {formatter.format(unitPrice)} (Excl. GST)
                     </p>
                     <p className="text-sm text-gray-500">
-                      GST: {gstRate}% • Incl. GST:{" "}
-                      <strong>
-                        {formatter.format(item.qty * priceInclGST)}
-                      </strong>
+                      GST: {gstRate}% • Incl. GST: <strong>{formatter.format(displayIncl)}</strong>
                     </p>
                   </div>
                 </article>
@@ -238,9 +232,7 @@ export default function CheckoutScreen(): JSX.Element {
                 <article
                   key={i}
                   className={`rounded-lg cursor-pointer transition-all border p-4 ${
-                    selectedAddressIndex === i
-                      ? "border-yellow-500 bg-yellow-50 shadow-lg"
-                      : "border-gray-300 hover:border-gray-400"
+                    selectedAddressIndex === i ? "border-yellow-500 bg-yellow-50 shadow-lg" : "border-gray-300 hover:border-gray-400"
                   }`}
                   onClick={() => setSelectedAddressIndex(i)}
                 >
@@ -253,21 +245,13 @@ export default function CheckoutScreen(): JSX.Element {
                     {el.landmark && <div>Landmark: {el.landmark}</div>}
                     {user?.phoneNumber && <div>📞 {user.phoneNumber}</div>}
                   </div>
-                  {selectedAddressIndex === i && (
-                    <div className="text-green-600 font-medium mt-1 text-sm">
-                      ✓ Selected
-                    </div>
-                  )}
+                  {selectedAddressIndex === i && <div className="text-green-600 font-medium mt-1 text-sm">✓ Selected</div>}
                 </article>
               ))}
 
               <button
                 className="border rounded-lg py-3 font-semibold text-[#1C647C] bg-green-50 hover:bg-green-100 transition"
-                onClick={() =>
-                  toast.info("Add new address flow coming soon!", {
-                    position: "top-left",
-                  })
-                }
+                onClick={() => toast.info("Add new address flow coming soon!", { position: "top-left" })}
               >
                 + Add New Address
               </button>
@@ -275,14 +259,7 @@ export default function CheckoutScreen(): JSX.Element {
           ) : (
             <div className="text-gray-600">
               No saved addresses.{" "}
-              <button
-                className="text-blue-600 underline"
-                onClick={() =>
-                  toast.info("Add new address flow coming soon!", {
-                    position: "top-left",
-                  })
-                }
-              >
+              <button className="text-blue-600 underline" onClick={() => toast.info("Add new address flow coming soon!", { position: "top-left" })}>
                 Add one now
               </button>
             </div>
@@ -307,25 +284,14 @@ export default function CheckoutScreen(): JSX.Element {
             <span>Grand Total (Incl. GST)</span>
             <span>{formatter.format(grandTotal)}</span>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Estimated delivery: 6-7 business days
-          </p>
+          <p className="text-sm text-gray-500 mt-2">Estimated delivery: 6-7 business days</p>
 
           <button
             onClick={handlePlaceOrder}
             className={`w-full mt-6 py-3 rounded font-semibold shadow cursor-pointer ${
-              selectedAddressIndex === null || status === "pending"
-                ? "bg-gray-400 text-white"
-                : "text-white"
+              selectedAddressIndex === null || status === "pending" ? "bg-gray-400 text-white" : "text-white"
             }`}
-            style={
-              selectedAddressIndex !== null && status !== "pending"
-                ? {
-                    background:
-                      "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
-                  }
-                : {}
-            }
+            style={selectedAddressIndex !== null && status !== "pending" ? { background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" } : {}}
             disabled={selectedAddressIndex === null || status === "pending"}
           >
             {status === "pending" ? "Creating Order..." : "Create Order"}
@@ -337,14 +303,9 @@ export default function CheckoutScreen(): JSX.Element {
       {cart.length > 0 && (
         <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto px-4">
           <hr className="border-t border-gray-400" />
-          <h2 className="font-bold text-2xl mt-6 text-center text-[#1C647C]">
-            Related Products
-          </h2>
+          <h2 className="font-bold text-2xl mt-6 text-center text-[#1C647C]">Related Products</h2>
           <div className="flex flex-wrap justify-center mt-8">
-            <RelatedProducts
-              productType={(cart[0].product as any).productType}
-              productId={(cart[0].product as any)._id}
-            />
+            <RelatedProducts productType={(cart[0].product as any).productType} productId={(cart[0].product as any)._id} />
           </div>
         </div>
       )}

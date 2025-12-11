@@ -6,8 +6,8 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 export default function ProductInfoSection({
   product,
   selectedVariant,
-  selectedPack,
-  selectedPerPiece,
+  // selectedPack,
+  // selectedPerPiece,
   minOrderQty,
 }: any) {
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
@@ -17,9 +17,9 @@ export default function ProductInfoSection({
   const displayDiscountPrice =
     selectedVariant?.discountPrice ?? product?.discountPrice;
 
-  const mainPrice = selectedPack
-    ? selectedPack.price
-    : displayDiscountPrice ?? displayOriginalPrice ?? 0;
+  // show original per-piece price if available; otherwise fall back to discount
+const mainPrice = displayOriginalPrice ?? displayDiscountPrice ?? 0;
+
   
    // safe number parser
 const safeNumber = (v: any) => {
@@ -42,21 +42,17 @@ const perPiecePrice = safeNumber(
 const moqTotal = safeNumber(perPiecePrice * moq);
 
 
-  let topDiscount = 0;
-  if (selectedPack) {
-    const perPiece = selectedPerPiece;
-    if (displayOriginalPrice) {
-      topDiscount = Math.round(
-        ((displayOriginalPrice - perPiece) / displayOriginalPrice) * 100
-      );
-    }
-  } else if (displayOriginalPrice && displayDiscountPrice) {
-    topDiscount = Math.round(
-      ((displayOriginalPrice - displayDiscountPrice) /
-        Math.max(displayOriginalPrice, 1)) *
-        100
-    );
-  }
+  // compute discount only from original per-piece vs discounted per-piece
+let topDiscount = 0;
+
+if (displayOriginalPrice && displayDiscountPrice) {
+  topDiscount = Math.round(
+    ((displayOriginalPrice - displayDiscountPrice) /
+      Math.max(displayOriginalPrice, 1)) *
+      100
+  );
+}
+
 
   const offers = [
     { title: "Bank Offers", details: "10% off with HDFC cards" },
