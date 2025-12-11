@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   AiOutlineShoppingCart,
   AiOutlineQuestionCircle,
@@ -23,22 +22,6 @@ export default function PurchasePanel({
   const displayDiscountPrice =
     selectedVariant?.discountPrice ?? product.discountPrice;
   const GREEN = "#3bc177";
-
-  // ✅ Ensure "1 Pack" is default
-  useEffect(() => {
-    if (!selectedPack) {
-      setSelectedPack({
-        qty: 1,
-        price: displayDiscountPrice ?? displayOriginalPrice ?? 0,
-        label: "1 Pack",
-      });
-    }
-  }, [
-    selectedPack,
-    displayOriginalPrice,
-    displayDiscountPrice,
-    setSelectedPack,
-  ]);
 
   // ✅ discount for 1 Pack
   const onePackDiscount =
