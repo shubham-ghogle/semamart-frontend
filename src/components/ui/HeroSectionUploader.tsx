@@ -13,7 +13,7 @@ import {
 const resolveImageSrc = (preview?: string) => {
   if (!preview) return "";
   if (preview.startsWith("blob:")) return preview; // ✅ new upload
-  return BASE_URL + "hero/" + preview;             // ✅ saved image
+  return BASE_URL + "images/" + preview;             // ✅ saved image
 };
 
 /* ================= TYPES ================= */
