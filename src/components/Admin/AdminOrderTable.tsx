@@ -68,16 +68,16 @@ export default function AdminOrderTable({orders}:AdminOrderTableProps){
       header: "Shop Name",
     },
     {
-      accessorKey: "status",
-      header: "Status",
-    },
-    {
       accessorKey: "totalPrice",
       header: "Total Price",
     },
     {
       accessorKey: "orderedOn",
       header: "Ordered On",
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
     },
     {
       accessorKey: "action",
@@ -98,6 +98,8 @@ export default function AdminOrderTable({orders}:AdminOrderTableProps){
         docName="orders"
         searchColId="id"
         searchPlaceholder="Search by order id"
+        enableCalender={true}
+        dateFieldId="orderedOn"
       />
     </div>
   );

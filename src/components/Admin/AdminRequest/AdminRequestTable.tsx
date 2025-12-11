@@ -92,6 +92,7 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
     { accessorKey: "name", header: "Seller Name" },
     { accessorKey: "businessName", header: "Business Name" },
     { accessorKey: "email", header: "Email" },
+    { accessorKey: "joinedOn", header: "Joined On" },
     {
       accessorKey: "action",
       header: "Actions",
@@ -135,6 +136,8 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
         data={rows}
         columns={columns}
         searchPlaceholder="Search by business name or email"
+        enableCalender={true}
+        dateFieldId="joinedOn"
       />
     </div>
   );
