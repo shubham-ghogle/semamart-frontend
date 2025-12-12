@@ -65,14 +65,21 @@ export default function ProductCard({ product }: Props) {
       return;
     }
 
+    if(!product) return
+
     const perPiecePrice = discountPrice ?? originalPrice ?? 0;
+
+    const parsedMinMaxQty = JSON.parse(
+      product.minmaxrule as unknown as string,
+    ) as { minQty: string; maxQty: string };
+    const intMinQty = parseInt(parsedMinMaxQty.minQty);
 
     addToCart({
       productId: product._id,
       variantId: variant._id,
       product,
       variant,
-      qty: 1,
+      qty: intMinQty ?? 1 ,
       price: perPiecePrice,
       shopId: (product as any).shopId?._id || (product as any).shopId,
       taxClass: (product as any).taxClass ?? 0,
