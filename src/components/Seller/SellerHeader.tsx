@@ -9,7 +9,7 @@ export default function SellerHeader() {
     <header className="w-full bg-white shadow-sm sticky top-0 left-0 z-30 px-4">
       <div className="container mx-auto h-[80px] flex items-center justify-between">
         <div>
-          <Link to="/">
+<Link to="/" target="_blank" rel="noopener noreferrer">
             <img src="/logo.png" alt="brand-logo" width={250} />
           </Link>
         </div>
