@@ -347,9 +347,10 @@ const Orderpage = () => {
                           Delivered on{" "}
                           {new Date(order.deliveredAt || "").toLocaleDateString()}
                         </p>
-                        <button className="text-blue-600 hover:underline text-sm">
-                          ⭐ Rate & Review
-                        </button>
+                        <button className="text-blue-600 text-sm hover:no-underline focus:no-underline active:no-underline">
+  ⭐ Rate & Review
+</button>
+
                       </>
                     )}
 
