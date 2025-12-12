@@ -67,7 +67,7 @@ export default function BannerSection({ className = "", bannerIndex = 0 }: Banne
         >
           {banner.left.image ? (
             <img
-              src={BASE_URL+"hero/"+banner.left.image}
+              src={BASE_URL+"images/"+banner.left.image}
               alt={banner.left.name}
               className="w-full h-full object-cover object-left"
               loading="lazy"
@@ -86,7 +86,7 @@ export default function BannerSection({ className = "", bannerIndex = 0 }: Banne
         >
           {banner.right.image ? (
             <img
-              src={BASE_URL+"hero/"+banner.right.image}
+              src={BASE_URL+"images/"+banner.right.image}
               alt={banner.right.name}
               className="w-full h-full object-cover object-right"
               loading="lazy"

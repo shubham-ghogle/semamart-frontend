@@ -1,8 +1,12 @@
-
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { EyeIcon } from "lucide-react";
+import {
+  UserIcon,
+  Heart,
+  ShoppingCart,
+  Package,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import { User } from "@/Screens/Admin/Admin.HooksAndUtils";
 
@@ -21,7 +25,10 @@ type AdminUserTableProps = {
   onDeleteUser: (id: string) => void;
 };
 
-export default function AdminUserTable({ users, onDeleteUser }: AdminUserTableProps) {
+export default function AdminUserTable({
+  users,
+  onDeleteUser,
+}: AdminUserTableProps) {
   const navigate = useNavigate();
 
   const rows: Row[] = users.map((u) => ({
@@ -29,10 +36,11 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
     name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "-",
     email: u.email || "-",
     role: u.role || "user",
-    joinedOn: u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-IN") : "-",
+    joinedOn: u.createdAt
+      ? new Date(u.createdAt).toLocaleDateString("en-IN")
+      : "-",
     deleteUser: onDeleteUser,
     viewUser: (id: string) => {
-      // navigate to relative user detail route, adjust if you use /admin/users/:id
       navigate(id);
     },
   }));
@@ -44,7 +52,9 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
         <input
           type="checkbox"
           checked={table.getIsAllPageRowsSelected()}
-          onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
+          onChange={(e) =>
+            table.toggleAllPageRowsSelected(!!e.target.checked)
+          }
         />
       ),
       cell: ({ row }) => (
@@ -62,29 +72,66 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
     { accessorKey: "role", header: "Role" },
     { accessorKey: "joinedOn", header: "Joined On" },
     {
-      accessorKey: "action",
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <article className="flex gap-2">
+        <article className="flex gap-2 flex-wrap">
+          {/* View User */}
           {/* <Button
-            onClick={() => {
-              row.original.deleteUser(row.original.id);
-            }}
-            variant="destructive"
-            size="icon"
-            title="Delete user"
-          >
-            <Trash />
-          </Button> */}
-          <Button
-            onClick={() => {
-              row.original.viewUser(row.original.id);
-            }}
+            onClick={() => row.original.viewUser(row.original.id)}
             variant="outline"
             size="icon"
             title="View user"
           >
             <EyeIcon />
+          </Button> */}
+
+          {/* User Profile */}
+          <Button
+            onClick={() =>
+              navigate(`/admin/users/profile/${row.original.id}`)
+            }
+            variant="outline"
+            size="icon"
+            title="User profile"
+          >
+            <UserIcon />
+          </Button>
+
+          {/* Wishlist */}
+          <Button
+            onClick={() =>
+              navigate(`/admin/users/wishlist/${row.original.id}`)
+            }
+            variant="outline"
+            size="icon"
+            title="Wishlist"
+          >
+            <Heart />
+          </Button>
+
+          {/* Cart */}
+          <Button
+            onClick={() =>
+              navigate(`/admin/users/add-to-cart/${row.original.id}`)
+            }
+            variant="outline"
+            size="icon"
+            title="Cart"
+          >
+            <ShoppingCart />
+          </Button>
+
+          {/* Products */}
+          <Button
+            onClick={() =>
+              navigate(`/admin/users/${row.original.id}/products`)
+            }
+            variant="outline"
+            size="icon"
+            title="Products"
+          >
+            <Package />
           </Button>
         </article>
       ),
@@ -99,6 +146,8 @@ export default function AdminUserTable({ users, onDeleteUser }: AdminUserTablePr
         data={rows}
         columns={columns}
         searchPlaceholder="Search by email or name"
+        enableCalender={true}
+        dateFieldId="joinedOn"
       />
     </div>
   );

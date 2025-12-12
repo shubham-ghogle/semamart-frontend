@@ -15,25 +15,34 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // ✅ Main totals calculation
+  // ✅ Main totals calculation: prefer paymentslip values, fallback to item.price
   const { subtotal, gstTotal, grandTotal } = cart.reduce(
     (acc, item) => {
-      const base =
-        item.variant?.discountPrice ??
-        item.variant?.originalPrice ??
-        item.product?.variants?.[0]?.discountPrice ??
-        item.product?.variants?.[0]?.originalPrice ??
-        item.price ??
-        0;
-
       const qty = Number(item.qty ?? 1);
       const taxRate = Number(item.taxClass ?? 0);
 
-      const gstAmountPerUnit = (base * taxRate) / 100;
+      // prefer stored per-piece price or paymentslip base
+      const unitBase =
+        Number(item.price) ||
+        Number(item.paymentslip?.basePrice) ||
+        Number(item.variant?.discountPrice) ||
+        Number(item.variant?.originalPrice) ||
+        Number(item.product?.variants?.[0]?.discountPrice) ||
+        Number(item.product?.variants?.[0]?.originalPrice) ||
+        0;
 
-      acc.subtotal += qty * base;
-      acc.gstTotal += qty * gstAmountPerUnit;
-      acc.grandTotal += qty * (base + gstAmountPerUnit);
+      // prefer stored paymentslip totals if present (already GST-excluded)
+      const lineTotalExGST =
+        Number(item.paymentslip?.total) || unitBase * qty;
+
+      const gstAmount =
+        Number(item.paymentslip?.gstAmount) || (lineTotalExGST * taxRate) / 100;
+
+      const lineGrand = Number(item.paymentslip?.grandTotal) || lineTotalExGST + gstAmount;
+
+      acc.subtotal += lineTotalExGST;
+      acc.gstTotal += gstAmount;
+      acc.grandTotal += lineGrand;
 
       return acc;
     },
@@ -106,12 +115,12 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             <div className="px-6 py-4 bg-gray-50 border-t space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-base text-gray-700">Subtotal</span>
-                <span className="font-semibold">₹{subtotal.toLocaleString()}</span>
+                <span className="font-semibold">₹{subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-base text-gray-700">GST</span>
                 <span className="font-semibold text-green-600">
-                  ₹{gstTotal.toLocaleString()}
+                  ₹{gstTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -119,7 +128,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
                   Total (Incl. GST)
                 </span>
                 <span className="text-xl font-bold text-gray-900">
-                  ₹{grandTotal.toLocaleString()}
+                  ₹{grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <button
@@ -151,27 +160,35 @@ const CartSingle = ({ data }: CartSingleProps) => {
   if (!product) return null;
 
   const imageUrl =
-    variant?.thumbnail
-      ? `/images/${variant.thumbnail}`
+    (variant && (variant as any).thumbnail)
+      ? `/images/${(variant as any).thumbnail}`
       : product.images?.[0]
       ? `/images/${product.images[0]}`
       : "/default-image.png";
 
-  const basePrice =
-    variant?.discountPrice ??
-    variant?.originalPrice ??
-    product.variants?.[0]?.discountPrice ??
-    product.variants?.[0]?.originalPrice ??
-    data.price ??
+  // Prefer the stored item.price or paymentslip.basePrice (these are authoritative)
+  const unitPrice =
+    Number(data.price) ||
+    Number(data.paymentslip?.basePrice) ||
+    Number((variant as any)?.discountPrice) ||
+    Number((variant as any)?.originalPrice) ||
+    Number(product.variants?.[0]?.discountPrice) ||
+    Number(product.variants?.[0]?.originalPrice) ||
     0;
 
   const qty = data.qty ?? 1;
-  const lineTotal = basePrice * qty;
+
+  // Prefer paymentslip totals if present — they are already GST-excluded
+  const lineTotalEx =
+    Number(data.paymentslip?.total) || unitPrice * qty;
+
+  // Display line total (ex GST). If you prefer to show incl. GST, use paymentslip.grandTotal
+  const displayLineTotal = lineTotalEx;
 
   const productId =
-    typeof data.productId === "string" ? data.productId : data.productId?._id;
+    typeof data.productId === "string" ? data.productId : (data.productId as any)?._id;
   const variantId =
-    typeof data.variantId === "string" ? data.variantId : data.variantId?._id;
+    typeof data.variantId === "string" ? data.variantId : (data.variantId as any)?._id;
 
   return (
     <div className="flex gap-4 py-6 border-b border-gray-200">
@@ -179,7 +196,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
       <div className="w-28 flex-shrink-0">
         <img
           src={imageUrl}
-          alt={product.name}
+          alt={(product as any).name}
           className="w-24 h-24 object-cover rounded border"
         />
       </div>
@@ -187,17 +204,20 @@ const CartSingle = ({ data }: CartSingleProps) => {
       {/* Info */}
       <div className="flex flex-col flex-1 justify-between">
         <div className="flex justify-between items-center mb-1">
-          <h4 className="text-base font-semibold text-gray-900">{product.name}</h4>
+          <h4 className="text-base font-semibold text-gray-900">{(product as any).name}</h4>
           <span className="text-sm font-semibold text-gray-900">
-            ₹{lineTotal.toFixed(2)}
+            ₹{displayLineTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </span>
         </div>
 
         <div className="text-sm text-gray-600 mb-2">
           <p>
-            {variant?.colorOption ? `${variant.colorOption}` : ""}
-            {variant?.size ? ` | Size: ${variant.size}` : ""}
+            {(variant as any)?.colorOption ? `${(variant as any).colorOption}` : ""}
+            {(variant as any)?.size ? ` | Size: ${(variant as any).size}` : ""}
           </p>
+          <div className="text-xs text-gray-500 mt-1">
+            Unit: ₹{unitPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
         </div>
 
         <div className="flex items-center gap-6">

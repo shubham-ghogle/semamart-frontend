@@ -102,6 +102,18 @@ export const useCartStore = create<CartStore>()(
 
           // new item
           const perPiece = resolvePerPiece(item, item.qty);
+          //console.log(perPiece);
+          let x = {
+            cart: [
+              ...state.cart,
+              {
+                ...item,
+                price: perPiece,
+                paymentslip: buildSlip(perPiece, item.qty, gstPercent),
+              },
+            ],
+          };
+          console.log(x);
           return {
             cart: [
               ...state.cart,
