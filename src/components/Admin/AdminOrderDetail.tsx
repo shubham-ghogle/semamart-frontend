@@ -52,7 +52,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
-        <OrderPaymentViewDialog paymentData={data.paymentFile} />
+        <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
         <Button
           variant="outline"
           onClick={() => handleDownloadInvoice(orderId)}

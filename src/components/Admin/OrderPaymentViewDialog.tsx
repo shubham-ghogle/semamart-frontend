@@ -11,12 +11,15 @@ import { useState } from "react";
 import { BASE_URL } from "@/data";
 import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
 import { useParams } from "react-router";
+import { Order } from "@/Types/types";
 
 type AdminPaymentProofDialogProps = {
   paymentData: string | null;
+  currentStatus: Order["status"];
 };
 export default function OrderPaymentViewDialog({
   paymentData,
+  currentStatus,
 }: AdminPaymentProofDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -27,6 +30,8 @@ export default function OrderPaymentViewDialog({
   });
 
   const { orderId } = useParams();
+
+  const isPaymentVerified = currentStatus !== "Paid";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -60,14 +65,16 @@ export default function OrderPaymentViewDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              onClick={() => {
-                mutateOrder({ orderId: orderId ?? "", status: "Processing" });
-              }}
-              disabled={mutationStatus === "pending"}
-            >
-              Verify
-            </Button>
+            {!isPaymentVerified && (
+              <Button
+                onClick={() => {
+                  mutateOrder({ orderId: orderId ?? "", status: "Processing" });
+                }}
+                disabled={mutationStatus === "pending"}
+              >
+                Verify
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       )}
