@@ -19,19 +19,18 @@ type AdminOrderTableProps = {
   orders: Order[];
 };
 
-export default function AdminOrderTable({orders}:AdminOrderTableProps){
-
-  const navigate = useNavigate()
+export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
+  const navigate = useNavigate();
 
   const rows: Row[] = orders.map((el) => ({
     id: el._id,
-    status: el.status || "-",
-    customer: typeof el.user ==="string"?"-": el.user.firstName,
-    shop:typeof el.shop==="string"?"-":el.shop?.businessName||"-",
+    status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
+    customer: typeof el.user === "string" ? "-" : el.user.firstName,
+    shop: typeof el.shop === "string" ? "-" : el.shop?.businessName || "-",
     totalPrice: el.totalPrice.toString(),
     orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
     viewOrder: (orderId: string) => {
-      navigate(orderId); 
+      navigate(orderId);
     },
   }));
 
@@ -83,7 +82,10 @@ export default function AdminOrderTable({orders}:AdminOrderTableProps){
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Button variant="ghost" onClick={() => row.original.viewOrder(row.original.id)}>
+        <Button
+          variant="ghost"
+          onClick={() => row.original.viewOrder(row.original.id)}
+        >
           <EyeIcon />
         </Button>
       ),

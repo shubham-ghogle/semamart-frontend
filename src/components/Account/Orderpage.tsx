@@ -287,7 +287,7 @@ const Orderpage = () => {
                 <div
                   key={order._id}
                   onClick={() =>
-                    order.status !== "Created" &&
+                    (order.status !== "Created" && order.status !== "Paid") &&
                     handleOrderClick(product._id)
                   }
                   className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 cursor-pointer"
