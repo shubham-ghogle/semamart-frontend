@@ -1,7 +1,7 @@
 // ProductCard.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 
 import { getProductDetail } from "./ProductDetails.HooksUtils";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
@@ -14,6 +14,7 @@ import PurchasePanel from "./PurchasePanel";
 import ProductBottomSections from "./ProductBottomSections";
 
 import { toImageUrl } from "./utils";
+import { useUserStore } from "@/store/userStore";
 
 const demoImages = [
   "/MedicalImages/imagea.png",
@@ -26,6 +27,8 @@ const demoImages = [
 
 export default function ProductCard() {
   const { id } = useParams();
+  const { user }= useUserStore()
+  const n = useNavigate()
 
   const {
     data: product,
@@ -176,6 +179,10 @@ export default function ProductCard() {
   // ✅ Add to cart
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!user) {
+      n("/login")
+      return
+    }
     if (!product) return;
     const parsedMinMaxQty = JSON.parse(
       product.minmaxrule as unknown as string,

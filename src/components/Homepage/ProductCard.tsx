@@ -3,10 +3,11 @@ import { Product } from "@/Types/types";
 import { Star, ShoppingCart, Plus } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCategoriesMap } from "./useCategoriesMap";
 import { BASE_URL } from "@/data";
+import { useUserStore } from "@/store/userStore";
 
 
 interface Props {
@@ -16,6 +17,8 @@ interface Props {
 const PLACEHOLDER = "/placeholder.png";
 
 export default function ProductCard({ product }: Props) {
+  const {user} = useUserStore()
+  const n = useNavigate()
   const variant = product.variants?.[0] ?? null;
 
   // prices (use nullish to allow 0)
@@ -51,6 +54,12 @@ export default function ProductCard({ product }: Props) {
   const handleAddCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if(!user){
+      n("/login")
+      return
+    }
+
     if (!variant || (variant.stock ?? 0) <= 0) {
       toast.error("Out of stock", { position: "top-center", autoClose: 1500 });
       return;
