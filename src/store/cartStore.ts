@@ -2,6 +2,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Product, Variant } from "../Types/types";
+import { useUserStore } from "./userStore";
+
 
 export type PaymentSlip = {
   basePrice: number;   // per-piece price
@@ -68,8 +70,19 @@ export const useCartStore = create<CartStore>()(
     (set) => ({
       cart: [],
 
-      addToCart: (item) => {
+      addToCart: async (item) => {
+        const user = useUserStore.getState().user;
+            if (!user?._id) {
+              console.error("User not logged in");
+              return;
+            }
+            const itemProdId =
+    typeof item.productId === "string" ? item.productId : (item.productId as any)?._id;
+  const itemVarId =
+    typeof item.variantId === "string" ? item.variantId : (item.variantId as any)?._id;
+  
         set((state) => {
+           
           const itemProdId =
             typeof item.productId === "string" ? item.productId : (item.productId as any)?._id;
           const itemVarId =
@@ -125,18 +138,59 @@ export const useCartStore = create<CartStore>()(
             ],
           };
         });
+         try {
+        await fetch("/api/v2/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+  user_id: user?._id,
+  product_id: itemProdId,
+  variant_id: itemVarId,
+}),
+
+    });
+  } catch (error) {
+    console.error("Failed to add to wishlist API:", error);
+  }
       },
 
-      removeFromCart: (productId, variantId) =>
-        set((state) => ({
-          cart: state.cart.filter((item) => {
-            const elProdId =
-              typeof item.productId === "string" ? item.productId : (item.productId as any)?._id;
-            const elVarId =
-              typeof item.variantId === "string" ? item.variantId : (item.variantId as any)?._id;
-            return !(elProdId === productId && elVarId === variantId);
-          }),
-        })),
+    removeFromCart: async (productId, variantId) => {
+       const user = useUserStore.getState().user;
+
+  if (!user?._id) {
+    console.error("User not logged in");
+    return;
+  }
+        try {
+       
+          await fetch(`/api/v2/cart/${user._id}/${productId}/${variantId}`, {
+            method: "DELETE",
+          });
+
+        
+          set((state) => ({
+            cart: state.cart.filter((item) => {
+              const elProdId =
+                typeof item.productId === "string"
+                  ? item.productId
+                  : item.productId?._id;
+
+              const elVarId =
+                typeof item.variantId === "string"
+                  ? item.variantId
+                  : item.variantId?._id;
+
+              return !(elProdId === productId && elVarId === variantId);
+            }),
+          }));
+        } catch (error) {
+          console.error("Remove cart error:", error);
+        }
+      },
+
+
 
       changeQyt: (productId, variantId, amount) =>
         set((state) => {
@@ -166,7 +220,36 @@ export const useCartStore = create<CartStore>()(
           return { cart: updated };
         }),
 
-      clearCart: () => set(() => ({ cart: [] })),
+      // clearCart: () => set(() => ({ cart: [] })),
+  
+         clearCart: async () => {
+  const user = useUserStore.getState().user;
+
+  if (!user?._id) {
+    console.error("User not logged in");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/v2/cart/clear/${user._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to clear cart");
+    }
+
+    set({ cart: [] });
+  } catch (error) {
+    console.error("Clear Cart failed:", error);
+    throw error;
+  }
+},
+
     }),
     {
       name: "cart-storage",

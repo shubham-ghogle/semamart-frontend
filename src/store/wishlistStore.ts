@@ -2,6 +2,8 @@
 import { create } from "zustand";
 import { Product, Variant } from "../Types/types";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useUserStore } from "./userStore";
+
 
 export type WishlistItem = {
   productId: string;
@@ -26,7 +28,13 @@ export const useWishlistStore = create<WishlistStore>()(
     (set, get) => ({
       wishlist: [],
 
-      addToWishlist: (product, variant) => {
+      addToWishlist: async (product, variant) => {
+        const user = useUserStore.getState().user;
+
+        if (!user?._id) {
+          console.error("User not logged in");
+          return;
+        }
         const variantId = variant?._id ?? null;
         const price =
           variant?.discountPrice ??
@@ -60,18 +68,88 @@ export const useWishlistStore = create<WishlistStore>()(
         if (exists) return;
 
         set((state) => ({ wishlist: [...state.wishlist, newItem] }));
+        try {
+        await fetch("/api/v2/wishlist/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user?._id,
+        product_id: product._id,
+        variant_id: variantId, // will be null if not present
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to add to wishlist API:", error);
+  }
       },
 
-      removeFromWishlist: (productId, variantId) => {
-        set((state) => ({
-          wishlist: state.wishlist.filter((w) => {
-            if (variantId === undefined) return w.productId !== productId;
-            return !(w.productId === productId && (w.variantId ?? null) === (variantId ?? null));
-          }),
-        }));
-      },
+   removeFromWishlist: async (productId, variantId) => {
+  const user = useUserStore.getState().user;
 
-      clearWishlist: () => set(() => ({ wishlist: [] })),
+  if (!user?._id) {
+    console.error("User not logged in");
+    return;
+  }
+
+  try {
+    // Call API with userId
+    await fetch(
+      `/api/v2/wishlist/${user._id}/${productId}/${variantId ?? "null"}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Update local store
+    set((state) => ({
+      wishlist: state.wishlist.filter((w) => {
+        if (!variantId) return w.productId !== productId;
+        return !(w.productId === productId && (w.variantId ?? null) === (variantId ?? null));
+      }),
+    }));
+  } catch (error) {
+    console.error("Remove wishlist error:", error);
+  }
+},
+
+
+    clearWishlist: async () => {
+  const user = useUserStore.getState().user;
+
+  if (!user?._id) {
+    console.error("User not logged in");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/v2/wishlist/clear/${user._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to clear wishlist");
+    }
+
+    // Clear local Zustand store
+    set({ wishlist: [] });
+
+  } catch (error) {
+    console.error("Clear wishlist failed:", error);
+    throw error;
+  }
+},
+
+
+
     }),
     {
       name: "wishlist-storage",

@@ -113,7 +113,7 @@ export default function AdminUserTable({
           {/* Cart */}
           <Button
             onClick={() =>
-              navigate(`/admin/users/add-to-cart/${row.original.id}`)
+              navigate(`/admin/users/cart/${row.original.id}`)
             }
             variant="outline"
             size="icon"

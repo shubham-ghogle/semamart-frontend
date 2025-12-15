@@ -72,6 +72,8 @@ import AdminSellerAccount from "./components/Admin/AdminSellerAccount";
 import AdminImageUploader from "./components/Admin/AdminImageUploader";
 import AdminUserAccount from "./components/Admin/AdminUserAccount";
 import OrderProductCard from "./components/ui/OrderProductCard";
+import UserWishlist from "./components/ui/UserWishlist";
+import UserCart from "./components/ui/UserCart";
 
 /**
  * redirectToDashboard loader
@@ -348,7 +350,8 @@ export const router = createBrowserRouter([
             { index: true, element: <AllUserScreen /> },
              { path: "profile/:userId", element: <AdminUserAccount /> }, 
             { path: ":userId/products", element: <OrderProductCard /> },
-            // { path: "add-to-cart", element: <AddToCart /> },
+            { path: "wishlist/:userId", element: <UserWishlist /> },
+            { path: "cart/:userId", element: <UserCart/>},
           ],
         },
       { path: "products", element: <AdminProduct /> },

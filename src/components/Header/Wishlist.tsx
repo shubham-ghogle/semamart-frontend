@@ -3,6 +3,7 @@ import { IoHeart } from "react-icons/io5";
 import { RxCross1 } from "react-icons/rx";
 import { useWishlistStore, WishlistItem } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
+import { useUserStore } from "@/store/userStore";
 
 type WishlistProps = {
   wishlistOpenHandler: () => void;
@@ -135,9 +136,15 @@ function WishlistItemCard({ item }: WishlistItemProps) {
       {/* Add to Cart Button (bottom full-width) */}
       {variant?.stock && (
         <button
-          onClick={(e) => {
+          onClick={ async (e)  =>  {
             e.preventDefault();
             e.stopPropagation();
+            const user = useUserStore.getState().user;
+
+              if (!user?._id) {
+                console.error("User not logged in");
+                return;
+              }
 
             // ✅ Add to cart with same structure as cartStore expects
             addToCart({
@@ -150,7 +157,27 @@ function WishlistItemCard({ item }: WishlistItemProps) {
               shopId: shopId ?? "",
               taxClass: taxClass ?? 0,
             });
+            try {
+              const res = await fetch("/api/v2/cart/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  user_id: user?._id || "guest",  // user ID or "guest"
+                  product_id: productId,
+                    variant_id: variantId ?? null,
+                    qty: 1,
+                }),
+              });
 
+              const data = await res.json();
+
+              if (!data.success) {
+                console.error("Failed to save cart:", data.message);
+              }
+            } catch (err) {
+              console.error("Error calling cart API:", err);
+            }
+            
             // remove from wishlist after adding
             removeFromWishlist(productId, variantId ?? null);
           }}
