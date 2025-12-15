@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
+import { API_URL } from "@/data";
 
 interface Seller {
   id: string;
@@ -34,7 +35,7 @@ const AdminSellerAccount: React.FC = () => {
     const fetchSeller = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/v2/shop/getSeller/${sellerId}`,{
+        const res = await fetch(`${API_URL}shop/getSeller/${sellerId}`,{
          credentials:"include"
         });
         if (!res.ok) throw new Error(`Failed to fetch seller with ID: ${sellerId}`);

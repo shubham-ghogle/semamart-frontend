@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useEffect, useRef, useState } from "react";
 import {
   FiEdit2,
@@ -133,7 +133,7 @@ export default function HeroSectionUploader() {
 
   /* -------- FETCH -------- */
   useEffect(() => {
-    fetch("/api/v2/heroslider/getallimg")
+    fetch(API_URL+"heroslider/getallimg")
       .then((r) => r.json())
       .then((res) => {
         const r0 = res.data?.[0];

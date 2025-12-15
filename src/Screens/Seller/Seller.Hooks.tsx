@@ -3,6 +3,7 @@ import { Order, Product } from "../../Types/types";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { redirect } from "react-router"; // ✅ added for route protection
+import { API_URL } from "@/data";
 
 // 🔒 AUTH GUARD — ensures only logged-in sellers can access /seller pages
 export function requireSellerAuth() {
@@ -36,7 +37,7 @@ export async function getOrdersForSeller(id: string) {
 // ✅ Fetch all products for a seller
 export async function getProductsForSeller(id?: string) {
   if (!id) return;
-  const res = await fetch("/api/v2/product/get-all-products-shop/" + id,{
+  const res = await fetch(API_URL+"product/get-all-products-shop/" + id,{
     credentials:"include"
   });
 

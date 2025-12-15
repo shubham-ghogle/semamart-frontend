@@ -2,13 +2,14 @@ import { redirect } from "react-router";
 import { Order, Product, Seller } from "../../Types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { API_URL } from "@/data";
 
 export type AdminSellersApiRes =
   | { success: true; sellers: Seller[] }
   | { success: false; message: string };
 
 export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
-  const response = await fetch("/api/v2/shop/admin-all-sellers",{
+  const response = await fetch(API_URL+"shop/admin-all-sellers",{
     credentials:"include"
   });
   if (!response.ok) {
@@ -69,7 +70,7 @@ export type AdminOrdersApiRes =
   | { success: false; message: string };
 
 export async function getAllOrders() {
-  const response = await fetch("/api/v2/order/admin-all-orders", {
+  const response = await fetch(API_URL+"order/admin-all-orders", {
     credentials:"include"
   });
 
@@ -116,7 +117,7 @@ export type AdminUsersApiRes =
   | { success: false; message: string };
 
 export async function getAllUsers(): Promise<User[]> {
-  const res = await fetch("/api/v2/user/admin-all-users", {
+  const res = await fetch(API_URL+"user/admin-all-users", {
     credentials:"include"
   });
 
@@ -238,7 +239,7 @@ export interface DashboardSummaryApiRes {
 }
 
 export async function getAdminDashboardSummary(): Promise<DashboardSummary> {
-  const res = await fetch("/api/v2/adminsummary/admin-dashboard-summary", {
+  const res = await fetch(API_URL+"adminsummary/admin-dashboard-summary", {
     credentials:"include"
   });
 
