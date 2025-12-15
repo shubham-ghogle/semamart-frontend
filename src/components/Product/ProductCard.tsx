@@ -1,9 +1,10 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Product, Variant } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { BASE_URL } from "@/data";
+import { useUserStore } from "@/store/userStore";
 
 type DefaultProductCardProps = {
   product: Product;
@@ -44,14 +45,19 @@ export default function DefaultProductCard({
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!firstVariant) return;
+    if (!firstVariant || !product) return;
+
+    const parsedMinMaxQty = JSON.parse(
+      product.minmaxrule as unknown as string,
+    ) as { minQty: string; maxQty: string };
+    const intMinQty = parseInt(parsedMinMaxQty.minQty);
 
     addToCart({
       productId: product._id,
       variantId: firstVariant._id,
       product,
       variant: firstVariant,
-      qty: 1,
+      qty: intMinQty ?? 1,
       price: firstVariant.discountPrice ?? firstVariant.originalPrice ?? 0,
       shopId: (product as any).shopId?._id || (product as any).shopId,
     });
@@ -59,8 +65,15 @@ export default function DefaultProductCard({
     if (inWishlist) removeFromWishlist(product._id, firstVariant._id);
   };
 
+  const {user} = useUserStore()
+  const n = useNavigate()
+
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
+    if(!user){
+      n("/login")
+      return
+    }
     if (!firstVariant) return;
     if (inWishlist) {
       removeFromWishlist(product._id, firstVariant._id);
