@@ -98,17 +98,30 @@ export default function ProductCard({ product }: Props) {
     });
   };
 
-  const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (inWishlist) {
-      removeFromWishlist(product._id, variant?._id ?? null);
-      toast.info("Removed from wishlist", { position: "top-center", autoClose: 1200 });
-    } else {
-      addToWishlist(product, variant ?? null);
-      toast.success("Added to wishlist", { position: "top-center", autoClose: 1200 });
-    }
-  };
+ const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!user) {
+    n("/login");
+    return;
+  }
+
+  if (inWishlist) {
+    removeFromWishlist(product._id, variant?._id ?? null);
+    toast.info("Removed from wishlist", {
+      position: "top-center",
+      autoClose: 1200,
+    });
+  } else {
+    addToWishlist(product, variant ?? null);
+    toast.success("Added to wishlist", {
+      position: "top-center",
+      autoClose: 1200,
+    });
+  }
+};
+
 
   // ratings (0..5)
   const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;

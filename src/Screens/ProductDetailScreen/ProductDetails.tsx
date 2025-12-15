@@ -236,17 +236,23 @@ export default function ProductCard() {
     setTimeout(() => setCartAnimation(false), 1500);
   };
 
-  // ✅ Add/remove wishlist with variant info
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!product || !selectedVariant) return;
+const handleToggleWishlist = (e: React.MouseEvent) => {
+  e.preventDefault();
 
-    if (inWishlist) {
-      removeFromWishlist((product as any)._id, selectedVariant._id ?? null);
-    } else {
-      addToWishlist(product, selectedVariant); // store expects product + variant
-    }
-  };
+  if (!user) {
+    n("/login");
+    return;
+  }
+
+  if (!product || !selectedVariant) return;
+
+  if (inWishlist) {
+    removeFromWishlist((product as any)._id, selectedVariant._id ?? null);
+  } else {
+    addToWishlist(product, selectedVariant);
+  }
+};
+
 
   const getMinOrderQtyFromRule = (ruleRaw: any) => {
     if (!ruleRaw) return null;
