@@ -1,7 +1,7 @@
 // src/components/Admin/AdminProductsPage.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type VariantDetails = {
   _id: string;
@@ -45,7 +45,8 @@ const OrderProductCard: React.FC = () => {
     const fetchProducts = async () => {
       setStatus("pending");
       try {
-        const response = await fetch(`/api/v2/user/${userId}/products`);
+        const response = await fetch(`${API_URL}user/${userId}/products`,{
+        });
         const data: ApiResponse = await response.json();
         if (data.success) {
           setProducts(data.products);
@@ -124,7 +125,7 @@ const OrderProductCard: React.FC = () => {
                 const variant = product.variantDetails;
                 const info = product.productDetails;
 
-                
+
                   const imageSrc = variant?.thumbnail
                     ? `${BASE_URL}images/${variant.thumbnail}`
                     : "/image60.png";

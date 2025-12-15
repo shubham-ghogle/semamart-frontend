@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import React, { useEffect, useState } from "react";
 import { FiUploadCloud, FiEdit2, FiSave, FiX } from "react-icons/fi";
 
@@ -31,7 +31,7 @@ const SectionBannerUploader: React.FC = () => {
   // Fetch banners from API
  const fetchBanners = async () => {
   try {
-    const res = await fetch("/api/v2/sectionbanner/getallsectionbanner");
+    const res = await fetch(API_URL+"sectionbanner/getallsectionbanner");
     const data = await res.json();
 
     if (data.success && data.data.length) {

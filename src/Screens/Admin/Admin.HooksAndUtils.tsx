@@ -2,13 +2,16 @@ import { redirect } from "react-router";
 import { Order, Product, Seller } from "../../Types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { API_URL } from "@/data";
 
 export type AdminSellersApiRes =
   | { success: true; sellers: Seller[] }
   | { success: false; message: string };
 
 export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
-  const response = await fetch("/api/v2/shop/admin-all-sellers");
+  const response = await fetch(API_URL+"shop/admin-all-sellers",{
+    credentials:"include"
+  });
   if (!response.ok) {
     const errMessage = await response.json();
     throw new Error(errMessage.message || "Failed to fetch sellers");
@@ -67,9 +70,8 @@ export type AdminOrdersApiRes =
   | { success: false; message: string };
 
 export async function getAllOrders() {
-  const token = localStorage.getItem("user-token");
-  const response = await fetch("/api/v2/order/admin-all-orders", {
-    headers: { Authorization: `Bearer ${token}` },
+  const response = await fetch(API_URL+"order/admin-all-orders", {
+    credentials:"include"
   });
 
   if (!response.ok) {
@@ -115,9 +117,8 @@ export type AdminUsersApiRes =
   | { success: false; message: string };
 
 export async function getAllUsers(): Promise<User[]> {
-  const token = localStorage.getItem("user-token");
-  const res = await fetch("/api/v2/user/admin-all-users", {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await fetch(API_URL+"user/admin-all-users", {
+    credentials:"include"
   });
 
   if (!res.ok) {
@@ -238,11 +239,8 @@ export interface DashboardSummaryApiRes {
 }
 
 export async function getAdminDashboardSummary(): Promise<DashboardSummary> {
-  const token = localStorage.getItem("user-token"); // if your backend needs auth here
-  const res = await fetch("/api/v2/adminsummary/admin-dashboard-summary", {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-    },
+  const res = await fetch(API_URL+"adminsummary/admin-dashboard-summary", {
+    credentials:"include"
   });
 
   if (!res.ok) {

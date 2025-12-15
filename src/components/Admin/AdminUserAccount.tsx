@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminMainWrapper from "../Admin/AdminMainWrapper";
+import { API_URL } from "@/data";
 
 /* ================= TYPES ================= */
 
@@ -58,7 +59,9 @@ const AdminUserAccount: React.FC = () => {
       try {
         setStatus("pending");
 
-        const res = await fetch(`/api/v2/user/getUser/${userId}`);
+        const res = await fetch(`${API_URL}user/getUser/${userId}`,{
+          credentials:"include"
+        });
 
         if (!res.ok) {
           throw new Error("Failed to fetch user details");
