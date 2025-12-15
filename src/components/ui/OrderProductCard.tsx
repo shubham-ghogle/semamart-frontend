@@ -45,7 +45,8 @@ const OrderProductCard: React.FC = () => {
     const fetchProducts = async () => {
       setStatus("pending");
       try {
-        const response = await fetch(`/api/v2/user/${userId}/products`);
+        const response = await fetch(`/api/v2/user/${userId}/products`,{
+        });
         const data: ApiResponse = await response.json();
         if (data.success) {
           setProducts(data.products);
@@ -124,7 +125,7 @@ const OrderProductCard: React.FC = () => {
                 const variant = product.variantDetails;
                 const info = product.productDetails;
 
-                
+
                   const imageSrc = variant?.thumbnail
                     ? `${BASE_URL}images/${variant.thumbnail}`
                     : "/image60.png";

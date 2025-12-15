@@ -58,7 +58,9 @@ const AdminUserAccount: React.FC = () => {
       try {
         setStatus("pending");
 
-        const res = await fetch(`/api/v2/user/getUser/${userId}`);
+        const res = await fetch(`/api/v2/user/getUser/${userId}`,{
+          credentials:"include"
+        });
 
         if (!res.ok) {
           throw new Error("Failed to fetch user details");

@@ -34,7 +34,9 @@ const AdminSellerAccount: React.FC = () => {
     const fetchSeller = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/v2/shop/getSeller/${sellerId}`);
+        const res = await fetch(`/api/v2/shop/getSeller/${sellerId}`,{
+         credentials:"include"
+        });
         if (!res.ok) throw new Error(`Failed to fetch seller with ID: ${sellerId}`);
         const data: SellerResponse = await res.json();
         setSeller(data.seller);
@@ -57,7 +59,7 @@ const AdminSellerAccount: React.FC = () => {
       });
     }, [seller?.createdAt]);
 
-  
+
 
   return (
     <AdminMainWrapper

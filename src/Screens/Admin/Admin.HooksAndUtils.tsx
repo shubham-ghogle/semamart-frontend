@@ -8,7 +8,9 @@ export type AdminSellersApiRes =
   | { success: false; message: string };
 
 export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
-  const response = await fetch("/api/v2/shop/admin-all-sellers");
+  const response = await fetch("/api/v2/shop/admin-all-sellers",{
+    credentials:"include"
+  });
   if (!response.ok) {
     const errMessage = await response.json();
     throw new Error(errMessage.message || "Failed to fetch sellers");
@@ -67,9 +69,8 @@ export type AdminOrdersApiRes =
   | { success: false; message: string };
 
 export async function getAllOrders() {
-  const token = localStorage.getItem("user-token");
   const response = await fetch("/api/v2/order/admin-all-orders", {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials:"include"
   });
 
   if (!response.ok) {
@@ -115,9 +116,8 @@ export type AdminUsersApiRes =
   | { success: false; message: string };
 
 export async function getAllUsers(): Promise<User[]> {
-  const token = localStorage.getItem("user-token");
   const res = await fetch("/api/v2/user/admin-all-users", {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials:"include"
   });
 
   if (!res.ok) {
@@ -238,11 +238,8 @@ export interface DashboardSummaryApiRes {
 }
 
 export async function getAdminDashboardSummary(): Promise<DashboardSummary> {
-  const token = localStorage.getItem("user-token"); // if your backend needs auth here
   const res = await fetch("/api/v2/adminsummary/admin-dashboard-summary", {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-    },
+    credentials:"include"
   });
 
   if (!res.ok) {
