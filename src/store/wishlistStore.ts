@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { Product, Variant } from "../Types/types";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useUserStore } from "./userStore";
+import { API_URL } from "@/data";
 
 
 export type WishlistItem = {
@@ -69,7 +70,7 @@ export const useWishlistStore = create<WishlistStore>()(
 
         set((state) => ({ wishlist: [...state.wishlist, newItem] }));
         try {
-        await fetch("/api/v2/wishlist/add", {
+        await fetch(API_URL+"wishlist/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +97,7 @@ export const useWishlistStore = create<WishlistStore>()(
   try {
     // Call API with userId
     await fetch(
-      `/api/v2/wishlist/${user._id}/${productId}/${variantId ?? "null"}`,
+      API_URL+`wishlist/${user._id}/${productId}/${variantId ?? "null"}`,
       {
         method: "DELETE",
         headers: {
@@ -127,7 +128,7 @@ export const useWishlistStore = create<WishlistStore>()(
   }
 
   try {
-    const response = await fetch(`/api/v2/wishlist/clear/${user._id}`, {
+    const response = await fetch(API_URL+`wishlist/clear/${user._id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

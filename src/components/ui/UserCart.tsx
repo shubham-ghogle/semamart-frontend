@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type Variant = {
   _id: string;
@@ -47,7 +47,7 @@ const UserCart: React.FC = () => {
       setStatus("pending");
 
       try {
-        const response = await fetch(`/api/v2/cart/${userId}`);
+        const response = await fetch(API_URL+`cart/${userId}`);
         const data: ApiResponse = await response.json();
 
         if (data.success) {

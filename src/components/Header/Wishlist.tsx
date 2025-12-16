@@ -4,6 +4,7 @@ import { RxCross1 } from "react-icons/rx";
 import { useWishlistStore, WishlistItem } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
 import { useUserStore } from "@/store/userStore";
+import { API_URL } from "@/data";
 
 type WishlistProps = {
   wishlistOpenHandler: () => void;
@@ -158,7 +159,7 @@ function WishlistItemCard({ item }: WishlistItemProps) {
               taxClass: taxClass ?? 0,
             });
             try {
-              const res = await fetch("/api/v2/cart/add", {
+              const res = await fetch(API_URL+"cart/add", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

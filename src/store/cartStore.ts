@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Product, Variant } from "../Types/types";
 import { useUserStore } from "./userStore";
+import { API_URL } from "@/data";
 
 
 export type PaymentSlip = {
@@ -139,7 +140,7 @@ export const useCartStore = create<CartStore>()(
           };
         });
          try {
-        await fetch("/api/v2/cart/add", {
+        await fetch(API_URL+"cart/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -165,7 +166,7 @@ export const useCartStore = create<CartStore>()(
   }
         try {
        
-          await fetch(`/api/v2/cart/${user._id}/${productId}/${variantId}`, {
+          await fetch(API_URL+`cart/${user._id}/${productId}/${variantId}`, {
             method: "DELETE",
           });
 
@@ -231,7 +232,7 @@ export const useCartStore = create<CartStore>()(
   }
 
   try {
-    const response = await fetch(`/api/v2/cart/clear/${user._id}`, {
+    const response = await fetch(API_URL+`cart/clear/${user._id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
