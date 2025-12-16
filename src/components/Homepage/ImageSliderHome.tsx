@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/data";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 
 type Banner = {
   name: string;
@@ -85,32 +86,24 @@ export default function ImageSliderHome() {
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4">
           {/* ----------------- LEFT: LARGE SLIDER ----------------- */}
           <div className="relative rounded-xl overflow-hidden bg-white shadow-lg h-[40vh] sm:h-[42vh] lg:h-[44vh] group">
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{
                 transform: `translateX(-${current * 100}%)`,
-                width: `${total * 100}%`,
               }}
             >
               {sliders.map((item, i) => (
-                <div key={i} className="flex-shrink-0 w-full h-full">
-                  <a
-                    href={item.link || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full h-full"
-                  >
+                <Link to={item.link} key={i} className="w-full h-full flex-shrink-0">
                     <img
                           src={`${BASE_URL}images/${item.imagePath}`}
                           alt={item.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover object-center"
                         />
 
-                  </a>
-                </div>
+                </Link>
               ))}
             </div>
 
@@ -164,7 +157,7 @@ export default function ImageSliderHome() {
                 <img
                   src={BASE_URL+"images/"+item.imagePath}
                   alt={item.name || "Banner"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center"
                   loading="lazy"
                 />
               </a>
