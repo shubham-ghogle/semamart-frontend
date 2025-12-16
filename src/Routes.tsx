@@ -348,7 +348,7 @@ export const router = createBrowserRouter([
           path: "users",
           children: [
             { index: true, element: <AllUserScreen /> },
-             { path: "profile/:userId", element: <AdminUserAccount /> }, 
+             { path: "profile/:userId", element: <AdminUserAccount /> },
             { path: ":userId/products", element: <OrderProductCard /> },
             { path: "wishlist/:userId", element: <UserWishlist /> },
             { path: "cart/:userId", element: <UserCart/>},

@@ -235,6 +235,7 @@ export type Order = {
     pickupPerson: string;
     pickupPersonPhone: number;
     trackingNumber: string;
+    trackingDocument: string;
   };
   paymentFile:null | string
 };

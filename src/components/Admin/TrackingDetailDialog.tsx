@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,45 +17,53 @@ import {
 } from "../ui/select";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { useMutation } from "@tanstack/react-query";
-import { API_URL } from "@/data";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_URL, BASE_URL } from "@/data";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
+import { Order } from "@/Types/types";
+
+type DeliveryDetails = {
+  logisticPartner: string;
+  trackingNumber: string;
+  pickupPerson: string;
+  pickupPersonPhone: string;
+};
 
 export default function TrackingDetailDialog() {
   const [open, setOpen] = useState(false);
   const { orderId } = useParams();
 
-  const [deliveryDetails, setDeliveryDetails] = useState({
+  const qc = useQueryClient();
+  const order = qc.getQueryData(["seller-order-detail", { orderId }]) as Order;
+
+  const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetails>({
     logisticPartner: "",
     trackingNumber: "",
     pickupPerson: "",
     pickupPersonPhone: "",
   });
+  const [trackingFile, setTrackingFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (order) {
+      const trackingDetails = order.trackingDetails;
+      setDeliveryDetails({
+        logisticPartner: trackingDetails?.logisticPartner ?? "",
+        trackingNumber: trackingDetails?.trackingNumber ?? "",
+        pickupPerson: trackingDetails?.pickupPerson ?? "",
+        pickupPersonPhone: trackingDetails?.pickupPersonPhone?.toString() ?? "",
+      });
+    }
+  }, [order]);
 
   const handleChange = (field: string, value: string) => {
     setDeliveryDetails((prev) => ({ ...prev, [field]: value }));
   };
 
-  async function postTrackingDetails(data: any) {
-    const res = await fetch(
-      API_URL + "order/update-tracking-details/" + orderId,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials:"include",
-        body: JSON.stringify(data),
-      }
-    );
-    if (!res.ok) throw new Error();
-    const result = await res.json();
-    return result;
-  }
-
   const { mutate, status } = useMutation({
-    mutationFn: (data: any) => postTrackingDetails(data),
+    mutationFn: (a: { data: FormData; orderId: string }) =>
+      postTrackingDetails(a.data, a.orderId),
     onError: () => {
       toast.error("Something went wrong");
     },
@@ -66,16 +74,39 @@ export default function TrackingDetailDialog() {
         pickupPerson: "",
         pickupPersonPhone: "",
       });
-
+      setTrackingFile(null);
+      qc.invalidateQueries({ queryKey: ["seller-order-detail"] });
       setOpen(false);
     },
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if(status==="pending") return
-    mutate(deliveryDetails);
+    if (!orderId) return;
+
+    if (!deliveryDetails.trackingNumber) {
+      toast.warning("Please add tracking number");
+      return;
+    }
+    if (!deliveryDetails.logisticPartner) {
+      toast.warning("Please select delivery company");
+      return;
+    }
+    const formData = new FormData();
+    Object.entries(deliveryDetails).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") {
+        formData.append(key, value);
+      }
+    });
+    if (trackingFile) {
+      formData.append("tracking_file", trackingFile);
+    }
+    if (status === "pending") return;
+
+    mutate({ data: formData, orderId: orderId });
   };
+
+  const isTrackingDocumentUploaded = order.trackingDetails?.trackingDocument;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -97,7 +128,6 @@ export default function TrackingDetailDialog() {
                 onValueChange={(value) =>
                   handleChange("logisticPartner", value)
                 }
-                required
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select delivery company" />
@@ -115,7 +145,6 @@ export default function TrackingDetailDialog() {
             <div className="space-y-2">
               <Label>Tracking number</Label>
               <Input
-                required
                 value={deliveryDetails.trackingNumber}
                 onChange={(e) => handleChange("trackingNumber", e.target.value)}
                 placeholder="Enter tracking number"
@@ -125,7 +154,6 @@ export default function TrackingDetailDialog() {
             <div className="space-y-2">
               <Label>Pickup person</Label>
               <Input
-                required
                 value={deliveryDetails.pickupPerson}
                 onChange={(e) => handleChange("pickupPerson", e.target.value)}
                 placeholder="Enter pickup person's name"
@@ -135,7 +163,6 @@ export default function TrackingDetailDialog() {
             <div className="space-y-2">
               <Label>Pickup person phone number</Label>
               <Input
-                required
                 value={deliveryDetails.pickupPersonPhone}
                 onChange={(e) =>
                   handleChange("pickupPersonPhone", e.target.value)
@@ -144,12 +171,48 @@ export default function TrackingDetailDialog() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label>Tracking Document</Label>
+              <Input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  setTrackingFile(file ?? null);
+                }}
+              />
+            </div>
+
+            {isTrackingDocumentUploaded && (
+              <div className="space-y-2">
+                <iframe
+                  src={BASE_URL + "payment-docs/" + isTrackingDocumentUploaded}
+                />
+              </div>
+            )}
+
             <DialogFooter>
-              <Button variant="outline" disabled={status==="pending"}>Submit</Button>
+              <Button variant="outline" disabled={status === "pending"}>
+                Submit
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       )}
     </Dialog>
   );
+}
+
+async function postTrackingDetails(data: FormData, orderId: string) {
+  const res = await fetch(
+    API_URL + "order/update-tracking-details/" + orderId,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: data,
+    },
+  );
+  if (!res.ok) throw new Error();
+  const result = await res.json();
+  return result;
 }
