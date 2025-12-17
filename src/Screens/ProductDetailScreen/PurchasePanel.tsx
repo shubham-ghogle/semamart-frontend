@@ -37,8 +37,7 @@ export default function PurchasePanel({
 
   return (
     <div
-      className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100"
-      style={{ minHeight: "600px" }}
+      className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100 md:min-h-[600px]"
     >
       <div className="space-y-3">
         {/* 1 Pack option */}

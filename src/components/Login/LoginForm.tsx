@@ -64,7 +64,10 @@ export default function LoginForm() {
     <>
       <section className="mx-auto w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <Logo />
+          <div className="mb-3 scale-[1.8] sm:scale-100">
+  <Logo />
+</div>
+
           <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center">
             Welcome to Semamart
           </h2>
