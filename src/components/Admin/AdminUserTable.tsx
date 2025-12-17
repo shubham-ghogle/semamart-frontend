@@ -129,7 +129,7 @@ export default function AdminUserTable({
             }
             variant="outline"
             size="icon"
-            title="Products"
+            title="Ordered Products"
           >
             <Package />
           </Button>

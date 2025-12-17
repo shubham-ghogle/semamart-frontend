@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { API_URL, BASE_URL } from "@/data";
+import { error } from "console";
 
 type Variant = {
   _id: string;
@@ -31,12 +32,22 @@ type ApiResponse = {
   data: CartItem[];
 };
 
+type UserInfo = {
+  firstName: string;
+  lastName: string;
+};
+
+type UserApiResponse = {
+  success: boolean;
+  user: UserInfo;
+};
+
 type Status = "pending" | "success" | "error";
 
 const UserCart: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-
+  const [user, setUser] = useState<UserInfo | null>(null);
   const [items, setItems] = useState<CartItem[]>([]);
   const [status, setStatus] = useState<Status>("pending");
 
@@ -66,6 +77,31 @@ const UserCart: React.FC = () => {
     fetchCart();
   }, [userId]);
 
+  useEffect(() => {
+      if (!userId) return;
+  
+      const fetchUserInfo = async () => {
+        setStatus("pending");
+        try {
+          const response = await fetch(`${API_URL}user/user-info/${userId}`);
+          const data: UserApiResponse = await response.json();
+           
+          if (data.success) {
+            setUser(data.user);
+            setStatus("success");
+          } else {
+            setUser(null);
+            setStatus("error");
+          }
+        } catch (error) {
+          console.error(error);
+          setStatus("error");
+        }
+      };
+  
+      fetchUserInfo();
+    }, [userId]);
+
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
       <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
@@ -77,7 +113,7 @@ const UserCart: React.FC = () => {
               User Cart Items
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Viewing all items in the user’s Cart
+              Viewing all items in the {user?.firstName} {user?.lastName} Cart
             </p>
           </div>
 

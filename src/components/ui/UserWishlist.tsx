@@ -31,12 +31,22 @@ type ApiResponse = {
   data: CartItem[];
 };
 
+type UserInfo = {
+  firstName: string;
+  lastName: string;
+};
+
+type UserApiResponse = {
+  success: boolean;
+  user: UserInfo;
+};
+
 type Status = "pending" | "success" | "error";
 
 const UserWishlist: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-
+  const [user, setUser] = useState<UserInfo | null>(null);
   const [items, setItems] = useState<CartItem[]>([]);
   const [status, setStatus] = useState<Status>("pending");
 
@@ -66,6 +76,31 @@ const UserWishlist: React.FC = () => {
     fetchCart();
   }, [userId]);
 
+  useEffect(() => {
+        if (!userId) return;
+    
+        const fetchUserInfo = async () => {
+          setStatus("pending");
+          try {
+            const response = await fetch(`${API_URL}user/user-info/${userId}`);
+            const data: UserApiResponse = await response.json();
+             
+            if (data.success) {
+              setUser(data.user);
+              setStatus("success");
+            } else {
+              setUser(null);
+              setStatus("error");
+            }
+          } catch (error) {
+            console.error(error);
+            setStatus("error");
+          }
+        };
+    
+        fetchUserInfo();
+      }, [userId]);
+
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
       <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
@@ -77,7 +112,7 @@ const UserWishlist: React.FC = () => {
               User Wishlist Items
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Viewing all items in the user’s wishlist
+              Viewing all items in the {user?.firstName} {user?.lastName} wishlist
             </p>
           </div>
 
