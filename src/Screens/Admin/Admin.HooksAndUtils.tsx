@@ -163,7 +163,9 @@ export function getAdminFromLocalLoader() {
 export async function getAdminOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
-  const res = await fetch("/api/v2/order/get-order-details-admin/" + orderId);
+  const res = await fetch("/api/v2/order/get-order-details-admin/" + orderId,{
+    credentials:"include"
+  });
 
   if (!res.ok) {
     const errMessage = await res.json();
