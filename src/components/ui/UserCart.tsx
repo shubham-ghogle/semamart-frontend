@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { API_URL, BASE_URL } from "@/data";
-import { error } from "console";
+
 
 type Variant = {
   _id: string;
