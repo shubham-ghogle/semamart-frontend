@@ -23,7 +23,9 @@ export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
 }
 
 export async function getSellerById(id: string): Promise<{ seller: Seller }> {
-  const res = await fetch(`/api/v2/shop/admin-seller/${id}`);
+  const res = await fetch(`/api/v2/shop/admin-seller/${id}`,{
+    credentials:"include"
+  });
   if (!res.ok) {
     const errMessage = await res.json();
     throw new Error(errMessage.message || "Failed to fetch seller");
@@ -39,7 +41,9 @@ export async function getSellerById(id: string): Promise<{ seller: Seller }> {
 
 
 export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
-  const res = await fetch("/api/v2/shop/admin-verified-sellers");
+  const res = await fetch("/api/v2/shop/admin-verified-sellers",{
+    credentials:"include"
+  });
   if (!res.ok) {
     const errMessage = await res.json();
     throw new Error(errMessage.message || "Failed to fetch verified sellers");
@@ -53,6 +57,7 @@ export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
 export async function deleteSeller(id: string) {
   const res = await fetch(`/api/v2/shop/delete-seller/${id}`, {
     method: "DELETE",
+    credentials:"include"
   });
   if (!res.ok) {
     const errMessage = await res.json();
@@ -86,9 +91,8 @@ export async function getAllOrders() {
 
 // ====== Products ======
 export async function getAdminProducts() {
-  const token = localStorage.getItem("user-token");
   const res = await fetch("/api/v2/product/admin-all-products", {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials:"include"
   });
 
   if (!res.ok) throw new Error("Something went wrong");
@@ -132,10 +136,9 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function deleteUser(id: string) {
-  const token = localStorage.getItem("user-token");
   const res = await fetch(`/api/v2/user/delete-user/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials:"include"
   });
 
   if (!res.ok) {
@@ -192,6 +195,7 @@ export function useAdminOrderMutation(onSuccessFn?:()=>void) {
 
       const res = await fetch(url, {
         method: "PUT",
+        credentials:"include",
         headers: {
           "Content-Type": "application/json",
         },
