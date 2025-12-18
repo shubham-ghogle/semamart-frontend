@@ -171,8 +171,8 @@ export async function getAdminOrderDetails(orderId?: string) {
   });
 
   if (!res.ok) {
-    const errMessage = await res.json();
-    throw new Error(errMessage.message);
+    const err = await res.json();
+    throw new Error(err.message);
   }
 
   const data = (await res.json()) as Order;
@@ -202,7 +202,10 @@ export function useAdminOrderMutation(onSuccessFn?:()=>void) {
         body: JSON.stringify({ status }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok){
+        const err = await res.json()
+        throw new Error(err.message);
+      }
 
       return null;
     },
@@ -219,8 +222,8 @@ export function useAdminOrderMutation(onSuccessFn?:()=>void) {
         onSuccessFn()
       }
     },
-    onError: () => {
-      toast.error("Something went wrong!");
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
   return { mutationStatus, mutateOrder };
