@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminMainWrapper from "../Admin/AdminMainWrapper";
 import { FiDownload } from "react-icons/fi";
-import { FaUser, FaPhoneAlt, FaHome, FaStar } from "react-icons/fa";
+import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
 
 /* ================= TYPES ================= */
 type Status = "pending" | "success" | "error";

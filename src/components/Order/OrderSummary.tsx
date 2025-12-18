@@ -6,7 +6,7 @@ import OrderBreadcrum from "../ui/OrderBredcrum";
 import { FiDownload } from "react-icons/fi";
 
 // React Icons
-import { FaUser, FaPhoneAlt, FaHome, FaStar } from "react-icons/fa";
+import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
 
 interface Product {
   _id: string;
