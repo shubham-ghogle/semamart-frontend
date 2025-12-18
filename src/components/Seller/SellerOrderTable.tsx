@@ -1,37 +1,63 @@
-import { Order } from "../../Types/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from "react-router";
+import { EyeIcon } from "lucide-react";
+
+import { Order } from "../../Types/types";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { EyeIcon } from "lucide-react";
-import { useNavigate } from "react-router";
+
+/* ================= TYPES ================= */
 
 type Row = {
   id: string;
   status: string;
-  customer: string;
+  productName: string;
+  customerName: string;
   totalPrice: string;
   orderedOn: string;
-  viewOrder: (orderId: string) => void;
+  viewOrder: () => void;
 };
 
 type SellerOrderTableProps = {
   orders: Order[];
 };
 
+/* ================= COMPONENT ================= */
+
 export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
+const truncate = (text: string, max = 35) =>
+  text.length > max ? text.slice(0, max) + "..." : text;
 
-  const rows: Row[] = orders.map((el) => ({
-    id: el._id,
-    status: el.status || "-",
-    customer: typeof el.user ==="string"?"-": el.user.firstName,
-    totalPrice: el.totalPrice.toString(),
-    orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
-    viewOrder: (orderId: string) => {
-      navigate("/seller/orders/"+orderId); 
-    },
-  }));
+
+  const rows: Row[] = orders.map((order) => {
+    const productName =
+      typeof order.variant !== "string" &&
+      order.variant?.productId &&
+      typeof order.variant.productId !== "string"
+        ? truncate(order.variant.productId.name, 35)
+        : "-";
+
+    const customerName =
+      typeof order.user !== "string"
+        ? `${order.user.firstName} ${order.user.lastName ?? ""}`
+        : "-";
+
+    return {
+      id: order._id,
+      status: order.status ?? "-",
+      productName,
+      customerName,
+      totalPrice: `₹${order.totalPrice}`,
+      orderedOn: order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString("en-IN")
+      : "-",
+      viewOrder: () => navigate(`/seller/orders/${order._id}`),
+    };
+  });
+
+  /* ================= COLUMNS ================= */
 
   const columns: ColumnDef<Row>[] = [
     {
@@ -40,14 +66,16 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
         <input
           type="checkbox"
           checked={table.getIsAllPageRowsSelected()}
-          onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
+          onChange={(e) =>
+            table.toggleAllPageRowsSelected(e.target.checked)
+          }
         />
       ),
       cell: ({ row }) => (
         <input
           type="checkbox"
           checked={row.getIsSelected()}
-          onChange={(e) => row.toggleSelected(!!e.target.checked)}
+          onChange={(e) => row.toggleSelected(e.target.checked)}
         />
       ),
       enableSorting: false,
@@ -58,7 +86,11 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
       header: "Order ID",
     },
     {
-      accessorKey: "customer",
+      accessorKey: "productName",
+      header: "Product Name",
+    },
+    {
+      accessorKey: "customerName",
       header: "Customer Name",
     },
     {
@@ -74,15 +106,21 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
       header: "Ordered On",
     },
     {
-      accessorKey: "action",
+      id: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Button variant="ghost" onClick={() => row.original.viewOrder(row.original.id)}>
-          <EyeIcon />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={row.original.viewOrder}
+        >
+          <EyeIcon className="w-4 h-4" />
         </Button>
       ),
     },
   ];
+
+  /* ================= UI ================= */
 
   return (
     <div className="p-4 bg-white shadow rounded">
@@ -91,7 +129,7 @@ export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
         columns={columns}
         docName="orders"
         searchColId="id"
-        searchPlaceholder="Search by order id"
+        searchPlaceholder="Search by order ID"
         enableCalender={true}
         dateFieldId="orderedOn"
       />

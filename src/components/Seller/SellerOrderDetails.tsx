@@ -120,12 +120,12 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
             }
           />
-          <OrderDetailsField
+          {/* <OrderDetailsField
             label="Method:"
             value={
               data?.paymentInfo?.method ? data?.paymentInfo?.method : "Not Paid"
             }
-          />
+          /> */}
         </div>
       </section>
 

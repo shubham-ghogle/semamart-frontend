@@ -74,6 +74,7 @@ import AdminUserAccount from "./components/Admin/AdminUserAccount";
 import OrderProductCard from "./components/ui/OrderProductCard";
 import UserWishlist from "./components/ui/UserWishlist";
 import UserCart from "./components/ui/UserCart";
+import AdminOrderSummary from "./components/ui/adminOrderSummary";
 
 /**
  * redirectToDashboard loader
@@ -352,6 +353,7 @@ export const router = createBrowserRouter([
             { path: ":userId/products", element: <OrderProductCard /> },
             { path: "wishlist/:userId", element: <UserWishlist /> },
             { path: "cart/:userId", element: <UserCart/>},
+            { path: "order/:orderId", element: <AdminOrderSummary/>},
           ],
         },
       { path: "products", element: <AdminProduct /> },

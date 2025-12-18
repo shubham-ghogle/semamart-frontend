@@ -18,7 +18,7 @@ export default function AdminMainWrapper({
   const navigate = useNavigate();
 
   // Show back button only for "Products" heading
-  const showBackButton = heading === "Products" || heading ==="User Profile" || heading==="Seller Profile";
+  const showBackButton = heading === "Products" || heading ==="User Profile" || heading==="Seller Profile" || heading==="Order Summary";
 
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">

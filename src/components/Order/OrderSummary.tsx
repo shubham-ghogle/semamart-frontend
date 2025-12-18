@@ -262,18 +262,18 @@ const OrderSummary = () => {
               
 
               {/* Return Policy */}
-              <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
+              {/* <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">Return policy valid till:</span>{" "}
                   {order.returnValidTill
                     ? new Date(order.returnValidTill).toLocaleDateString()
                     : "N/A"}
                 </p>
-              </div>
+              </div> */}
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-between items-center mt-8 border-t pt-5">
+            {/* <div className="flex justify-between items-center mt-8 border-t pt-5">
               <button className="border border-gray-300 text-sm font-medium rounded-lg px-4 py-2 hover:bg-gray-100 transition">
                 Return
               </button>
@@ -281,7 +281,7 @@ const OrderSummary = () => {
                 <FaStar className="text-yellow-500" />
                 Rate Product
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* ---------------- RIGHT SECTION ---------------- */}

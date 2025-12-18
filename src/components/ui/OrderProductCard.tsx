@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_URL, BASE_URL } from "@/data";
 
+
 // ------------------ TYPES ------------------
 
 type VariantDetails = {
@@ -120,6 +121,11 @@ const OrderProductCard: React.FC = () => {
       .includes(searchQuery.toLowerCase())
   );
 
+
+
+  const handleOrderClick = (productId: string) => {
+  navigate(`/admin/users/order/${productId}`);
+};
   // ------------------ RENDER ------------------
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
@@ -224,7 +230,7 @@ const OrderProductCard: React.FC = () => {
               return (
                 <div
                   key={product._id}
-                  onClick={() => navigate(`/products/${product._id}`)}
+                  onClick={() => handleOrderClick(product._id)}
                   className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-4 cursor-pointer"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
