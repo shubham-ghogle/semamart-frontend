@@ -225,13 +225,13 @@ export default function CheckoutScreen(): JSX.Element {
                 qty,
                 unitBase,
                 taxRate,
-                lineTotalExGST,
-                gstAmount,
+                //lineTotalExGST,
+                //gstAmount,
                 lineGrand,
               } = getLineTotals(item);
 
               const priceExclGSTPerUnit = unitBase;
-              const priceInclGSTPerUnit = unitBase + (gstAmount / qty || 0);
+              //const priceInclGSTPerUnit = unitBase + (gstAmount / qty || 0);
 
               const thumb =
                 normalizeImage(item.variant?.thumbnail) ??
