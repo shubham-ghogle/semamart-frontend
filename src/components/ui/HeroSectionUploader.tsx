@@ -86,40 +86,48 @@ const HeroCard = ({
     />
 
     {editing ? (
-      <div className="relative">
-        {item.preview ? (
-          <img
-            src={resolveImageSrc(item.preview)}
-            className="h-40 w-full object-cover rounded-lg"
-          />
-        ) : (
-          <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer">
-            <FiUploadCloud size={24} />
-            <span className="text-sm">Upload Image *</span>
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                onUpdate(index, {
-                  file,
-                  preview: URL.createObjectURL(file),
-                });
-              }}
-            />
-          </label>
-        )}
-      </div>
+  <label className="relative block cursor-pointer">
+    {item.preview ? (
+      <img
+        src={resolveImageSrc(item.preview)}
+        className="h-40 w-full object-cover rounded-lg"
+      />
     ) : (
-      item.preview && (
-        <img
-          src={resolveImageSrc(item.preview)}
-          className="h-40 w-full object-cover rounded-lg"
-        />
-      )
+      <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6">
+        <FiUploadCloud size={24} />
+        <span className="text-sm">Upload Image *</span>
+      </div>
     )}
+
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-white rounded-lg transition">
+      <FiUploadCloud size={28} />
+      <span className="ml-2 text-sm">Replace Image</span>
+    </div>
+
+    <input
+      type="file"
+      hidden
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        onUpdate(index, {
+          file,
+          preview: URL.createObjectURL(file),
+        });
+      }}
+    />
+  </label>
+) : (
+  item.preview && (
+    <img
+      src={resolveImageSrc(item.preview)}
+      className="h-40 w-full object-cover rounded-lg"
+    />
+  )
+)}
+
   </div>
 );
 
