@@ -127,13 +127,13 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
       accessorKey: "commission",
       header: () => (
         <div className="flex items-center gap-1">
-         
+
           Commission <FaRupeeSign size={14} />
         </div>
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-        
+
           {row.original.commission}  <FaRupeeSign size={14} />
         </div>
       ),
@@ -150,9 +150,9 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
                 </Link>
 
                 {/* View/Preview button */}
-                <Link to={`view/${row.original.productId}`}>
+                <a target="_blank" href={`/${row.original.productId}`}>
                   <AiOutlineEye size={20} className="text-gray-500" />
-                </Link>
+                </a>
               </div>
             ),
           },
@@ -168,7 +168,7 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
             queryKey: ["seller-products", seller?._id],
           });
         },
-      onError(error: any) {
+      onError(error) {
       const msg = error?.message || "Failed to update visibility";
       toast.error(msg);
       qc.invalidateQueries({ queryKey: ["seller-products", seller?._id] });

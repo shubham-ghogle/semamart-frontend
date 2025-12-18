@@ -49,6 +49,8 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     }
   };
 
+  const orderStatus = data.status==="Paid"?"Paid: Verify":data.status
+
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
@@ -148,7 +150,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
         {data?.status && (
           <div>
             <article className="mb-2 flex gap-2">
-              <OrderDetailsField label={data?.status || ""} value="" />
+              <OrderDetailsField label={orderStatus} value="" />
             </article>
             <article>
               <select
