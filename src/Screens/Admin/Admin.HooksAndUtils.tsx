@@ -23,7 +23,7 @@ export async function getAllSellers(): Promise<{ sellers: Seller[] }> {
 }
 
 export async function getSellerById(id: string): Promise<{ seller: Seller }> {
-  const res = await fetch(`/api/v2/shop/admin-seller/${id}`,{
+  const res = await fetch(`${API_URL}shop/admin-seller/${id}`,{
     credentials:"include"
   });
   if (!res.ok) {
@@ -41,7 +41,7 @@ export async function getSellerById(id: string): Promise<{ seller: Seller }> {
 
 
 export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
-  const res = await fetch("/api/v2/shop/admin-verified-sellers",{
+  const res = await fetch(API_URL+"shop/admin-verified-sellers",{
     credentials:"include"
   });
   if (!res.ok) {
@@ -55,7 +55,7 @@ export async function getVerifiedSellers(): Promise<{ sellers: Seller[] }> {
 }
 
 export async function deleteSeller(id: string) {
-  const res = await fetch(`/api/v2/shop/delete-seller/${id}`, {
+  const res = await fetch(`${API_URL}shop/delete-seller/${id}`, {
     method: "DELETE",
     credentials:"include"
   });
@@ -91,7 +91,7 @@ export async function getAllOrders() {
 
 // ====== Products ======
 export async function getAdminProducts() {
-  const res = await fetch("/api/v2/product/admin-all-products", {
+  const res = await fetch(API_URL+"product/admin-all-products", {
     credentials:"include"
   });
 
@@ -136,7 +136,7 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function deleteUser(id: string) {
-  const res = await fetch(`/api/v2/user/delete-user/${id}`, {
+  const res = await fetch(`${API_URL}user/delete-user/${id}`, {
     method: "DELETE",
     credentials:"include"
   });
@@ -166,7 +166,7 @@ export function getAdminFromLocalLoader() {
 export async function getAdminOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
-  const res = await fetch("/api/v2/order/get-order-details-admin/" + orderId,{
+  const res = await fetch(API_URL+"order/get-order-details-admin/" + orderId,{
     credentials:"include"
   });
 
@@ -191,7 +191,7 @@ export function useAdminOrderMutation(onSuccessFn?:()=>void) {
       status: string;
       orderId: string;
     }) {
-      const url = "/api/v2/order/update-order-status-admin/" + orderId;
+      const url = API_URL+"order/update-order-status-admin/" + orderId;
 
       const res = await fetch(url, {
         method: "PUT",
