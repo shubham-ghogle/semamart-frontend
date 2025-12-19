@@ -37,8 +37,8 @@ export default function AdminNavbar() {
   const fallbackAvatar = user?.avatar ? user.avatar : "/image60.png";
 
   const removeUser = useUserStore((state) => state.removeUser);
-    
-  
+
+
     const logoutHandler = () => {
       removeUser(); // clears user + localStorage
       navigate("/admin-login"); // redirect back to login
@@ -109,7 +109,7 @@ export default function AdminNavbar() {
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/orders" label="All Orders" />
             <SidebarNavlinks icon={<LuMessageSquare />} to="/admin/requests" label="Requests" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/sellers" label="All Sellers" />
-            <SidebarNavlinks icon={<GrWorkshop />} to="/admin/users" label="All Users" />
+            <SidebarNavlinks icon={<GrWorkshop />} to="/admin/users" label="All Institutes" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/products" label="All Products" />
             <SidebarNavlinks icon={<GrWorkshop />} to="/admin/img-upload" label="Image Upload" />
 
