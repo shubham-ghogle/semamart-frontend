@@ -1,6 +1,6 @@
 import { Product } from "@/Types/types";
 import { DataTable } from "../ui/data-table";
-import { Link } from "react-router";
+// import { Link } from "react-router";
 import { AiOutlineEdit,  } from "react-icons/ai";
 import { ColumnDef } from "@tanstack/react-table";
 import { API_URL, BASE_URL } from "../../data";
