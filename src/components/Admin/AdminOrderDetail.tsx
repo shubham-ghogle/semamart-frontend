@@ -49,7 +49,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     }
   };
 
-  const orderStatus = data.status==="Paid"?"Paid: Verify":data.status
+  const orderStatus = data.status==="Paid"?"Paid: Verify Payment":data.status
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
