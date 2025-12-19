@@ -143,9 +143,9 @@ export default function AdminProduct() {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
-        <Link to={`/admin/products/view/${row.original.productId}`}>
+        <a target="_blank" href={`/product/${row.original.productId}`}>
           <AiOutlineEye size={20} />
-        </Link>
+        </a>
       ),
     },
   ];
