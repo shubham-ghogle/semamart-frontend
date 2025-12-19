@@ -133,17 +133,17 @@ brand: z.string().min(2, "Brand is required"),
 
     dimension_l: z
       .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
         message: "Length must be a positive number",
       }),
     dimension_w: z
       .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
         message: "Width must be a positive number",
       }),
     dimension_h: z
       .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
         message: "Height must be a positive number",
       }),
 
