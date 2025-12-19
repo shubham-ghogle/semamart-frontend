@@ -19,19 +19,7 @@ export default function PurchasePanel({
 }: any) {
   const displayOriginalPrice =
     selectedVariant?.originalPrice ?? product.originalPrice;
-  const displayDiscountPrice =
-    selectedVariant?.discountPrice ?? product.discountPrice;
   const GREEN = "#3bc177";
-
-  // ✅ discount for 1 Pack
-  const onePackDiscount =
-    displayOriginalPrice && displayDiscountPrice
-      ? Math.round(
-          ((displayOriginalPrice - displayDiscountPrice) /
-            Math.max(displayOriginalPrice, 1)) *
-            100,
-        )
-      : 0;
 
   const n = useNavigate();
 
