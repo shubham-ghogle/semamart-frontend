@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { ScreenOverlayLoaderUi } from "@/components/UIComponents/LoaderUi";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
+import UpdateCommissionDialog from "../UpdateCommissionDialog";
 
 type VariantRow = {
   id: string;
@@ -23,6 +24,8 @@ type VariantRow = {
   commission: number;
   sellerVisibility: boolean;
   adminVisibility: boolean;
+  commissionHistoryDate: string;
+  commissionHistoryAmount: number;
 };
 
 export default function AdminProduct() {
@@ -143,9 +146,15 @@ export default function AdminProduct() {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
-        <Link to={`/admin/products/view/${row.original.productId}`}>
-          <AiOutlineEye size={20} />
-        </Link>
+        <div className="flex items-center gap-2">
+      <Link to={`/product/${row.original.productId}`} target="_blank">
+        <AiOutlineEye size={20} />
+      </Link>
+      <UpdateCommissionDialog
+        currentCommission={row.original.commission}
+        productId={row.original.productId}
+      />
+    </div>
       ),
     },
   ];

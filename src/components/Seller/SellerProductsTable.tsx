@@ -25,6 +25,7 @@ type VariantRow = {
   productId: string;
   commission: number;
   sellerVisibility: boolean;
+  
 };
 
 type SellerProductTableProps = {
@@ -150,9 +151,10 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
                 </Link>
 
                 {/* View/Preview button */}
-                <a target="_blank" href={`/${row.original.productId}`}>
+                <Link to={`/product/${row.original.productId}`} target="_blank">
                   <AiOutlineEye size={20} className="text-gray-500" />
-                </a>
+                </Link>
+
               </div>
             ),
           },

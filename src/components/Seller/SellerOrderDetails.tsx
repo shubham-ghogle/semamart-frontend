@@ -114,12 +114,12 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
-          <OrderDetailsField
+          {/* <OrderDetailsField
             label="Status:"
             value={
               data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
             }
-          />
+          /> */}
           {/* <OrderDetailsField
             label="Method:"
             value={
