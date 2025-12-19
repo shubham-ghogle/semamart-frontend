@@ -150,7 +150,7 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
                 </Link>
 
                 {/* View/Preview button */}
-                <a target="_blank" href={`/${row.original.productId}`}>
+                <a target="_blank" href={`/product/${row.original.productId}`}>
                   <AiOutlineEye size={20} className="text-gray-500" />
                 </a>
               </div>
