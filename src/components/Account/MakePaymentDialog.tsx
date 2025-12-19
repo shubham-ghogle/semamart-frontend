@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Input } from "../ui/input";
+// import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
@@ -24,21 +24,18 @@ export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
 
   const qc = useQueryClient();
 
-  const { mutate: mutateOrder } = useMutation({
+  const { mutate: mutateOrder, isPending } = useMutation({
     mutationFn: async (file: File | null) => {
       if (!file) throw new Error("Add payment file");
 
       const formData = new FormData();
       formData.append("payment_file", file);
 
-      const res = await fetch(
-        API_URL + "order/update-order-payment/" + orderId,
-        {
-          method: "PUT",
-          credentials: "include",
-          body: formData,
-        }
-      );
+      const res = await fetch(API_URL + "order/update-order-payment/" + orderId, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
 
       if (!res.ok) throw new Error("Could not add payment file");
     },
@@ -52,9 +49,7 @@ export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
 
   function clearFile() {
     setPaymentFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -63,7 +58,7 @@ export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(val) => setOpen(val)}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           Make Payment
@@ -71,113 +66,117 @@ export default function MakePaymentDialog({ orderId }: MakePaymentDialogProps) {
       </DialogTrigger>
 
       {open && (
-        <DialogContent
-          className="
-            w-[95vw]
-            max-w-lg
-            sm:max-w-xl
-            max-h-[92vh]
-            sm:max-h-[88vh]
-            p-3
-            sm:p-4
-          "
-        >
+        <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] p-3 sm:p-4 flex flex-col">
           <DialogHeader>
-            <DialogTitle>Make Payment</DialogTitle>
+            <DialogTitle className="text-sm">Make Payment</DialogTitle>
           </DialogHeader>
 
-          {/* ================= PAYMENT DETAILS ================= */}
-          <div className="space-y-3 text-sm">
-            {/* UPI SECTION */}
-            <div className="p-3 border rounded-lg bg-muted/30">
-              <h3 className="font-semibold mb-1">UPI Payment</h3>
+          <div className="space-y-3 text-sm overflow-y-auto flex-1">
+            <form onSubmit={onSubmit} className="mt-2">
+              <div className="flex items-center space-x-2">
+                {/* File Upload */}
+                {!paymentFile ? (
+                  <label className="flex-1 flex items-center justify-center border rounded-md p-2 text-xs cursor-pointer">
+                    <span>Upload Payment File</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                      onChange={(e) => setPaymentFile(e.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                ) : (
+                  <div className="flex-1 flex items-center justify-between border rounded-md p-2 text-xs">
+                    <span className="truncate">{paymentFile.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={clearFile}
+                    >
+                      <FiX className="w-2 h-2" />
+                    </Button>
+                  </div>
+                )}
 
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs break-all">
-                  <span className="text-muted-foreground">UPI ID</span>
-                  <br />
-                  MAB0450978A0216504@yesbank
-                </p>
-
+                {/* Submit Button */}
                 <Button
-                  type="button"
-                  variant="outline"
+                  type="submit"
                   size="sm"
-                  onClick={() =>
-                    navigator.clipboard.writeText(
-                      "MAB0450978A0216504@yesbank"
-                    )
-                  }
+                  className="text-xs"
+                  disabled={!paymentFile || isPending}
                 >
-                  Copy
+                  {isPending ? "Submitting..." : "Submit Payment"}
                 </Button>
               </div>
+            </form>
 
-              <div className="mt-3 flex justify-center">
+
+            {/* UPI Section */}
+            <div className="p-2 border rounded-lg bg-muted/30">
+              <h3 className="font-semibold mb-2 text-sm">UPI Payment</h3>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs break-all">
+                    <span className="text-muted-foreground">UPI ID</span>
+                    <br />
+                    MAB0450978A0216504@yesbank
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-1 px-2 py-1 text-xs"
+                    onClick={() =>
+                      navigator.clipboard.writeText("MAB0450978A0216504@yesbank")
+                    }
+                  >
+                    Copy
+                  </Button>
+                </div>
                 <img
                   src="/qr_payment.jpeg"
                   alt="UPI QR Code"
-                  className="w-32 h-32 sm:w-36 sm:h-36 border rounded-md"
+                  className="w-16 h-16 sm:w-20 sm:h-20 border rounded-md"
                 />
               </div>
             </div>
 
-            {/* YES BANK */}
-            <div className="p-3 border rounded-lg">
-              <h3 className="font-semibold mb-1">Bank Transfer (YES BANK)</h3>
-              <ul className="text-xs space-y-1">
-                <li><strong>Account Name:</strong> Sema Healthcare Pvt Ltd</li>
-                <li><strong>A/C Number:</strong> 97863700000408</li>
-                <li><strong>IFSC:</strong> YESB0000978</li>
-              </ul>
-            </div>
-
-            {/* HDFC BANK */}
-            <div className="p-3 border rounded-lg">
-              <h3 className="font-semibold mb-1">Bank Transfer (HDFC BANK)</h3>
-              <ul className="text-xs space-y-1">
-                <li><strong>Account Name:</strong> SEMA HEALTHCARE PVT LTD</li>
-                <li><strong>A/C Number:</strong> 50200080159582</li>
-                <li><strong>IFSC:</strong> HDFC0001718</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* ================= UPLOAD PAYMENT PROOF ================= */}
-          <form onSubmit={onSubmit} className="mt-4 space-y-3">
-            {!paymentFile ? (
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,application/pdf"
-                onChange={(e) =>
-                  setPaymentFile(e.target.files?.[0] ?? null)
-                }
-              />
-            ) : (
-              <div className="flex items-center justify-between border rounded-md p-2">
-                <span className="text-xs truncate">
-                  {paymentFile.name}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={clearFile}
-                >
-                  <FiX className="w-4 h-4" />
-                </Button>
+            {/* Bank Transfers */}
+            {[
+              {
+                name: "YES BANK",
+                accountName: "Sema Healthcare Pvt Ltd",
+                accountNumber: "97863700000408",
+                ifsc: "YESB0000978",
+              },
+              {
+                name: "HDFC BANK",
+                accountName: "SEMA HEALTHCARE PVT LTD",
+                accountNumber: "50200080159582",
+                ifsc: "HDFC0001718",
+              },
+            ].map((bank) => (
+              <div key={bank.name} className="p-2 border rounded-lg text-xs">
+                <h3 className="font-semibold mb-1">{bank.name} Transfer</h3>
+                <ul className="space-y-1">
+                  <li>
+                    <strong>Account Name:</strong> {bank.accountName}
+                  </li>
+                  <li>
+                    <strong>A/C Number:</strong> {bank.accountNumber}
+                  </li>
+                  <li>
+                    <strong>IFSC:</strong> {bank.ifsc}
+                  </li>
+                </ul>
               </div>
-            )}
+            ))}
 
-            <Button
-              size="sm"
-              className="w-full"
-              disabled={!paymentFile}
-            >
-              Submit Payment
-            </Button>
-          </form>
+            {/* Payment Proof Upload */}
+            
+</div>
         </DialogContent>
       )}
     </Dialog>
