@@ -40,33 +40,61 @@ export default function CheckoutScreen(): JSX.Element {
     return `/images/${src}`;
   };
 
-  const getUnitPrice = (item: CartItem) =>
-    item.variant?.discountPrice ??
-    item.variant?.originalPrice ??
-    item.product?.variants?.[0]?.discountPrice ??
-    item.product?.variants?.[0]?.originalPrice ??
+  // --- Helper: pick authoritative unit base price (same strategy as Cart) ---
+  const getUnitBase = (item: CartItem) =>
+    Number(item.price) ||
+    Number(item.paymentslip?.basePrice) ||
+    Number(item.variant?.discountPrice) ||
+    Number(item.variant?.originalPrice) ||
+    Number(item.product?.variants?.[0]?.discountPrice) ||
+    Number(item.product?.variants?.[0]?.originalPrice) ||
     0;
 
-  // ✅ Calculate totals
+  // --- Helper: compute per-line totals, preferring paymentslip when present ---
+  const getLineTotals = (item: CartItem) => {
+    const qty = Number(item.qty ?? 1);
+    const unitBase = getUnitBase(item);
+    const taxRate = Number(item.taxClass ?? 0);
+
+    // If paymentslip.total is present it's assumed to be line total (ex GST)
+    const lineTotalExGST = Number(item.paymentslip?.total) || unitBase * qty;
+
+    // prefer paymentslip.gstAmount if provided
+    const gstAmount =
+      Number(item.paymentslip?.gstAmount) || (lineTotalExGST * taxRate) / 100;
+
+    const lineGrand =
+      Number(item.paymentslip?.grandTotal) || lineTotalExGST + gstAmount;
+
+    return {
+      qty,
+      unitBase,
+      taxRate,
+      lineTotalExGST,
+      gstAmount,
+      lineGrand,
+    };
+  };
+
+  // ✅ Calculate totals using the same logic as cart
   const { subTotal, totalGST, grandTotal } = (cart || []).reduce(
     (acc, curr) => {
-      const price = getUnitPrice(curr);
-      const gstRate = curr.taxClass || 0;
-      const gstAmount = (price * gstRate) / 100;
-
-      acc.subTotal += curr.qty * price;
-      acc.totalGST += curr.qty * gstAmount;
-      acc.grandTotal += curr.qty * (price + gstAmount);
+      const { lineTotalExGST, gstAmount, lineGrand } = getLineTotals(curr);
+      acc.subTotal += lineTotalExGST;
+      acc.totalGST += gstAmount;
+      acc.grandTotal += lineGrand;
       return acc;
     },
-    { subTotal: 0, totalGST: 0, grandTotal: 0 },
+    { subTotal: 0, totalGST: 0, grandTotal: 0 }
   );
 
+  // Build payload using the same authoritative prices
   const cartToApi = (cart || []).map((el) => {
     const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
-    const unitPrice = getUnitPrice(el);
+    const unitBase = getUnitBase(el);
+    const gstAmountPerLine = Number(el.paymentslip?.gstAmount) || (unitBase * (el.taxClass || 0)) / 100;
+    const qty = el.qty ?? 1;
 
-    const gstAmount = (unitPrice * (el.taxClass || 0)) / 100;
     return {
       shopId:
         typeof el.product?.shopId === "string"
@@ -75,9 +103,13 @@ export default function CheckoutScreen(): JSX.Element {
       productId: el.product!._id,
       variantId: el.variant?._id ?? fallbackVariantId,
       qty: el.qty,
-      totalPrice: (unitPrice + gstAmount) * el.qty,
+      // totalPrice: use lineGrand (incl GST) if paymentslip.grandTotal present, otherwise compute
+      totalPrice:
+        Number(el.paymentslip?.grandTotal) ||
+        (unitBase + (gstAmountPerLine / qty || 0)) * qty ||
+        (unitBase + (gstAmountPerLine)) * qty,
       tax: el.taxClass || 0,
-      unitPrice: unitPrice,
+      unitPrice: unitBase,
     };
   });
 
@@ -106,8 +138,8 @@ export default function CheckoutScreen(): JSX.Element {
 
   const { mutateAsync, status } = useMutation({
     mutationFn: (data: any) => postOrder(data),
-    onError: (err) => {
-      toast.error(err.message);
+    onError: (err: any) => {
+      toast.error(err.message ?? "Failed to create order");
     },
     onSuccess: () => {
       clearCart();
@@ -189,10 +221,17 @@ export default function CheckoutScreen(): JSX.Element {
           <h2 className="text-xl font-semibold mb-4">Your Items</h2>
           <div className="divide-y">
             {cart.map((item) => {
-              const price = getUnitPrice(item);
-              const gstRate = item.taxClass ?? 0;
-              const gstAmount = (price * gstRate) / 100;
-              const priceInclGST = price + gstAmount;
+              const {
+                qty,
+                unitBase,
+                taxRate,
+                //lineTotalExGST,
+                //gstAmount,
+                lineGrand,
+              } = getLineTotals(item);
+
+              const priceExclGSTPerUnit = unitBase;
+              //const priceInclGSTPerUnit = unitBase + (gstAmount / qty || 0);
 
               const thumb =
                 normalizeImage(item.variant?.thumbnail) ??
@@ -216,12 +255,12 @@ export default function CheckoutScreen(): JSX.Element {
                       {item.product?.name}
                     </h5>
                     <p className="text-gray-600">
-                      {item.qty} × {formatter.format(price)} (Excl. GST)
+                      {qty} × {formatter.format(priceExclGSTPerUnit)} (Excl. GST)
                     </p>
                     <p className="text-sm text-gray-500">
-                      GST: {gstRate}% • Incl. GST:{" "}
+                      GST: {taxRate}% • Incl. GST:{" "}
                       <strong>
-                        {formatter.format(item.qty * priceInclGST)}
+                        {formatter.format(lineGrand)}
                       </strong>
                     </p>
                   </div>
