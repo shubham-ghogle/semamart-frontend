@@ -8,9 +8,6 @@ type Banner = {
   imagePath: string;
 };
 
-
-
-
 /* ================= SKELETON LOADER ================= */
 const Skeleton = ({ className }: { className?: string }) => {
   return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
@@ -72,10 +69,10 @@ export default function ImageSliderHome() {
     return (
       <section className="w-full px-6 py-6">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4 items-stretch">
-            <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
-            <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
-            <Skeleton className="h-[40vh] sm:h-[42vh] lg:h-[44vh]" />
+          <div className="flex gap-4 items-stretch">
+            <Skeleton className="min-w-0 flex-[3_1_0%] h-[12vh] sm:h-[34vh] md:h-[40vh] lg:h-[44vh]" />
+            <Skeleton className="min-w-0 flex-[1_1_0%] h-[12vh] sm:h-[34vh] md:h-[40vh] lg:h-[44vh]" />
+            <Skeleton className="min-w-0 flex-[1_1_0%] h-[12vh] sm:h-[34vh] md:h-[40vh] lg:h-[44vh]" />
           </div>
         </div>
       </section>
@@ -86,23 +83,25 @@ export default function ImageSliderHome() {
   return (
     <section className="w-full px-6 py-6">
       <div className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-4">
-          {/* ----------------- LEFT: LARGE SLIDER ----------------- */}
-          <div className="relative rounded-xl overflow-hidden bg-white shadow-lg h-[40vh] sm:h-[42vh] lg:h-[44vh] group">
+        <div className="flex gap-4 items-stretch">
+          {/* LEFT: large slider */}
+          <div className="relative rounded-xl overflow-hidden bg-white shadow-lg group min-w-0 flex-[3_1_0%] h-[12vh] sm:h-[34vh] md:h-[40vh] lg:h-[44vh]">
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
-              style={{
-                transform: `translateX(-${current * 100}%)`,
-              }}
+              style={{ transform: `translateX(-${current * 100}%)` }}
             >
               {sliders.map((item, i) => (
-                <Link to={item.link} key={i} className="w-full h-full flex-shrink-0">
-                    <img
-                          src={`${BASE_URL}images/${item.imagePath}`}
-                          alt={item.name}
-                          className="h-full w-full object-cover object-center"
-                        />
-
+                <Link
+                  to={item.link}
+                  key={i}
+                  className="min-w-full h-full flex-shrink-0"
+                >
+                  <img
+                    src={`${BASE_URL}images/${item.imagePath}`}
+                    alt={item.name}
+                    className="h-full w-full object-cover object-center"
+                    draggable={false}
+                  />
                 </Link>
               ))}
             </div>
@@ -115,7 +114,6 @@ export default function ImageSliderHome() {
               >
                 ‹
               </button>
-
               <button
                 onClick={next}
                 className="pointer-events-auto opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-2 shadow"
@@ -132,9 +130,7 @@ export default function ImageSliderHome() {
                     key={i}
                     onClick={() => setCurrent(i)}
                     className={`w-2.5 h-2.5 rounded-full transition ${
-                      current === i
-                        ? "bg-[#1C647C] scale-125"
-                        : "bg-gray-300"
+                      current === i ? "bg-[#1C647C] scale-125" : "bg-gray-300"
                     }`}
                   />
                 ))}
@@ -142,11 +138,11 @@ export default function ImageSliderHome() {
             </div>
           </div>
 
-          {/* ----------------- RIGHT SIDE SMALL BANNERS ----------------- */}
+          {/* RIGHT banners */}
           {rightBanners.map((item, i) => (
             <div
               key={i}
-              className="group relative rounded-xl overflow-hidden shadow-md h-[40vh] sm:h-[42vh] lg:h-[44vh] hover:shadow-xl"
+              className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl min-w-0 flex-[1_1_0%] h-[12vh] sm:h-[34vh] md:h-[40vh] lg:h-[44vh]"
             >
               <a
                 href={item.link || "#"}
@@ -155,10 +151,11 @@ export default function ImageSliderHome() {
                 className="block w-full h-full transform transition-transform duration-500 group-hover:scale-105"
               >
                 <img
-                  src={BASE_URL+"images/"+item.imagePath}
+                  src={BASE_URL + "images/" + item.imagePath}
                   alt={item.name || "Banner"}
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
+                  draggable={false}
                 />
               </a>
             </div>

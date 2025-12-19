@@ -176,6 +176,8 @@ export default function AdminProduct() {
           // if DataTable triggers multi-change, we forward to admin mutate
           mutateAdminVisibility({ productIds: ids, isVisible: visible })
         }
+        enableCalender={true}
+        dateFieldId="createdAt"
       />
 
       {adminMutStatus === "pending" && <ScreenOverlayLoaderUi />}
