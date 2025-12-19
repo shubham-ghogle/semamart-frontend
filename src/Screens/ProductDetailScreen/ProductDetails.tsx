@@ -29,6 +29,9 @@ export default function ProductCard() {
   const { id } = useParams();
   const { user }= useUserStore()
   const n = useNavigate()
+useEffect(() => {
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+}, [id]);
 
   const {
     data: product,
