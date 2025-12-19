@@ -19,19 +19,7 @@ export default function PurchasePanel({
 }: any) {
   const displayOriginalPrice =
     selectedVariant?.originalPrice ?? product.originalPrice;
-  const displayDiscountPrice =
-    selectedVariant?.discountPrice ?? product.discountPrice;
   const GREEN = "#3bc177";
-
-  // ✅ discount for 1 Pack
-  const onePackDiscount =
-    displayOriginalPrice && displayDiscountPrice
-      ? Math.round(
-          ((displayOriginalPrice - displayDiscountPrice) /
-            Math.max(displayOriginalPrice, 1)) *
-            100,
-        )
-      : 0;
 
   const n = useNavigate();
 
@@ -40,55 +28,6 @@ export default function PurchasePanel({
       className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100 md:min-h-[600px]"
     >
       <div className="space-y-3">
-        {/* 1 Pack option */}
-        <label
-          className="flex justify-between items-center p-3 rounded-xl border cursor-pointer transition-all duration-200"
-          style={{
-            backgroundColor: selectedPack?.qty === 1 ? "#ECFBFF" : "white",
-          }}
-        >
-          <div className="flex items-start gap-3 w-full">
-            <input
-              type="radio"
-              name="pack"
-              value="1"
-              checked={selectedPack?.qty === 1}
-              onChange={() =>
-                setSelectedPack({
-                  qty: 1,
-                  price: displayDiscountPrice ?? displayOriginalPrice ?? 0,
-                  label: "1 Pack",
-                })
-              }
-              className="mt-1 w-4 h-4 accent-[#006666]"
-            />
-            <div className="flex flex-col w-full gap-1">
-              <div className="flex justify-between items-center">
-                <strong className="text-base font-semibold">1 Pack</strong>
-                <div
-                  style={{
-                    background: GREEN,
-                    color: "#fff",
-                    padding: "4px 8px",
-                    borderRadius: 6,
-                    fontWeight: 700,
-                  }}
-                >
-                  {onePackDiscount > 0 ? `${onePackDiscount}% off` : "—"}
-                </div>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <p className="text-xs text-gray-600">
-                  @ ₹{displayDiscountPrice ?? displayOriginalPrice}/piece
-                </p>
-                <p className="text-orange-500 font-semibold text-base">
-                  ₹{displayDiscountPrice ?? displayOriginalPrice}
-                </p>
-              </div>
-            </div>
-          </div>
-        </label>
-
         {/* Other bulk orders */}
         {variantBulkOrders && variantBulkOrders.length > 0
           ? variantBulkOrders.map((b: any) => {

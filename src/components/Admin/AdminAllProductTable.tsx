@@ -182,9 +182,9 @@ export default function AdminAllProductTable({
       cell: ({ row }) => (
         <article className="flex items-center gap-4">
           {/* <Link to={`/admin/products/view/${row.original.productId}`}> */}
-          <Link to={"view/" + row.original.productId}>
+          <a href={"/product/" + row.original.productId}>
             <AiOutlineEdit size={20} />
-          </Link>
+          </a>
           <UpdateCommissionDialog
             currentCommission={row.original.commission}
             productId={row.original.productId}
