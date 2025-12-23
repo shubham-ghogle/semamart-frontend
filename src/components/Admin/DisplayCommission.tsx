@@ -1,18 +1,32 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { useState, useMemo } from "react";
 import { Button } from "../ui/button";
-import { Clipboard } from "lucide-react"; 
+import { Clipboard } from "lucide-react";
 
-type CommissionHistoryDialogProps = {
-  history: { updatedAt: string; commission: number }[];
+type CommissionHistory = {
+  updatedAt: string;
+  commission: number;
 };
 
-export default function DisplayCommission({ history }: CommissionHistoryDialogProps) {
+type CommissionHistoryDialogProps = {
+  history?: CommissionHistory[]; // <-- optional for safety
+};
+
+export default function DisplayCommission({
+  history = [],
+}: CommissionHistoryDialogProps) {
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    console.log("Commission History received:", history);
-  }, [history]);
+  // Ensure history is always a valid array
+  const safeHistory = useMemo(
+    () => (Array.isArray(history) ? history : []),
+    [history]
+  );
 
   return (
     <>
@@ -20,6 +34,12 @@ export default function DisplayCommission({ history }: CommissionHistoryDialogPr
         variant="outline"
         size="icon"
         onClick={() => setOpen(true)}
+        disabled={safeHistory.length === 0}
+        title={
+          safeHistory.length === 0
+            ? "No commission history"
+            : "View commission history"
+        }
       >
         <Clipboard size={16} />
       </Button>
@@ -30,32 +50,40 @@ export default function DisplayCommission({ history }: CommissionHistoryDialogPr
             <DialogTitle>Commission History</DialogTitle>
           </DialogHeader>
 
-          <div className="mt-4">
-            {history.length === 0 ? (
-              <p>No history available.</p>
+          <div className="mt-4 space-y-2">
+            {safeHistory.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No commission history available.
+              </p>
             ) : (
-              <div className="grid grid-cols-3 gap-2 border-b pb-1 font-semibold">
-                <span>Date</span>
-                <span>Old</span>
-                <span>New</span>
-              </div>
-            )}
-
-            {history.map((h, index) => {
-              const oldCommission = index === 0 ? "-" : history[index - 1].commission;
-              const newCommission = h.commission;
-
-              return (
-                <div
-                  key={index}
-                  className="grid grid-cols-3 gap-2 border-b py-1"
-                >
-                  <span>{new Date(h.updatedAt).toLocaleDateString("en-IN")}</span>
-                  <span>{oldCommission}</span>
-                  <span>{newCommission}</span>
+              <>
+                <div className="grid grid-cols-3 gap-2 border-b pb-1 font-semibold">
+                  <span>Date</span>
+                  <span>Old</span>
+                  <span>New</span>
                 </div>
-              );
-            })}
+
+                {safeHistory.map((h, index) => {
+                  const oldCommission =
+                    index === 0 ? "-" : safeHistory[index - 1]?.commission ?? "-";
+
+                  return (
+                    <div
+                      key={`${h.updatedAt}-${index}`}
+                      className="grid grid-cols-3 gap-2 border-b py-1 text-sm"
+                    >
+                      <span>
+                        {h.updatedAt
+                          ? new Date(h.updatedAt).toLocaleDateString("en-IN")
+                          : "-"}
+                      </span>
+                      <span>{oldCommission}</span>
+                      <span>{h.commission}</span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>

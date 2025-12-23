@@ -107,7 +107,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
-          <OrderDetailsField
+          {/* <OrderDetailsField
             label="Status:"
             value={
               data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
@@ -118,7 +118,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
             value={
               data?.paymentInfo?.method ? data?.paymentInfo?.method : "Not Paid"
             }
-          />
+          /> */}
         </div>
       </section>
       <section className="mt-6 flex justify-between border-b pb-4">

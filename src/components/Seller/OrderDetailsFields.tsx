@@ -4,9 +4,10 @@ type OrderDetailsFieldProps = {
 }
 export default function OrderDetailsField({ label, value }: OrderDetailsFieldProps) {
   return (
-    <article className="flex items-center gap-1">
-      <h5 className="">{label}</h5>
-      <p className="text-dark-gray">{value}</p>
+    <article className="flex  items-center gap-1">
+      <span className="font-medium whitespace-nowrap">{label}</span>
+      <span className="text-dark-gray">{value}</span>
     </article>
+
   )
 }

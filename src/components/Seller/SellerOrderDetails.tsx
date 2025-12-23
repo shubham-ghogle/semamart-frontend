@@ -19,22 +19,17 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const { mutationStatus, mutateOrder } = useSellerOrderMutation();
   const [status, setStatus] = useState("");
 
+  // ✅ Default price total (without tax)
+  const defaultTotal =
+    data.qty * (data.variant && typeof data.variant !== "string"
+      ? data.variant.discountPrice ?? 0
+      : 0);
+
   const getOptionsForStatus = () => {
     const statuses = {
-      default: [
-        "Packed",
-        "Shipped",
-        // "Received",
-        // "On the way",
-        // "Delivered",
-      ],
+      default: ["Packed", "Shipped"],
       refund: ["Processing refund", "Refund Success"],
     };
-
-    // if (statuses.refund.includes(currentStatus)) {
-    //   return statuses.refund.slice(statuses.refund.indexOf(currentStatus));
-    // }
-
     return statuses.default;
   };
 
@@ -59,6 +54,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
+      {/* Download Invoice */}
       <section className="flex justify-end items-center">
         <Button
           variant="outline"
@@ -68,7 +64,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         </Button>
       </section>
 
-      <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
+      {/* Order Header */}
+      <section className="w-full flex items-center bg-white justify-between p-6 border-b">
         <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField
           label="Placed on:"
@@ -88,6 +85,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               alt="Product item order img"
               className="w-[80px] h-[80px] object-cover"
             />
+
             <div className="w-full">
               <h5 className="pl-3 text-sm">
                 {typeof data.variant?.productId === "object"
@@ -95,40 +93,34 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                 ₹{data.qty} x {data.variant?.discountPrice}
+                ₹{data.qty} x {data.variant?.discountPrice ?? 0}
               </h5>
             </div>
+
             <OrderDetailsField
               label="Tax (%):"
-              value={ (data.tax || 0)}
+              value={data.tax || 0}
             />
+
+            {/* ✅ Default price total (NO TAX) */}
             <OrderDetailsField
               label="Total:"
-              value={ data.totalPrice}
+              value={defaultTotal}
             />
           </article>
         )}
       </section>
 
+      {/* Payment Info */}
       <section className="mt-6 flex justify-between border-b pb-4">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
+          {/* Includes tax */}
           <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
-          {/* <OrderDetailsField
-            label="Status:"
-            value={
-              data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
-            }
-          /> */}
-          {/* <OrderDetailsField
-            label="Method:"
-            value={
-              data?.paymentInfo?.method ? data?.paymentInfo?.method : "Not Paid"
-            }
-          /> */}
         </div>
       </section>
 
+      {/* Order Status */}
       <section className="flex justify-between items-start mt-4">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
@@ -174,7 +166,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 }
                 disabled={mutationStatus === "pending"}
               >
-                {mutationStatus === "pending" ? "Updating.." : "Update Status"}
+                {mutationStatus === "pending"
+                  ? "Updating.."
+                  : "Update Status"}
               </button>
             </div>
           </div>

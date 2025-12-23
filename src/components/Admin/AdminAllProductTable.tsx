@@ -54,7 +54,11 @@ export default function AdminAllProductTable({
 
   const rows: VariantRow[] = products.flatMap((pro) =>
     pro.variants.map((v) => {
-      const lastCommission = pro.commissionHistory?.[pro.commissionHistory.length - 1] || null;
+      const lastCommission =
+      Array.isArray(pro.commissionHistory) && pro.commissionHistory.length > 0
+      ? pro.commissionHistory[pro.commissionHistory.length - 1]
+      : null;
+
 
       return {
         id: v._id,
@@ -72,7 +76,7 @@ export default function AdminAllProductTable({
         commissionHistoryDate: lastCommission
           ? new Date(lastCommission.updatedAt).toLocaleDateString("en-IN")
           : "-",
-        commissionHistoryAmount: lastCommission?.commission || 0,
+        commissionHistoryAmount: lastCommission?.commission ?? 0,
         adminVisibility: pro.visibilityByAdmin,
         sellerVisibility: pro.visibilityBySeller,
         commissionHistory: pro.commissionHistory || [],
