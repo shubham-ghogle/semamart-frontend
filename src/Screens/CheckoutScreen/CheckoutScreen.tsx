@@ -354,7 +354,13 @@ export default function CheckoutScreen(): JSX.Element {
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           <div className="flex justify-between mb-2">
             <span>Subtotal (Excl. GST)</span>
-            <span>{formatter.format(subTotal)}</span>
+            <span>
+              {Number(subTotal).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+
           </div>
           <div className="flex justify-between mb-2">
             <span>Total GST</span>
@@ -362,7 +368,13 @@ export default function CheckoutScreen(): JSX.Element {
           </div>
           <div className="flex justify-between font-semibold border-t pt-2">
             <span>Grand Total (Incl. GST)</span>
-            <span>{formatter.format(grandTotal)}</span>
+            <span>
+              {Number(grandTotal).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+
           </div>
 
           <button

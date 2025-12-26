@@ -211,10 +211,14 @@ const UserWishlist: React.FC = () => {
 
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs text-gray-400 line-through font-montserrat">
-                            ₹{v.originalPrice}
+                            ₹{v.originalPrice.toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                              })}
                           </span>
                           <span className="font-medium text-lg font-montserrat text-[#2F3B54]">
-                            ₹{v.discountPrice}
+                            ₹{v.discountPrice.toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                              })}
                           </span>
                         </div>
                       </div>

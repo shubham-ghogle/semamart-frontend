@@ -273,7 +273,12 @@ const OrderProductCard: React.FC = () => {
                     {/* PRICE */}
                     <div className="md:col-span-2 text-center">
                       <p className="text-lg font-semibold text-gray-900">
-                        ₹{product.totalPrice || variant?.discountPrice || 0}
+                       ₹{Number(product.totalPrice || variant?.discountPrice || 0)
+                          .toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+
                       </p>
                     </div>
 

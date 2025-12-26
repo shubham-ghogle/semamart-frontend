@@ -23,7 +23,11 @@ export default function UserOrderTable({ orders }: UserOrderTableProps) {
           <tr key={or._id}>
             <TableBodyCell text={or._id} />
             <TableBodyCell text={or.status || ""} />
-            <TableBodyCell text={or.totalPrice.toString()} />
+            <TableBodyCell
+                text={or.totalPrice.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
+            />
             <TableBodyCell text={formatDate(or.createdAt)} />
             <td align="center">
               <button>

@@ -294,11 +294,15 @@ export default function SearchResultsPage() {
 
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-green-600 font-bold text-lg">
-                            ₹{dispPrice.toLocaleString()}
+                            ₹{dispPrice.toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                              })}
                           </span>
                           {origPrice > 0 && (
                             <span className="text-sm line-through text-gray-400">
-                              ₹{origPrice.toLocaleString()}
+                              ₹{origPrice.toLocaleString("en-IN", {
+                                  minimumFractionDigits: 2,
+                                })}
                             </span>
                           )}
                         </div>
