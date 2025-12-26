@@ -10,6 +10,7 @@ import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
 import { useSellerStore } from "@/store/sellerStore";
 import { FaRupeeSign } from "react-icons/fa";
+import DisplayCommission from "../Admin/DisplayCommission";
 
 
 type VariantRow = {
@@ -25,6 +26,7 @@ type VariantRow = {
   productId: string;
   commission: number;
   sellerVisibility: boolean;
+  commissionHistory: { updatedAt: string; commission: number }[];
   
 };
 
@@ -50,7 +52,8 @@ export default function SellerProductTable({
       createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
       productId: pro._id,
       commission: pro.commission || 0,
-sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
+      sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
+      commissionHistory: pro.commissionHistory || [],
     })),
   );
 
@@ -158,16 +161,18 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
             id: "action",
             header: "Actions",
             cell: ({ row }) => (
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center">
                 {/* Edit button */}
                 <Link to={`edit/${row.original.productId}`}>
-                  <AiOutlineEdit size={20} className="text-blue-500" />
+                  <AiOutlineEdit size={20} />
                 </Link>
 
                 {/* View/Preview button */}
                 <Link to={`/product/${row.original.productId}`} target="_blank">
                   <AiOutlineEye size={20} className="text-gray-500" />
                 </Link>
+
+                <DisplayCommission history={row.original.commissionHistory} />
 
               </div>
             ),
