@@ -93,11 +93,15 @@ export default function WishlistPage() {
                   {/* Price Info */}
                   <div className="mt-1 flex items-center gap-2">
                     <span className="text-lg font-semibold text-gray-900">
-                      ₹{price.toLocaleString()}
+                      ₹{price.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
                     </span>
                     {variant?.originalPrice && (
                       <span className="line-through text-gray-500 text-sm">
-                        ₹{variant.originalPrice.toLocaleString()}
+                        ₹{variant.originalPrice.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
                       </span>
                     )}
                     {discount > 0 && (

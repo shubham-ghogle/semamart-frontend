@@ -80,16 +80,22 @@ export default function AddToCart() {
             <div className="text-sm text-gray-700 space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal (Excl. GST)</span>
-                <span>₹{subTotal.toLocaleString()}</span>
+                <span>₹{subTotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</span>
               </div>
               <div className="flex justify-between">
                 <span>Total GST</span>
-                <span>₹{totalGST.toLocaleString()}</span>
+                <span>₹{totalGST.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</span>
               </div>
               <hr />
               <div className="flex justify-between font-semibold text-black text-base">
                 <span>Grand Total (Incl. GST)</span>
-                <span>₹{grandTotal.toLocaleString()}</span>
+                <span>₹{grandTotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</span>
               </div>
 
               <button
@@ -207,15 +213,23 @@ const CartSingle = ({ data }: CartSingleProps) => {
           <div className="space-y-1 mt-2">
             <div>
               MRP (Excl. GST): ₹{basePrice} × {qty} ={" "}
-              <strong>₹{totalBase.toFixed(2)}</strong>
+              <strong>₹{totalBase.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</strong>
             </div>
             <div>GST Rate: {gstRate}%</div>
             <div>
-              GST Amount: ₹{gstAmountPerPiece.toFixed(2)} × {qty} ={" "}
-              <strong>₹{totalGST.toFixed(2)}</strong>
+              GST Amount: ₹{gstAmountPerPiece.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })} × {qty} ={" "}
+              <strong>₹{totalGST.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</strong>
             </div>
             <div className="font-semibold text-gray-900">
-              Price (Incl. GST): ₹{totalInclGST.toFixed(2)}
+              Price (Incl. GST): ₹{totalInclGST.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             </div>
           </div>
 

@@ -165,8 +165,12 @@ if (displayOriginalPrice && displayDiscountPrice) {
       <div className="text-lg font-bold text-slate-900">{moq} pcs</div>
 
       <div className="text-xs text-slate-600 mt-1">
-        ₹{perPiecePrice.toFixed(2)} each ·{" "}
-        <span className="font-semibold">₹{moqTotal.toFixed(2)}</span>
+        ₹{perPiecePrice.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })} each ·{" "}
+        <span className="font-semibold">₹{moqTotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}</span>
       </div>
     </div>
   </div>

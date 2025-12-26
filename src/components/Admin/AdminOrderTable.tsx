@@ -10,7 +10,7 @@ type Row = {
   status: string;
   customer: string;
   shop: string;
-  totalPrice: string;
+  totalPrice: number;
   orderedOn: string;
   viewOrder: (orderId: string) => void;
 };
@@ -27,7 +27,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
     customer: typeof el.user === "string" ? "-" : el.user.firstName,
     shop: typeof el.shop === "string" ? "-" : el.shop?.businessName || "-",
-    totalPrice: el.totalPrice.toString(),
+    totalPrice: el.totalPrice,
     orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
     viewOrder: (orderId: string) => {
       navigate(orderId);
@@ -69,7 +69,12 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     {
       accessorKey: "totalPrice",
       header: "Total Price",
+      cell: ({ row }) =>
+        (row.original.totalPrice ?? 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
     },
+
     {
       accessorKey: "orderedOn",
       header: "Ordered On",

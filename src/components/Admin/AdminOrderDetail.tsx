@@ -89,16 +89,21 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                US${data.qty} x {data.variant.discountPrice}
+                US${data.qty} x {data.variant?.discountPrice ?? data.variant.originalPrice.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
               </h5>
             </div>
             <OrderDetailsField
               label="Total:"
-              value={
+              value={(
                 data.qty *
-                (data.variant?.discountPrice ?? data.variant.originalPrice)
-              }
+                (data.variant?.discountPrice ?? data.variant?.originalPrice ?? 0)
+              ).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             />
+
           </article>
         )}
       </section>
@@ -106,7 +111,9 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
       <section className="mt-6 flex justify-between border-b pb-4">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
-          <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
+          <OrderDetailsField label="Total Price:" value={data?.totalPrice.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })} />
           {/* <OrderDetailsField
             label="Status:"
             value={

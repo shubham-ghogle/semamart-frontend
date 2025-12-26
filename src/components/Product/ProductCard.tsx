@@ -133,15 +133,22 @@ export default function DefaultProductCard({
               {firstVariant?.discountPrice ? (
                 <>
                   <span className="text-xs text-gray-400 line-through font-montserrat">
-                    ₹{firstVariant.originalPrice}
+                    ₹{firstVariant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
                   <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
-                    ₹{firstVariant.discountPrice}
+                    ₹{firstVariant.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
                 </>
               ) : (
                 <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
-                  ₹{firstVariant?.originalPrice ?? "N/A"}
+                  {firstVariant?.originalPrice != null ? (
+                    <>₹{firstVariant.originalPrice.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })}</>
+                  ) : (
+                    "N/A"
+                  )}
+
                 </span>
               )}
             </div>

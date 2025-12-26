@@ -84,7 +84,9 @@ export default function PurchasePanel({
                           @ ₹{perPiece.toFixed(2)}/piece
                         </p>
                         <p className="text-orange-500 font-semibold text-base">
-                          ₹{b.price.toFixed(2)}
+                          ₹{b.price.toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                            })}
                         </p>
                       </div>
                     </div>

@@ -22,7 +22,15 @@ export default function VariantsDisplay() {
         <div key={el._id} className="border rounded-lg p-6 relative">
           <article className="grid grid-cols-[3fr_2fr] gap-4 items-start">
             <section className="w-full space-y-2">
-              <ReadOnlyField label="Original Price" value={el.originalPrice} />
+            <ReadOnlyField
+              label="Original Price"
+              value={
+                el.originalPrice != null
+                  ? el.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })
+                  : "N/A"
+              }
+            />
+
               <ReadOnlyField label="Available Stock" value={el.stock} />
               <ReadOnlyField label="Size" value={el.size ?? "-"} />
               <ReadOnlyField label="Color" value={el.colorOption ?? "-"} />
@@ -30,7 +38,12 @@ export default function VariantsDisplay() {
             <section className="space-y-2 w-72 grid grid-rows-[70px_1fr]">
               <ReadOnlyField
                 label="Discount Price"
-                value={el.discountPrice ?? 0}
+                value={
+                        (el.discountPrice ?? 0).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })
+                      }
+
               />
               <div>
                 <img
@@ -48,7 +61,11 @@ export default function VariantsDisplay() {
               <p className="text-lg">Bulk orders</p>
               <article key={v._id} className="flex gap-2">
                 <ReadOnlyField label="Quantity" value={v.qty} />
-                <ReadOnlyField label="Price" value={v.price} />
+                <ReadOnlyField
+                  label="Price"
+                  value={(v.price ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                />
+
               </article>
             </section>
           ))}

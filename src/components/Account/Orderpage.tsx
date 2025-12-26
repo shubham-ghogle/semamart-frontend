@@ -327,7 +327,9 @@ const Orderpage = () => {
 
                   {/* Price */}
                   <div className="sm:col-span-2 text-center">
-                    <p className="text-lg font-bold">₹{order.totalPrice}</p>
+                    <p className="text-lg font-bold">₹{order.totalPrice.toLocaleString("en-IN", {
+               
+              })}</p>
                   </div>
 
                   {/* Status */}

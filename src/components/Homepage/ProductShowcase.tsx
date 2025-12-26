@@ -141,10 +141,19 @@ export default function ProductShowcase({
                     {product.name}
                   </h3>
                   <p className="text-lg font-bold text-[#1C647C] mt-1">
-                    ₹
-                    {product.variants?.[0]?.discountPrice ??
-                      product.variants?.[0]?.originalPrice ??
-                      "—"}
+                   {product.variants?.[0]?.discountPrice ??
+                      product.variants?.[0]?.originalPrice ? (
+                        <>₹
+                          {(product.variants?.[0]?.discountPrice ??
+                            product.variants?.[0]?.originalPrice
+                          ).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </>
+                      ) : (
+                        "—"
+                      )}
+
                   </p>
                 </div>
               </Link>

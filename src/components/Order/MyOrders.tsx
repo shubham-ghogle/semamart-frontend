@@ -273,7 +273,7 @@ const handleOrderClick = (productId: string) => {
 
                     {/* 💰 Price column */}
                     <div className="md:col-span-2 text-center">
-                      <p className="text-lg font-semibold text-gray-900">₹{order.totalPrice}</p>
+                      <p className="text-lg font-semibold text-gray-900">₹{order.totalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
                     </div>
 
                     {/* 🚚 Delivery status & review column */}

@@ -108,11 +108,11 @@ export default function EquipmentProductCard({ product }: ProductCardProps) {
           <div className="flex flex-col">
             {discountPct > 0 && (
               <span className="text-xs text-gray-400 line-through font-montserrat">
-                ₹{originalPrice}
+                ₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
               </span>
             )}
             <span className="font-bold text-lg font-montserrat text-[#2F3B54]">
-              ₹{discountPrice}
+              ₹{discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </span>
           </div>
           <div className="flex items-center gap-2">

@@ -13,7 +13,7 @@ type Row = {
   status: string;
   productName: string;
   customerName: string;
-  totalPrice: string;
+  totalPrice: number;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -49,7 +49,7 @@ const truncate = (text: string, max = 35) =>
       status: order.status ?? "-",
       productName,
       customerName,
-      totalPrice: `₹${order.totalPrice}`,
+      totalPrice: order.totalPrice,
       orderedOn: order.createdAt
       ? new Date(order.createdAt).toLocaleDateString("en-IN")
       : "-",
@@ -100,6 +100,10 @@ const truncate = (text: string, max = 35) =>
     {
       accessorKey: "totalPrice",
       header: "Total Price",
+      cell: ({ row }) =>
+        (row.original.totalPrice ?? 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
     },
     {
       accessorKey: "orderedOn",

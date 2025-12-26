@@ -160,7 +160,7 @@ const OrderSummary = () => {
               </div>
               <div className="text-right">
                 <p className="text-lg font-semibold">
-                  ₹{orderedProduct.discountPrice.toLocaleString("en-IN")}
+                  ₹{orderedProduct.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500">Qty: {order.qty}</p>
               </div>
@@ -328,19 +328,19 @@ const OrderSummary = () => {
                 <div className="flex justify-between">
                   <span>Listing price</span>
                   <span className="line-through text-gray-400">
-                    ₹{orderedProduct.originalPrice.toLocaleString("en-IN")}
+                    ₹{orderedProduct.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between font-semibold">
                   <span>Special price</span>
-                  <span>₹{orderedProduct.discountPrice.toLocaleString("en-IN")}</span>
+                  <span>₹{orderedProduct.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
                 <hr className="my-2" />
                 <div className="flex justify-between font-bold text-gray-800">
                   <span>Total amount</span>
                   <span>
                     ₹
-                    {(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN")}
+                    {(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>

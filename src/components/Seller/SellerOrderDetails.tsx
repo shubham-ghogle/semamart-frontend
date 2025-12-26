@@ -93,7 +93,10 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                ₹{data.qty} x {data.variant?.discountPrice ?? 0}
+                ₹{data.qty} × {(data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
+
               </h5>
             </div>
 
@@ -105,7 +108,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
             {/* ✅ Default price total (NO TAX) */}
             <OrderDetailsField
               label="Total:"
-              value={defaultTotal}
+              value={defaultTotal.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })}
             />
           </article>
         )}
@@ -116,7 +121,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           {/* Includes tax */}
-          <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
+          <OrderDetailsField label="Total Price:" value={data?.totalPrice.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })} />
         </div>
       </section>
 

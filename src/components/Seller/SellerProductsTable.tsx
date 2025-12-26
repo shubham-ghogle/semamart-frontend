@@ -118,8 +118,22 @@ sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => tr
     { accessorKey: "colorOption", header: "Color" },
     { accessorKey: "size", header: "Size" },
     { accessorKey: "stock", header: "Stock" },
-    { accessorKey: "originalPrice", header: "Price" },
-    { accessorKey: "discountPrice", header: "Discount Price" },
+   {
+      accessorKey: "originalPrice",
+      header: "Price",
+      cell: ({ row }) =>
+        row.original.originalPrice.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
+    {
+      accessorKey: "discountPrice",
+      header: "Discount Price",
+      cell: ({ row }) =>
+        row.original.discountPrice.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
     {
       accessorKey: "createdAt",
       header: "Created On",

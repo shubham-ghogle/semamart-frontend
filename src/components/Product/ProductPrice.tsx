@@ -37,7 +37,9 @@ export default function ProductPrice({
       {original > 0 && discount ? (
         <p className="font-Roboto text-slate-600 pl-[76px] text-sm mb-1">
           Price:
-          <span className="line-through pl-4 text-lg">₹{original}</span>
+          <span className="line-through pl-4 text-lg">₹{original.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })}</span>
         </p>
       ) : null}
 
@@ -48,14 +50,18 @@ export default function ProductPrice({
 
         <article>
           <p className="text-3xl text-red-600">
-            ₹{priceExclGst} <span className="text-lg">excl. GST</span>
+            ₹{priceExclGst.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })} <span className="text-lg">excl. GST</span>
             {discountPct > 0 && (
               <span className="ml-2 text-sm text-green-600">-{discountPct}%</span>
             )}
           </p>
 
           <p className="text-2xl text-red-600">
-            ₹{priceInclGst} <span className="text-sm">incl. GST</span>
+            ₹{priceInclGst.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })} <span className="text-sm">incl. GST</span>
           </p>
         </article>
       </section>

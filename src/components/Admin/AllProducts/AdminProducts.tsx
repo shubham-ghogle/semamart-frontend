@@ -134,8 +134,22 @@ export default function AdminProduct() {
     { accessorKey: "colorOption", header: "Color" },
     { accessorKey: "size", header: "Size" },
     { accessorKey: "stock", header: "Stock" },
-    { accessorKey: "originalPrice", header: "Price" },
-    { accessorKey: "discountPrice", header: "Disc Price" },
+    {
+      accessorKey: "originalPrice",
+      header: "Price",
+      cell: ({ row }) =>
+        row.original.originalPrice.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
+    {
+      accessorKey: "discountPrice",
+      header: "Disc Price",
+      cell: ({ row }) =>
+        row.original.discountPrice.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
     { accessorKey: "createdAt", header: "Created On" },
     {
       accessorKey: "commission",

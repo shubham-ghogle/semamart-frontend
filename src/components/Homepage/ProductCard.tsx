@@ -229,10 +229,15 @@ export default function ProductCard({ product }: Props) {
 
           <div className="flex items-center gap-2 mt-1">
             <span className="text-lg font-semibold text-gray-900">
-              ₹{(discountPrice ?? originalPrice ?? "—")}
+            ₹{(
+                discountPrice ?? originalPrice ?? "-"
+              ).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+            })}
+
             </span>
             {discountPrice != null && originalPrice != null && discountPrice < originalPrice && (
-              <span className="text-sm text-gray-500 line-through">₹{originalPrice}</span>
+              <span className="text-sm text-gray-500 line-through">₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             )}
           </div>
         </div>

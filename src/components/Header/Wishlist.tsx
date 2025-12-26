@@ -114,7 +114,7 @@ function WishlistItemCard({ item }: WishlistItemProps) {
           <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">₹{price.toLocaleString()}</p>
+          <p className="text-sm text-gray-600 mt-1">₹{price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
         </div>
       </Link>
 
