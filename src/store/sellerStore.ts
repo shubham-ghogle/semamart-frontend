@@ -131,6 +131,15 @@ export const useSellerStore = create<SellerStore>()(
           } catch (e) {
             console.warn("[sellerStore] removeSeller localStorage remove failed:", e);
           }
+            try {
+          document.cookie.split(";").forEach((cookie) => {
+            document.cookie = cookie
+              .replace(/^ +/, "")
+              .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+          });
+        } catch (e) {
+          // ignore
+        }
         } catch (err) {
           console.error("[sellerStore] removeSeller error:", err);
         }

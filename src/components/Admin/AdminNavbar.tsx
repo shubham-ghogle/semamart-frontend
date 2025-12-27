@@ -84,10 +84,21 @@ export default function AdminNavbar() {
   const fallbackAvatar = user?.avatar ?? "/image60.png";
   const isExpanded = pinned; // only pinned controls expansion
 
-  const logoutHandler = () => {
-    removeUser();
-    navigate("/admin-login");
-  };
+const logoutHandler = async () => {
+  console.log("Logging out admin...");
+  try {
+    await fetch("/api/v2/admin/logout", {
+      method: "POST",
+      credentials: "include", // 🔥 REQUIRED
+    });
+  } catch (e) {
+    // even if backend fails, continue cleanup
+  } finally {
+    removeUser(); // Zustand + localStorage
+    navigate("/admin-login", { replace: true });
+  }
+};
+
 
   return (
     <>

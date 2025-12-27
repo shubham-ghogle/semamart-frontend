@@ -309,6 +309,9 @@ export default function Header() {
 
       removeUser();
       removeSeller();
+     
+
+      
 
       // close menus
       setIsUserHovered(false);

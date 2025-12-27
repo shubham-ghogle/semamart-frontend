@@ -44,7 +44,7 @@ export default function SellerNavbar() {
     setLoggingOut(true);
     try {
       // call your logout endpoint; keep simple here (adjust to your API)
-      const res = await fetch("/api/v2/seller/logout", { method: "POST", credentials: "include" });
+      const res = await fetch("/api/v2/shop/logout", { method: "POST", credentials: "include" });
       if (res.ok) {
         removeSeller();
         toast.success("Logged out", { position: "top-center" });
