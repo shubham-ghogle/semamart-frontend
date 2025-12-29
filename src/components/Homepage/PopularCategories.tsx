@@ -293,13 +293,13 @@ export default function PopularCategories() {
                       <div
                         style={{
                           width: 112,
-                          height: 184,
+                          height: 165,
                           background: "rgba(0,0,0,0.03)",
-                          borderRadius: 12,
+                          
                         }}
                         className="flex items-center justify-center"
                       >
-                        <img src={c.image || "/placeholder.png"} alt={c.name} className="w-full h-full object-contain p-3" onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
+                        <img  src={c.image ? `/PopularCategory/${c.image}` : "/placeholder.png"} alt={c.name} className="w-full h-full object-contain " onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
                       </div>
                     </Link>
                   </div>
