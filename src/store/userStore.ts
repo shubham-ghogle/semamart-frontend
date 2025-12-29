@@ -25,6 +25,16 @@ export const useUserStore = create<UserStore>()(
         } catch (e) {
           // ignore
         }
+        // 🔥 Clear cookies (current domain)
+        try {
+          document.cookie.split(";").forEach((cookie) => {
+            document.cookie = cookie
+              .replace(/^ +/, "")
+              .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+          });
+        } catch (e) {
+          // ignore
+        }
       },
 
       updateUser: async (updatedFields) => {
