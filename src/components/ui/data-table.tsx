@@ -403,7 +403,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-primary font-medium",
+                        "text-[#1C647C] font-medium  bg-[#f5f6fa]",
                         bordered && "border"
                       )}
                       colSpan={header.colSpan}
@@ -431,7 +431,7 @@ export function DataTable<TData, TValue>({
                     <TableCell
                       key={cell.id}
                       className={cn(
-                        "text-sm text-[#1E1E1E]",
+                        "text-sm text-[#000000]",
                         bordered && "border"
                       )}
                     >
