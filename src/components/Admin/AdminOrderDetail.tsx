@@ -50,6 +50,19 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   };
 
   const orderStatus = data.status === "Paid" ? "Paid: Verify Payment" : data.status
+  const isShipped =
+  ["Shipped", "Out for Delivery", "Delivered"].includes(data.status);
+
+const hasTracking = Boolean((data as any)?.trackingDetails?.trackingNumber);
+
+const shippedDateRaw =
+  data.statusHistory?.find((s: any) => s.status === "Shipped")?.updatedAt;
+
+const shippedDate = shippedDateRaw
+  ? new Date(shippedDateRaw)
+  : null;
+
+
 
 
 
@@ -162,6 +175,54 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
           />
         </article>
       </section>
+
+      <section className="mt-6 border-b pb-4">
+  <h4 className="text-xl mb-2">Shipping Status</h4>
+
+  {!isShipped && (
+    <p className="text-sm text-gray-500">
+      Shipment has not been dispatched yet. Tracking details will be available
+      once the seller ships the order.
+    </p>
+  )}
+
+  {isShipped && (
+    <div className="space-y-1">
+      <OrderDetailsField
+        label="Status:"
+        value={data.status}
+      />
+
+      <OrderDetailsField
+        label="Shipped On:"
+        value={
+          shippedDate
+            ? formatDate(shippedDate)
+            : "Will be updated"
+        }
+      />
+
+      <OrderDetailsField
+        label="Tracking ID:"
+        value={
+          hasTracking
+            ? (data as any).trackingDetails.trackingNumber
+            : "Tracking ID not added by seller yet"
+        }
+      />
+
+      <OrderDetailsField
+        label="Courier:"
+        value={
+          hasTracking
+            ? (data as any).trackingDetails.logisticPartner
+            : "Will be available once shipped"
+        }
+      />
+    </div>
+  )}
+</section>
+
 
       <section className="flex justify-between items-start mt-4">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>

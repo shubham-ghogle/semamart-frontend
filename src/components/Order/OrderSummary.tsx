@@ -130,6 +130,17 @@ const gstPercent =
     ? (gstAmount / totalAmount) * 100
     : 0;
 
+// 📦 Shipping & Tracking helpers
+const shippingAddress = order.shippingAddress;
+
+const trackingDetails = (order as any).trackingDetails;
+
+const trackingId = trackingDetails?.trackingNumber;
+
+const isShipped =
+  ["Shipped", "Out for Delivery", "Delivered"].includes(order.status);
+
+
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -259,6 +270,38 @@ const gstPercent =
                                 })
                               : "--"}
                           </span>
+                          {/* 🚚 Shipping info under SHIPPED */}
+{step.label === "Shipped" && isShipped && (
+  <div className="mt-2 text-[11px] text-gray-600 text-center max-w-[180px] leading-snug">
+    {shippingAddress ? (
+      <>
+        <div className="font-medium text-gray-700">
+          {shippingAddress.instituteAddress1}
+        </div>
+        <div>
+          {shippingAddress.district}, {shippingAddress.state} –{" "}
+          {shippingAddress.pincode}
+        </div>
+
+        <div className="mt-1 text-xs">
+          <span className="font-semibold">Tracking ID:</span>{" "}
+          {trackingId ? (
+            <span className="text-blue-600">{trackingId}</span>
+          ) : (
+            <span className="italic text-gray-400">
+              Will be shared once shipped
+            </span>
+          )}
+        </div>
+      </>
+    ) : (
+      <div className="italic text-gray-400">
+        Shipping address not available
+      </div>
+    )}
+  </div>
+)}
+
                         </div>
                       </div>
                     );

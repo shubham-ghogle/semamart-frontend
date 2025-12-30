@@ -124,7 +124,7 @@ export default function CheckoutScreen(): JSX.Element {
     shippingAddress: address,
     user: user?._id ?? null,
     totalPrice: grandTotal,
-    paymentInfo: { id: "pending", status: "Pending", method: "Razorpay" },
+    paymentInfo: { id: "pending", status: "Pending", method: "Manual" },
   };
 
   async function postOrder(data: any) {
