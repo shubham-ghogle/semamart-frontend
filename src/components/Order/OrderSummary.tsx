@@ -122,6 +122,15 @@ const OrderSummary = () => {
       "/placeholder.png"
   );
 
+  const totalAmount = orderedProduct.discountPrice * order.qty;
+const gstAmount = order.totalPrice - totalAmount;
+
+const gstPercent =
+  totalAmount > 0
+    ? (gstAmount / totalAmount) * 100
+    : 0;
+
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <Header />
@@ -324,32 +333,77 @@ const OrderSummary = () => {
             <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
               <h3 className="text-md font-semibold text-gray-800 mb-3">Price Details</h3>
 
-              <div className="text-sm text-gray-700 space-y-1">
-                <div className="flex justify-between">
-                  <span>Listing price</span>
-                  <span className="line-through text-gray-400">
-                    ₹{orderedProduct.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex justify-between font-semibold">
-                  <span>Special price</span>
-                  <span>₹{orderedProduct.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                </div>
-                <hr className="my-2" />
-                <div className="flex justify-between font-bold text-gray-800">
-                  <span>Total amount</span>
-                  <span>
-                    ₹
-                    {(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
+             <div className="text-sm text-gray-700 space-y-1">
+  {/* Product Price */}
+  <div className="flex justify-between">
+    <span>Product Price</span>
+    <span className="line-through text-gray-400">
+      ₹{orderedProduct.originalPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  {/* Discounted Price */}
+  <div className="flex justify-between font-semibold">
+    <span>Discounted price</span>
+    <span>
+      ₹{orderedProduct.discountPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  <hr className="my-2" />
+
+  {/* Total Amount */}
+  <div className="flex justify-between">
+    <span>Total Amount</span>
+    <span>
+      ₹{(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  <div className="flex justify-between">
+  <span>Tax ({gstPercent.toFixed(2)}%)</span>
+  <span>
+    ₹{gstAmount.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}
+  </span>
+</div>
+
+
+  {/* Total */}
+  <div className="flex justify-between">
+    <span>Total</span>
+    <span>
+      ₹{(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  {/* Total Price */}
+  <div className="flex justify-between font-bold text-gray-800">
+    <span>Total price</span>
+    <span>
+      ₹{order.totalPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+</div>
+
 
               {/* Payment Info */}
               <div className="mt-4 bg-gray-50 rounded-lg p-3 flex items-center justify-between">
                 <span className="text-sm text-gray-600">Paid by</span>
                 <div className="flex items-center gap-1 text-xs font-semibold border rounded-md px-2 py-1 bg-white">
-                  <span>{order.paymentInfo?.method || "N/A"}</span>
+<span>Manual</span>
                 </div>
               </div>
 

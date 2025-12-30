@@ -113,7 +113,7 @@ brand: z.string().min(2, "Brand is required"),
     shortdescription: z
       .string()
       .min(100, "Must have atleast 100 characters")
-      .max(160, "Must have less then 160 characters"),
+      .max(300, "Must have less then 160 characters"),
 
     description: z
       .string()

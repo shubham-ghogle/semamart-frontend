@@ -178,12 +178,22 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
   const qty = data.qty ?? 1;
 
-  // Prefer paymentslip totals if present — they are already GST-excluded
-  const lineTotalEx =
-    Number(data.paymentslip?.total) || unitPrice * qty;
+const taxRate = Number(data.taxClass ?? 0);
 
-  // Display line total (ex GST). If you prefer to show incl. GST, use paymentslip.grandTotal
-  const displayLineTotal = lineTotalEx;
+// Excluding GST (already present)
+const lineTotalEx =
+  Number(data.paymentslip?.total) || unitPrice * qty;
+
+// GST amount
+const gstAmount =
+  Number(data.paymentslip?.gstAmount) ||
+  (lineTotalEx * taxRate) / 100;
+
+// Including GST
+const lineTotalIncl =
+  Number(data.paymentslip?.grandTotal) ||
+  lineTotalEx + gstAmount;
+
 
   const productId =
     typeof data.productId === "string" ? data.productId : (data.productId as any)?._id;
@@ -205,9 +215,17 @@ const CartSingle = ({ data }: CartSingleProps) => {
       <div className="flex flex-col flex-1 justify-between">
         <div className="flex justify-between items-center mb-1">
           <h4 className="text-base font-semibold text-gray-900">{(product as any).name}</h4>
-          <span className="text-sm font-semibold text-gray-900">
-            ₹{displayLineTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-          </span>
+       <div className="text-right">
+  <div className="text-sm font-semibold text-gray-900">
+    ₹{lineTotalIncl.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+  </div>
+  {taxRate > 0 && (
+    <div className="text-xs text-gray-500">
+      GST {taxRate}%: ₹{gstAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+    </div>
+  )}
+</div>
+
         </div>
 
         <div className="text-sm text-gray-600 mb-2">

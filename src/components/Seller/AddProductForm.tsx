@@ -1471,7 +1471,7 @@ export default function AddProductForm({
                           <SelectItem value="shipping only">
                             Shipping only
                           </SelectItem>
-                          <SelectItem value="none">None</SelectItem>
+                         
                         </SelectContent>
                       </Select>
                       <FormMessage />
