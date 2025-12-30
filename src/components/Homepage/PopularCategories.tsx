@@ -300,11 +300,12 @@ export default function PopularCategories() {
                         }}
                         className="flex items-center justify-center"
                       >
-                        <img  src={c.image ? `/PopularCategory/${c.image}` : "/placeholder.png"} alt={c.name} className="w-full h-full object-contain " onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
+                        <img src={`/PopularCategory/${c.name}.jpg`} alt={c.name} className="w-full h-full object-contain " onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
                       </div>
                     </Link>
                   </div>
-
+          
+                      
                   <div className="flex-1 flex flex-col min-h-0">
                     <h3 className="mb-2 cat-title-clamp">
                       <Link to={`/get-products-by-category/${c._id}`} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">
