@@ -1,3 +1,4 @@
+import { API_URL } from "@/data";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -28,7 +29,7 @@ const SellerActivation: React.FC = () => {
       }
 
       try {
-        const res = await fetch("/api/v2/shop/activation", {
+        const res = await fetch(API_URL+"shop/activation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ activation_token }),

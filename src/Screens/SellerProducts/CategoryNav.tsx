@@ -1,4 +1,5 @@
 // src/components/CategoryNav.tsx
+import { API_URL } from "@/data";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { FiChevronDown } from "react-icons/fi";
@@ -93,7 +94,7 @@ export default function CategoryNav({ categories: propCategories, shopId, onSear
 
     let mounted = true;
     setIsLoadingCategories(true);
-    fetch("/api/v2/category/")
+    fetch(API_URL+"category/")
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
         return res.json();
@@ -135,7 +136,7 @@ export default function CategoryNav({ categories: propCategories, shopId, onSear
 
     setSubcategoryMap((prev) => ({ ...prev, [catId]: "loading" }));
 
-    fetch(`/api/v2/category/${encodeURIComponent(catId)}/subcategories`)
+    fetch(`${API_URL}category/${encodeURIComponent(catId)}/subcategories`)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch subcategories: ${res.status}`);
         return res.json();

@@ -219,7 +219,7 @@ export default function CheckoutScreen(): JSX.Element {
       </div>
     );
   }
-  
+
 
   // ✅ Checkout Page UI
   return (

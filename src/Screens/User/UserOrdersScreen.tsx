@@ -3,6 +3,7 @@ import UserScreenMainWrapper from "../../components/User/UserScreenMainWrapper";
 import { useUserStore } from "../../store/userStore";
 import { Order } from "../../Types/types";
 import UserOrderTable from "../../components/User/UserOrderTable";
+import { API_URL } from "@/data";
 
 export default function UserOrdersScreen() {
   const user = useUserStore(st => st.user)
@@ -10,7 +11,7 @@ export default function UserOrdersScreen() {
   const { data: orders, status } = useQuery({
     queryKey: ["user-orders", { userId: user?._id }],
     queryFn: async function () {
-      const res = await fetch("/api/v2/order/get-all-orders/" + user?._id)
+      const res = await fetch(API_URL+"order/get-all-orders/" + user?._id)
       if (!res.ok) throw new Error("Somethig went wrong")
 
       const data = await res.json() as { success: boolean, orders: Order[], message: string }

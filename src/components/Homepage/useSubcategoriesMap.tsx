@@ -1,11 +1,12 @@
 // src/hooks/useSubcategoriesMap.tsx
+import { API_URL } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 type SubCategory = { _id: string; name: string };
 
 async function fetchSubCategories(): Promise<SubCategory[]> {
-  const res = await fetch("/api/v2/sub-category"); // adjust path if different
+  const res = await fetch(API_URL+"sub-category"); // adjust path if different
   if (!res.ok) throw new Error("Failed to fetch subcategories");
   return res.json();
 }

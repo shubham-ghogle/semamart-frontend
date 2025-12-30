@@ -3,6 +3,7 @@ import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
 import { getAdminProducts } from "./Admin.HooksAndUtils";
 import { toast } from "react-toastify";
 import AdminAllProductTable from "@/components/Admin/AdminAllProductTable";
+import { API_URL } from "@/data";
 
 export default function AdminProductScren() {
   const qc = useQueryClient();
@@ -19,8 +20,9 @@ export default function AdminProductScren() {
   // const { mutateAsync: mutateProduct, status: proVerifyStatus } = useMutation({
   const {} = useMutation({
     mutationFn: async function ({ proId }: { proId: string }) {
-      const res = await fetch("/api/v2/product/admin/verify-product/", {
+      const res = await fetch(API_URL+"product/admin/verify-product/", {
         method: "PUT",
+        credentials:"include",
         headers: {
           "Content-Type": "application/json",
         },

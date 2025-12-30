@@ -253,7 +253,7 @@ export default function HeroSectionUploader() {
     fd.append("deletedIds", JSON.stringify(deletedIds.current));
     items.forEach((i) => i.file && fd.append("heroImages", i.file));
 
-    await fetch("/api/v2/heroslider", {
+    await fetch(API_URL+"heroslider", {
       method: "POST",
       body: fd,
     });

@@ -4,6 +4,7 @@ import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import { Product } from "../../Types/types";
 import DefaultProductCard from "../../components/Product/ProductCard";
+import { API_URL } from "@/data";
 
 export default function ProductBasedOnType() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -27,7 +28,7 @@ export default function ProductBasedOnType() {
         return;
       }
       try {
-        const res = await fetch(`/api/v2/product/get-products-by-category/${id}`);
+        const res = await fetch(`${API_URL}product/get-products-by-category/${id}`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();

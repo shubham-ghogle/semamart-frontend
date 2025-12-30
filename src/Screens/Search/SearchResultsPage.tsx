@@ -10,6 +10,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/UIComponents/collapsible";
+import { API_URL } from "@/data";
 
 const PLACEHOLDER = "/placeholder.png";
 
@@ -70,7 +71,7 @@ export default function SearchResultsPage() {
     (async () => {
       try {
         const res = await fetch(
-          `/api/v2/product/search?q=${encodeURIComponent(q)}`
+            `${API_URL}product/search?q=${encodeURIComponent(q)}`
         );
         if (!res.ok) {
           setResults([]);

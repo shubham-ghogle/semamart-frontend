@@ -1,3 +1,4 @@
+import { API_URL } from "@/data";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -49,7 +50,7 @@ export default function PopularCategories() {
         setError(null);
 
         // 1️⃣ Fetch all categories
-        const res = await fetch("/api/v2/category/");
+        const res = await fetch(API_URL+"category/");
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const categoriesData = await res.json();
 
@@ -57,7 +58,7 @@ export default function PopularCategories() {
         const categoriesWithSubs = await Promise.all(
           categoriesData.map(async (cat: any) => {
             try {
-              const subRes = await fetch(`/api/v2/category/${cat._id}/subcategories`);
+              const subRes = await fetch(`${API_URL}category/${cat._id}/subcategories`);
               if (!subRes.ok) throw new Error(`Failed subcategories for ${cat._id}`);
               const subData = await subRes.json();
               return { ...cat, subcategories: subData || [] };
@@ -295,7 +296,7 @@ export default function PopularCategories() {
                           width: 112,
                           height: 165,
                           background: "rgba(0,0,0,0.03)",
-                          
+
                         }}
                         className="flex items-center justify-center"
                       >

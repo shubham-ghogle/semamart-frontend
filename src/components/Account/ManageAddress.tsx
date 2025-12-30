@@ -1,6 +1,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useUserStore } from "@/store/userStore";
 import type { Address } from "@/Types/types";
+import { API_URL } from "@/data";
 
 const initialFormData: Address = {
   reciever_name: "",
@@ -46,7 +47,7 @@ const ManageAddress = () => {
     const fetchAddresses = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/v2/user/${user._id}/addresses`);
+        const res = await fetch(`${API_URL}user/${user._id}/addresses`);
         if (!res.ok) throw new Error("Failed to fetch addresses");
         const data = await res.json();
         setAddresses(data || []);
@@ -102,7 +103,7 @@ const ManageAddress = () => {
       // onConfirm
       setConfirm({ visible: false, message: "" });
       try {
-        const res = await fetch(`/api/v2/user/${user._id}/addresses/${addressId}`, {
+        const res = await fetch(`${API_URL}user/${user._id}/addresses/${addressId}`, {
           method: "DELETE",
         });
 
@@ -173,7 +174,7 @@ const ManageAddress = () => {
       if (editingAddressId) {
         // Update address
         res = await fetch(
-          `/api/v2/user/${user._id}/addresses/${editingAddressId}`,
+          `${API_URL}user/${user._id}/addresses/${editingAddressId}`,
           {
             method: "PUT",
             headers: {
@@ -184,7 +185,7 @@ const ManageAddress = () => {
         );
       } else {
         // Add new address
-        res = await fetch(`/api/v2/user/${user._id}/addresses`, {
+        res = await fetch(`${API_URL}user/${user._id}/addresses`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

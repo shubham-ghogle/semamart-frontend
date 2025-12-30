@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useEffect, useState } from "react";
 
 type BannerSide = {
@@ -33,7 +33,7 @@ export default function BannerSection({
   const [banners, setBanners] = useState<BannerItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/v2/sectionbanner/getallsectionbanner")
+    fetch(API_URL+"sectionbanner/getallsectionbanner")
       .then((res) => res.json())
       .then((result) => setBanners(result.data || []))
       .catch((err) => console.error("Banner fetch error:", err));

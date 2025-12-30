@@ -13,6 +13,7 @@ import {
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
+import { API_URL } from "@/data";
 
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/921/921087.png";
 
@@ -75,7 +76,7 @@ const AccountNavbar: React.FC = () => {
     if (loggingOut) return;
     setLoggingOut(true);
 
-    const url = isSeller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+    const url = API_URL+ (isSeller ? "shop/logout" : "user/logout")
 
     const call = async (method: "GET" | "POST") =>
       fetch(url, { method, credentials: "include" });

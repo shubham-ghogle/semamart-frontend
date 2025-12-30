@@ -3,6 +3,7 @@ import { ActionBtn } from "../UIComponents/Buttons"
 import Input, { Textarea } from "../UIComponents/Inputs"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-toastify"
+import { API_URL } from "@/data"
 
 type ReviewModalProps = {
   onCloseModal: () => void
@@ -18,7 +19,7 @@ export default function ReviewModal({ onCloseModal, productId, orderId }: Review
 
   const { mutateAsync: addReview, status } = useMutation({
     mutationFn: async function (formData: { rating: number; comment: string; productId: string }) {
-      const res = await fetch("/api/v2/review/create-new-review/" + orderId, {
+      const res = await fetch(API_URL+"review/create-new-review/" + orderId, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

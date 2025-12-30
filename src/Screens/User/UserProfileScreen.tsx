@@ -7,6 +7,7 @@ import { ScreenOverlayLoaderUi } from "../../components/UIComponents/LoaderUi";
 import Input from "../../components/UIComponents/Inputs";
 import { ActionBtn } from "../../components/UIComponents/Buttons";
 import { useNavigate, useLocation } from "react-router-dom";
+import { API_URL } from "@/data";
 
 export default function UserProfileScreen() {
   const { user, addUser } = useUserStore((state) => state);
@@ -33,7 +34,7 @@ export default function UserProfileScreen() {
 
   const { mutateAsync: mutateAvatarAsync, status: avatarStatus } = useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch("/api/v2/user/update-avatar", {
+      const res = await fetch(API_URL+"user/update-avatar", {
         method: "put",
         body: formData,
       });

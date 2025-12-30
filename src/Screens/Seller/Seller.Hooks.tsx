@@ -17,7 +17,7 @@ export function requireSellerAuth() {
 
 // ✅ Fetch all seller orders
 export async function getOrdersForSeller(id: string) {
-  const res = await fetch("/api/v2/order/get-seller-all-orders/" + id,{
+  const res = await fetch(API_URL+"order/get-seller-all-orders/" + id,{
     credentials:"include"
   });
 
@@ -58,7 +58,7 @@ export async function getProductsForSeller(id?: string) {
 export async function getOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
-  const res = await fetch("/api/v2/order/get-order-details-seller/" + orderId);
+  const res = await fetch(API_URL+"order/get-order-details-seller/" + orderId);
 
   if (!res.ok) {
     const errMessage = await res.json();

@@ -11,6 +11,7 @@ import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import SidebarNavlinks from "./SidebarNavlinks";
 import { MdStorefront } from "react-icons/md";
+import { API_URL } from "@/data";
 
 
 export default function SellerNavbar() {
@@ -38,13 +39,13 @@ export default function SellerNavbar() {
   const fallbackAvatar = seller?.profilePic
     ? `/baseUrl/${seller?.profilePic}`
     : "/image60.png";
-  
+
   const logoutHandler = async () => {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
       // call your logout endpoint; keep simple here (adjust to your API)
-      const res = await fetch("/api/v2/shop/logout", { method: "POST", credentials: "include" });
+      const res = await fetch(API_URL+"shop/logout", { method: "POST", credentials: "include" });
       if (res.ok) {
         removeSeller();
         toast.success("Logged out", { position: "top-center" });
@@ -182,7 +183,7 @@ export default function SellerNavbar() {
             <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="All Products" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<CiDeliveryTruck />} to="/seller/orders" label="All Orders" onClick={() => setOpen(false)} />
             <SidebarNavlinks icon={<MdStorefront />}    to={`/shop/${seller?._id}`} label="My Shop" />
-           
+
 
             <div className="mt-6 pt-4 px-3">
               <button

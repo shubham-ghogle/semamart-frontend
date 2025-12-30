@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { AiOutlineLoading } from "react-icons/ai";
 import { SecondryBtn } from "../../components/UIComponents/Buttons";
+import { API_URL } from "@/data";
 
 export default function UserActivationScreen() {
   const { token } = useParams();
@@ -10,7 +11,7 @@ export default function UserActivationScreen() {
     queryFn: async () => {
       if (!token) throw new Error();
 
-      const res = await fetch("/api/v2/user/activation", {
+      const res = await fetch(API_URL+"user/activation", {
         method: "post",
         headers: {
           "Content-Type": "application/json",

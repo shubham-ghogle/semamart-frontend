@@ -7,6 +7,7 @@ import { FiDownload } from "react-icons/fi";
 
 // React Icons
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
+import { API_URL } from "@/data";
 
 interface Product {
   _id: string;
@@ -85,7 +86,7 @@ const OrderSummary = () => {
       if (!user?._id || !productId) return;
 
       try {
-        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
+        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
         const data = await res.json();
 
         if (!data.success) throw new Error("Failed to fetch orders");
@@ -310,8 +311,8 @@ const isShipped =
               </div>
 
 
-                
-              
+
+
 
               {/* Return Policy */}
               {/* <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
@@ -453,8 +454,8 @@ const isShipped =
               {/* Download Invoice Button */}
               <button
                 type="button"
-                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 
-                          text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 
+                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2
+                          text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700
                           transition-all duration-200 shadow-sm"
                 onClick={() => {
                   console.log("Download invoice clicked");
@@ -462,7 +463,7 @@ const isShipped =
               >
                 <FiDownload size={18} className="text-blue-600" />
                 Download Invoice
-                
+
               </button>
 
             </div>

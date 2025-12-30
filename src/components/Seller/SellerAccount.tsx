@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaPen, FaTimes, FaCheck, FaSpinner, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSellerStore } from "@/store/sellerStore";
+import { API_URL } from "@/data";
 
 interface Profile {
   firstName: string;
@@ -150,7 +151,7 @@ const SellerAccount: React.FC = () => {
       const payload: any = {};
       payload[serverKey] = profile[field];
 
-      const res = await fetch("/api/v2/shop/update-seller-info", {
+      const res = await fetch(API_URL+"shop/update-seller-info", {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -207,7 +208,7 @@ const SellerAccount: React.FC = () => {
     try {
       setSavingPassword(true);
 
-      const res = await fetch("/api/v2/shop/update-seller-password", {
+      const res = await fetch(API_URL+"shop/update-seller-password", {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

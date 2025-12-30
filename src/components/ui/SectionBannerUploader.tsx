@@ -161,7 +161,7 @@ const SectionBannerUploader: React.FC = () => {
         if (b.right.image) fd.append(`section${i + 1}_right`, b.right.image);
       });
 
-      const res = await fetch("/api/v2/sectionbanner", {
+      const res = await fetch(API_URL+"sectionbanner", {
         method: "POST",
         body: fd,
       });

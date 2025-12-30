@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { FaPen, FaTimes, FaCheck, FaSpinner, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
+import { API_URL } from "@/data";
 
 const ProfileForm = () => {
   const seller = useSellerStore((state) => state.seller);
@@ -87,7 +88,7 @@ const ProfileForm = () => {
       setSavingPassword(true);
 
       // Call server password update endpoint (your controller: /api/v2/user/update-user-password)
-      const res = await fetch("/api/v2/user/update-user-password", {
+      const res = await fetch(API_URL+"user/update-user-password", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
+import { API_URL } from "@/data";
 
 
 // ✅ Define Variant type
@@ -45,7 +46,7 @@ export default function ProductBasedOnSpecialPackagetypes() {
     const fetchProducts = async () => {
       if (!id) return;
       try {
-        const res = await fetch(`/api/v2/product/get-products-by-speciality-package/${id}`);
+        const res = await fetch(`${API_URL}product/get-products-by-speciality-package/${id}`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
@@ -85,7 +86,7 @@ export default function ProductBasedOnSpecialPackagetypes() {
     }
   };
 
- 
+
 
   // Filter & sort
   const filteredProducts = products
@@ -198,7 +199,7 @@ export default function ProductBasedOnSpecialPackagetypes() {
         <main className="flex-1 p-4">
           {/* Top Filters */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          
+
 
             {/* Sort Dropdown */}
             <select

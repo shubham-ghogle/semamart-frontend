@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLoading, AiOutlineCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "@/data";
 
 interface SellerForm {
   firstName: string;
@@ -152,7 +153,7 @@ export default function SellerRegistration(): JSX.Element {
       if (profilePic) form.append("profilePic", profilePic);
       if (banner) form.append("banner", banner);
 
-      const response = await fetch("/api/v2/shop/create-shop", {
+      const response = await fetch(API_URL+"shop/create-shop", {
         method: "POST",
         body: form,
       });
