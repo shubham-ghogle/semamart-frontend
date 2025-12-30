@@ -350,7 +350,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="w-full bg-white shadow-sm border-b text-sm">
+      <header className="sticky top-0 z-40 w-full bg-white shadow-sm border-b text-sm">
         <div className="max-w-[1400px] mx-auto w-full px-3 sm:px-6">
           <div className="flex items-center gap-3 py-3 md:py-2">
             {/* Left: mobile hamburger (sm hidden) & logo */}
