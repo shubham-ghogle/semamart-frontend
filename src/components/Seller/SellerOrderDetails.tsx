@@ -24,6 +24,9 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
     data.qty * (data.variant && typeof data.variant !== "string"
       ? data.variant.discountPrice ?? 0
       : 0);
+  const taxPercent = data.tax || 0;
+  const taxAmount = (defaultTotal * taxPercent) / 100;
+
 
   const getOptionsForStatus = () => {
     const statuses = {
@@ -99,19 +102,24 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
               </h5>
             </div>
-
-            <OrderDetailsField
-              label="Tax (%):"
-              value={data.tax || 0}
-            />
-
-            {/* ✅ Default price total (NO TAX) */}
+            {/* Total (Excl. Tax) */}
             <OrderDetailsField
               label="Total:"
-              value={defaultTotal.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
+              value={`₹${defaultTotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
             />
+
+            {/* Tax */}
+            <OrderDetailsField
+              label={`Tax (${taxPercent}%):`}
+              value={`₹${taxAmount.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+            />
+
           </article>
         )}
       </section>
@@ -121,9 +129,14 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           {/* Includes tax */}
-          <OrderDetailsField label="Total Price:" value={data?.totalPrice.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })} />
+          <OrderDetailsField
+            label="Total Price:"
+            value={`₹${data.totalPrice.toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
+          />
+
         </div>
       </section>
 

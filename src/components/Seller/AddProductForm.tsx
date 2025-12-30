@@ -1354,6 +1354,8 @@ export default function AddProductForm({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                             captionLayout="dropdown"     // ✅ enables month + year dropdown
+ 
                           />
                         </PopoverContent>
                       </Popover>
@@ -1430,7 +1432,14 @@ export default function AddProductForm({
                     <FormItem>
                       <SubFormLabel>Minimum Order Quantity</SubFormLabel>
                       <FormControl>
-                        <Input type="number" {...field} className="w-full" />
+                       <Input
+  type="text"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  {...field}
+  className="w-full"
+/>
+
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -18,7 +18,7 @@ export default function ProductInfoSection({
     selectedVariant?.discountPrice ?? product?.discountPrice;
 
   // show original per-piece price if available; otherwise fall back to discount
-const mainPrice = displayOriginalPrice ?? displayDiscountPrice ?? 0;
+const mainPrice = displayDiscountPrice ?? displayOriginalPrice ?? 0;
 
   
    // safe number parser
