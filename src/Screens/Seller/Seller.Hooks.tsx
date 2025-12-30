@@ -83,10 +83,10 @@ export function useSellerOrderMutation() {
       currentStatus: string;
       orderId: string;
     }) {
-      let url = "/api/v2/order/order-refund-success/" + orderId;
+      let url = API_URL+ "order/order-refund-success/" + orderId;
 
       if (currentStatus !== "Processing refund") {
-        url = "/api/v2/order/update-order-status/" + orderId;
+        url = API_URL+ "order/update-order-status/" + orderId;
       }
 
       const res = await fetch(url, {
@@ -95,6 +95,7 @@ export function useSellerOrderMutation() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ status }),
+        credentials:"include"
       });
 
       if (!res.ok) throw new Error();
