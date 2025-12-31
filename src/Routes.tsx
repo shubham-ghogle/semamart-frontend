@@ -75,6 +75,7 @@ import OrderProductCard from "./components/ui/OrderProductCard";
 import UserWishlist from "./components/ui/UserWishlist";
 import UserCart from "./components/ui/UserCart";
 import AdminOrderSummary from "./components/ui/adminOrderSummary";
+import PaymentRedirectedScreen from "./Screens/Payment/PaymentRedirectedScreen";
 
 /**
  * redirectToDashboard loader
@@ -255,6 +256,7 @@ export const router = createBrowserRouter([
         element: <WishlistProduct />,
       },
       { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
+      {path:"payment/:hdfcOrderId",element:<PaymentRedirectedScreen/>}
     ],
   },
 
