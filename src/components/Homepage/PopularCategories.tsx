@@ -290,7 +290,7 @@ export default function PopularCategories() {
                   }}
                 >
                   <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                    <Link to={`/category/${c._id}`} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.name}`}>
+                    <Link to={`/get-products-by-category/${c._id}`} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.name}`}>
                       <div
                         style={{
                           width: 112,

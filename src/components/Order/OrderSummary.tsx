@@ -422,14 +422,14 @@ const isShipped =
 
 
   {/* Total */}
-  <div className="flex justify-between">
+  {/* <div className="flex justify-between">
     <span>Total</span>
     <span>
       ₹{(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", {
         minimumFractionDigits: 2,
       })}
     </span>
-  </div>
+  </div> */}
 
   {/* Total Price */}
   <div className="flex justify-between font-bold text-gray-800">

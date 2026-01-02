@@ -103,22 +103,26 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               </h5>
             </div>
             {/* Total (Excl. Tax) */}
-            <OrderDetailsField
-              label="Total:"
-              value={`₹${defaultTotal.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`}
-            />
+            <div className="flex flex-col gap-2">
+  {/* Total */}
+  <OrderDetailsField
+    label="Total:"
+    value={`₹${defaultTotal.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`}
+  />
 
-            {/* Tax */}
-            <OrderDetailsField
-              label={`Tax (${taxPercent}%):`}
-              value={`₹${taxAmount.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`}
-            />
+  {/* Tax */}
+  <OrderDetailsField
+    label={`Tax (${taxPercent}%):`}
+    value={`₹${taxAmount.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`}
+  />
+</div>
+
 
           </article>
         )}
