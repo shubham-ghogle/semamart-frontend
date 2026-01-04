@@ -28,6 +28,7 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
     mutationFn: async (sellerId: string) => {
       const response = await fetch(API_URL+"shop/verify-seller", {
         method: "POST",
+        credentials: "include", // 🔥 THIS IS REQUIRED
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sellerId }),
       });
