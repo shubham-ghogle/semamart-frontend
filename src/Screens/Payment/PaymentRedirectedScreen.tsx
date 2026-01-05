@@ -1,16 +1,26 @@
 import { API_URL } from "@/data";
+import { useCartStore } from "@/store/cartStore";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
+import { useEffect } from "react";
 import { useParams } from "react-router";
 
 export default function PaymentRedirectedScreen() {
     const { hdfcOrderId } = useParams();
+    const clear = useCartStore(s=>s.clearCart)
 
     const { data, status } = useQuery({
         queryKey: ["order-status", hdfcOrderId],
-        queryFn: () => getHdfcOrderStatus(hdfcOrderId || ""),
+        queryFn: () => {
+            clear()
+            return getHdfcOrderStatus(hdfcOrderId || "")
+        },
         enabled: !!hdfcOrderId,
     });
+
+    useEffect(() => {
+        clear();
+    }, [clear]);
 
     return (
         <main className="h-svh w-svw flex items-center justify-center">
