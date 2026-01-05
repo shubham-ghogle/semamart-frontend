@@ -2,7 +2,7 @@ import { Seller } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { EyeIcon, UserIcon, Download } from "lucide-react";
+import { EyeIcon, UserIcon, Clipboard } from "lucide-react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "@/data"; // <- make sure this file exports BASE_URL correctly
 
@@ -139,7 +139,7 @@ export default function AdminSellerTable({
             size="icon"
             title="Download Registration PDF"
           >
-            <Download />
+            <Clipboard/>
           </Button>
         </article>
       ),

@@ -6,7 +6,7 @@ import {
   Heart,
   ShoppingCart,
   Package,
-  Download,
+  Clipboard,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { User } from "@/Screens/Admin/Admin.HooksAndUtils";
@@ -172,7 +172,7 @@ export default function AdminUserTable({
             size="icon"
             title="Download Registration PDF"
           >
-            <Download />
+            <Clipboard />
           </Button>
         </article>
       ),
