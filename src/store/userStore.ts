@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { User } from "../Types/types";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { API_URL } from "@/data";
 
 type UserStore = {
   user: User | null;
@@ -45,7 +46,7 @@ export const useUserStore = create<UserStore>()(
           // Call backend to persist partial update
           // NOTE: endpoint below is what I recommend adding to backend: PATCH /api/v2/user/update-profile
           // If your API base is different, update the URL accordingly.
-          const res = await fetch("/api/v2/user/update-profile", {
+          const res = await fetch(API_URL+"user/update-profile", {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",

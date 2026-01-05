@@ -5,6 +5,7 @@ import { DataTable } from "../../ui/data-table";
 import { Button } from "../../ui/button";
 import {  Check } from "lucide-react";
 import { useState } from "react";
+import { API_URL } from "@/data";
 
 type Row = {
   id: string;
@@ -25,8 +26,9 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
 
   const verifyMutation = useMutation({
     mutationFn: async (sellerId: string) => {
-      const response = await fetch("/api/v2/shop/verify-seller", {
+      const response = await fetch(API_URL+"shop/verify-seller", {
         method: "POST",
+        credentials: "include", // 🔥 THIS IS REQUIRED
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sellerId }),
       });

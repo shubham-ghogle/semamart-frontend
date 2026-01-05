@@ -1,7 +1,8 @@
+import { API_URL } from "@/data";
 import { Product } from "../../Types/types";
 
 export async function getProducts() {
-  const response = await fetch("/api/v2/product/get-all-products-updated-random");
+  const response = await fetch(API_URL+"product/get-all-products-updated-random");
 
   if (!response.ok) throw new Error("something went wrong");
 

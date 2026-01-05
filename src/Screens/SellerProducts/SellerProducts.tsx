@@ -7,6 +7,7 @@ import { FaShippingFast } from "react-icons/fa";
 import { fetchShopInfo, getProductsByShop } from "./SellerProducts.hooks";
 import { Product } from "@/Types/types";
 import CategoryNav from "./CategoryNav";
+import { API_URL } from "@/data";
 
 type BestSellerStatus = "pending" | "error" | "success";
 
@@ -57,7 +58,7 @@ export default function SellerProducts(): JSX.Element {
     queryKey: ["shopOrders", shopId],
     queryFn: async () => {
       if (!shopId) return { success: false, orders: [] };
-      const res = await fetch(`/api/v2/order/get-seller-all-orders/${encodeURIComponent(shopId)}`);
+      const res = await fetch(`${API_URL}order/get-seller-all-orders/${encodeURIComponent(shopId)}`);
       if (!res.ok) throw new Error("Failed to fetch orders");
       return res.json();
     },

@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { Seller } from "../Types/types";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { API_URL } from "@/data";
 
 /**
  * SellerStore
@@ -66,7 +67,7 @@ export const useSellerStore = create<SellerStore>()(
         try {
           console.debug("[sellerStore] updateSeller called with:", updatedFields);
 
-          const res = await fetch("/api/v2/shop/update-seller-info", {
+          const res = await fetch(API_URL+"shop/update-seller-info", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -151,7 +152,7 @@ export const useSellerStore = create<SellerStore>()(
        */
       changePassword: async ({ currentPassword, newPassword, confirmPassword }) => {
         try {
-          const res = await fetch("/api/v2/shop/update-seller-password", {
+          const res = await fetch(API_URL+"shop/update-seller-password", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -183,7 +184,7 @@ export const useSellerStore = create<SellerStore>()(
       reloadSeller: async () => {
         try {
           console.debug("[sellerStore] reloadSeller called");
-          const res = await fetch("/api/v2/shop/getSeller", {
+          const res = await fetch(API_URL+"shop/getSeller", {
             method: "GET",
             credentials: "include",
             headers: {

@@ -1,7 +1,8 @@
+import { API_URL } from "@/data";
 import { Product } from "../../Types/types";
 
 export async function getProducts() {
-  const response = await fetch("/api/v2/product/get-equipment-products");
+  const response = await fetch(API_URL+"product/get-equipment-products");
 
   if (!response.ok) throw new Error("something went wrong");
 

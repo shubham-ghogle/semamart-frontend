@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import { API_URL } from "@/data";
 
 export default function PaymentScreen() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -16,7 +17,7 @@ export default function PaymentScreen() {
     if (!order) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/v2/order/create-order", {
+      const res = await fetch(API_URL+"order/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

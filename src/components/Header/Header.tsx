@@ -21,6 +21,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
+import { API_URL } from "@/data";
 
 const PLACEHOLDER_IMG = placeholderImg;
 function toImageUrl(value?: string | null) {
@@ -147,7 +148,7 @@ export default function Header() {
     const fetchCategories = async () => {
       setIsLoadingCategories(true);
       try {
-        const res = await fetch("/api/v2/category/");
+        const res = await fetch(API_URL+"category/");
         if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
         const data = await res.json();
         if (mounted) setCategories(data || []);
@@ -171,7 +172,7 @@ export default function Header() {
   const handleMouseEnter = (category: Category) => {
     setHoveredCategory(category);
     if (!subcategoryMap[category._id]) {
-      fetch(`/api/v2/category/${category._id}/subcategories`)
+      fetch(`${API_URL}category/${category._id}/subcategories`)
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch subcategories");
           return res.json();
@@ -190,7 +191,7 @@ export default function Header() {
   const handleSpecialtyMouseEnter = () => {
     setIsSpecialtyHovered(true);
     if (!specialtiesFetched) {
-      fetch("/api/v2/special-package")
+      fetch(API_URL+"special-package")
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch specialties");
           return res.json();
@@ -209,7 +210,7 @@ export default function Header() {
   const fetchPackageTypes = async (specialtyId: string) => {
     try {
       const res = await fetch(
-        `/api/v2/special-package/${specialtyId}/package-types`,
+          `${API_URL}special-package/${specialtyId}/package-types`,
       );
       if (!res.ok) throw new Error("Failed to fetch package types");
       const data = await res.json();
@@ -229,7 +230,7 @@ export default function Header() {
     }
     const handler = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/v2/product/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`${API_URL}product/search?q=${encodeURIComponent(query)}`);
         if (!res.ok) {
           setSuggestions([]);
           setShowSug(false);
@@ -303,15 +304,15 @@ export default function Header() {
   async function logoutHandler() {
     try {
       // keep existing behavior: sellers call shop logout, others call user logout
-      const url = isSeller ? "/api/v2/shop/logout" : "/api/v2/user/logout";
+      const url = API_URL+ ( isSeller ? "shop/logout" : "user/logout")
       const res = await fetch(url);
       if (!res.ok) throw new Error("Something went wrong");
 
       removeUser();
       removeSeller();
-     
 
-      
+
+
 
       // close menus
       setIsUserHovered(false);

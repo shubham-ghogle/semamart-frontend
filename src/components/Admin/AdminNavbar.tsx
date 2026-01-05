@@ -5,6 +5,7 @@ import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
 import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
+import { API_URL } from "@/data";
 
 type LinkItemProps = {
   to: string;
@@ -87,7 +88,7 @@ export default function AdminNavbar() {
 const logoutHandler = async () => {
   console.log("Logging out admin...");
   try {
-    await fetch("/api/v2/admin/logout", {
+    await fetch(API_URL+"admin/logout", {
       method: "POST",
       credentials: "include", // 🔥 REQUIRED
     });

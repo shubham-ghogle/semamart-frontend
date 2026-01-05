@@ -6,6 +6,7 @@ import { Product, Variant } from "../../Types/types";
 import { fetchShopInfo, getProductsByShop } from "../SellerProducts/SellerProducts.hooks";
 import ProductCard from "@/components/Homepage/ProductCard";
 import CategoryNav from "@/Screens/SellerProducts/CategoryNav"; // adjust path if needed
+import { API_URL } from "@/data";
 
 function pickBestVariant(variants?: Variant[]) {
   if (!Array.isArray(variants) || variants.length === 0) return undefined;
@@ -79,7 +80,7 @@ export default function SearchResultsPageSeller() {
     queryKey: ["shopOrders", shopId],
     queryFn: async () => {
       if (!shopId) return { success: false, orders: [] };
-      const res = await fetch(`/api/v2/order/get-seller-all-orders/${encodeURIComponent(shopId)}`);
+      const res = await fetch(`${API_URL}order/get-seller-all-orders/${encodeURIComponent(shopId)}`);
       if (!res.ok) throw new Error("Failed to fetch orders");
       return res.json();
     },
@@ -100,7 +101,7 @@ export default function SearchResultsPageSeller() {
     setFetchError(null);
     (async () => {
       try {
-        const url = `/api/v2/product/searchseller?q=${encodeURIComponent(q || "")}&shopId=${encodeURIComponent(shopId)}`;
+        const url = `${API_URL}product/searchseller?q=${encodeURIComponent(q || "")}&shopId=${encodeURIComponent(shopId)}`;
         const res = await fetch(url);
         if (!res.ok) {
           setResults([]);

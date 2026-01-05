@@ -5,12 +5,13 @@ import {
   sellerRegisterSuccessToast,
   userRegisterSuccessToast,
 } from "../../components/UIComponents/Toasts";
+import { API_URL } from "@/data";
 
 export function useRegisterSeller() {
   const navigate = useNavigate();
   const { mutateAsync: mutateSeller, status } = useMutation({
     mutationFn: async (newForm: FormData) => {
-      const response = await fetch("/api/v2/shop/create-shop", {
+      const response = await fetch(API_URL+"shop/create-shop", {
         method: "post",
         body: newForm,
       });
@@ -22,7 +23,7 @@ export function useRegisterSeller() {
     },
     onSuccess: () => {
       sellerRegisterSuccessToast();
-      navigate("/seller"); 
+      navigate("/seller");
     },
     onError: (err) => {
       registerFailureToast(err.message, false);
@@ -36,7 +37,7 @@ export function useRegisterUser() {
   const navigate = useNavigate();
   const { mutateAsync: mutateUser, status } = useMutation({
     mutationFn: async (payload: any) => {
-      const res = await fetch("/api/v2/user/create-user", {
+      const res = await fetch(API_URL+"user/create-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -47,7 +48,7 @@ export function useRegisterUser() {
       try {
         data = JSON.parse(text);
       } catch {}
-      
+
       if (!res.ok || data.success === false) {
         throw new Error(data?.message || `HTTP ${res.status}`);
       }
@@ -56,7 +57,7 @@ export function useRegisterUser() {
     },
     onSuccess: () => {
       userRegisterSuccessToast();
-      navigate("/"); 
+      navigate("/");
     },
 
     onError: (err: any) => registerFailureToast(err.message || "Something went wrong", false),

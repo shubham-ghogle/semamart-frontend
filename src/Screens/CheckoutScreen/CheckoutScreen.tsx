@@ -124,7 +124,7 @@ export default function CheckoutScreen(): JSX.Element {
     shippingAddress: address,
     user: user?._id ?? null,
     totalPrice: grandTotal,
-    paymentInfo: { id: "pending", status: "Pending", method: "Razorpay" },
+    paymentInfo: { id: "pending", status: "Pending", method: "Manual" },
   };
 
   async function postOrder(data: any) {
@@ -219,6 +219,7 @@ export default function CheckoutScreen(): JSX.Element {
       </div>
     );
   }
+
 
   // ✅ Checkout Page UI
   return (
@@ -354,12 +355,8 @@ export default function CheckoutScreen(): JSX.Element {
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           <div className="flex justify-between mb-2">
             <span>Subtotal (Excl. GST)</span>
-            <span>
-              {Number(subTotal).toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
+           <span>{formatter.format(subTotal)}</span>
+
 
           </div>
           <div className="flex justify-between mb-2">
@@ -368,18 +365,14 @@ export default function CheckoutScreen(): JSX.Element {
           </div>
           <div className="flex justify-between font-semibold border-t pt-2">
             <span>Grand Total (Incl. GST)</span>
-            <span>
-              {Number(grandTotal).toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
+            <span>{formatter.format(grandTotal)}</span>
+
 
           </div>
 
           <button
             onClick={handlePlaceOrder}
-            disabled={selectedAddressIndex === null || status === "pending"}
+disabled={status === "pending"}
             className="w-full mt-6 py-3 text-white rounded"
             style={{
               background:

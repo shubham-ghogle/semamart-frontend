@@ -2,13 +2,14 @@ import { useMutation } from "@tanstack/react-query"
 import { Address, Order, User } from "../../Types/types"
 import { useUserStore } from "../../store/userStore"
 import { toast } from "react-toastify"
+import { API_URL } from "@/data"
 
 export function useRemoveAddress() {
   const addUser = useUserStore(state => state.addUser)
 
   const { mutateAsync: removeAddressAsync, status: removeAddStatus } = useMutation({
     mutationFn: async function (addressId: string) {
-      const res = await fetch("/api/v2/user/delete-user-address/" + addressId, {
+      const res = await fetch(API_URL+"user/delete-user-address/" + addressId, {
         method: "DELETE"
       })
 
@@ -37,7 +38,7 @@ export function useEditAddress() {
 
   const { mutateAsync: editAddressAsync, status: editAddStatus } = useMutation({
     mutationFn: async function ({ addressId, formData }: EditAddressParams) {
-      const res = await fetch("/api/v2/user/edit-user-address/" + addressId, {
+      const res = await fetch(API_URL+"user/edit-user-address/" + addressId, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +68,7 @@ export function useAddAddress() {
   const addUser = useUserStore(state => state.addUser)
   const { mutateAsync: mutateAddress, status } = useMutation({
     mutationFn: async function (formData: Partial<Address>) {
-      const res = await fetch("/api/v2/user/update-user-addresses", {
+      const res = await fetch(API_URL+"user/update-user-addresses", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +95,7 @@ export function useAddAddress() {
 export async function getUserOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong")
 
-  const res = await fetch("/api/v2/order/user-order-details/" + orderId)
+  const res = await fetch(API_URL+"order/user-order-details/" + orderId)
 
   if (!res.ok) {
     const errMessage = await res.json();

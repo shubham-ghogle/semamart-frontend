@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
@@ -25,7 +25,7 @@ export default function ImageSliderHome() {
   useEffect(() => {
     const fetchHero = async () => {
       try {
-        const res = await fetch("/api/v2/heroslider/getallimg");
+        const res = await fetch(API_URL+"heroslider/getallimg");
         if (!res.ok) throw new Error("Hero API failed");
 
         const json = await res.json();

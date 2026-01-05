@@ -1,10 +1,11 @@
+import { API_URL } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 type Category = { _id: string; name: string };
 
 async function fetchCategories(): Promise<Category[]> {
-  const res = await fetch("/api/v2/category"); // adjust path if different
+  const res = await fetch(API_URL+"category"); // adjust path if different
   if (!res.ok) throw new Error("Failed to fetch categories");
   return res.json();
 }

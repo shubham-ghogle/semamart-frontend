@@ -1,11 +1,12 @@
 // src/Screens/ProductDetailScreen/GetAllProduct.Hooks.ts
+import { API_URL } from "@/data";
 import { Product } from "@/Types/types";
 
 /**
  * Fetch all visible products
  */
 export async function getProducts(): Promise<Product[]> {
-  const response = await fetch("/api/v2/product/get-all-products");
+  const response = await fetch(API_URL+"product/get-all-products");
   if (!response.ok) {
     const txt = await response.text().catch(() => "Failed to fetch products");
     throw new Error(txt || "Failed to fetch products");
@@ -25,7 +26,7 @@ export async function getProducts(): Promise<Product[]> {
  */
 export async function getProductById(id: string): Promise<Product> {
   if (!id) throw new Error("Missing product id");
-  const response = await fetch(`/api/v2/product/get-product/${id}`);
+  const response = await fetch(`${API_URL}product/get-product/${id}`);
   if (!response.ok) {
     const txt = await response.text().catch(() => "Failed to fetch product");
     throw new Error(txt || "Failed to fetch product");

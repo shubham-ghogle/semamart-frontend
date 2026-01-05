@@ -7,6 +7,7 @@ import { FiDownload } from "react-icons/fi";
 
 // React Icons
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
+import { API_URL } from "@/data";
 
 interface Product {
   _id: string;
@@ -85,7 +86,7 @@ const OrderSummary = () => {
       if (!user?._id || !productId) return;
 
       try {
-        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
+        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
         const data = await res.json();
 
         if (!data.success) throw new Error("Failed to fetch orders");
@@ -121,6 +122,26 @@ const OrderSummary = () => {
       product.images?.[0] ??
       "/placeholder.png"
   );
+
+  const totalAmount = orderedProduct.discountPrice * order.qty;
+const gstAmount = order.totalPrice - totalAmount;
+
+const gstPercent =
+  totalAmount > 0
+    ? (gstAmount / totalAmount) * 100
+    : 0;
+
+// 📦 Shipping & Tracking helpers
+const shippingAddress = order.shippingAddress;
+
+const trackingDetails = (order as any).trackingDetails;
+
+const trackingId = trackingDetails?.trackingNumber;
+
+const isShipped =
+  ["Shipped", "Out for Delivery", "Delivered"].includes(order.status);
+
+
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -250,6 +271,38 @@ const OrderSummary = () => {
                                 })
                               : "--"}
                           </span>
+                          {/* 🚚 Shipping info under SHIPPED */}
+{step.label === "Shipped" && isShipped && (
+  <div className="mt-2 text-[11px] text-gray-600 text-center max-w-[180px] leading-snug">
+    {shippingAddress ? (
+      <>
+        <div className="font-medium text-gray-700">
+          {shippingAddress.instituteAddress1}
+        </div>
+        <div>
+          {shippingAddress.district}, {shippingAddress.state} –{" "}
+          {shippingAddress.pincode}
+        </div>
+
+        <div className="mt-1 text-xs">
+          <span className="font-semibold">Tracking ID:</span>{" "}
+          {trackingId ? (
+            <span className="text-blue-600">{trackingId}</span>
+          ) : (
+            <span className="italic text-gray-400">
+              Will be shared once shipped
+            </span>
+          )}
+        </div>
+      </>
+    ) : (
+      <div className="italic text-gray-400">
+        Shipping address not available
+      </div>
+    )}
+  </div>
+)}
+
                         </div>
                       </div>
                     );
@@ -258,8 +311,8 @@ const OrderSummary = () => {
               </div>
 
 
-                
-              
+
+
 
               {/* Return Policy */}
               {/* <div className="mt-6 p-3 bg-green-50 rounded-lg border border-green-100">
@@ -324,40 +377,85 @@ const OrderSummary = () => {
             <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
               <h3 className="text-md font-semibold text-gray-800 mb-3">Price Details</h3>
 
-              <div className="text-sm text-gray-700 space-y-1">
-                <div className="flex justify-between">
-                  <span>Listing price</span>
-                  <span className="line-through text-gray-400">
-                    ₹{orderedProduct.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex justify-between font-semibold">
-                  <span>Special price</span>
-                  <span>₹{orderedProduct.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                </div>
-                <hr className="my-2" />
-                <div className="flex justify-between font-bold text-gray-800">
-                  <span>Total amount</span>
-                  <span>
-                    ₹
-                    {(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
+             <div className="text-sm text-gray-700 space-y-1">
+  {/* Product Price */}
+  <div className="flex justify-between">
+    <span>Product Price</span>
+    <span className="line-through text-gray-400">
+      ₹{orderedProduct.originalPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  {/* Discounted Price */}
+  <div className="flex justify-between font-semibold">
+    <span>Discounted price</span>
+    <span>
+      ₹{orderedProduct.discountPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  <hr className="my-2" />
+
+  {/* Total Amount */}
+  <div className="flex justify-between">
+    <span>Total Amount</span>
+    <span>
+      ₹{(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+
+  <div className="flex justify-between">
+  <span>Tax ({gstPercent.toFixed(2)}%)</span>
+  <span>
+    ₹{gstAmount.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}
+  </span>
+</div>
+
+
+  {/* Total */}
+  {/* <div className="flex justify-between">
+    <span>Total</span>
+    <span>
+      ₹{(orderedProduct.discountPrice * order.qty).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div> */}
+
+  {/* Total Price */}
+  <div className="flex justify-between font-bold text-gray-800">
+    <span>Total price</span>
+    <span>
+      ₹{order.totalPrice.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </div>
+</div>
+
 
               {/* Payment Info */}
               <div className="mt-4 bg-gray-50 rounded-lg p-3 flex items-center justify-between">
                 <span className="text-sm text-gray-600">Paid by</span>
                 <div className="flex items-center gap-1 text-xs font-semibold border rounded-md px-2 py-1 bg-white">
-                  <span>{order.paymentInfo?.method || "N/A"}</span>
+<span>Manual</span>
                 </div>
               </div>
 
               {/* Download Invoice Button */}
               <button
                 type="button"
-                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 
-                          text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 
+                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2
+                          text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700
                           transition-all duration-200 shadow-sm"
                 onClick={() => {
                   console.log("Download invoice clicked");
@@ -365,7 +463,7 @@ const OrderSummary = () => {
               >
                 <FiDownload size={18} className="text-blue-600" />
                 Download Invoice
-                
+
               </button>
 
             </div>

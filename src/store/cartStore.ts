@@ -25,7 +25,7 @@ export type CartItem = {
   paymentslip: PaymentSlip;
   // Optional full objects for UI convenience
   product?: Product;
-  variant?: Variant;
+  variant: Variant;
 };
 
 interface CartStore {
@@ -50,21 +50,31 @@ function buildSlip(perPiece: number, qty: number, gstPercent: number): PaymentSl
 }
 
 function resolvePerPiece(item: Omit<CartItem, "paymentslip">, newQty: number): number {
-  let perPiece = item.price;
-  const bulk = (item.variant && Array.isArray((item.variant as any).bulkOrders))
+  // Use originalPrice if available
+  let perPiece = item.variant.discountPrice ?? item.price; 
+
+  const bulk = item.variant && Array.isArray((item.variant as any).bulkOrders)
     ? (item.variant as any).bulkOrders
     : [];
 
   if (bulk.length > 0) {
-    for (const b of bulk) {
-      if (newQty >= b.qty) {
-        const candidate = b.price / Math.max(b.qty, 1);
-        perPiece = Math.min(perPiece, candidate);
-      }
+    const sortedBulk = bulk.sort((a: any, b: any) => a.qty - b.qty);
+    let matchedTier = null;
+
+    for (const b of sortedBulk) {
+      if (newQty >= b.qty) matchedTier = b;
+      else break;
+    }
+
+    if (matchedTier) {
+      perPiece = matchedTier.price / Math.max(matchedTier.qty, 1);
     }
   }
+
   return perPiece;
 }
+
+
 
 export const useCartStore = create<CartStore>()(
   persist(

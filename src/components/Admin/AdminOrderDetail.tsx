@@ -49,7 +49,22 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     }
   };
 
-  const orderStatus = data.status==="Paid"?"Paid: Verify Payment":data.status
+  const orderStatus = data.status === "Paid" ? "Paid: Verify Payment" : data.status
+  const isShipped =
+  ["Shipped", "Out for Delivery", "Delivered"].includes(data.status);
+
+const hasTracking = Boolean((data as any)?.trackingDetails?.trackingNumber);
+
+const shippedDateRaw =
+  data.statusHistory?.find((s: any) => s.status === "Shipped")?.updatedAt;
+
+const shippedDate = shippedDateRaw
+  ? new Date(shippedDateRaw)
+  : null;
+
+
+
+
 
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
@@ -89,20 +104,24 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                US${data.qty} x {data.variant?.discountPrice ?? data.variant.originalPrice.toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                        })}
+                ₹{data.qty} × {(data.variant?.discountPrice ?? data.variant?.originalPrice ?? 0).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </h5>
+
             </div>
             <OrderDetailsField
               label="Total:"
-              value={(
+              value={`₹${(
                 data.qty *
                 (data.variant?.discountPrice ?? data.variant?.originalPrice ?? 0)
               ).toLocaleString("en-IN", {
                 minimumFractionDigits: 2,
-              })}
+                maximumFractionDigits: 2,
+              })}`}
             />
+
 
           </article>
         )}
@@ -111,9 +130,14 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
       <section className="mt-6 flex justify-between border-b pb-4">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
-          <OrderDetailsField label="Total Price:" value={data?.totalPrice.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })} />
+          <OrderDetailsField
+            label="Total Price:"
+            value={`₹${data?.totalPrice.toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
+          />
+
           {/* <OrderDetailsField
             label="Status:"
             value={
@@ -151,6 +175,54 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
           />
         </article>
       </section>
+
+      <section className="mt-6 border-b pb-4">
+  <h4 className="text-xl mb-2">Shipping Status</h4>
+
+  {!isShipped && (
+    <p className="text-sm text-gray-500">
+      Shipment has not been dispatched yet. Tracking details will be available
+      once the seller ships the order.
+    </p>
+  )}
+
+  {isShipped && (
+    <div className="space-y-1">
+      <OrderDetailsField
+        label="Status:"
+        value={data.status}
+      />
+
+      <OrderDetailsField
+        label="Shipped On:"
+        value={
+          shippedDate
+            ? formatDate(shippedDate)
+            : "Will be updated"
+        }
+      />
+
+      <OrderDetailsField
+        label="Tracking ID:"
+        value={
+          hasTracking
+            ? (data as any).trackingDetails.trackingNumber
+            : "Tracking ID not added by seller yet"
+        }
+      />
+
+      <OrderDetailsField
+        label="Courier:"
+        value={
+          hasTracking
+            ? (data as any).trackingDetails.logisticPartner
+            : "Will be available once shipped"
+        }
+      />
+    </div>
+  )}
+</section>
+
 
       <section className="flex justify-between items-start mt-4">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>

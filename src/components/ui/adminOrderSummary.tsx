@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import AdminMainWrapper from "../Admin/AdminMainWrapper";
 import { FiDownload } from "react-icons/fi";
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
+import { API_URL } from "@/data";
 
 /* ================= TYPES ================= */
 type Status = "pending" | "success" | "error";
@@ -72,7 +73,7 @@ const adminOrderSummary = () => {
       try {
         setStatus("pending");
 
-        const res = await fetch(`/api/v2/order/get-order/${orderId}`);
+        const res = await fetch(`${API_URL}order/get-order/${orderId}`);
         const data = await res.json();
 
         if (!data.success) {
@@ -111,7 +112,7 @@ const adminOrderSummary = () => {
         <div className="grid md:grid-cols-3 gap-6">
           {/* ================= LEFT ================= */}
           <div className="md:col-span-2 bg-white rounded-xl border p-5">
-        
+
 
             {/* PRODUCT INFO */}
             <div className="flex justify-between gap-4 border-b pb-4 mt-4">

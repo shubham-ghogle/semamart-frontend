@@ -67,8 +67,10 @@ const AdminDashboard = () => {
   const handleCardClick = (label: string) => {
     switch (label) {
       case "Vendors":
-      case "New Vendors":
         navigate("/admin/sellers");
+        break
+      case "New Vendors":
+        navigate("/admin/requests");
         break;
       case "Institutes":
         navigate("/admin/users");
@@ -108,7 +110,7 @@ const AdminDashboard = () => {
                   <span className="text-4xl font-bold">{item.count}</span>
                 </div>
                 <p className="text-lg mt-4 font-medium">{item.label}</p>
-                <p className="text-sm mt-2 text-white/80">{item.trend} this month</p>
+                {/* <p className="text-sm mt-2 text-white/80">{item.trend} this month</p> */}
               </div>
             );
           })}

@@ -1,3 +1,4 @@
+import { API_URL } from "@/data";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -49,7 +50,7 @@ export default function PopularCategories() {
         setError(null);
 
         // 1️⃣ Fetch all categories
-        const res = await fetch("/api/v2/category/");
+        const res = await fetch(API_URL+"category/");
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const categoriesData = await res.json();
 
@@ -57,7 +58,7 @@ export default function PopularCategories() {
         const categoriesWithSubs = await Promise.all(
           categoriesData.map(async (cat: any) => {
             try {
-              const subRes = await fetch(`/api/v2/category/${cat._id}/subcategories`);
+              const subRes = await fetch(`${API_URL}category/${cat._id}/subcategories`);
               if (!subRes.ok) throw new Error(`Failed subcategories for ${cat._id}`);
               const subData = await subRes.json();
               return { ...cat, subcategories: subData || [] };
@@ -289,21 +290,22 @@ export default function PopularCategories() {
                   }}
                 >
                   <div className="flex-shrink-0 flex items-start justify-center" style={{ minWidth: 128, width: 128 }}>
-                    <Link to={`/category/${c._id}`} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.name}`}>
+                    <Link to={`/get-products-by-category/${c._id}`} className="rounded-lg overflow-hidden flex items-center justify-center" aria-label={`Go to ${c.name}`}>
                       <div
                         style={{
                           width: 112,
                           height: 165,
                           background: "rgba(0,0,0,0.03)",
-                          
+
                         }}
                         className="flex items-center justify-center"
                       >
-                        <img  src={c.image ? `/PopularCategory/${c.image}` : "/placeholder.png"} alt={c.name} className="w-full h-full object-contain " onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
+                        <img src={`/PopularCategory/${c.name}.jpg`} alt={c.name} className="w-full h-full object-contain " onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
                       </div>
                     </Link>
                   </div>
-
+          
+                      
                   <div className="flex-1 flex flex-col min-h-0">
                     <h3 className="mb-2 cat-title-clamp">
                       <Link to={`/get-products-by-category/${c._id}`} className="text-sm font-semibold text-[#1C170D] no-underline hover:no-underline transition-colors duration-150 hover:text-gray-400">

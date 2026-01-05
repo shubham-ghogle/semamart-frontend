@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "@/data";
 
 
 interface Product {
@@ -55,7 +56,7 @@ const MyOrders = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`/api/v2/order/get-all-orders/${user._id}`);
+        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
         const data = await res.json();
 
         if (data.success) {
@@ -130,7 +131,7 @@ const handleOrderClick = (productId: string) => {
 
   return (
 
-      <div>    
+      <div>
       <nav className="text-sm text-gray-500 mb-6 ml-20 mt-5">
             <ul className="flex gap-2 items-center">
               <li>

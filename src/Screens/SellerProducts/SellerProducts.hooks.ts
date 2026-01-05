@@ -1,3 +1,4 @@
+import { API_URL } from "@/data";
 import { Product } from "@/Types/types";
 
 /**
@@ -17,7 +18,7 @@ type ShopPayload = {
 };
 
 export async function fetchShopInfo(shopId: string): Promise<ShopPayload> {
-  const res = await fetch(`/api/v2/shop/get-shop-info/${shopId}`);
+  const res = await fetch(`${API_URL}shop/get-shop-info/${shopId}`);
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Failed to fetch shop info: ${res.status} ${text}`);
@@ -28,7 +29,7 @@ export async function fetchShopInfo(shopId: string): Promise<ShopPayload> {
 export async function getProductsByShop(shopId: string): Promise<Product[]> {
   if (!shopId) return [];
 
-  const res = await fetch(`/api/v2/product/get-all-products-shop/${shopId}`, {
+  const res = await fetch(`${API_URL}product/get-all-products-shop/${shopId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -17,7 +17,7 @@ export function requireSellerAuth() {
 
 // ✅ Fetch all seller orders
 export async function getOrdersForSeller(id: string) {
-  const res = await fetch("/api/v2/order/get-seller-all-orders/" + id,{
+  const res = await fetch(API_URL+"order/get-seller-all-orders/" + id,{
     credentials:"include"
   });
 
@@ -58,7 +58,7 @@ export async function getProductsForSeller(id?: string) {
 export async function getOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
-  const res = await fetch("/api/v2/order/get-order-details-seller/" + orderId);
+  const res = await fetch(API_URL+"order/get-order-details-seller/" + orderId);
 
   if (!res.ok) {
     const errMessage = await res.json();
@@ -83,10 +83,10 @@ export function useSellerOrderMutation() {
       currentStatus: string;
       orderId: string;
     }) {
-      let url = "/api/v2/order/order-refund-success/" + orderId;
+      let url = API_URL+ "order/order-refund-success/" + orderId;
 
       if (currentStatus !== "Processing refund") {
-        url = "/api/v2/order/update-order-status/" + orderId;
+        url = API_URL+ "order/update-order-status/" + orderId;
       }
 
       const res = await fetch(url, {
@@ -95,6 +95,7 @@ export function useSellerOrderMutation() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ status }),
+        credentials:"include"
       });
 
       if (!res.ok) throw new Error();
