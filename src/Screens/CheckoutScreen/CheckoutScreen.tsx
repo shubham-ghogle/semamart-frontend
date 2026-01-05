@@ -140,6 +140,7 @@ export default function CheckoutScreen(): JSX.Element {
             toast.error(err.message ?? "Failed to create order");
         },
         onSuccess:(data)=>{
+            clearCart();
             const paymentUrl = data.paymentLink
             window.location.href = paymentUrl
         }
