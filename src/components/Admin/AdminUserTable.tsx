@@ -6,9 +6,11 @@ import {
   Heart,
   ShoppingCart,
   Package,
+  Download,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { User } from "@/Screens/Admin/Admin.HooksAndUtils";
+import { BASE_URL } from "@/data";
 
 type Row = {
   id: string;
@@ -45,6 +47,49 @@ export default function AdminUserTable({
     },
   }));
 
+  // PDF download helper
+  async function handleDownloadPdf(userId: string, userName?: string) {
+    try {
+      const url = `${BASE_URL}api/v2/user/user-registration-pdf/${userId}`;
+
+      const resp = await fetch(url, {
+        method: "GET",
+        credentials: "include", // ensures cookies are sent for auth
+        headers: {
+          Accept: "application/pdf",
+        },
+      });
+
+      if (!resp.ok) {
+        let msg = `Failed to download (status ${resp.status})`;
+        try {
+          const j = await resp.json();
+          if (j && j.message) msg = j.message;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const safeName = (userName || userId)
+        .replace(/\s+/g, "_")
+        .replace(/[^a-zA-Z0-9_\-\.]/g, "");
+      const filename = `${safeName}-registration.pdf`;
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (err: any) {
+      console.error("PDF download error:", err);
+      alert(err?.message || "Could not download PDF. Ensure you are logged in as admin and the file exists.");
+    }
+  }
+
   const columns: ColumnDef<Row>[] = [
     {
       id: "select",
@@ -76,17 +121,6 @@ export default function AdminUserTable({
       header: "Actions",
       cell: ({ row }) => (
         <article className="flex gap-2 flex-wrap">
-          {/* View User */}
-          {/* <Button
-            onClick={() => row.original.viewUser(row.original.id)}
-            variant="outline"
-            size="icon"
-            title="View user"
-          >
-            <EyeIcon />
-          </Button> */}
-
-          {/* User Profile */}
           <Button
             onClick={() =>
               navigate(`/admin/users/profile/${row.original.id}`)
@@ -98,7 +132,6 @@ export default function AdminUserTable({
             <UserIcon />
           </Button>
 
-          {/* Wishlist */}
           <Button
             onClick={() =>
               navigate(`/admin/users/wishlist/${row.original.id}`)
@@ -110,7 +143,6 @@ export default function AdminUserTable({
             <Heart />
           </Button>
 
-          {/* Cart */}
           <Button
             onClick={() =>
               navigate(`/admin/users/cart/${row.original.id}`)
@@ -122,7 +154,6 @@ export default function AdminUserTable({
             <ShoppingCart />
           </Button>
 
-          {/* Products */}
           <Button
             onClick={() =>
               navigate(`/admin/users/${row.original.id}/products`)
@@ -132,6 +163,16 @@ export default function AdminUserTable({
             title="Ordered Products"
           >
             <Package />
+          </Button>
+
+          {/* Download registration PDF */}
+          <Button
+            onClick={() => handleDownloadPdf(row.original.id, row.original.name)}
+            variant="outline"
+            size="icon"
+            title="Download Registration PDF"
+          >
+            <Download />
           </Button>
         </article>
       ),
