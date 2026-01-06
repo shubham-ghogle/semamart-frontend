@@ -176,46 +176,57 @@ export default function AddProductFormVariants({
         </FormItem>
       </div>
 
-      <div className="space-y-2 mt-4">
-        <FormLabel>Bulk Orders (max 3)</FormLabel>
-        {fields.map((field, i) => (
-          <div key={field.id} className="flex items-center gap-2">
-            <Input
-              placeholder="Qty"
-              {...form.register(`variants.${index}.bulkOrders.${i}.qty`, {
-                valueAsNumber: true,
-              })}
-              className="w-20"
-            />
-            <Input
-              placeholder="Price"
-              {...form.register(`variants.${index}.bulkOrders.${i}.price`, {
-                valueAsNumber: true,
-              })}
-              className="w-28"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => remove(i)}
-            >
-              ✕
-            </Button>
-          </div>
-        ))}
+        <div className="space-y-2 mt-4">
+            <FormLabel>Bulk Orders (max 3)</FormLabel>
 
-        {fields.length < 3 && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => append({ qty: 0, price: 0 })}
-          >
-            + Add Bulk Order
-          </Button>
-        )}
-      </div>
+            {fields.length > 0 && (
+              <div className="flex items-center gap-2 text-sm ">
+                <div className="w-20">Quantity</div>
+                <div className="w-28">Price</div>
+                <div className="w-8" />
+              </div>
+            )}
+
+            {fields.map((field, i) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <Input
+                  className="w-20"
+                  {...form.register(`variants.${index}.bulkOrders.${i}.qty`, {
+                    valueAsNumber: true,
+                  })}
+                />
+
+                <Input
+                  className="w-28"
+                  {...form.register(`variants.${index}.bulkOrders.${i}.price`, {
+                    valueAsNumber: true,
+                  })}
+                />
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(i)}
+                >
+                  ✕
+                </Button>
+              </div>
+            ))}
+
+            {fields.length < 3 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ qty: 0, price: 0 })}
+              >
+                + Add Bulk Order
+              </Button>
+            )}
+          </div>
+
+
     </section>
   );
 }

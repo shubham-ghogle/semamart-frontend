@@ -10,8 +10,6 @@ export default function PurchasePanel({
   product,
   selectedVariant,
   variantBulkOrders,
-  selectedPack,
-  setSelectedPack,
   handleAddCart,
   handleToggleWishlist,
   inWishlist,
@@ -19,97 +17,79 @@ export default function PurchasePanel({
 }: any) {
   const displayOriginalPrice =
     selectedVariant?.originalPrice ?? product.originalPrice;
-  const GREEN = "#3bc177";
 
+  const GREEN = "#3bc177";
   const n = useNavigate();
 
   return (
-    <div
-      className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100 md:min-h-[600px]"
-    >
+    <div className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100 md:min-h-[600px]">
+      
+      {/* Bulk Packs (Normal Text Display) */}
       <div className="space-y-3">
-        {/* Other bulk orders */}
-        {variantBulkOrders && variantBulkOrders.length > 0
-          ? variantBulkOrders.map((b: any) => {
-              const perPiece = b.price / Math.max(b.qty, 1);
-              const saved = displayOriginalPrice
-                ? Math.round(
-                    ((displayOriginalPrice - perPiece) / displayOriginalPrice) *
-                      100,
-                  )
-                : 0;
-              return (
-                <label
-                  key={`${b.qty}-${b.price}`}
-                  className="flex justify-between items-center p-3 rounded-xl border cursor-pointer transition-all duration-200"
-                  style={{
-                    backgroundColor:
-                      selectedPack?.qty === b.qty ? "#ECFBFF" : "white",
-                  }}
-                >
-                  <div className="flex items-start gap-3 w-full">
-                    <input
-                      type="radio"
-                      name="pack"
-                      value={b.qty}
-                      checked={selectedPack?.qty === b.qty}
-                      onChange={() =>
-                        setSelectedPack({
-                          qty: b.qty,
-                          price: b.price,
-                          label: `${b.qty} Pack`,
-                        })
-                      }
-                      className="mt-1 w-4 h-4 accent-[#006666]"
-                    />
-                    <div className="flex flex-col w-full gap-1">
-                      <div className="flex justify-between items-center">
-                        <strong className="text-base font-semibold">
-                          {b.qty} Pack
-                        </strong>
-                        <div
-                          style={{
-                            background: GREEN,
-                            color: "#fff",
-                            padding: "4px 8px",
-                            borderRadius: 6,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {saved > 0 ? `${saved}% off` : "—"}
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <p className="text-xs text-gray-600">
-                          @ ₹{perPiece.toFixed(2)}/piece
-                        </p>
-                        <p className="text-orange-500 font-semibold text-base">
-                          ₹{b.price.toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                            })}
-                        </p>
-                      </div>
+        {variantBulkOrders && variantBulkOrders.length > 0 &&
+          variantBulkOrders.map((b: any) => {
+            const perPiece = b.price / Math.max(b.qty, 1);
+            const saved = displayOriginalPrice
+              ? Math.round(
+                  ((displayOriginalPrice - perPiece) /
+                    displayOriginalPrice) *
+                    100
+                )
+              : 0;
+
+            return (
+              <div
+                key={`${b.qty}-${b.price}`}
+                className="flex justify-between items-center p-3 rounded-xl border bg-white"
+              >
+                <div className="flex flex-col gap-1 w-full">
+                  <div className="flex justify-between items-center">
+                    <strong className="text-base font-semibold">
+                      {b.qty} Pack
+                    </strong>
+
+                    <div
+                      style={{
+                        background: GREEN,
+                        color: "#fff",
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {saved > 0 ? `${saved}% off` : "—"}
                     </div>
                   </div>
-                </label>
-              );
-            })
-          : null}
+
+                  <div className="flex justify-between items-center text-sm">
+                    <p className="text-xs text-gray-600">
+                      @ ₹{perPiece.toFixed(2)}/piece
+                    </p>
+                    <p className="text-orange-500 font-semibold text-base">
+                      ₹{b.price.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
       </div>
 
-      {/* Bulk order info */}
-      <label className="flex justify-between items-center p-3 rounded-xl border border-gray-300 cursor-pointer">
-        <AiOutlineQuestionCircle className="text-3xl text-[#1C647C] mb-5" />
-        <div className="flex flex-col gap-1">
-          <p className="text-base text-dark font-semibold">For bulk order</p>
+      {/* Bulk Order Info */}
+      <div className="flex justify-between items-center p-3 rounded-xl border border-gray-300">
+        <AiOutlineQuestionCircle className="text-3xl text-[#1C647C]" />
+        <div className="flex flex-col gap-1 flex-1 ml-3">
+          <p className="text-base font-semibold">For bulk order</p>
           <p className="text-base">Contact Semamart Admin</p>
         </div>
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ml-4">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
           <AiOutlineArrowRight className="text-blue-600 text-lg" />
         </div>
-      </label>
+      </div>
 
-      {/* Buttons */}
+      {/* Action Buttons */}
       <div className="flex gap-4">
         <button
           onClick={handleAddCart}
@@ -118,6 +98,7 @@ export default function PurchasePanel({
         >
           <AiOutlineShoppingCart size={20} />
           Add to Cart
+
           {cartAnimation && (
             <span
               className="absolute left-1/2 -translate-x-1/2 -top-10 bg-green-500 text-white
@@ -137,6 +118,7 @@ export default function PurchasePanel({
         </button>
       </div>
 
+      {/* Buy Now */}
       <button
         className="w-full text-white py-3 rounded-2xl font-semibold text-lg mt-2"
         style={{
