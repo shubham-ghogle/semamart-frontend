@@ -188,6 +188,7 @@ const logoutHandler = async () => {
               <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" />
               <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" />
               <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" />
+              <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Bulk Order Request" />
             </div>
           </nav>
 
@@ -306,6 +307,8 @@ const logoutHandler = async () => {
             <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" onClick={() => setDrawerOpen(false)} />
+            <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Bulk Order Request" onClick={() => setDrawerOpen(false)} />
+
 
             <div className="mt-6 pt-4 px-3">
               <button
