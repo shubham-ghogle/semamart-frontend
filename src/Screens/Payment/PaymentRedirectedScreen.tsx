@@ -15,6 +15,9 @@ export default function PaymentRedirectedScreen() {
             clear()
             return getHdfcOrderStatus(hdfcOrderId || "")
         },
+        refetchOnMount:false,
+        refetchOnReconnect:false,
+        refetchOnWindowFocus:false,
         enabled: !!hdfcOrderId,
     });
 
