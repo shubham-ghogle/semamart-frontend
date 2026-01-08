@@ -7,15 +7,28 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
 
-      {/* use auto for the sidebar column so its width can change (w-20 when collapsed, w-64 when expanded) */}
-      <section className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 py-8">
-        <AdminNavbar />
+      {/* Render navbar as a sibling — the navbar component is fixed on md+ and
+          shows a mobile header/drawer on small screens (unchanged). */}
+      <AdminNavbar />
 
-        {/* Main content area */}
-        <main className="min-h-[calc(100vh-120px)]">
+      {/* Main content — add left padding only on larger screens so the fixed sidebar
+          doesn't overlap content. We add a small <style> block with a media query
+          that uses the --admin-sidebar-width variable controlled by header/navbar. */}
+      <main className="min-h-[calc(100vh-120px)] transition-all duration-200">
+        <section className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
-        </main>
-      </section>
+        </section>
+
+        <style>{`
+          /* apply left padding on md+ only (md ~= 768px) */
+          @media (min-width: 768px) {
+            main {
+              padding-left: var(--admin-sidebar-width, 5rem);
+            }
+          }
+          /* on smaller screens, no extra left padding */
+        `}</style>
+      </main>
     </div>
   );
 }
