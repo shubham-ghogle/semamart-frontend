@@ -1,3 +1,7 @@
+import BulkOrderForm from "@/components/ui/BulkOrderForm";
+import { useState } from "react";
+import { useUserStore } from "@/store/userStore";
+
 import {
   AiOutlineShoppingCart,
   AiOutlineQuestionCircle,
@@ -20,6 +24,19 @@ export default function PurchasePanel({
 
   const GREEN = "#3bc177";
   const n = useNavigate();
+  const user = useUserStore((state) => state.user);
+  const [openBulkForm, setOpenBulkForm] = useState(false);
+  const navigate = useNavigate();
+
+    const handleBulkOrderClick = () => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      setOpenBulkForm(true);
+    };
+
+
 
   return (
     <div className="w-full max-w-sm mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md space-y-6 border border-gray-100 md:min-h-[600px]">
@@ -45,7 +62,7 @@ export default function PurchasePanel({
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex justify-between items-center">
                     <strong className="text-base font-semibold">
-                      {b.qty} Pack
+                     Above {b.qty} Quantity
                     </strong>
 
                     <div
@@ -64,12 +81,12 @@ export default function PurchasePanel({
                   <div className="flex justify-between items-center text-sm">
                     <p className="text-xs text-gray-600">
                       @ ₹{perPiece.toFixed(2)}/piece
-                    </p>
-                    <p className="text-orange-500 font-semibold text-base">
+                    </p> 
+                     {/* <p className="text-orange-500 font-semibold text-base">
                       ₹{b.price.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>
@@ -78,7 +95,7 @@ export default function PurchasePanel({
       </div>
 
       {/* Bulk Order Info */}
-      <div className="flex justify-between items-center p-3 rounded-xl border border-gray-300">
+      <div  onClick={handleBulkOrderClick} className="flex cursor-pointer justify-between items-center p-3 rounded-xl border border-gray-300">
         <AiOutlineQuestionCircle className="text-3xl text-[#1C647C]" />
         <div className="flex flex-col gap-1 flex-1 ml-3">
           <p className="text-base font-semibold">For bulk order</p>
@@ -131,6 +148,15 @@ export default function PurchasePanel({
       >
         Buy Now
       </button>
+
+        <BulkOrderForm
+          open={openBulkForm}
+          onClose={() => setOpenBulkForm(false)}
+          variantId={selectedVariant?._id}
+          product={{ name: product.name, _id : product._id }}
+          price={selectedVariant?.discountPrice}
+        />
+
     </div>
   );
 }

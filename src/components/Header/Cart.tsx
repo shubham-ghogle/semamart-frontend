@@ -166,7 +166,6 @@ const CartSingle = ({ data }: CartSingleProps) => {
       ? `/images/${product.images[0]}`
       : "/default-image.png";
 
-  // Prefer the stored item.price or paymentslip.basePrice (these are authoritative)
   const unitPrice =
     Number(data.price) ||
     Number(data.paymentslip?.basePrice) ||
@@ -177,23 +176,11 @@ const CartSingle = ({ data }: CartSingleProps) => {
     0;
 
   const qty = data.qty ?? 1;
+  const taxRate = Number(data.taxClass ?? 0);
 
-const taxRate = Number(data.taxClass ?? 0);
-
-// Excluding GST (already present)
-const lineTotalEx =
-  Number(data.paymentslip?.total) || unitPrice * qty;
-
-// GST amount
-const gstAmount =
-  Number(data.paymentslip?.gstAmount) ||
-  (lineTotalEx * taxRate) / 100;
-
-// Including GST
-const lineTotalIncl =
-  Number(data.paymentslip?.grandTotal) ||
-  lineTotalEx + gstAmount;
-
+  const lineTotalEx = unitPrice * qty;
+  const gstAmount = (lineTotalEx * taxRate) / 100;
+  // const lineTotalIncl = lineTotalEx + gstAmount;
 
   const productId =
     typeof data.productId === "string" ? data.productId : (data.productId as any)?._id;
@@ -201,76 +188,71 @@ const lineTotalIncl =
     typeof data.variantId === "string" ? data.variantId : (data.variantId as any)?._id;
 
   return (
-    <div className="flex gap-4 py-6 border-b border-gray-200">
-      {/* Image */}
-      <div className="w-28 flex-shrink-0">
+    <div className="flex flex-col md:flex-row items-center gap-4 py-4 border-b border-gray-200">
+      {/* Product Image */}
+      <div className="w-24 h-24 flex-shrink-0">
         <img
           src={imageUrl}
           alt={(product as any).name}
-          className="w-24 h-24 object-cover rounded border"
+          className="w-full h-full object-cover rounded border"
         />
       </div>
 
-      {/* Info */}
-      <div className="flex flex-col flex-1 justify-between">
-        <div className="flex justify-between items-center mb-1">
-          <h4 className="text-base font-semibold text-gray-900">{(product as any).name}</h4>
-       <div className="text-right">
-  <div className="text-sm font-semibold text-gray-900">
-    ₹{lineTotalIncl.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-  </div>
-  {taxRate > 0 && (
-    <div className="text-xs text-gray-500">
-      GST {taxRate}%: ₹{gstAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-    </div>
-  )}
-</div>
+      {/* Product Info */}
+      <div className="flex-1 flex flex-col justify-between w-full">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              {(product as any).name}
+            </h4>
+            <p className="text-sm text-gray-600 mt-1">
+              {(variant as any)?.colorOption ? `${(variant as any).colorOption}` : ""}
+              {(variant as any)?.size ? ` | Size: ${(variant as any).size}` : ""}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Unit: ₹{unitPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
 
-        </div>
-
-        <div className="text-sm text-gray-600 mb-2">
-          <p>
-            {(variant as any)?.colorOption ? `${(variant as any).colorOption}` : ""}
-            {(variant as any)?.size ? ` | Size: ${(variant as any).size}` : ""}
-          </p>
-          <div className="text-xs text-gray-500 mt-1">
-            Unit: ₹{unitPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          {/* Price */}
+          <div className="text-right">
+            <p className="text-sm font-semibold text-gray-900">
+              ₹{lineTotalEx.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </p>
+            {taxRate > 0 && (
+              <p className="text-xs text-gray-500">
+                GST {taxRate}%: ₹{gstAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Quantity & Remove */}
+        <div className="flex items-center gap-4 mt-3">
           {/* Qty controls */}
-          <div className="flex items-center gap-2 border rounded-md overflow-hidden">
+          <div className="flex items-center border rounded-md overflow-hidden">
             <button
-              onClick={() =>
-                productId && changeQyt(productId, variantId ?? null, -1)
-              }
+              onClick={() => productId && changeQyt(productId, variantId ?? null, -1)}
               disabled={qty === 1}
               className={`w-8 h-8 text-lg font-bold ${
-                qty === 1
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-white hover:bg-gray-100"
+                qty === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-100"
               }`}
             >
               −
             </button>
             <div className="px-3 text-sm font-medium">{qty}</div>
             <button
-              onClick={() =>
-                productId && changeQyt(productId, variantId ?? null, 1)
-              }
+              onClick={() => productId && changeQyt(productId, variantId ?? null, 1)}
               className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
             >
               +
             </button>
           </div>
 
-          {/* Remove */}
+          {/* Remove button */}
           <button
-            onClick={() =>
-              productId && removeFromCart(productId, variantId ?? null)
-            }
-            className="text-sm text-red-600 cursor-pointer"
+            onClick={() => productId && removeFromCart(productId, variantId ?? null)}
+            className="text-sm text-red-600 hover:underline"
           >
             REMOVE
           </button>
