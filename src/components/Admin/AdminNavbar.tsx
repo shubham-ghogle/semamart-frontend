@@ -11,7 +11,7 @@ type LinkItemProps = {
   to: string;
   label: string;
   icon: React.ReactNode;
-  end?: boolean; // <--- allow passing `end` to NavLink
+  end?: boolean;
   onClick?: () => void;
 };
 
@@ -28,11 +28,7 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
       }
     >
       <span className="shrink-0 text-lg">{icon}</span>
-
-      {/* label - visually hidden when collapsed but present for screen readers */}
       <span className="label transition-opacity whitespace-nowrap">{label}</span>
-
-      {/* tooltip shown only when fully collapsed (CSS controls visibility) */}
       <span
         className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
         aria-hidden="true"
@@ -46,11 +42,9 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
 export default function AdminNavbar() {
   const user = useUserStore((s) => s.user);
   const removeUser = useUserStore((s) => s.removeUser);
-
   const location = useLocation();
   const navigate = useNavigate();
 
-  // pinned = expanded state (persisted)
   const [pinned, setPinned] = useState<boolean>(() => {
     try {
       return localStorage.getItem("admin_sidebar_pinned") === "true";
@@ -59,21 +53,41 @@ export default function AdminNavbar() {
     }
   });
 
-  // mobile drawer state (unchanged)
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loggingOut] = useState(false);
 
-  // close mobile drawer on route change
   useEffect(() => setDrawerOpen(false), [location.pathname]);
 
-  // persist pinned state
   useEffect(() => {
     try {
-      localStorage.setItem("admin_sidebar_pinned", String(pinned));
+      document.documentElement.style.setProperty("--admin-sidebar-width", pinned ? "16rem" : "5rem");
     } catch {}
   }, [pinned]);
 
-  // keyboard escape closes mobile drawer
+  useEffect(() => {
+    const onSidebarChange = (e: Event) => {
+      const ev = e as CustomEvent<boolean>;
+      if (typeof ev.detail === "boolean") {
+        setPinned(ev.detail);
+      } else {
+        try {
+          setPinned(localStorage.getItem("admin_sidebar_pinned") === "true");
+        } catch {}
+      }
+    };
+    window.addEventListener("admin-sidebar-change", onSidebarChange as EventListener);
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "admin_sidebar_pinned") setPinned(e.newValue === "true");
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("admin-sidebar-change", onSidebarChange as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setDrawerOpen(false);
@@ -83,27 +97,19 @@ export default function AdminNavbar() {
   }, []);
 
   const fallbackAvatar = user?.avatar ?? "/image60.png";
-  const isExpanded = pinned; // only pinned controls expansion
+  const isExpanded = pinned;
 
-const logoutHandler = async () => {
-  console.log("Logging out admin...");
-  try {
-    await fetch(API_URL+"admin/logout", {
-      method: "POST",
-      credentials: "include", // 🔥 REQUIRED
-    });
-  } catch (e) {
-    // even if backend fails, continue cleanup
-  } finally {
-    removeUser(); // Zustand + localStorage
+  const logoutHandler = async () => {
+    try {
+      await fetch(API_URL + "admin/logout", { method: "POST", credentials: "include" });
+    } catch (e) {}
+    removeUser();
     navigate("/admin-login", { replace: true });
-  }
-};
-
+  };
 
   return (
     <>
-      {/* mobile header (unchanged) */}
+      {/* MOBILE header (unchanged) */}
       <div className="md:hidden mb-4">
         <div className="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3">
           <div className="flex items-center gap-3">
@@ -137,25 +143,12 @@ const logoutHandler = async () => {
         </div>
       </div>
 
-      {/* desktop sidebar: only pinned opens it */}
+      {/* DESKTOP sidebar — fixed to left on md+ */}
       <aside
-        className={`hidden md:flex flex-col sticky top-24 self-start ${isExpanded ? "w-64" : "w-20"} transition-all duration-200`}
+        className={`hidden md:flex fixed left-0 top-[80px] bottom-0 flex-col ${isExpanded ? "w-64" : "w-20"} transition-all duration-200 z-40`}
         aria-expanded={isExpanded}
       >
-        {/* ---------- small horizontal area for the hamburger button (visible on md+) ---------- */}
-        <div className="hidden md:flex items-start px-3 pt-2">
-          <button
-            onClick={() => setPinned((p) => !p)}
-            title={isExpanded ? "Collapse sidebar" : "Open sidebar"}
-            className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-white shadow-sm hover:bg-gray-100 focus:outline-none"
-            aria-pressed={isExpanded}
-          >
-            <FaBars />
-          </button>
-        </div>
-
-        {/* main sidebar card */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col mt-2">
+        <div className="bg-white rounded-r-xl shadow-md overflow-hidden h-full flex flex-col">
           <div className="flex items-center gap-4 p-4 border-b">
             <div
               className="flex items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 shrink-0"
@@ -173,14 +166,10 @@ const logoutHandler = async () => {
               <p className="font-semibold text-gray-800 leading-5">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
               <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
-
-            {/* chevron removed as requested */}
           </div>
 
-          {/* nav area: vertical scroll possible but scrollbar hidden for clean UI */}
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="flex flex-col gap-1">
-              {/* <-- pass `end` for Dashboard so it's only active on exact /admin */ }
               <LinkItem to="/admin" end icon={<RxDashboard />} label="Dashboard" />
               <LinkItem to="/admin/orders" icon={<GrWorkshop />} label="All Orders" />
               <LinkItem to="/admin/requests" icon={<LuMessageSquare />} label="Requests" />
@@ -207,13 +196,12 @@ const logoutHandler = async () => {
           </div>
         </div>
 
-        {/* hide scrollbar, hide labels when collapsed, show tooltips when collapsed */}
         <style>{`
           .nav-scrollarea {
-            scrollbar-width: none; /* firefox */
-            -ms-overflow-style: none; /* IE 10+ */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
           }
-          .nav-scrollarea::-webkit-scrollbar { display: none; } /* webkit */
+          .nav-scrollarea::-webkit-scrollbar { display: none; }
 
           aside[aria-expanded="false"] .label {
             opacity: 0;
@@ -264,7 +252,7 @@ const logoutHandler = async () => {
         `}</style>
       </aside>
 
-      {/* mobile drawer (unchanged) */}
+      {/* MOBILE drawer (kept as a sibling, unchanged behaviour/markup) */}
       <div
         className={`fixed inset-0 z-40 md:hidden transform ${drawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!drawerOpen}
@@ -299,7 +287,6 @@ const logoutHandler = async () => {
           </div>
 
           <nav className="p-3 overflow-auto">
-            {/* also pass `end` for mobile Dashboard link */}
             <LinkItem to="/admin" end icon={<RxDashboard />} label="Dashboard" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/orders" icon={<GrWorkshop />} label="All Orders" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/requests" icon={<LuMessageSquare />} label="Requests" onClick={() => setDrawerOpen(false)} />
@@ -317,7 +304,7 @@ const logoutHandler = async () => {
                   logoutHandler();
                 }}
                 disabled={loggingOut}
-                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50"
               >
                 <FaSignOutAlt className="text-sky-600" /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
