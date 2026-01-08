@@ -129,7 +129,7 @@ export default function AddProductFormVariants({
         </article>
         <FormItem>
           <FormLabel>Upload Thumbnail Image</FormLabel>
-          <div className="border relative border-gray-300 h-[150px] w-[220px] flex items-center justify-center rounded-[5px] cursor-pointer mt-2">
+          <div className="border relative border-gray-300 w-[220px] aspect-square rounded-[5px] overflow-hidden mt-2">
             <label
               htmlFor={field.id}
               className="cursor-pointer w-full h-full grid place-items-center"
