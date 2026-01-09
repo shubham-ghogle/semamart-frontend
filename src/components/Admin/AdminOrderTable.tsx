@@ -12,6 +12,7 @@ type Row = {
   shop: string;
   totalPrice: number;
   orderedOn: string;
+  productName: string;
   viewOrder: (orderId: string) => void;
 };
 
@@ -25,8 +26,14 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const rows: Row[] = orders.map((el) => ({
     id: el._id,
     status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
-    customer: typeof el.user === "string" ? "-" : el.user.firstName,
+    customer: typeof el.user === "string" ? "-" : el.user.instituteName,
     shop: typeof el.shop === "string" ? "-" : el.shop?.businessName || "-",
+    productName:
+    typeof el.variant === "string"
+      ? "-" // variant is a string, fallback
+      : typeof el.variant.productId === "string"
+      ? "-" // productId is a string, fallback
+      : el.variant.productId?.name || "-",
     totalPrice: el.totalPrice,
     orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
     viewOrder: (orderId: string) => {
@@ -55,16 +62,25 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       enableHiding: false,
     },
     {
+      accessorKey: "orderedOn",
+      header: "Date",
+    },
+    {
       accessorKey: "id",
       header: "Order ID",
     },
     {
+      accessorKey: "productName",
+      header: "Product",
+      cell: ({ row }) => <p className="w-32 overflow-hidden text-ellipsis">{row.original.productName}</p>,
+    },
+    {
       accessorKey: "customer",
-      header: "Customer Name",
+      header: "Institute",
     },
     {
       accessorKey: "shop",
-      header: "Shop Name",
+      header: "Seller",
     },
     {
       accessorKey: "totalPrice",
@@ -75,10 +91,6 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         }),
     },
 
-    {
-      accessorKey: "orderedOn",
-      header: "Ordered On",
-    },
     {
       accessorKey: "status",
       header: "Status",

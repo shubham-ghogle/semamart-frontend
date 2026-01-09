@@ -145,7 +145,7 @@ const Orderpage = () => {
             <h3 className="font-semibold mb-3 text-gray-800 uppercase tracking-wide">
               Order Status
             </h3>
-            {["On the way", "Delivered", "Cancelled", "Returned"].map((status) => (
+            {["Created", "Processing", "Shipped", "Delivered"].map((status) => (
               <label key={status} className="flex items-center cursor-pointer mb-2">
                 <input
                   type="checkbox"

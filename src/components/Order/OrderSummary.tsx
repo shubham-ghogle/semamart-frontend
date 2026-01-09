@@ -50,6 +50,9 @@ interface Order {
     method?: string;
     status?: string;
   };
+  shop?: {
+   businessName ?: string;
+  };
   paidAt?: string;
 }
 
@@ -173,7 +176,7 @@ const isShipped =
                   <p className="text-sm text-gray-500 mt-1">
                     Seller:{" "}
                     <span className="font-medium text-gray-700">
-                      {product.manufacturerName || "Unknown Seller"}
+                      {order?.shop?.businessName || "Unknown Seller"}
                     </span>
                   </p>
 
@@ -395,6 +398,13 @@ const isShipped =
       ₹{orderedProduct.discountPrice.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
       })}
+    </span>
+  </div>
+
+  <div className="flex justify-between font-semibold">
+    <span>Quantity</span>
+    <span>
+      {order.qty}
     </span>
   </div>
 

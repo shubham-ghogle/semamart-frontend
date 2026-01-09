@@ -46,13 +46,14 @@ export default function SellerDashboard() {
   // Items arranged to match Admin cards look & behavior
   const CARDS = [
     {
-      key: "balance",
-      label: "Available Balance",
-      color: "from-yellow-400 to-yellow-600",
-      Icon: AiOutlineMoneyCollect,
-      value: seller?.availableBalance ?? 0,
-      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
+      key: "products",
+      label: "All Products",
+      color: "from-sky-500 to-indigo-600",
+      Icon: AiOutlineProduct,
+      value: variants?.length ?? 0,
+      onClick: () => navigate("products"),
     },
+    
     {
       key: "orders",
       label: "All Orders",
@@ -61,13 +62,14 @@ export default function SellerDashboard() {
       value: orders?.length ?? 0,
       onClick: () => navigate("orders"),
     },
+    
     {
-      key: "products",
-      label: "All Products",
-      color: "from-sky-500 to-indigo-600",
-      Icon: AiOutlineProduct,
-      value: variants?.length ?? 0,
-      onClick: () => navigate("products"),
+      key: "balance",
+      label: "Total Sales",
+      color: "from-yellow-400 to-yellow-600",
+      Icon: AiOutlineMoneyCollect,
+      value: seller?.availableBalance ?? 0,
+      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
     },
   ];
 

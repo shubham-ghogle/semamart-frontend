@@ -11,7 +11,7 @@ import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import SidebarNavlinks from "./SidebarNavlinks";
 import { MdStorefront } from "react-icons/md";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 
 export default function SellerNavbar() {
@@ -71,7 +71,7 @@ export default function SellerNavbar() {
         <div className="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
-              <img src={fallbackAvatar} alt="seller avatar" className="w-9 h-9 rounded-full object-cover border-2 border-white" />
+              <img src={`${BASE_URL}images/${seller?.profilePic}`} alt="seller avatar" className="w-9 h-9 rounded-full object-cover border-2 border-white" />
             </div>
             <div>
               <p className="text-xs text-gray-400">Welcome</p>
@@ -104,8 +104,8 @@ export default function SellerNavbar() {
       <aside className="hidden md:block sticky top-24 self-start w-full max-w-[250px]">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="flex items-center gap-4 p-5 border-b">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center overflow-hidden">
-              <img src={fallbackAvatar} alt="seller avatar" className="w-12 h-12 rounded-full object-cover border-2 border-white" />
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br flex items-center justify-center overflow-hidden">
+              <img src={`${BASE_URL}images/${seller?.profilePic}`} alt="seller avatar" className="w-12 h-12 rounded-full object-cover border-2 border-white" />
             </div>
             <div>
               <p className="text-xs text-gray-400">Hello,</p>
@@ -116,10 +116,11 @@ export default function SellerNavbar() {
 
           <nav className="p-3">
             <SidebarNavlinks icon={<RxDashboard />} to="/seller" end label="Dashboard" />
-            <SidebarNavlinks icon={<FaRegCircleUser />} to="/seller/my-account" label="My Account" />
-            <SidebarNavlinks icon={<TiDocumentAdd />} to="/seller/add-product" label="Add Product" />
             <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="All Products" />
             <SidebarNavlinks icon={<CiDeliveryTruck />} to="/seller/orders" label="All Orders" />
+            <SidebarNavlinks icon={<AiOutlineProduct />} to="/seller/products" label="Total Sales" />
+            <SidebarNavlinks icon={<TiDocumentAdd />} to="/seller/add-product" label="Add Product" />
+            <SidebarNavlinks icon={<FaRegCircleUser />} to="/seller/my-account" label="My Account" />
             <SidebarNavlinks icon={<MdStorefront />}    to={`/shop/${seller?._id}`} external label="My Shop" />
 
             <div className="mt-6 pt-4 px-3">

@@ -91,10 +91,10 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "name", header: "Seller Name" },
-    { accessorKey: "businessName", header: "Business Name" },
+    { accessorKey: "joinedOn", header: "Date" },
+    { accessorKey: "name", header: "Seller" },
+    { accessorKey: "businessName", header: "Business" },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "joinedOn", header: "Joined On" },
     {
       accessorKey: "action",
       header: "Actions",
