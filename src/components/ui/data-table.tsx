@@ -67,6 +67,9 @@ interface DataTableProps<TData, TValue> {
   docName: string;
   disabeAdminVisibilitySwitch?: boolean;
   disabeSellerVisibilitySwitch?: boolean;
+  enableStatusFilter?: boolean;
+  statusColumnId?: string;
+  statusOptions?: string[];
   onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
 }
 
@@ -84,6 +87,9 @@ export function DataTable<TData, TValue>({
   disabeAdminVisibilitySwitch = true,
   disabeSellerVisibilitySwitch = true,
   onVisibilityChange,
+  enableStatusFilter = false,
+  statusColumnId,
+  statusOptions = ["All", "Created", "Processing", "Shipped", "Delivered"],
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -93,11 +99,6 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState({});
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-  const statusOptions = [
-    "All",  "Created", "Processing", "Shipped", "Delivered"
-  ];
-
 
   const parseDate = (dateStr: string) => {
     if (!dateStr) return null;
@@ -288,6 +289,11 @@ export function DataTable<TData, TValue>({
             className="max-w-sm p-2 border rounded"
           />
         )}
+        
+          
+
+
+         
 
         {!disableBtns && (
           <article className="flex items-center gap-3 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
@@ -329,30 +335,30 @@ export function DataTable<TData, TValue>({
               </article>
             )}
             
-             <Select
-              value={
-                (table.getColumn("status")?.getFilterValue() as string) ?? "All"
-              }
-              onValueChange={(value) => {
-                if (value === "All") {
-                  table.getColumn("status")?.setFilterValue(undefined);
-                } else {
-                  table.getColumn("status")?.setFilterValue(value);
+            {enableStatusFilter && statusColumnId && (
+              <Select
+                value={
+                  (table.getColumn(statusColumnId)?.getFilterValue() as string) ??
+                  "All"
                 }
-              }}
-            >
-              <SelectTrigger className="w-[130px]">
-                <SelectValue placeholder="Filter Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-         
+                onValueChange={v =>
+                  table
+                    .getColumn(statusColumnId)
+                    ?.setFilterValue(v === "All" ? undefined : v)
+                }
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(s => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             {enableCalender && (
               <div className="min-w-fit">

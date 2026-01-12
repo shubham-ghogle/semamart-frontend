@@ -94,7 +94,6 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     {
       accessorKey: "status",
       header: "Status",
-      enableColumnFilter: true,
     },
     {
       accessorKey: "action",
@@ -120,6 +119,17 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         searchPlaceholder="Search by order id"
         enableCalender={true}
         dateFieldId="orderedOn"
+        enableStatusFilter={true}       
+        statusColumnId="status"         
+        statusOptions={[
+            "All",
+            "Verify Payment",
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+        ]}
       />
     </div>
   );

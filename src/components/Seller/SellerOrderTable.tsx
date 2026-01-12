@@ -136,6 +136,17 @@ const truncate = (text: string, max = 35) =>
         searchPlaceholder="Search by order ID"
         enableCalender={true}
         dateFieldId="orderedOn"
+        enableStatusFilter={true}       
+        statusColumnId="status"         
+        statusOptions={[
+            "All",
+            "Verify Payment",
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+        ]}
       />
     </div>
   );
