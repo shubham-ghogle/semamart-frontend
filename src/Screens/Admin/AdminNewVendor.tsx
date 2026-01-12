@@ -39,7 +39,7 @@ const AdminNewVendor: React.FC = () => {
           <thead>
             <tr>
               <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Business Name</th>
+              <th className="py-2 px-4 border-b">Business</th>
               <th className="py-2 px-4 border-b">Email</th>
               <th className="py-2 px-4 border-b">Role</th>
               <th className="py-2 px-4 border-b">Verified</th>

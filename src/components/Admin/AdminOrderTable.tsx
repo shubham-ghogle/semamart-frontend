@@ -94,6 +94,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     {
       accessorKey: "status",
       header: "Status",
+      enableColumnFilter: true,
     },
     {
       accessorKey: "action",

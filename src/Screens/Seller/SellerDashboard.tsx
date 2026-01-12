@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
+import { FaRupeeSign } from "react-icons/fa";
 
 type status = "pending" | "success" | "error";
 
@@ -67,7 +68,7 @@ export default function SellerDashboard() {
       key: "balance",
       label: "Total Sales",
       color: "from-yellow-400 to-yellow-600",
-      Icon: AiOutlineMoneyCollect,
+      Icon: FaRupeeSign,
       value: seller?.availableBalance ?? 0,
       onClick: () => navigate("/seller/wallet" /* adjust if needed */),
     },

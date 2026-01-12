@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
 import { useSellerStore } from "@/store/sellerStore";
-// import { FaRupeeSign } from "react-icons/fa";
 import DisplayCommission from "../Admin/DisplayCommission";
 
 

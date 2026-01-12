@@ -137,7 +137,7 @@ export default function AdminRequestTable({ sellers }: AdminRequestTableParams) 
         docName="Seller Requests"
         data={rows}
         columns={columns}
-        searchPlaceholder="Search by business name or email"
+        searchPlaceholder="Search by business or email"
         enableCalender={true}
         dateFieldId="joinedOn"
       />

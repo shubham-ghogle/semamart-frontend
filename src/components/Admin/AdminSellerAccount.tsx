@@ -98,7 +98,7 @@ const AdminSellerAccount: React.FC = () => {
             </div>
 
             <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
-              <dt className="text-gray-500 font-medium">Business Name</dt>
+              <dt className="text-gray-500 font-medium">Business</dt>
               <dd className="mt-1 text-gray-800 text-lg">{seller.businessName}</dd>
             </div>
 

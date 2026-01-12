@@ -102,7 +102,7 @@ export default function AdminSellerTable({
       enableHiding: false,
     },
     { accessorKey: "name", header: "Name" },
-    { accessorKey: "businessName", header: "Business Name" },
+    { accessorKey: "businessName", header: "Business" },
     { accessorKey: "email", header: "Email" },
     { accessorKey: "joinedOn", header: "Joined On" },
     {

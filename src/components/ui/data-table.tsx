@@ -94,6 +94,11 @@ export function DataTable<TData, TValue>({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const statusOptions = [
+    "All",  "Created", "Processing", "Shipped", "Delivered"
+  ];
+
+
   const parseDate = (dateStr: string) => {
     if (!dateStr) return null;
     const [day, month, year] = dateStr.split("/").map(Number);
@@ -323,6 +328,31 @@ export function DataTable<TData, TValue>({
                 </Label>
               </article>
             )}
+            
+             <Select
+              value={
+                (table.getColumn("status")?.getFilterValue() as string) ?? "All"
+              }
+              onValueChange={(value) => {
+                if (value === "All") {
+                  table.getColumn("status")?.setFilterValue(undefined);
+                } else {
+                  table.getColumn("status")?.setFilterValue(value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-[130px]">
+                <SelectValue placeholder="Filter Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+         
 
             {enableCalender && (
               <div className="min-w-fit">
