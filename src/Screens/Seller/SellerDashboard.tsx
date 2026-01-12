@@ -1,5 +1,5 @@
 // src/pages/seller/SellerDashboard.tsx
-import { AiOutlineMoneyCollect, AiOutlineProduct } from "react-icons/ai";
+import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck } from "react-icons/ci";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
