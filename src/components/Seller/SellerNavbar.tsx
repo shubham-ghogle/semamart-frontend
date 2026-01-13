@@ -10,7 +10,7 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { MdStorefront } from "react-icons/md";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type LinkItemProps = {
   to: string;
@@ -114,7 +114,7 @@ export default function SellerNavbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const fallbackAvatar = seller?.profilePic ? `/baseUrl/${seller.profilePic}` : "/image60.png";
+  const fallbackAvatar = seller?.profilePic ? `${BASE_URL}images/${seller?.profilePic}` : "/image60.png";
 
   const logoutHandler = async () => {
     if (loggingOut) return;

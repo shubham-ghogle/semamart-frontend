@@ -41,7 +41,7 @@ const truncate = (text: string, max = 35) =>
 
     const customerName =
       typeof order.user !== "string"
-        ? `${order.user.firstName} ${order.user.lastName ?? ""}`
+        ? order.user.instituteName
         : "-";
 
     return {
@@ -81,21 +81,21 @@ const truncate = (text: string, max = 35) =>
       enableSorting: false,
       enableHiding: false,
     },
+     {
+      accessorKey: "orderedOn",
+      header: "Date",
+    },
     {
       accessorKey: "id",
       header: "Order ID",
     },
     {
       accessorKey: "productName",
-      header: "Product Name",
+      header: "Product",
     },
     {
       accessorKey: "customerName",
-      header: "Customer Name",
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
+      header: "Institute",
     },
     {
       accessorKey: "totalPrice",
@@ -106,8 +106,8 @@ const truncate = (text: string, max = 35) =>
         }),
     },
     {
-      accessorKey: "orderedOn",
-      header: "Ordered On",
+      accessorKey: "status",
+      header: "Status",
     },
     {
       id: "action",
@@ -136,6 +136,17 @@ const truncate = (text: string, max = 35) =>
         searchPlaceholder="Search by order ID"
         enableCalender={true}
         dateFieldId="orderedOn"
+        enableStatusFilter={true}       
+        statusColumnId="status"         
+        statusOptions={[
+            "All",
+            "Verify Payment",
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+        ]}
       />
     </div>
   );

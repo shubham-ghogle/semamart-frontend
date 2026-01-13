@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
 import { useSellerStore } from "@/store/sellerStore";
-import { FaRupeeSign } from "react-icons/fa";
 import DisplayCommission from "../Admin/DisplayCommission";
 
 
@@ -79,7 +78,7 @@ export default function SellerProductTable({
     },
     {
       accessorKey: "sellerVisibility",
-      header: "ProductVisibility",
+      header: "Visibility",
       cell: ({ row }) => (
         <section>
           <article>
@@ -100,7 +99,7 @@ export default function SellerProductTable({
     },
     {
       accessorKey: "productName",
-      header: "Product Name",
+      header: "Product",
       cell: ({ row }) => (
         <p className="w-32 text-ellipsis overflow-hidden">
           {row.original.productName}
@@ -131,7 +130,7 @@ export default function SellerProductTable({
     },
     {
       accessorKey: "discountPrice",
-      header: "Discount Price",
+      header: "% Price",
       cell: ({ row }) =>
         row.original.discountPrice.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
@@ -146,13 +145,13 @@ export default function SellerProductTable({
       header: () => (
         <div className="flex items-center gap-1">
 
-          Commission <FaRupeeSign size={14} />
+          Commission 
         </div>
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
 
-          {row.original.commission}  <FaRupeeSign size={14} />
+          {row.original.commission} 
         </div>
       ),
     },

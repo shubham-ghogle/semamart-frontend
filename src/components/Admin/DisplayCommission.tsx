@@ -6,7 +6,7 @@ import {
 } from "../ui/dialog";
 import { useState, useMemo } from "react";
 import { Button } from "../ui/button";
-import { Clipboard } from "lucide-react";
+import { History } from "lucide-react";
 
 type CommissionHistory = {
   updatedAt: string;
@@ -41,7 +41,7 @@ export default function DisplayCommission({
             : "View commission history"
         }
       >
-        <Clipboard size={16} />
+        <History size={16} />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

@@ -99,6 +99,16 @@ export function CalendarPopoverWithPresets({
     setOpen(false)
   }
 
+  const onReset = () => {
+    setTempStartDate(undefined)
+    setTempEndDate(undefined)
+    setStartDate(undefined)
+    setEndDate(undefined)
+    setSelectedPreset(null)
+    setOpen(false)
+  }
+
+
   // helpers for month/year dropdowns
   const monthNames = [
     "January",
@@ -353,6 +363,15 @@ export function CalendarPopoverWithPresets({
       className="w-full md:w-auto"
     >
       Update
+    </Button>
+
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={onReset}
+      className="w-full md:w-auto"
+    >
+      Reset
     </Button>
   </div>
 </div>

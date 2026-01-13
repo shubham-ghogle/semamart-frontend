@@ -67,6 +67,9 @@ interface DataTableProps<TData, TValue> {
   docName: string;
   disabeAdminVisibilitySwitch?: boolean;
   disabeSellerVisibilitySwitch?: boolean;
+  enableStatusFilter?: boolean;
+  statusColumnId?: string;
+  statusOptions?: string[];
   onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
 }
 
@@ -84,6 +87,9 @@ export function DataTable<TData, TValue>({
   disabeAdminVisibilitySwitch = true,
   disabeSellerVisibilitySwitch = true,
   onVisibilityChange,
+  enableStatusFilter = false,
+  statusColumnId,
+  statusOptions = ["All", "Created", "Processing", "Shipped", "Delivered"],
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -283,6 +289,11 @@ export function DataTable<TData, TValue>({
             className="max-w-sm p-2 border rounded"
           />
         )}
+        
+          
+
+
+         
 
         {!disableBtns && (
           <article className="flex items-center gap-3 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
@@ -322,6 +333,31 @@ export function DataTable<TData, TValue>({
                   Switch product visibility
                 </Label>
               </article>
+            )}
+            
+            {enableStatusFilter && statusColumnId && (
+              <Select
+                value={
+                  (table.getColumn(statusColumnId)?.getFilterValue() as string) ??
+                  "All"
+                }
+                onValueChange={v =>
+                  table
+                    .getColumn(statusColumnId)
+                    ?.setFilterValue(v === "All" ? undefined : v)
+                }
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(s => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
 
             {enableCalender && (

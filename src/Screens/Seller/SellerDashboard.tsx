@@ -1,5 +1,5 @@
 // src/pages/seller/SellerDashboard.tsx
-import { AiOutlineMoneyCollect, AiOutlineProduct } from "react-icons/ai";
+import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck } from "react-icons/ci";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
+import { FaRupeeSign } from "react-icons/fa";
 
 type status = "pending" | "success" | "error";
 
@@ -46,13 +47,14 @@ export default function SellerDashboard() {
   // Items arranged to match Admin cards look & behavior
   const CARDS = [
     {
-      key: "balance",
-      label: "Available Balance",
-      color: "from-yellow-400 to-yellow-600",
-      Icon: AiOutlineMoneyCollect,
-      value: seller?.availableBalance ?? 0,
-      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
+      key: "products",
+      label: "All Products",
+      color: "from-sky-500 to-indigo-600",
+      Icon: AiOutlineProduct,
+      value: variants?.length ?? 0,
+      onClick: () => navigate("products"),
     },
+    
     {
       key: "orders",
       label: "All Orders",
@@ -61,13 +63,14 @@ export default function SellerDashboard() {
       value: orders?.length ?? 0,
       onClick: () => navigate("orders"),
     },
+    
     {
-      key: "products",
-      label: "All Products",
-      color: "from-sky-500 to-indigo-600",
-      Icon: AiOutlineProduct,
-      value: variants?.length ?? 0,
-      onClick: () => navigate("products"),
+      key: "balance",
+      label: "Total Sales",
+      color: "from-yellow-400 to-yellow-600",
+      Icon: FaRupeeSign,
+      value: seller?.availableBalance ?? 0,
+      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
     },
   ];
 

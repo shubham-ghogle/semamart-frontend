@@ -144,8 +144,8 @@ function Signup() {
       {/* Left Side */}
       <div className="w-1/2  flex flex-col justify-center items-center p-8 text-white">
         <Link to="/"><img src="/Logo-imag.png" width={120} alt="SEMA Logo" className="mb-6" /></Link>
-        <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]"><IoIosLock />Customer Signup</h2>
-        <p className="text-lg  text-center text-[#006666]">Create your customer account to continue</p>
+        <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]"><IoIosLock />Institute Signup</h2>
+        <p className="text-lg  text-center text-[#006666]">Create your institute account to continue</p>
       </div>
 
       {/* Right Side */}

@@ -45,7 +45,7 @@ const AllUserScreen: React.FC = () => {
   };
 
   return (
-    <AdminMainWrapper status={status} heading="All Users" errorMeassage={error}>
+    <AdminMainWrapper status={status} heading="All Institute" errorMeassage={error}>
       {status === "success" && (
         <AdminUserTable users={users} onDeleteUser={handleDeleteUser} />
       )}

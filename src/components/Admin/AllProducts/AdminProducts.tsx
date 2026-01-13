@@ -26,6 +26,7 @@ type VariantRow = {
   adminVisibility: boolean;
   commissionHistoryDate: string;
   commissionHistoryAmount: number;
+  seller: string;
 };
 
 export default function AdminProduct() {
@@ -94,20 +95,17 @@ export default function AdminProduct() {
       createdAt: pro?.createdAt ? new Date(pro.createdAt).toLocaleDateString("en-IN") : "-",
       productId: pro._id,
       commission: pro?.commission ?? 0,
+      seller: pro?.shopId?.businessName ?? "-",
       sellerVisibility: typeof pro.visibilityBySeller === "boolean" ? pro.visibilityBySeller : true,
       adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
     }))
   );
 
   const columns: ColumnDef<VariantRow>[] = [
-    {
-      id: "sellerVisibility",
-      header: "Seller Visibility",
-      cell: ({ row }) => <Switch disabled checked={row.original.sellerVisibility} />,
-    },
+   
     {
       id: "adminVisibility",
-      header: "Admin Visibility",
+      header: "Admin",
       cell: ({ row }) => (
         <Switch
           checked={row.original.adminVisibility}
@@ -120,16 +118,23 @@ export default function AdminProduct() {
       ),
     },
     {
-      accessorKey: "productName",
-      header: "Product Name",
-      cell: ({ row }) => <p className="w-32 overflow-hidden text-ellipsis">{row.original.productName}</p>,
+      id: "sellerVisibility",
+      header: "Seller",
+      cell: ({ row }) => <Switch disabled checked={row.original.sellerVisibility} />,
     },
+    { accessorKey: "createdAt", header: "Created On" },
     {
       accessorKey: "thumbnail",
       header: "Image",
       cell: ({ row }) => (
         <img src={row.original.thumbnail} alt="thumb" className="w-12 h-12 object-cover rounded" />
       ),
+    },
+    { accessorKey: "seller", header: "Seller" },
+    {
+      accessorKey: "productName",
+      header: "Product Name",
+      cell: ({ row }) => <p className="w-32 overflow-hidden text-ellipsis">{row.original.productName}</p>,
     },
     { accessorKey: "colorOption", header: "Color" },
     { accessorKey: "size", header: "Size" },
@@ -144,17 +149,19 @@ export default function AdminProduct() {
     },
     {
       accessorKey: "discountPrice",
-      header: "Disc Price",
+      header: "% Price",
       cell: ({ row }) =>
         row.original.discountPrice.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         }),
     },
-    { accessorKey: "createdAt", header: "Created On" },
+    
     {
       accessorKey: "commission",
-      header: "Commission Amount",
-      cell: ({ row }) => <p>{row.original.commission}</p>,
+      header: "Platform Fee",
+      cell: ({ row }) => row.original.commission.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
     },
     {
       id: "action",

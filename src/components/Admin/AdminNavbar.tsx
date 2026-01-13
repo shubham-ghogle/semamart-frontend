@@ -150,7 +150,7 @@ export default function AdminNavbar() {
       >
         <div className="bg-white rounded-r-xl shadow-md overflow-hidden h-full flex flex-col">
           <div className="flex items-center gap-4 p-4 border-b">
-            <div
+            {/* <div
               className="flex items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 shrink-0"
               style={{ width: isExpanded ? 56 : 40, height: isExpanded ? 56 : 40 }}
             >
@@ -159,7 +159,7 @@ export default function AdminNavbar() {
                 alt="admin avatar"
                 className={`rounded-full object-cover border-2 border-white ${isExpanded ? "w-12 h-12" : "w-8 h-8"}`}
               />
-            </div>
+            </div> */}
 
             <div className={`transition-all ${isExpanded ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
               <p className="text-xs text-gray-400">Hello,</p>
@@ -270,9 +270,9 @@ export default function AdminNavbar() {
         >
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center">
+              {/* <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center">
                 <img src={fallbackAvatar} alt="admin avatar" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
-              </div>
+              </div> */}
               <div>
                 <p className="text-sm font-medium text-gray-800">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>

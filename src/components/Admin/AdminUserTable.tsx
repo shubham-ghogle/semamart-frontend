@@ -114,7 +114,7 @@ export default function AdminUserTable({
     },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "role", header: "Role" },
+    // { accessorKey: "role", header: "Role" },
     { accessorKey: "joinedOn", header: "Joined On" },
     {
       id: "actions",
@@ -186,7 +186,7 @@ export default function AdminUserTable({
         docName="Users"
         data={rows}
         columns={columns}
-        searchPlaceholder="Search by email or name"
+        searchPlaceholder="Search by email"
         enableCalender={true}
         dateFieldId="joinedOn"
       />

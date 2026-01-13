@@ -1,3 +1,4 @@
+// src/components/Admin/AdminOrderTable.tsx
 import { Order } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router";
@@ -12,6 +13,7 @@ type Row = {
   shop: string;
   totalPrice: number;
   orderedOn: string;
+  productName: string;
   viewOrder: (orderId: string) => void;
 };
 
@@ -22,17 +24,41 @@ type AdminOrderTableProps = {
 export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const navigate = useNavigate();
 
-  const rows: Row[] = orders.map((el) => ({
-    id: el._id,
-    status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
-    customer: typeof el.user === "string" ? "-" : el.user.firstName,
-    shop: typeof el.shop === "string" ? "-" : el.shop?.businessName || "-",
-    totalPrice: el.totalPrice,
-    orderedOn: new Date(el.createdAt || "").toLocaleDateString("en-IN"),
-    viewOrder: (orderId: string) => {
-      navigate(orderId);
-    },
-  }));
+  const rows: Row[] = orders.map((el) => {
+    // Defensive extraction of product name — handle null, string, nested object
+    let productName = "-";
+
+    if (!el.variant) {
+      productName = "-";
+    } else if (typeof el.variant === "string") {
+      productName = "-";
+    } else {
+      // el.variant is an object — check productId safely
+      const pid = (el.variant as any).productId;
+      if (!pid) {
+        productName = "-";
+      } else if (typeof pid === "string") {
+        productName = "-";
+      } else {
+        // pid is object
+        productName = pid?.name ?? "-";
+      }
+    }
+
+    return {
+      id: el._id,
+      status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
+      customer: typeof el.user === "string" ? "-" : (el.user?.instituteName ?? "-"),
+      shop: typeof el.shop === "string" ? "-" : (el.shop?.businessName ?? "-"),
+      productName,
+      totalPrice: el.totalPrice ?? 0,
+      orderedOn: el.createdAt ? new Date(el.createdAt).toLocaleDateString("en-IN") : "-",
+      viewOrder: (orderId: string) => {
+        // navigate to a sensible path — adjust if your route differs
+        navigate(`/admin/orders/${orderId}`);
+      },
+    };
+  });
 
   const columns: ColumnDef<Row>[] = [
     {
@@ -55,16 +81,29 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       enableHiding: false,
     },
     {
+      accessorKey: "orderedOn",
+      header: "Date",
+    },
+    {
       accessorKey: "id",
       header: "Order ID",
     },
     {
+      accessorKey: "productName",
+      header: "Product",
+      cell: ({ row }) => (
+        <p className="w-32 truncate" title={row.original.productName}>
+          {row.original.productName}
+        </p>
+      ),
+    },
+    {
       accessorKey: "customer",
-      header: "Customer Name",
+      header: "Institute",
     },
     {
       accessorKey: "shop",
-      header: "Shop Name",
+      header: "Seller",
     },
     {
       accessorKey: "totalPrice",
@@ -76,10 +115,6 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     },
 
     {
-      accessorKey: "orderedOn",
-      header: "Ordered On",
-    },
-    {
       accessorKey: "status",
       header: "Status",
     },
@@ -87,10 +122,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          onClick={() => row.original.viewOrder(row.original.id)}
-        >
+        <Button variant="ghost" onClick={() => row.original.viewOrder(row.original.id)}>
           <EyeIcon />
         </Button>
       ),
@@ -107,6 +139,17 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         searchPlaceholder="Search by order id"
         enableCalender={true}
         dateFieldId="orderedOn"
+        enableStatusFilter={true}
+        statusColumnId="status"
+        statusOptions={[
+          "All",
+          "Verify Payment",
+          "Pending",
+          "Processing",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+        ]}
       />
     </div>
   );
