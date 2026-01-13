@@ -133,9 +133,9 @@ export default function CheckoutScreen(): JSX.Element {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-
+    const result = await res.json();
     if (!res.ok) {
-      throw new Error("Could not create order");
+      throw new Error(result.message || "Could not create order");
     }
     return res;
   }
