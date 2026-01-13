@@ -1,23 +1,23 @@
 import { Outlet } from "react-router-dom";
-import Header from "../Header/Header";
+import AccountHeader from "../Account/AccountHeader";
 import AccountNavbar from "../Account/AccountNavbar";
 
 export default function AccountLayout() {
   return (
-    <div className="bg-gray-50 h-screen overflow-hidden">
-      {/* Fixed Header */}
+    <div className="bg-gray-50 min-h-screen overflow-hidden">
+      {/* Fixed Account Header */}
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Header />
+        <AccountHeader />
       </div>
 
       <div className="pt-[80px] h-full flex">
-        {/* Fixed Sidebar for desktop */}
-        <div className="hidden md:block fixed mt-12 left-0 w-[320px] h-[calc(100vh-80px)] z-40 pl-4">
+        {/* Sidebar */}
+        <div className="hidden md:block fixed left-0 top-[80px] h-[calc(100vh-80px)] z-40 pl-4">
           <AccountNavbar />
         </div>
 
-        {/* Scrollable main content */}
-        <main className="flex-1 ml-0 md:ml-[320px] h-[calc(100vh-80px)] overflow-y-auto px-4 md:px-6 py-8">
+        {/* Main Content */}
+        <main className="flex-1 ml-0 md:ml-[var(--account-sidebar-width,320px)] transition-all duration-200 h-[calc(100vh-80px)] overflow-y-auto px-4 md:px-6 py-8">
           <Outlet />
         </main>
       </div>

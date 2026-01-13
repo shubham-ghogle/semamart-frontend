@@ -1,24 +1,28 @@
-// src/components/Seller/SellerLayout.tsx
-
 import { Outlet } from "react-router-dom";
 import SellerHeader from "../Seller/SellerHeader";
 import SellerNavbar from "../Seller/SellerNavbar";
-
 
 export default function SellerLayout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <SellerHeader />
+      <SellerNavbar />
 
-      <section className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 py-8">
-        {/* Sidebar (SellerNavbar handles its own responsive drawer on small screens) */}
-        <SellerNavbar />
-
-        {/* Main content area */}
-        <main className="min-h-[calc(100vh-120px)]">
+      {/* main content - on md+ we make room for the fixed sidebar using CSS variable */}
+      <main className="min-h-[calc(100vh-120px)] transition-all duration-200">
+        <div className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
-        </main>
-      </section>
+        </div>
+      </main>
+
+      <style>{`
+        /* apply left padding for the fixed sidebar on md+ so content is not covered */
+        @media (min-width: 768px) {
+          main {
+            padding-left: var(--seller-sidebar-width, 250px);
+          }
+        }
+      `}</style>
     </div>
   );
 }
