@@ -28,7 +28,9 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active, onClick }) =
   return (
     <Link to={to} onClick={onClick} className="block">
       <div
-        className={`group flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${active ? "bg-sky-50 ring-1 ring-sky-100" : "hover:bg-sky-50"}`}
+        className={`group flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+          active ? "bg-sky-50 ring-1 ring-sky-100" : "hover:bg-sky-50"
+        }`}
       >
         <div className="shrink-0 text-sky-600 text-lg">{icon}</div>
         <span className="label text-sm text-gray-700 transition-opacity whitespace-nowrap">{label}</span>
@@ -107,7 +109,7 @@ const AccountNavbar: React.FC = () => {
   const currentName = user?.firstName ?? seller?.firstName ?? "User";
   const currentEmail = user?.email ?? seller?.email ?? "";
 
-  // Logout logic (kept as your existing but simplified)
+  // Logout logic
   async function logoutHandler() {
     if (loggingOut) return;
     setLoggingOut(true);
@@ -140,34 +142,45 @@ const AccountNavbar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile compact header (unchanged) */}
-      <div className="md:hidden mb-3">
+      {/* --- Mobile compact header (now aligned with Seller styles) --- */}
+      <div className="md:hidden mb-4">
         <div className="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
               <img src={currentAvatar} alt="avatar" className="w-9 h-9 rounded-full object-cover border-2 border-white" />
             </div>
             <div>
-              <p className="text-xs text-gray-400">Hello</p>
+              <p className="text-xs text-gray-400">Welcome</p>
               <p className="text-sm font-medium text-gray-800 truncate max-w-[120px]">{currentName}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button aria-label="Open account menu" onClick={() => setOpen(true)} className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-sky-50 text-sky-600 hover:bg-sky-100">
+            <button
+              aria-label="Open account menu"
+              onClick={() => setOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-sky-50 text-sky-600 hover:bg-sky-100"
+            >
               <FaBars /> Menu
             </button>
 
-            <button aria-label="Logout" onClick={logoutHandler} disabled={loggingOut} className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60">
+            <button
+              aria-label="Logout"
+              onClick={logoutHandler}
+              disabled={loggingOut}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60"
+            >
               <FaSignOutAlt />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Desktop Sidebar (fixed left) */}
+      {/* --- Desktop Sidebar (unchanged) --- */}
       <aside
-        className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-40 bg-white shadow-md transition-all duration-200 ${pinned ? "w-[320px]" : "w-[80px]"}`}
+        className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-40 bg-white shadow-md transition-all duration-200 ${
+          pinned ? "w-[320px]" : "w-[80px]"
+        }`}
         aria-expanded={pinned}
       >
         <div className="bg-white rounded-r-xl overflow-hidden h-full flex flex-col">
@@ -208,7 +221,6 @@ const AccountNavbar: React.FC = () => {
           </div>
         </div>
 
-        {/* styles for collapsed state and tooltips */}
         <style>{`
           .nav-scrollarea { scrollbar-width: none; -ms-overflow-style: none; }
           .nav-scrollarea::-webkit-scrollbar { display: none; }
@@ -251,7 +263,7 @@ const AccountNavbar: React.FC = () => {
         `}</style>
       </aside>
 
-      {/* Mobile drawer (unchanged UX) */}
+      {/* --- Mobile drawer (adjusted to match Seller's layout/spacing) --- */}
       <div className={`fixed inset-0 z-40 md:hidden transform ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
         <div className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`} onClick={() => setOpen(false)} />
         <div className={`absolute left-0 top-0 bottom-0 w-[86%] max-w-sm bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${open ? "translate-x-0" : "-translate-x-full"}`} role="dialog" aria-modal="true">
