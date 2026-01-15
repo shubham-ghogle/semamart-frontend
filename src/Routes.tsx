@@ -75,7 +75,7 @@ import OrderProductCard from "./components/ui/OrderProductCard";
 import UserWishlist from "./components/ui/UserWishlist";
 import UserCart from "./components/ui/UserCart";
 import AdminOrderSummary from "./components/ui/adminOrderSummary";
-import BulkOrdersTable from "./components/Admin/BulkOrderTable";
+import BulkAndStock from "./Screens/Admin/BulkAndStock";
 
 /**
  * redirectToDashboard loader
@@ -332,7 +332,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: "requests", element: <AdminRequestScreen /> },
       { path: "img-upload", element: <AdminImageUploader /> },
-      { path: "bulk-order-request", element: <BulkOrdersTable /> },
+      { path: "bulk-order-request", element: <BulkAndStock /> },
       {
         path: "sellers",
         children: [

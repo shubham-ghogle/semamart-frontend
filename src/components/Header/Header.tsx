@@ -786,6 +786,18 @@ export default function Header() {
                           <span>Support</span>
                         </Link>
 
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to="/notification"
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <MdOutlineSupportAgent size={16} />
+                          <span>My Notification</span>
+                        </Link>
+
                         <hr className="my-1" />
 
                         <button

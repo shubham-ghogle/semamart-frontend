@@ -177,7 +177,7 @@ export default function AdminNavbar() {
               <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" />
               <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" />
               <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" />
-              <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Bulk Order Request" />
+              <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Stock Management" />
             </div>
           </nav>
 
