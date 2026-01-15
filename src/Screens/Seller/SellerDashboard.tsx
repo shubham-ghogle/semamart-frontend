@@ -7,8 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
-import { FaRupeeSign } from "react-icons/fa";
 import { getSellerDashboardStats } from "./Seller.Hooks";
+import { TbCoinRupee } from "react-icons/tb";
 
 type status = "pending" | "success" | "error";
 
@@ -92,23 +92,19 @@ export default function SellerDashboard() {
       key: "balance",
       label: "Total Sales",
       color: "from-yellow-400 to-yellow-600",
-      Icon: FaRupeeSign,
+      Icon: TbCoinRupee,
       value: dashboardStats?.totalSales ?? 0,
       onClick: () => navigate("/seller/orders/delivered"),
     },
   ];
 
-  const formatMoney = (v: number) => {
-    try {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(v);
-    } catch {
-      return String(v);
-    }
-  };
+  const formatMoney = (v: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(v);
 
   return (
     <SellerMainWrapper

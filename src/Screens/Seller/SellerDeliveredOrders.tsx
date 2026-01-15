@@ -51,7 +51,7 @@ export default function SellerDeliveredOrders() {
         <>
           <div className="mb-6 flex justify-end">
             <span className="text-lg bg-yellow-100 p-4 rounded-xl text-yellow-900 sm:text-xl font-semibold">
-              Total Sales • {formatMoney(stats.totalSales)}
+              Total Sales: {formatMoney(stats.totalSales)}
             </span>
           </div>
 
