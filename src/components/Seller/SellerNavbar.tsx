@@ -4,7 +4,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
-import { CiDeliveryTruck } from "react-icons/ci";
+import { CiDeliveryTruck, CiDollar } from "react-icons/ci";
 import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { MdStorefront } from "react-icons/md";
@@ -206,21 +206,9 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" />
               <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" />
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
-              <LinkItem to="/seller/orders" icon={<CiDeliveryTruck />} label="All Orders" />
-
-              {/* My Shop — opens in new tab (changed only this) */}
-              <a
-                href={`/shop/${seller?._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="My Shop"
-                className="group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-sky-50 hover:text-sky-600"
-              >
-                <span className="shrink-0 text-lg">
-                  <MdStorefront />
-                </span>
-                <span className="label transition-opacity whitespace-nowrap">My Shop</span>
-              </a>
+              <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
+              <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
+              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>
 
@@ -299,7 +287,7 @@ export default function SellerNavbar() {
         `}</style>
       </aside>
 
-      {/* --- Mobile slide-over drawer (only My Shop changed to open new tab) */}
+      {/* --- Mobile slide-over drawer (UNCHANGED) --- */}
       <div
         className={`fixed inset-0 z-40 md:hidden transform ${open ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!open}
@@ -351,18 +339,10 @@ export default function SellerNavbar() {
                 <CiDeliveryTruck />
                 <span>All Orders</span>
               </NavLink>
-
-              {/* Mobile: My Shop -> open in new tab and close drawer */}
-              <a
-                href={`/shop/${seller?._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
+              <NavLink to={`/shop/${seller?._id}`} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
                 <MdStorefront />
                 <span>My Shop</span>
-              </a>
+              </NavLink>
 
               <div className="mt-6 pt-4">
                 <button

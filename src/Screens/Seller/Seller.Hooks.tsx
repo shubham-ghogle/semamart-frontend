@@ -17,8 +17,8 @@ export function requireSellerAuth() {
 
 // ✅ Fetch all seller orders
 export async function getOrdersForSeller(id: string) {
-  const res = await fetch(API_URL+"order/get-seller-all-orders/" + id,{
-    credentials:"include"
+  const res = await fetch(API_URL + "order/get-seller-all-orders/" + id, {
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -37,8 +37,8 @@ export async function getOrdersForSeller(id: string) {
 // ✅ Fetch all products for a seller
 export async function getProductsForSeller(id?: string) {
   if (!id) return;
-  const res = await fetch(API_URL+"product/get-all-products-shop/" + id,{
-    credentials:"include"
+  const res = await fetch(API_URL + "product/get-all-products-shop/" + id, {
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -58,7 +58,9 @@ export async function getProductsForSeller(id?: string) {
 export async function getOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
-  const res = await fetch(API_URL+"order/get-order-details-seller/" + orderId);
+  const res = await fetch(
+    API_URL + "order/get-order-details-seller/" + orderId
+  );
 
   if (!res.ok) {
     const errMessage = await res.json();
@@ -83,10 +85,10 @@ export function useSellerOrderMutation() {
       currentStatus: string;
       orderId: string;
     }) {
-      let url = API_URL+ "order/order-refund-success/" + orderId;
+      let url = API_URL + "order/order-refund-success/" + orderId;
 
       if (currentStatus !== "Processing refund") {
-        url = API_URL+ "order/update-order-status/" + orderId;
+        url = API_URL + "order/update-order-status/" + orderId;
       }
 
       const res = await fetch(url, {
@@ -95,7 +97,7 @@ export function useSellerOrderMutation() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ status }),
-        credentials:"include"
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error();
@@ -125,7 +127,9 @@ export function useCustomEnsureQuerty<T>(
   id?: string
 ) {
   const [data, setData] = useState<T | null>(null);
-  const [status, setStatus] = useState<"success" | "error" | "pending">("pending");
+  const [status, setStatus] = useState<"success" | "error" | "pending">(
+    "pending"
+  );
 
   const qc = useQueryClient();
 
@@ -152,4 +156,44 @@ export function useCustomEnsureQuerty<T>(
   }, [id]);
 
   return { data, status };
+}
+
+export async function getSellerDashboardStats() {
+  const res = await fetch(API_URL + "order/seller-dashboard-stats", {
+    credentials: "include", // cookie-based seller auth
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch seller dashboard stats");
+  }
+
+  const data = await res.json();
+
+  if (!data.success) {
+    throw new Error("Dashboard stats fetch unsuccessful");
+  }
+
+  return data as {
+    success: boolean;
+    totalSales: number;
+    deliveredOrders: number;
+  };
+}
+
+export async function getDeliveredOrdersForSeller() {
+  const res = await fetch(API_URL + "order/get-seller-delivered-orders", {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch delivered orders");
+  }
+
+  const data = await res.json();
+
+  if (!data.success) {
+    throw new Error("Delivered orders fetch failed");
+  }
+
+  return data.orders;
 }
