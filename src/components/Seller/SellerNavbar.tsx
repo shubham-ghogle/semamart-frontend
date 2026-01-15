@@ -4,7 +4,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
-import { CiDeliveryTruck } from "react-icons/ci";
+import { CiDeliveryTruck, CiDollar } from "react-icons/ci";
 import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { MdStorefront } from "react-icons/md";
@@ -206,7 +206,8 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" />
               <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" />
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
-              <LinkItem to="/seller/orders" icon={<CiDeliveryTruck />} label="All Orders" />
+              <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
+              <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
               <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>

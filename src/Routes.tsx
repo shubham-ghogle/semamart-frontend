@@ -24,6 +24,7 @@ import UserProfileScreen from "./Screens/User/UserProfileScreen";
 import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
+import SellerDeliveredOrders from "./Screens/Seller/SellerDeliveredOrders";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
 import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
@@ -391,6 +392,7 @@ export const router = createBrowserRouter([
         path: "orders",
         children: [
           { index: true, element: <SellerAllOrders /> },
+          { path: "delivered", element: <SellerDeliveredOrders /> },
           { path: ":orderId", element: <OrderDetailsScreen /> },
         ],
       },
