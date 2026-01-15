@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
-import { FaRupeeSign } from "react-icons/fa";
+import { getSellerDashboardStats } from "./Seller.Hooks";
+import { TbCoinRupee } from "react-icons/tb";
 
 type status = "pending" | "success" | "error";
 
@@ -15,29 +16,52 @@ export default function SellerDashboard() {
   const { seller } = useSellerStore((state) => state);
   const navigate = useNavigate();
 
-  const { data: orders, error: orderErr, status: orderStatus } = useQuery({
+  const {
+    data: orders,
+    error: orderErr,
+    status: orderStatus,
+  } = useQuery({
     queryKey: ["seller-orders", seller?._id],
     queryFn: () => getOrdersForSeller(seller?._id || ""),
     staleTime: Infinity,
     enabled: !!seller?._id,
   });
 
-  const { data: products, status: proStatus, error: proError } = useQuery({
+  const {
+    data: products,
+    status: proStatus,
+    error: proError,
+  } = useQuery({
     queryKey: ["seller-products", seller?._id],
     queryFn: () => getProductsForSeller(seller?._id || ""),
     staleTime: Infinity,
     enabled: !!seller?._id,
   });
 
-  const isSuccess = orderStatus === "success" && proStatus === "success";
-  const isError = orderStatus === "error" || proStatus === "error";
+  const {
+    data: dashboardStats,
+    status: statsStatus,
+    error: statsError,
+  } = useQuery({
+    queryKey: ["seller-dashboard-stats"],
+    queryFn: getSellerDashboardStats,
+    staleTime: Infinity,
+  });
+
+  const isSuccess =
+    orderStatus === "success" &&
+    proStatus === "success" &&
+    statsStatus === "success";
+
+  const isError =
+    orderStatus === "error" || proStatus === "error" || statsStatus === "error";
 
   let overAllStatus: status = "pending";
   if (isSuccess) overAllStatus = "success";
   else if (isError) overAllStatus = "error";
 
   const overAllError =
-    (proError?.message && orderErr?.message && `${proError.message}\n${orderErr.message}`) ||
+    (statsError as Error)?.message ||
     proError?.message ||
     orderErr?.message ||
     "Something went wrong";
@@ -54,7 +78,7 @@ export default function SellerDashboard() {
       value: variants?.length ?? 0,
       onClick: () => navigate("products"),
     },
-    
+
     {
       key: "orders",
       label: "All Orders",
@@ -63,27 +87,31 @@ export default function SellerDashboard() {
       value: orders?.length ?? 0,
       onClick: () => navigate("orders"),
     },
-    
+
     {
       key: "balance",
       label: "Total Sales",
       color: "from-yellow-400 to-yellow-600",
-      Icon: FaRupeeSign,
-      value: seller?.availableBalance ?? 0,
-      onClick: () => navigate("/seller/wallet" /* adjust if needed */),
+      Icon: TbCoinRupee,
+      value: dashboardStats?.totalSales ?? 0,
+      onClick: () => navigate("/seller/orders/delivered"),
     },
   ];
 
-  const formatMoney = (v: number) => {
-    try {
-      return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(v);
-    } catch {
-      return String(v);
-    }
-  };
+  const formatMoney = (v: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(v);
 
   return (
-    <SellerMainWrapper status={overAllStatus} errorMessage={overAllError} heading="Seller Dashboard">
+    <SellerMainWrapper
+      status={overAllStatus}
+      errorMessage={overAllError}
+      heading="Seller Dashboard"
+    >
       {isSuccess && (
         <>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -95,14 +123,18 @@ export default function SellerDashboard() {
                   onClick={c.onClick}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && c.onClick()}
+                  onKeyDown={(e) =>
+                    (e.key === "Enter" || e.key === " ") && c.onClick()
+                  }
                   className={`bg-gradient-to-r ${c.color} text-white rounded-2xl p-6 shadow-lg cursor-pointer relative overflow-hidden hover:scale-105 transition-transform`}
                 >
                   <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-8 -translate-y-8" />
                   <div className="flex items-center justify-between relative z-10">
                     <Icon className="text-4xl text-white" />
                     <span className="text-4xl font-bold">
-                      {c.key === "balance" ? formatMoney(Number(c.value)) : c.value}
+                      {c.key === "balance"
+                        ? formatMoney(Number(c.value))
+                        : c.value}
                     </span>
                   </div>
                   <p className="text-lg mt-4 font-medium">{c.label}</p>
@@ -114,7 +146,9 @@ export default function SellerDashboard() {
           </section>
 
           <section className="mt-8">
-            <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">Recent Orders</h2>
+            <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">
+              Recent Orders
+            </h2>
             <div className="bg-white rounded-lg shadow p-4">
               <SellerOrderTable orders={orders} />
             </div>

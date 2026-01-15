@@ -9,20 +9,20 @@ export default function SellerLayout() {
       <SellerNavbar />
 
       {/* main content - on md+ we make room for the fixed sidebar using CSS variable */}
-      <main className="min-h-[calc(100vh-120px)] transition-all duration-200">
+      <main className="transition-all duration-200" style={{ minHeight: "calc(100vh - var(--seller-header-height, 80px))" }}>
         <div className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
         </div>
-      </main>
 
-      <style>{`
-        /* apply left padding for the fixed sidebar on md+ so content is not covered */
-        @media (min-width: 768px) {
-          main {
-            padding-left: var(--seller-sidebar-width, 250px);
+        <style>{`
+          /* apply left padding for the fixed sidebar on md+ so content is not covered */
+          @media (min-width: 768px) {
+            main > div {
+              padding-left: calc(var(--seller-sidebar-width, 250px) + 1rem);
+            }
           }
-        }
-      `}</style>
+        `}</style>
+      </main>
     </div>
   );
 }

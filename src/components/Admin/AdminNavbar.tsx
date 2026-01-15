@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
@@ -23,14 +23,15 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
       onClick={onClick}
       title={label}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors
-         ${isActive ? "bg-sky-50 text-sky-700" : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"}`
+        `group relative flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${
+          isActive ? "bg-sky-50 text-sky-700" : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
+        }`
       }
     >
       <span className="shrink-0 text-lg">{icon}</span>
       <span className="label transition-opacity whitespace-nowrap">{label}</span>
       <span
-        className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
+        className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
         aria-hidden="true"
       >
         {label}
@@ -107,14 +108,18 @@ export default function AdminNavbar() {
     navigate("/admin-login", { replace: true });
   };
 
+  // responsive widths (no CSS variables in style prop)
+  const expandedWidth = "clamp(16rem, 18vw, 24rem)";
+  const collapsedWidth = "clamp(5rem, 6vw, 7rem)";
+
   return (
     <>
-      {/* MOBILE header (unchanged) */}
+      {/* mobile header */}
       <div className="md:hidden mb-4">
-        <div className="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3">
+        <div className="flex items-center justify-between bg-white border px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
-              <img src={fallbackAvatar} alt="admin avatar" className="w-9 h-9 rounded-full object-cover border-2 border-white" />
+            <div className="w-10 h-10 rounded-none bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
+              <img src={fallbackAvatar} alt="admin avatar" className="w-9 h-9 object-cover border-2 border-white" />
             </div>
             <div>
               <p className="text-xs text-gray-400">Welcome</p>
@@ -126,7 +131,7 @@ export default function AdminNavbar() {
             <button
               aria-label="Open menu"
               onClick={() => setDrawerOpen(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-sky-50 text-sky-600 hover:bg-sky-100"
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-none"
             >
               <FaBars /> Menu
             </button>
@@ -135,7 +140,7 @@ export default function AdminNavbar() {
               aria-label="Logout"
               onClick={logoutHandler}
               disabled={loggingOut}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60 rounded-none"
             >
               <FaSignOutAlt />
             </button>
@@ -143,24 +148,14 @@ export default function AdminNavbar() {
         </div>
       </div>
 
-      {/* DESKTOP sidebar — fixed to left on md+ */}
+      {/* desktop sidebar */}
       <aside
-        className={`hidden md:flex fixed left-0 top-[80px] bottom-0 flex-col ${isExpanded ? "w-64" : "w-20"} transition-all duration-200 z-40`}
+        className={`hidden md:flex fixed left-0`}
         aria-expanded={isExpanded}
+        style={{ top: "var(--admin-header-height, 80px)", bottom: 0, width: isExpanded ? expandedWidth : collapsedWidth, transition: "width 200ms ease", zIndex: 40 }}
       >
-        <div className="bg-white rounded-r-xl shadow-md overflow-hidden h-full flex flex-col">
+        <div className="bg-white border-r h-full flex flex-col overflow-hidden rounded-none">
           <div className="flex items-center gap-4 p-4 border-b">
-            {/* <div
-              className="flex items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 shrink-0"
-              style={{ width: isExpanded ? 56 : 40, height: isExpanded ? 56 : 40 }}
-            >
-              <img
-                src={fallbackAvatar}
-                alt="admin avatar"
-                className={`rounded-full object-cover border-2 border-white ${isExpanded ? "w-12 h-12" : "w-8 h-8"}`}
-              />
-            </div> */}
-
             <div className={`transition-all ${isExpanded ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
               <p className="text-xs text-gray-400">Hello,</p>
               <p className="font-semibold text-gray-800 leading-5">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
@@ -185,7 +180,7 @@ export default function AdminNavbar() {
             <button
               onClick={logoutHandler}
               disabled={loggingOut}
-              className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 rounded-none disabled:opacity-60"
               title="Logout"
             >
               <FaSignOutAlt className="text-sky-600" />
@@ -197,82 +192,30 @@ export default function AdminNavbar() {
         </div>
 
         <style>{`
-          .nav-scrollarea {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-          }
+          .nav-scrollarea { scrollbar-width: none; -ms-overflow-style: none; }
           .nav-scrollarea::-webkit-scrollbar { display: none; }
 
-          aside[aria-expanded="false"] .label {
-            opacity: 0;
-            width: 0;
-            max-width: 0;
-            pointer-events: none;
-            transform: translateX(-6px);
-            transition: all .18s ease;
-          }
-          aside[aria-expanded="true"] .label {
-            opacity: 1;
-            width: auto;
-            max-width: 100%;
-            transform: translateX(0);
-            transition: all .18s ease;
-          }
+          aside[aria-expanded="false"] .label { opacity: 0; width: 0; max-width: 0; pointer-events: none; transform: translateX(-6px); transition: all .18s ease; }
+          aside[aria-expanded="true"] .label { opacity: 1; width: auto; max-width: 100%; transform: translateX(0); transition: all .18s ease; }
 
-          aside[aria-expanded="false"] nav a {
-            justify-content: center;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-          }
+          aside[aria-expanded="false"] nav a { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
 
-          aside[aria-expanded="false"] .group:hover .tooltip {
-            display: block;
-            opacity: 1;
-            transform: translateX(0);
-          }
-          .tooltip {
-            display: none;
-            opacity: 0;
-            transform: translateX(-6px);
-            transition: transform .14s ease, opacity .14s ease;
-            white-space: nowrap;
-            z-index: 50;
-          }
-          aside[aria-expanded="false"] .group:hover .tooltip::before {
-            content: "";
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 6px;
-            border-style: solid;
-            border-color: transparent #ffffff transparent transparent;
-            filter: drop-shadow(-1px 0 0 rgba(0,0,0,0.03));
-          }
+          aside[aria-expanded="false"] .group:hover .tooltip { display: block; opacity: 1; transform: translateX(0); }
+          .tooltip { display: none; opacity: 0; transform: translateX(-6px); transition: transform .14s ease, opacity .14s ease; white-space: nowrap; z-index: 50; }
+          aside[aria-expanded="false"] .group:hover .tooltip::before { content: ""; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); border-width: 6px; border-style: solid; border-color: transparent #ffffff transparent transparent; filter: drop-shadow(-1px 0 0 rgba(0,0,0,0.03)); }
+
+          /* remove rounded corners globally for sidebar/header children */
+          .rounded-none { border-radius: 0 !important; }
+          button, img, .bg-white { border-radius: 0 !important; }
         `}</style>
       </aside>
 
-      {/* MOBILE drawer (kept as a sibling, unchanged behaviour/markup) */}
-      <div
-        className={`fixed inset-0 z-40 md:hidden transform ${drawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!drawerOpen}
-      >
-        <div
-          className={`absolute inset-0 bg-black/40 transition-opacity ${drawerOpen ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setDrawerOpen(false)}
-        />
-        <div
-          className={`absolute left-0 top-0 bottom-0 w-[86%] max-w-sm bg-white shadow-2xl transform transition-transform flex flex-col ${
-            drawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-          role="dialog"
-          aria-modal="true"
-        >
+      {/* mobile drawer */}
+      <div className={`fixed inset-0 z-40 md:hidden transform ${drawerOpen ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!drawerOpen}>
+        <div className={`absolute inset-0 bg-black/40 transition-opacity ${drawerOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setDrawerOpen(false)} />
+        <div className={`absolute left-0 top-0 bottom-0 w-[86%] max-w-sm bg-white shadow-2xl transform transition-transform flex flex-col ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`} role="dialog" aria-modal="true">
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center">
-                <img src={fallbackAvatar} alt="admin avatar" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
-              </div> */}
               <div>
                 <p className="text-sm font-medium text-gray-800">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
@@ -280,7 +223,7 @@ export default function AdminNavbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button aria-label="Close menu" onClick={() => setDrawerOpen(false)} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100">
+              <button aria-label="Close menu" onClick={() => setDrawerOpen(false)} className="inline-flex items-center justify-center p-2 hover:bg-gray-100 rounded-none">
                 <FaTimes />
               </button>
             </div>
@@ -296,16 +239,8 @@ export default function AdminNavbar() {
             <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Bulk Order Request" onClick={() => setDrawerOpen(false)} />
 
-
             <div className="mt-6 pt-4 px-3">
-              <button
-                onClick={() => {
-                  setDrawerOpen(false);
-                  logoutHandler();
-                }}
-                disabled={loggingOut}
-                className="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50"
-              >
+              <button onClick={() => { setDrawerOpen(false); logoutHandler(); }} disabled={loggingOut} className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 rounded-none">
                 <FaSignOutAlt className="text-sky-600" /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>
