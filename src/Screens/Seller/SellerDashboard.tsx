@@ -8,7 +8,6 @@ import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
 import { getSellerDashboardStats } from "./Seller.Hooks";
-import { TbCoinRupee } from "react-icons/tb";
 import { Coins } from "lucide-react";
 
 type status = "pending" | "success" | "error";
