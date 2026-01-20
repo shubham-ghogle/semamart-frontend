@@ -1,5 +1,5 @@
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
-import SellerOrderTable from "../../components/Seller/SellerOrderTable";
+import SellerDeliveredOrderTable from "../../components/Seller/SellerDeliveredOrderTable";
 import { useQuery } from "@tanstack/react-query";
 import {
   getDeliveredOrdersForSeller,
@@ -45,7 +45,8 @@ export default function SellerDeliveredOrders() {
         (statsError as Error)?.message ||
         "Something went wrong"
       }
-      heading="Delivered Orders"
+      heading="Total Sales"
+      subHeading="Sales for orders that have been delivered"
     >
       {isSuccess && (
         <>
@@ -55,7 +56,7 @@ export default function SellerDeliveredOrders() {
             </span>
           </div>
 
-          <SellerOrderTable orders={orders ?? []} />
+          <SellerDeliveredOrderTable orders={orders ?? []} />
         </>
       )}
     </SellerMainWrapper>

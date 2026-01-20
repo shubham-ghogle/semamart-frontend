@@ -8,11 +8,13 @@ export default function SellerMainWrapper({
   status,
   errorMessage,
   heading,
+  subHeading
 }: {
   children?: React.ReactNode;
   status: Status;
   errorMessage?: string;
   heading?: string;
+  subHeading?: string;
 }) {
   const navigate = useNavigate(); // ✅ must be inside the component
 
@@ -27,7 +29,10 @@ export default function SellerMainWrapper({
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
               {heading || "Seller"}
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Manage your seller account</p>
+            <p className="text-sm text-gray-500 mt-1">
+  {subHeading || "Manage your seller account"}
+</p>
+
           </div>
 
           {showGoBackButton && (
