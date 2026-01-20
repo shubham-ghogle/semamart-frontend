@@ -4,10 +4,8 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { TruckIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -23,6 +21,8 @@ import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { Order } from "@/Types/types";
 
+/* -------------------------------- TYPES -------------------------------- */
+
 type DeliveryDetails = {
   logisticPartner: string;
   trackingNumber: string;
@@ -30,189 +30,256 @@ type DeliveryDetails = {
   pickupPersonPhone: string;
 };
 
-export default function TrackingDetailDialog() {
-  const [open, setOpen] = useState(false);
+type TrackingDetailDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+/* ---------------------------- COMPONENT --------------------------------- */
+
+export default function TrackingDetailDialog({
+  open,
+  onOpenChange,
+}: TrackingDetailDialogProps) {
   const { orderId } = useParams();
+  const queryClient = useQueryClient();
 
-  const qc = useQueryClient();
-  const order = qc.getQueryData(["seller-order-detail", { orderId }]) as Order;
+  const order = queryClient.getQueryData<Order>([
+    "seller-order-detail",
+    { orderId },
+  ]);
 
-  const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetails>({
-    logisticPartner: "",
-    trackingNumber: "",
-    pickupPerson: "",
-    pickupPersonPhone: "",
-  });
+  const [deliveryDetails, setDeliveryDetails] =
+    useState<DeliveryDetails>({
+      logisticPartner: "",
+      trackingNumber: "",
+      pickupPerson: "",
+      pickupPersonPhone: "",
+    });
+
   const [trackingFile, setTrackingFile] = useState<File | null>(null);
 
+  /* ------------------------ PREFILL DATA ------------------------ */
+
   useEffect(() => {
-    if (order) {
-      const trackingDetails = order.trackingDetails;
+    if (order?.trackingDetails) {
       setDeliveryDetails({
-        logisticPartner: trackingDetails?.logisticPartner ?? "",
-        trackingNumber: trackingDetails?.trackingNumber ?? "",
-        pickupPerson: trackingDetails?.pickupPerson ?? "",
-        pickupPersonPhone: trackingDetails?.pickupPersonPhone?.toString() ?? "",
+        logisticPartner: String(
+          order.trackingDetails.logisticPartner ?? ""
+        ),
+        trackingNumber: String(
+          order.trackingDetails.trackingNumber ?? ""
+        ),
+        pickupPerson: String(
+          order.trackingDetails.pickupPerson ?? ""
+        ),
+        pickupPersonPhone: String(
+          order.trackingDetails.pickupPersonPhone ?? ""
+        ),
       });
     }
   }, [order]);
 
-  const handleChange = (field: string, value: string) => {
-    setDeliveryDetails((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (
+    field: keyof DeliveryDetails,
+    value: string
+  ) => {
+    setDeliveryDetails((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const { mutate, status } = useMutation({
-    mutationFn: (a: { data: FormData; orderId: string }) =>
-      postTrackingDetails(a.data, a.orderId),
-    onError: () => {
-      toast.error("Something went wrong");
-    },
+  /* --------------------------- MUTATION --------------------------- */
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({
+      data,
+      orderId,
+    }: {
+      data: FormData;
+      orderId: string;
+    }) => postTrackingDetails(data, orderId),
     onSuccess: () => {
-      setDeliveryDetails({
-        logisticPartner: "",
-        trackingNumber: "",
-        pickupPerson: "",
-        pickupPersonPhone: "",
+      toast.success("Tracking details saved");
+      queryClient.invalidateQueries({
+        queryKey: ["seller-order-detail", { orderId }],
       });
       setTrackingFile(null);
-      qc.invalidateQueries({ queryKey: ["seller-order-detail"] });
-      setOpen(false);
+      onOpenChange(false); // ✅ CLOSE ONLY AFTER SUBMIT
+    },
+    onError: () => {
+      toast.error("Failed to save tracking details");
     },
   });
 
+  /* --------------------------- SUBMIT --------------------------- */
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
     if (!orderId) return;
 
-    if (!deliveryDetails.trackingNumber) {
-      toast.warning("Please add tracking number");
+    const {
+      logisticPartner,
+      trackingNumber,
+      pickupPerson,
+      pickupPersonPhone,
+    } = deliveryDetails;
+
+    // ✅ ALL FIELDS REQUIRED
+    if (
+      !logisticPartner.trim() ||
+      !trackingNumber.trim() ||
+      !pickupPerson.trim() ||
+      !pickupPersonPhone.trim()
+    ) {
+      toast.warning("All fields are required");
       return;
     }
-    if (!deliveryDetails.logisticPartner) {
-      toast.warning("Please select delivery company");
-      return;
-    }
+
     const formData = new FormData();
-    Object.entries(deliveryDetails).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") {
-        formData.append(key, value);
-      }
-    });
+    formData.append("logisticPartner", logisticPartner);
+    formData.append("trackingNumber", trackingNumber);
+    formData.append("pickupPerson", pickupPerson);
+    formData.append("pickupPersonPhone", pickupPersonPhone);
+
     if (trackingFile) {
       formData.append("tracking_file", trackingFile);
     }
-    if (status === "pending") return;
 
-    mutate({ data: formData, orderId: orderId });
+    mutate({ data: formData, orderId });
   };
 
-  const isTrackingDocumentUploaded = order.trackingDetails?.trackingDocument;
+  const trackingDoc =
+    order?.trackingDetails?.trackingDocument;
+
+  /* ----------------------------- UI ----------------------------- */
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="outline">
-          <TruckIcon />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open}>
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
+        <DialogHeader>Tracking Details</DialogHeader>
 
-      {open && (
-        <DialogContent>
-          <DialogHeader>Tracking Details</DialogHeader>
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <Label>Delivery company</Label>
-              <Select
-                name="deliveryCompany"
-                value={deliveryDetails.logisticPartner}
-                onValueChange={(value) =>
-                  handleChange("logisticPartner", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select delivery company" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bluedart">Bluedart</SelectItem>
-                  <SelectItem value="delhivery">Delhivery</SelectItem>
-                  <SelectItem value="dtdc">DTDC</SelectItem>
-                  <SelectItem value="ekart">Ekart</SelectItem>
-                  <SelectItem value="xpressbees">XpressBees</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <Label>Delivery Company *</Label>
+            <Select
+              value={deliveryDetails.logisticPartner}
+              onValueChange={(v) =>
+                handleChange("logisticPartner", String(v))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="bluedart">Bluedart</SelectItem>
+                <SelectItem value="delhivery">Delhivery</SelectItem>
+                <SelectItem value="dtdc">DTDC</SelectItem>
+                <SelectItem value="ekart">Ekart</SelectItem>
+                <SelectItem value="others">Others</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="space-y-2">
-              <Label>Tracking number</Label>
-              <Input
-                value={deliveryDetails.trackingNumber}
-                onChange={(e) => handleChange("trackingNumber", e.target.value)}
-                placeholder="Enter tracking number"
-              />
-            </div>
+          <div>
+            <Label>Tracking Number *</Label>
+            <Input
+              value={deliveryDetails.trackingNumber}
+              onChange={(e) =>
+                handleChange(
+                  "trackingNumber",
+                  e.target.value
+                )
+              }
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Pickup person</Label>
-              <Input
-                value={deliveryDetails.pickupPerson}
-                onChange={(e) => handleChange("pickupPerson", e.target.value)}
-                placeholder="Enter pickup person's name"
-              />
-            </div>
+          <div>
+            <Label>Pickup Person *</Label>
+            <Input
+              value={deliveryDetails.pickupPerson}
+              onChange={(e) =>
+                handleChange(
+                  "pickupPerson",
+                  e.target.value
+                )
+              }
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Pickup person phone number</Label>
-              <Input
-                value={deliveryDetails.pickupPersonPhone}
-                onChange={(e) =>
-                  handleChange("pickupPersonPhone", e.target.value)
-                }
-                placeholder="Enter phone number"
-              />
-            </div>
+          <div>
+            <Label>Pickup Phone *</Label>
+            <Input
+              type="tel"
+              value={deliveryDetails.pickupPersonPhone}
+              onChange={(e) =>
+                handleChange(
+                  "pickupPersonPhone",
+                  e.target.value
+                )
+              }
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Tracking Document</Label>
-              <Input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  setTrackingFile(file ?? null);
-                }}
-              />
-            </div>
+          <div>
+            <Label>Tracking Document *</Label>
+            <Input
+              type="file"
+              required
+              accept=".pdf,.jpg,.png"
+              onChange={(e) =>
+                setTrackingFile(
+                  e.target.files?.[0] ?? null
+                )
+              }
+            />
+          </div>
 
-            {isTrackingDocumentUploaded && (
-              <div className="space-y-2">
-                <iframe
-                  src={BASE_URL + "payment-docs/" + isTrackingDocumentUploaded}
-                />
-              </div>
-            )}
+          {trackingDoc && (
+            <iframe
+              className="w-full h-40 border rounded"
+              src={
+                BASE_URL + "payment-docs/" + trackingDoc
+              }
+              title="Tracking Document"
+              
+            />
+          )}
 
-            <DialogFooter>
-              <Button variant="outline" disabled={status === "pending"}>
-                Submit
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      )}
+          <DialogFooter>
+            <Button disabled={isPending}>
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }
 
-async function postTrackingDetails(data: FormData, orderId: string) {
+/* --------------------------- API --------------------------- */
+
+async function postTrackingDetails(
+  data: FormData,
+  orderId: string
+) {
   const res = await fetch(
     API_URL + "order/update-tracking-details/" + orderId,
     {
       method: "PUT",
       credentials: "include",
       body: data,
-    },
+    }
   );
-  if (!res.ok) throw new Error();
-  const result = await res.json();
-  return result;
+
+  if (!res.ok) {
+    throw new Error("Failed to save tracking details");
+  }
+
+  return res.json();
 }

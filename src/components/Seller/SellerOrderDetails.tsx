@@ -18,19 +18,29 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const navigate = useNavigate();
   const { mutationStatus, mutateOrder } = useSellerOrderMutation();
   const [status, setStatus] = useState("");
+  const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
+
 
   // ✅ Default price total (without tax)
   const defaultTotal =
-    data.qty * (data.variant && typeof data.variant !== "string"
+    data.qty *
+    (data.variant && typeof data.variant !== "string"
       ? data.variant.discountPrice ?? 0
       : 0);
   const taxPercent = data.tax || 0;
   const taxAmount = (defaultTotal * taxPercent) / 100;
 
+  // Helper to check if Delivered can be selected
+  const isStatusUpdatable = (newStatus: string) => {
+    if (data.status === "Shipped" && newStatus === "Delivered") {
+      return !!data.trackingDetails; // Must have tracking info
+    }
+    return true;
+  };
 
   const getOptionsForStatus = () => {
     const statuses = {
-      default: ["Packed", "Shipped"],
+      default: ["Processing", "Packed", "Shipped", "Delivered"],
       refund: ["Processing refund", "Refund Success"],
     };
     return statuses.default;
@@ -58,7 +68,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       {/* Download Invoice */}
-      <section className="flex justify-end items-center">
+      <section className="flex items-center mb-4">
         <Button
           variant="outline"
           onClick={() => handleDownloadInvoice(orderId)}
@@ -96,34 +106,29 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                ₹{data.qty} × {(data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
+                {data.qty} ×{" "}
+                {(data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                 })}
-
               </h5>
             </div>
-            {/* Total (Excl. Tax) */}
+
             <div className="flex flex-col gap-2">
-  {/* Total */}
-  <OrderDetailsField
-    label="Total:"
-    value={`₹${defaultTotal.toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`}
-  />
-
-  {/* Tax */}
-  <OrderDetailsField
-    label={`Tax (${taxPercent}%):`}
-    value={`₹${taxAmount.toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`}
-  />
-</div>
-
-
+              <OrderDetailsField
+                label="Total:"
+                value={`₹${defaultTotal.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+              />
+              <OrderDetailsField
+                label={`Tax (${taxPercent}%):`}
+                value={`₹${taxAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+              />
+            </div>
           </article>
         )}
       </section>
@@ -132,7 +137,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       <section className="mt-6 flex justify-between border-b pb-4">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
-          {/* Includes tax */}
           <OrderDetailsField
             label="Total Price:"
             value={`₹${data.totalPrice.toLocaleString("en-IN", {
@@ -140,7 +144,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               maximumFractionDigits: 2,
             })}`}
           />
-
         </div>
       </section>
 
@@ -151,7 +154,13 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
           <div className="w-full max-w-xs">
             <article className="mb-2 flex gap-2">
               <OrderDetailsField label={data.status} value="" />
-              {data.status === "Shipped" && <TrackingDetailDialog />}
+                {data.status === "Shipped" && (
+                  <TrackingDetailDialog
+                    open={trackingDialogOpen}
+                    onOpenChange={setTrackingDialogOpen}
+              />
+                )}
+
             </article>
 
             <article>
@@ -159,14 +168,22 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full mt-2 border h-[35px] rounded-[5px] px-2"
-                disabled={data.status === "Delivered"}
+                disabled={data.status === "Delivered"} 
               >
                 <option value="">Select status</option>
-                {getOptionsForStatus().map((option, index) => (
-                  <option value={option} key={index}>
-                    {option}
-                  </option>
-                ))}
+                {getOptionsForStatus()
+                  // Hide Delivered if tracking info missing
+                  .filter(
+                    (option) =>
+                      !(data.status === "Shipped" &&
+                        option === "Delivered" &&
+                        !data.trackingDetails)
+                  )
+                  .map((option, index) => (
+                    <option value={option} key={index}>
+                      {option}
+                    </option>
+                  ))}
               </select>
             </article>
 
@@ -180,19 +197,30 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               </button>
 
               <button
-                className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center"
-                onClick={async () =>
+                className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center disabled:opacity-50"
+                disabled={
+                  mutationStatus === "pending" ||
+                  (status === "Delivered" && !data.trackingDetails)
+                }
+                onClick={async () => {
+                  if (!isStatusUpdatable(status)) {
+                    alert(
+                      "Cannot mark as Delivered without tracking info!"
+                    );
+                    return;
+                  }
+
                   await mutateOrder({
                     status,
                     currentStatus: data?.status || "",
                     orderId: orderId || "",
-                  })
-                }
-                disabled={mutationStatus === "pending"}
+                  });
+                    if (status === "Shipped") {
+                      setTrackingDialogOpen(true);
+                    }
+                }}
               >
-                {mutationStatus === "pending"
-                  ? "Updating.."
-                  : "Update Status"}
+                {mutationStatus === "pending" ? "Updating.." : "Update Status"}
               </button>
             </div>
           </div>
