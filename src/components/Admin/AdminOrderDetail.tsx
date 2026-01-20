@@ -61,7 +61,12 @@ const shippedDateRaw =
 const shippedDate = shippedDateRaw
   ? new Date(shippedDateRaw)
   : null;
-
+  const defaultTotal =
+    data.qty * (data.variant && typeof data.variant !== "string"
+      ? data.variant.discountPrice ?? 0
+      : 0);
+ const taxPercent = data.tax || 0;
+  const taxAmount = (defaultTotal * taxPercent) / 100;
 
 
 
@@ -77,7 +82,7 @@ const shippedDate = shippedDateRaw
           Download Invoice
         </Button>
       </section>
-      <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
+      <section className="mt-6 flex justify-between border-b pb-4">
         <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField
           label="Placed on:"
@@ -104,24 +109,32 @@ const shippedDate = shippedDateRaw
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                ₹{data.qty} × {(data.variant?.discountPrice ?? data.variant?.originalPrice ?? 0).toLocaleString("en-IN", {
+                {data.qty} × {(data.variant?.discountPrice ?? data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </h5>
 
             </div>
-            <OrderDetailsField
-              label="Total:"
-              value={`₹${(
-                data.qty *
-                (data.variant?.discountPrice ?? data.variant?.originalPrice ?? 0)
-              ).toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`}
-            />
-
+            <div className="flex flex-col gap-2">
+              {/* Total */}
+              <OrderDetailsField
+                label="Total:"
+                value={`₹${defaultTotal.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+              />
+            
+              {/* Tax */}
+              <OrderDetailsField
+                label={`Tax (${taxPercent}%):`}
+                value={`₹${taxAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+              />
+            </div>
 
           </article>
         )}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminMainWrapper from "../Admin/AdminMainWrapper";
 import { FiDownload } from "react-icons/fi";
-import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
+import { FaPhoneAlt, FaTruck } from "react-icons/fa";
 import { API_URL } from "@/data";
 
 /* ================= TYPES ================= */
@@ -25,34 +25,64 @@ interface Variant {
   productId?: Product;
 }
 
+interface ShippingAddress {
+  reciever_name: string;
+  phone: string;
+  alternatePhone?: string;
+  instituteAddress1: string;
+  instituteAddress2?: string;
+  district: string;
+  state: string;
+  pincode: string;
+  landmark?: string;
+  addressType?: string;
+}
+
+interface ShippingInfo {
+  courier?: string;
+  trackingId?: string;
+  trackingUrl?: string;
+  shippedAt?: string;
+  pickupPerson?: string;
+  pickupPersonPhone?: string;
+  deliveredAt?: string;
+}
+
+interface StatusHistory {
+  status: "Created" | "Paid" | "Processing" | "Packed" | "Shipped" | "Delivered";
+  updatedAt: string;
+  _id: string;
+}
+
+interface TrackingDetails {
+  logisticPartner?: string;
+  pickupPerson?: string;
+  pickupPersonPhone?: string;
+  trackingNumber?: string;
+  trackingDocument?: string;
+  deliveredAt?: string;
+}
+
 interface Order {
   _id: string;
   variant?: Variant;
   qty: number;
-  status: "Placed" | "Shipped" | "Out for Delivery" | "Delivered";
-  createdAt?: string;
-  deliveredAt?: string;
-  returnValidTill?: string;
-  shippingAddress?: {
-    reciever_name: string;
-    phone: string;
-    instituteAddress1: string;
-    district: string;
-    state: string;
-    pincode: string;
-  };
-  paymentInfo?: {
-    method?: string;
-  };
+  status: "Packed" | "Shipped" | "Out for Delivery" | "Delivered";
+  shippingAddress?: ShippingAddress;
+  shippingInfo?: ShippingInfo;
+  totalPrice: number;
+  tax?: number;
+  paymentFile?: string;
+  statusHistory?: StatusHistory[];
+  trackingDetails?: TrackingDetails;
 }
 
 /* ================= COMPONENT ================= */
-const adminOrderSummary = () => {
-  const { orderId } = useParams<{ orderId: string }>();
+const AdminOrderSummary = () => {
+  const { orderId } = useParams();
 
   const [status, setStatus] = useState<Status>("pending");
   const [error, setError] = useState<string>();
-
   const [order, setOrder] = useState<Order | null>(null);
   const [variant, setVariant] = useState<Variant | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
@@ -61,34 +91,27 @@ const adminOrderSummary = () => {
   const normalizeImage = (src?: string | null) => {
     if (!src) return "/placeholder.png";
     if (src.startsWith("http") || src.startsWith("/")) return src;
-    if (src.startsWith("uploads/")) return `/${src}`;
-    return `/images/${src}`;
+    return `/${src}`;
   };
 
   /* ================= FETCH ORDER ================= */
   useEffect(() => {
-    const fetchOrder = async () => {
-      if (!orderId) return;
+    if (!orderId) return;
 
+    const fetchOrder = async () => {
       try {
         setStatus("pending");
-
         const res = await fetch(`${API_URL}order/get-order/${orderId}`);
         const data = await res.json();
 
-        if (!data.success) {
-          throw new Error(data.message || "Failed to fetch order");
-        }
+        if (!data.success) throw new Error(data.message);
 
-        const fetchedOrder: Order = data.order;
-
-        setOrder(fetchedOrder);
-        setVariant(fetchedOrder.variant ?? null);
-        setProduct(fetchedOrder.variant?.productId ?? null);
-
+        setOrder(data.order);
+        setVariant(data.order.variant);
+        setProduct(data.order.variant?.productId);
         setStatus("success");
       } catch (err: any) {
-        setError(err.message || "Something went wrong");
+        setError(err.message || "Failed to load order");
         setStatus("error");
       }
     };
@@ -96,26 +119,48 @@ const adminOrderSummary = () => {
     fetchOrder();
   }, [orderId]);
 
-  /* ================= IMAGE ================= */
-  const imageUrl = normalizeImage(
-    product?.images?.[0] ?? variant?.thumbnail
-  );
+  const imageUrl = normalizeImage(product?.images?.[0] ?? variant?.thumbnail);
+
+  /* ================= TIMELINE STEPS ================= */
+  const getStatusDate = (step: string) => {
+    if (!order) return null;
+
+    // Check in statusHistory
+    const historyItem = order.statusHistory?.find((s) => s.status === step);
+    if (historyItem) return new Date(historyItem.updatedAt);
+
+    // Out for Delivery fallback if tracking exists
+    if (step === "Out for Delivery" && order.trackingDetails?.trackingNumber) {
+      const shipped = order.statusHistory?.find((s) => s.status === "Shipped");
+      return shipped ? new Date(shipped.updatedAt) : null;
+    }
+
+    // Delivered fallback
+    if (step === "Delivered" && order.trackingDetails?.deliveredAt) {
+      return new Date(order.trackingDetails.deliveredAt);
+    }
+
+    return null;
+  };
+
+  let steps: string[] = ["Packed", "Shipped"];
+  if (order?.trackingDetails?.trackingNumber) steps.push("Out for Delivery");
+  steps.push("Delivered");
+
+  const currentStep = order ? steps.findIndex((s) => s === order.status) : 0;
+
+  const showShippingDetails =
+    order && ["Shipped", "Out for Delivery", "Delivered"].includes(order.status);
 
   /* ================= RENDER ================= */
   return (
-    <AdminMainWrapper
-      heading="Order Summary"
-      status={status}
-      errorMeassage={error}
-    >
-      {order && variant && product && (
+    <AdminMainWrapper heading="Order Summary" status={status}>
+      {order && variant && product ? (
         <div className="grid md:grid-cols-3 gap-6">
           {/* ================= LEFT ================= */}
           <div className="md:col-span-2 bg-white rounded-xl border p-5">
-
-
             {/* PRODUCT INFO */}
-            <div className="flex justify-between gap-4 border-b pb-4 mt-4">
+            <div className="flex justify-between gap-4 border-b pb-4">
               <div className="flex gap-4">
                 <img
                   src={imageUrl}
@@ -123,16 +168,16 @@ const adminOrderSummary = () => {
                   className="w-24 h-24 rounded-lg border object-cover"
                 />
                 <div>
-                  <h2 className="font-semibold">{product.name}</h2>
+                  <h2 className="font-semibold truncate">
+                      {product.name.split(" ").slice(0, 8).join(" ")}
+                      {product.name.split(" ").length > 8 && "..."}
+                  </h2>
                   <p className="text-sm text-gray-500 mt-1">
-                    {variant.colorOption && `Color: ${variant.colorOption}`}{" "}
+                    {variant.colorOption && `Color: ${variant.colorOption} `}
                     {variant.size && `| Size: ${variant.size}`}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Seller:{" "}
-                    <span className="font-medium">
-                      {product.manufacturerName || "Unknown"}
-                    </span>
+                  <p className="text-sm text-gray-500">
+                    Seller: {product.manufacturerName || "Unknown"}
                   </p>
                 </div>
               </div>
@@ -145,116 +190,156 @@ const adminOrderSummary = () => {
               </div>
             </div>
 
-            {/* ORDER PROGRESS */}
+            {/* ORDER STATUS TIMELINE */}
             <div className="mt-8">
-              <h3 className="font-semibold mb-4">Order Progress</h3>
+              <h3 className="font-semibold mb-4">Order Status</h3>
 
-              <div className="relative flex justify-between">
-                <div className="absolute top-[10px] w-full h-[2px] bg-blue-200"></div>
+              <div className="relative flex justify-between items-center">
+                {/* Background line */}
+                <div className="absolute top-3 w-full h-[2px] bg-gray-200 z-0"></div>
+                {/* Filled progress */}
+                <div
+                  className="absolute top-3 h-[2px] bg-blue-500 z-10 transition-all duration-300"
+                  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                />
 
-                {["Placed", "Shipped", "Out for Delivery", "Delivered"].map(
-                  (step, i) => {
-                    const current =
-                      ["Placed", "Shipped", "Out for Delivery", "Delivered"].indexOf(
-                        order.status
-                      );
-                    const active = i <= current;
-
-                    return (
-                      <div
-                        key={step}
-                        className="relative z-10 flex flex-col items-center flex-1"
-                      >
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${
-                            active
-                              ? "bg-blue-500 border-blue-500 text-white"
-                              : "bg-white border-blue-200 text-blue-300"
-                          }`}
-                        >
-                          {i + 1}
-                        </div>
-                        <span className="text-xs mt-2 font-semibold">
-                          {step}
-                        </span>
-                      </div>
-                    );
-                  }
-                )}
+                {/* Step circles */}
+                {steps.map((step, i) => (
+                  <div key={step} className="relative z-20 flex flex-col items-center flex-1">
+                    <div
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs transition-colors duration-300 ${
+                        i <= currentStep
+                          ? "bg-blue-500 border-blue-500 text-white"
+                          : "bg-white border-gray-300 text-gray-400"
+                      }`}
+                    >
+                      {i + 1}
+                    </div>
+                    <span className="text-xs mt-2 font-semibold text-center">{step}</span>
+                    {getStatusDate(step) && (
+                      <span className="text-[10px] text-gray-400 mt-1">
+                        {getStatusDate(step)?.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* RETURN POLICY */}
-            {/* <div className="mt-6 bg-green-50 border border-green-100 rounded-lg p-3 text-sm">
-              Return valid till:{" "}
-              <strong>
-                {order.returnValidTill
-                  ? new Date(order.returnValidTill).toLocaleDateString()
-                  : "N/A"}
-              </strong>
-            </div> */}
+            {/* SHIPPING + TRACKING */}
+            {showShippingDetails && order.shippingAddress && (
+              <div className="mt-8 bg-gray-50 border rounded-lg p-4">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <FaTruck /> Shipping Details
+                </h3>
 
-            {/* ACTIONS */}
-            {/* <div className="flex justify-between mt-6 border-t pt-4">
-              <button className="border px-4 py-2 rounded-lg text-sm">
-                Return
-              </button>
-              <button className="flex items-center gap-2 border border-yellow-400 text-yellow-600 px-4 py-2 rounded-lg">
-                <FaStar /> Rate Product
-              </button>
-            </div> */}
+                <p className="font-medium">{order.shippingAddress.reciever_name}</p>
+                <p className="text-sm">
+                  {order.shippingAddress.instituteAddress1}
+                  {order.shippingAddress.instituteAddress2 &&
+                    `, ${order.shippingAddress.instituteAddress2}`}
+                  <br />
+                  {order.shippingAddress.landmark && `Landmark: ${order.shippingAddress.landmark}`}
+                  <br />
+                  {order.shippingAddress.district}, {order.shippingAddress.state} -{" "}
+                  {order.shippingAddress.pincode}
+                </p>
+                  <p className="flex items-center text-sm mt-1 gap-1">
+                    <FaPhoneAlt />
+                    <span>
+                      {order.shippingAddress.phone}
+                      {order.shippingAddress.alternatePhone &&
+                        ` | Alt: ${order.shippingAddress.alternatePhone}`}
+                    </span>
+                  </p>
+
+
+                {order.trackingDetails && (
+                  <div className="mt-3 border-t pt-3 text-sm space-y-1">
+                    <p>
+                      <strong>Courier:</strong>{" "}
+                      {order.trackingDetails.logisticPartner || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Tracking ID:</strong>{" "}
+                      {order.trackingDetails.trackingNumber || "N/A"}
+                    </p>
+                    {order.trackingDetails.pickupPerson && (
+                      <p>
+                        <strong>Pickup Person:</strong>{" "}
+                        {order.trackingDetails.pickupPerson}                      
+                      </p>
+                    )}
+                     <p>
+                        <strong>Call:</strong>{" "}                       
+                        {order.trackingDetails.pickupPersonPhone || "N/A"}
+                      </p>
+                    {/* {order.trackingDetails.trackingDocument && (
+                      <a
+                        href={`${API_URL}files/${order.trackingDetails.trackingDocument}`}
+                        target="_blank"
+                        className="text-blue-600 underline"
+                      >
+                        View Tracking Document
+                      </a>
+                    )} */}
+                    {order.trackingDetails.deliveredAt && (
+                      <p>
+                        <strong>Delivered At:</strong>{" "}
+                        {new Date(order.trackingDetails.deliveredAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ================= RIGHT ================= */}
           <div className="space-y-6">
-            {/* DELIVERY */}
-            <div className="bg-white rounded-xl border p-5">
-              <h3 className="font-semibold mb-3">Delivery Details</h3>
-              {order.shippingAddress && (
-                <div className="text-sm space-y-2">
-                  <p className="flex gap-2">
-                    <FaUser /> {order.shippingAddress.reciever_name}
-                  </p>
-                  <p className="flex gap-2">
-                    <FaPhoneAlt /> {order.shippingAddress.phone}
-                  </p>
-                  <p className="flex gap-2">
-                    <FaHome /> {order.shippingAddress.instituteAddress1}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* PRICE */}
+            {/* PRICE DETAILS */}
             <div className="bg-white rounded-xl border p-5">
               <h3 className="font-semibold mb-3">Price Details</h3>
-              <div className="text-sm space-y-1">
+
+              <div className="text-sm space-y-2">
                 <div className="flex justify-between">
-                  <span>Listing price</span>
-                  <span className="line-through">
-                    ₹{variant.originalPrice.toLocaleString("en-IN")}
-                  </span>
+                  <span>Unit Price</span>
+                  <span>₹{variant.discountPrice.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Quantity</span>
+                  <span>{order.qty}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax</span>
+                  <span>{order.tax?.toLocaleString("en-IN") || 0}%</span>
                 </div>
                 <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>
-                    ₹
-                    {(variant.discountPrice * order.qty).toLocaleString(
-                      "en-IN"
-                    )}
-                  </span>
+                  <span>Total Price</span>
+                  <span>₹{order.totalPrice.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
-              <button className="mt-4 w-full flex items-center justify-center gap-2 border rounded-lg py-2">
-                <FiDownload /> Download Invoice
-              </button>
+              {/* INVOICE / PAYMENT FILE */}
+              {order.paymentFile && (
+                <a
+                  href={`${API_URL}files/${order.paymentFile}`}
+                  target="_blank"
+                  className="mt-4 w-full flex items-center justify-center gap-2 border rounded-lg py-2 text-blue-600"
+                >
+                  <FiDownload /> Download Payment/Invoice
+                </a>
+              )}
             </div>
           </div>
         </div>
+      ) : (
+        <p className="text-center text-gray-500 mt-10">
+          {status === "pending" ? "Loading order..." : error || "Order not found"}
+        </p>
       )}
     </AdminMainWrapper>
   );
 };
 
-export default adminOrderSummary;
+export default AdminOrderSummary;
