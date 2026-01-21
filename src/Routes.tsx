@@ -77,6 +77,7 @@ import UserWishlist from "./components/ui/UserWishlist";
 import UserCart from "./components/ui/UserCart";
 import AdminOrderSummary from "./components/ui/adminOrderSummary";
 import BulkAndStock from "./Screens/Admin/BulkAndStock";
+import BufferAndOutOfStockScreen from "./Screens/Seller/BufferAndOutOfStockScreen";
 
 /**
  * redirectToDashboard loader
@@ -378,6 +379,7 @@ export const router = createBrowserRouter([
       { index: true, element: <SellerDashboard /> },
       { path: "add-product", element: <AddProductScreen2 /> },
       { path: "my-account", element: <SellerAccount /> },
+      { path: "stock-management", element: <BufferAndOutOfStockScreen /> },
       {
         path: "products",
         children: [

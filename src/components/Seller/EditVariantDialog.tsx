@@ -68,6 +68,7 @@ export default function EditVariantDialog({
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["product", variant?.productId] });
       setOpen(false);
+      toast.success("Media And Variant updated successfully");
     },
     onError: () => {
       toast.error("Something went wrong!");
@@ -79,6 +80,7 @@ export default function EditVariantDialog({
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["product", productId] });
       setOpen(false);
+      toast.success("Media And Variant updated successfully");
     },
     onError: () => {
       toast.error("Something went wrong!");

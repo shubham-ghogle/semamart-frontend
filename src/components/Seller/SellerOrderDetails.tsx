@@ -40,7 +40,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
   const getOptionsForStatus = () => {
     const statuses = {
-      default: ["Processing", "Packed", "Shipped", "Delivered"],
+      default: ["Packed", "Shipped",],
       refund: ["Processing refund", "Refund Success"],
     };
     return statuses.default;
@@ -199,9 +199,10 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               <button
                 className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center disabled:opacity-50"
                 disabled={
-                  mutationStatus === "pending" ||
-                  (status === "Delivered" && !data.trackingDetails)
-                }
+                    mutationStatus === "pending" ||
+                    data.status === "Shipped" ||
+                    (status === "Delivered" && !data.trackingDetails)
+                  }
                 onClick={async () => {
                   if (!isStatusUpdatable(status)) {
                     alert(

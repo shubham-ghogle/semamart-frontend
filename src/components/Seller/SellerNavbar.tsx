@@ -208,6 +208,7 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
               <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
+              <LinkItem to="/seller/stock-management" icon={<CiDollar />} label="Stock Management" />
               <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>
@@ -338,6 +339,10 @@ export default function SellerNavbar() {
               <NavLink to="/seller/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
                 <CiDeliveryTruck />
                 <span>All Orders</span>
+              </NavLink>
+               <NavLink to="/seller/stock-management" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+                <CiDeliveryTruck />
+                <span>Stock Management</span>
               </NavLink>
               <NavLink to={`/shop/${seller?._id}`} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
                 <MdStorefront />

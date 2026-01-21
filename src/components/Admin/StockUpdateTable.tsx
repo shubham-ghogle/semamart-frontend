@@ -17,9 +17,10 @@ type StockRow = {
   minOrderQty: number;
   size: string;
   colorOption?: string;
-  status: string; // only "Out of Stock" or ""
+  status: string; // Out of Stock / Buffer Stock / In Stock
   thumbnail: string;
   businessName?: string;
+  notified: string; // Yes / No
   viewOrder: (id: string) => void;
 };
 
@@ -56,6 +57,13 @@ export default function StockUpdateTable() {
     );
     const availableStock = item.variant_id?.stock || 0;
 
+    let status = "In Stock";
+    if (availableStock === 0) {
+      status = "Out of Stock";
+    } else if (availableStock < minQty) {
+      status = "Buffer Stock";
+    }
+
     return {
       id: item._id,
       productId: item.product_id?._id || "",
@@ -69,7 +77,8 @@ export default function StockUpdateTable() {
       variantPrice: item.variant_id?.discountPrice || 0,
       quantity: availableStock,
       minOrderQty: minQty,
-      status: availableStock < minQty ? "Out of Stock" : "", // only show Out of Stock
+      notified: item.notified ? "Yes" : "No",
+      status: status,
       viewOrder: (id) => navigate(`/stock/${id}`),
     };
   });
@@ -100,18 +109,38 @@ export default function StockUpdateTable() {
     },
     { accessorKey: "quantity", header: "Stock" },
     {
+      accessorKey: "notified",
+      header: "Notified",
+      cell: ({ row }) => (
+        <span
+          className={
+            row.original.notified === "Yes"
+              ? "text-green-600 font-semibold"
+              : "text-red-600 font-semibold"
+          }
+        >
+          {row.original.notified}
+        </span>
+      ),
+    },
+    {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) =>
-        row.original.status ? (
-          <span className="text-red-600 font-bold">{row.original.status}</span>
-        ) : null, // blank if not out of stock
+      cell: ({ row }) => {
+        const status = row.original.status;
+        let colorClass = "text-green-600 font-semibold"; // default: In Stock
+
+        if (status === "Out of Stock") colorClass = "text-red-600 font-bold";
+        else if (status === "Buffer Stock") colorClass = "text-yellow-600 font-semibold";
+
+        return <span className={colorClass}>{status}</span>;
+      },
     },
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Link to={`/stock/${row.original.id}`} target="_blank">
+        <Link to={`/product/${row.original.productId}`} target="_blank">
           <EyeIcon />
         </Link>
       ),
