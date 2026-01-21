@@ -8,7 +8,7 @@ import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
 import { getSellerDashboardStats } from "./Seller.Hooks";
-import { TbCoinRupee } from "react-icons/tb";
+import { Coins } from "lucide-react";
 
 type status = "pending" | "success" | "error";
 
@@ -92,7 +92,7 @@ export default function SellerDashboard() {
       key: "balance",
       label: "Total Sales",
       color: "from-yellow-400 to-yellow-600",
-      Icon: TbCoinRupee,
+      Icon: Coins,
       value: dashboardStats?.totalSales ?? 0,
       onClick: () => navigate("/seller/orders/delivered"),
     },
@@ -131,7 +131,7 @@ export default function SellerDashboard() {
                   <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-8 -translate-y-8" />
                   <div className="flex items-center justify-between relative z-10">
                     <Icon className="text-4xl text-white" />
-                    <span className="text-4xl font-bold">
+                    <span className="text-3xl font-bold">
                       {c.key === "balance"
                         ? formatMoney(Number(c.value))
                         : c.value}
