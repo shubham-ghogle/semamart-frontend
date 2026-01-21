@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
-import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
 import { API_URL } from "@/data";
 
@@ -172,7 +172,7 @@ export default function AdminNavbar() {
               <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" />
               <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" />
               <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" />
-              <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Stock Management" />
+              <LinkItem to="/admin/bulk-order-request" icon={<FaBoxOpen />} label="Stock Management" />
             </div>
           </nav>
 

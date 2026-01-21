@@ -5,7 +5,7 @@ import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck, CiDollar } from "react-icons/ci";
-import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { MdStorefront } from "react-icons/md";
 import { useSellerStore } from "@/store/sellerStore";
@@ -208,7 +208,7 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
               <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
-              <LinkItem to="/seller/stock-management" icon={<CiDollar />} label="Stock Management" />
+              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" />
               <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>
