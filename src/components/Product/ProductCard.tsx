@@ -1,175 +1,190 @@
 import React from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Product, Variant } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { BASE_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
+import { Heart, ShoppingCart } from "lucide-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type DefaultProductCardProps = {
   product: Product;
 };
 
 function getId(obj: any): string | undefined {
-  // Works when obj is either { _id: string } OR a string id OR undefined
   if (!obj) return undefined;
   if (typeof obj === "string") return obj;
   return obj._id ?? undefined;
 }
 
-export default function DefaultProductCard({
-  product,
-}: DefaultProductCardProps) {
+export default function DefaultProductCard({ product }: DefaultProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore(
-    (s) => s,
-  );
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore((s) => s);
 
-  // first variant fallback
-  const firstVariant: Variant = product.variants?.[0];
+  const firstVariant: Variant | undefined = product.variants?.[0];
 
-  // guard: if there's no variant, we cannot be in wishlist for this variant
   const variantId = getId(firstVariant);
   const productId = getId(product);
 
-  // wishlist check safely (handles wishlist entries shaped as {product: {...}, variant: {...}}
-  // or { productId: "...", variantId: "..." } if your store uses that shape).
   const inWishlist = Boolean(
     variantId &&
-    wishlist?.some((w: any) => {
-      const wp = getId(w?.product ?? w?.productId ?? w?.product_id);
-      const wv = getId(w?.variant ?? w?.variantId ?? w?.variant_id);
-      return wp === productId && wv === variantId;
-    }),
+      wishlist?.some((w: any) => {
+        const wp = getId(w?.product ?? w?.productId ?? w?.product_id);
+        const wv = getId(w?.variant ?? w?.variantId ?? w?.variant_id);
+        return wp === productId && wv === variantId;
+      })
   );
+
+  const { user } = useUserStore();
+  const navigate = useNavigate();
+
+  const safeParseMinQty = (): number => {
+    try {
+      const parsed = JSON.parse(product.minmaxrule as unknown as string) as { minQty?: string; maxQty?: string };
+      return parseInt(parsed?.minQty || "1", 10) || 1;
+    } catch {
+      return 1;
+    }
+  };
 
   const handleAddCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // prevent Link navigation
     if (!firstVariant || !product) return;
 
-    const parsedMinMaxQty = JSON.parse(
-      product.minmaxrule as unknown as string,
-    ) as { minQty: string; maxQty: string };
-    const intMinQty = parseInt(parsedMinMaxQty.minQty);
+    if (!user) {
+      toast.info("Please log in to add items to cart", { position: "top-center", autoClose: 1400 });
+      navigate("/login");
+      return;
+    }
+
+    // check stock if present
+    if ((firstVariant.stock ?? 0) <= 0) {
+      toast.error("Out of stock", { position: "top-center", autoClose: 1400 });
+      return;
+    }
+
+    const intMinQty = safeParseMinQty();
 
     addToCart({
       productId: product._id,
       variantId: firstVariant._id,
       product,
       variant: firstVariant,
-      qty: intMinQty ?? 1,
+      qty: intMinQty,
       price: firstVariant.discountPrice ?? firstVariant.originalPrice ?? 0,
       shopId: (product as any).shopId?._id || (product as any).shopId,
     });
 
-    if (inWishlist) removeFromWishlist(product._id, firstVariant._id);
-  };
+    toast.success(`${product.name} added to cart`, { position: "top-center", autoClose: 1400 });
 
-  const {user} = useUserStore()
-  const n = useNavigate()
+    if (inWishlist) {
+      removeFromWishlist(product._id, firstVariant._id);
+      toast.info("Removed from wishlist", { position: "top-center", autoClose: 1200 });
+    }
+  };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    if(!user){
-      n("/login")
-      return
+    e.stopPropagation();
+    if (!user) {
+      toast.info("Please log in to manage wishlist", { position: "top-center", autoClose: 1400 });
+      navigate("/login");
+      return;
     }
     if (!firstVariant) return;
     if (inWishlist) {
       removeFromWishlist(product._id, firstVariant._id);
+      toast.info("Removed from wishlist", { position: "top-center", autoClose: 1200 });
     } else {
       addToWishlist(product, firstVariant);
+      toast.success("Added to wishlist", { position: "top-center", autoClose: 1200 });
     }
   };
 
-  const imageSrc =firstVariant.thumbnail
-    ? `${BASE_URL}images/${firstVariant.thumbnail}`
-    : "/image60.png";
+  const imageSrc = firstVariant?.thumbnail ? `${BASE_URL}images/${firstVariant.thumbnail}` : "/image60.png";
 
   const discountPct =
     firstVariant && firstVariant.discountPrice
-      ? Math.floor(
-          ((firstVariant.originalPrice - firstVariant.discountPrice) /
-            firstVariant.originalPrice) *
-            100,
-        )
+      ? Math.floor(((firstVariant.originalPrice - firstVariant.discountPrice) / Math.max(firstVariant.originalPrice, 1)) * 100)
       : 0;
 
   return (
-    <article className="relative border rounded-xl bg-white shadow-xs transition hover:shadow-md overflow-hidden flex p-3 w-[215px] h-[360px] flex-col">
+    <article className="relative border rounded-xl bg-white shadow-xs transition hover:shadow-md overflow-hidden flex flex-col">
+      {/* discount badge */}
       {discountPct > 0 && (
-        <span className="absolute top-2 right-2 font-montserrat border-[#DF848E] border-2 text-[#DF848E] text-[10px] px-2 py-0.5 rounded-md">
+        <span className="absolute top-3 right-3 z-10 text-xs px-2 py-0.5 rounded-md bg-white/90 border text-red-600">
           -{discountPct}%
         </span>
       )}
 
-      <Link
-        to={`/product/${product._id}`}
-        className="flex flex-col gap-2 w-full h-full"
-      >
-        <div className="w-full h-44 flex items-center justify-center mb-2">
-          <img
-            src={imageSrc}
-            alt={product.name}
-            className="object-contain max-h-full max-w-full"
-          />
+      {/* whole card is a link; buttons inside prevent navigation */}
+      <Link to={`/product/${product._id}`} className="flex flex-col gap-2 w-full h-full">
+        {/* image area fixed height to keep uniform card heights */}
+        <div className="w-full p-3 bg-white flex items-center justify-center">
+          <div className="w-full max-w-[260px] h-36 md:h-44 flex items-center justify-center">
+            <img src={imageSrc} alt={product.name} className="max-h-full max-w-full object-contain" />
+          </div>
         </div>
 
-        <div className="w-full flex flex-col justify-between flex-1">
-          <h3 className="text-xs font-medium text-[#1C170D] mb-1 break-words max-w-[180px] font-montserrat">
+        {/* content */}
+        <div className="p-3 flex-1 flex flex-col">
+          <h3 className="text-sm font-medium text-[#1C170D] mb-2 line-clamp-2" title={product.name}>
             {product.name}
           </h3>
 
-          <div className="flex gap-0.5 text-[#FF9529] text-sm mb-1">
+          <div className="flex items-center gap-2 text-[#FF9529] text-sm mb-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i}>
+              <span key={i} aria-hidden>
                 {i < Math.round(product.ratings ?? 0) ? "★" : "☆"}
               </span>
             ))}
           </div>
 
-          <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center justify-between mt-auto">
             <div className="flex flex-col">
               {firstVariant?.discountPrice ? (
                 <>
-                  <span className="text-xs text-gray-400 line-through font-montserrat">
+                  <span className="text-xs text-gray-400 line-through">
                     ₹{firstVariant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
-                  <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                  <span className="font-medium text-lg text-[#2F3B54]">
                     ₹{firstVariant.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </span>
                 </>
               ) : (
-                <span className="font-normal text-lg font-montserrat text-[#2F3B54]">
+                <span className="font-medium text-lg text-[#2F3B54]">
                   {firstVariant?.originalPrice != null ? (
-                    <>₹{firstVariant.originalPrice.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}</>
+                    <>₹{firstVariant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</>
                   ) : (
                     "N/A"
                   )}
-
                 </span>
               )}
             </div>
+
             <div className="flex items-center gap-2">
-              <button onClick={handleToggleWishlist}>
-                <img
-                  src="/heart_icon.png"
-                  alt="Wishlist"
-                  className="w-4 h-4"
-                  style={{
-                    filter: inWishlist
-                      ? "invert(21%) sepia(99%) saturate(7487%) hue-rotate(356deg) brightness(90%) contrast(105%)"
-                      : undefined,
-                  }}
-                />
+              <button
+                type="button"
+                onClick={handleToggleWishlist}
+                aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                aria-pressed={inWishlist}
+                className="p-2 rounded-full bg-white shadow-sm border border-gray-200 hover:scale-105 transition-transform"
+              >
+                {/* lucide heart */}
+                <Heart size={16} className={inWishlist ? "text-[#DF848E]" : "text-[#1C647C]"} />
               </button>
+
               <button
                 onClick={handleAddCart}
-                className="w-6 h-6 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#004C4D]"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1C647C] hover:bg-[#0f4f51] text-white"
+                aria-label="Add to cart"
+                type="button"
               >
-                <img src="/st_icon.png" alt="Cart" className="w-3.5 h-3.5" />
+                {/* lucide shopping cart */}
+                <ShoppingCart size={16} className="text-white" />
               </button>
             </div>
           </div>
