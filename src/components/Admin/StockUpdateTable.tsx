@@ -107,7 +107,7 @@ export default function StockUpdateTable() {
       header: "Unit Price",
       cell: ({ row }) => `₹${row.original.variantPrice.toLocaleString("en-IN")}`,
     },
-    { accessorKey: "quantity", header: "Stock" },
+    // { accessorKey: "quantity", header: "Stock" },
     {
       accessorKey: "notified",
       header: "Notified",
@@ -123,19 +123,19 @@ export default function StockUpdateTable() {
         </span>
       ),
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        let colorClass = "text-green-600 font-semibold"; // default: In Stock
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ row }) => {
+    //     const status = row.original.status;
+    //     let colorClass = "text-green-600 font-semibold"; // default: In Stock
 
-        if (status === "Out of Stock") colorClass = "text-red-600 font-bold";
-        else if (status === "Buffer Stock") colorClass = "text-yellow-600 font-semibold";
+    //     if (status === "Out of Stock") colorClass = "text-red-600 font-bold";
+    //     else if (status === "Buffer Stock") colorClass = "text-yellow-600 font-semibold";
 
-        return <span className={colorClass}>{status}</span>;
-      },
-    },
+    //     return <span className={colorClass}>{status}</span>;
+    //   },
+    // },
     {
       accessorKey: "action",
       header: "Action",

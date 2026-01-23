@@ -22,6 +22,7 @@ export default function BulkOrderForm({
   variantId,
 }: BulkOrderFormProps) {
   const [qty, setQty] = useState<string>("");
+  const [customerPrice, setCustomerPrice] = useState<string>(""); // NEW
   const [comment, setComment] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -31,8 +32,15 @@ export default function BulkOrderForm({
 
   const handleSubmit = async () => {
     const quantity = Number(qty);
+    const proposedPrice = Number(customerPrice);
+
     if (!quantity || quantity < 1) {
       toast.error("Please enter a valid quantity.");
+      return;
+    }
+
+    if (customerPrice && (isNaN(proposedPrice) || proposedPrice <= 0)) {
+      toast.error("Please enter a valid proposed price.");
       return;
     }
 
@@ -43,6 +51,7 @@ export default function BulkOrderForm({
       unitPrice: price,
       quantity,
       comment,
+      customerPrice: proposedPrice || null, // include customer price
     };
 
     try {
@@ -67,6 +76,7 @@ export default function BulkOrderForm({
       );
 
       setQty("");
+      setCustomerPrice(""); // clear input
       setComment("");
       onClose();
     } catch (err: any) {
@@ -111,6 +121,22 @@ export default function BulkOrderForm({
             value={`₹${price.toLocaleString("en-IN")}`}
             disabled
             className="w-full border rounded-lg p-2 bg-gray-100"
+          />
+        </div>
+
+        {/* Customer Proposed Price */}
+        <div>
+          <label className="text-sm text-gray-600">Your Proposed Price (optional)</label>
+          <input
+            type="number"
+            min={1}
+            value={customerPrice}
+            onChange={(e) => {
+              const cleanedValue = e.target.value.replace(/^0+/, "");
+              setCustomerPrice(cleanedValue);
+            }}
+            className="w-full border rounded-lg p-2"
+            placeholder="Enter your proposed price"
           />
         </div>
 

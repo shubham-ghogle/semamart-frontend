@@ -8,7 +8,10 @@ import {
   FaRegHeart,
   FaBars,
   FaTimes,
+  FaLayerGroup,
 } from "react-icons/fa";
+import {  } from "react-icons/fa";
+
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
@@ -208,6 +211,7 @@ const AccountNavbar: React.FC = () => {
                 <>
                   <NavItem to="/account/address" icon={<FaMapMarkerAlt />} label="Manage Addresses" active={isActive("/account/address")} />
                   <NavItem to="/account/wishlist" icon={<FaRegHeart />} label="My Wishlist" active={isActive("/account/wishlist")} />
+                  <NavItem to="/account/mybulkorder-request" icon={<FaLayerGroup />} label="Bulkorder Request" active={isActive("/account/mybulkorder-request")} />
                 </>
               )}
             </div>

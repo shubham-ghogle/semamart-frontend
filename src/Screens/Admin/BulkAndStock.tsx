@@ -2,8 +2,8 @@ import { useState } from "react";
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
 import BulkOrdersTable from "../../components/Admin/BulkOrderTable";
 import StockTable from "../../components/Admin/StockUpdateTable";
-import OutOfStockTable from "@/components/ui/OutOfStcokTable";
-import BufferStockTable from "../../components/ui/BufferStockTable";
+import OutOfStockTable from "@/components/Admin/OutOfStcokTable";
+import BufferStockTable from "../../components/Admin/BufferStockTable";
 
 type TabType = "bulkOrders" | "stock" | "outOfStock" | "bufferStock";
 

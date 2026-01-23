@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
-import OutOfStockTable from "@/components/ui/OutOfStcokTable";
-import BufferStockTable from "../../components/ui/BufferStockTable";
+import OutOfStockTable from "@/components/Seller/OutOfStockProduct";
+import BufferStockTable from "../../components/Seller/BufferStock";
 
 type TabType =  "outOfStock" | "bufferStock";
 

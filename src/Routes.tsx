@@ -78,6 +78,7 @@ import UserCart from "./components/ui/UserCart";
 import AdminOrderSummary from "./components/ui/adminOrderSummary";
 import BulkAndStock from "./Screens/Admin/BulkAndStock";
 import BufferAndOutOfStockScreen from "./Screens/Seller/BufferAndOutOfStockScreen";
+import BulkOrderDetails from "./components/Account/BulkOrderDetails";
 
 /**
  * redirectToDashboard loader
@@ -427,6 +428,7 @@ export const router = createBrowserRouter([
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "orders", element: <MyOrderPage /> },
+      { path: "mybulkorder-request", element: <BulkOrderDetails /> },
     ],
   },
 
