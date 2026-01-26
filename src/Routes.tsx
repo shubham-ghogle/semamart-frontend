@@ -59,6 +59,7 @@ import SellerAccount from "./components/Seller/SellerAccount";
 import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
+import AdminDeliveredOrders from "./Screens/Admin/AdminDeliveredOrders";
 import FooterLayout from "./components/Layouts/FooterLayout";
 import About from "./components/Footer/About";
 import CookiePolicy from "./components/Footer/CookiePolicy";
@@ -146,7 +147,7 @@ export async function redirectToDashboard() {
     const allKeys = Object.keys(localStorage);
     sessionStorage.setItem(
       "__auth_all_localStorage_keys",
-      JSON.stringify(allKeys),
+      JSON.stringify(allKeys)
     );
 
     // quick explicit checks (existing keys we know)
@@ -340,7 +341,7 @@ export const router = createBrowserRouter([
         path: "sellers",
         children: [
           { index: true, element: <AllSellerScreen /> },
-          {path: "profile/:sellerId", element:<AdminSellerAccount /> },
+          { path: "profile/:sellerId", element: <AdminSellerAccount /> },
           {
             path: ":sellerId",
             children: [
@@ -350,22 +351,27 @@ export const router = createBrowserRouter([
           },
         ],
       },
-       {
-          path: "users",
-          children: [
-            { index: true, element: <AllUserScreen /> },
-             { path: "profile/:userId", element: <AdminUserAccount /> },
-            { path: ":userId/products", element: <OrderProductCard /> },
-            { path: "wishlist/:userId", element: <UserWishlist /> },
-            { path: "cart/:userId", element: <UserCart/>},
-            { path: "order/:orderId", element: <AdminOrderSummary/>},
-          ],
-        },
+      {
+        path: "users",
+        children: [
+          { index: true, element: <AllUserScreen /> },
+          { path: "profile/:userId", element: <AdminUserAccount /> },
+          { path: ":userId/products", element: <OrderProductCard /> },
+          { path: "wishlist/:userId", element: <UserWishlist /> },
+          { path: "cart/:userId", element: <UserCart /> },
+          { path: "order/:orderId", element: <AdminOrderSummary /> },
+        ],
+      },
       { path: "products", element: <AdminProduct /> },
       {
         path: "orders",
         children: [
           { index: true, element: <AllOrderScreen /> },
+
+          // ✅ Admin Total Sales (Delivered Orders)
+          { path: "sales", element: <AdminDeliveredOrders /> },
+
+          // ⚠️ dynamic route MUST be last
           { path: ":orderId", element: <AdminOrderDetailsScreen /> },
         ],
       },
@@ -386,7 +392,9 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <SellerAllProductsScreen /> },
           { path: "edit/:id", element: <ViewProductScreen /> },
-          { path: "view/:id", element: <ProductLayout />,
+          {
+            path: "view/:id",
+            element: <ProductLayout />,
             children: [{ index: true, element: <ProductDetails /> }],
           },
         ],

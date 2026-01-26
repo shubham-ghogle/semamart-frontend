@@ -9,11 +9,13 @@ export default function AdminMainWrapper({
   status,
   errorMeassage,
   heading,
+  subHeading,
 }: {
   children?: React.ReactNode;
   status: Status;
   errorMeassage?: string;
   heading?: string;
+  subHeading?: string;
 }) {
   const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ export default function AdminMainWrapper({
         <div className="px-5 py-4 border-b flex items-center justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">{heading || "Admin"}</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage the Admin account</p>
+            <p className="text-sm text-gray-500 mt-1">{subHeading || "Manage the Admin account"}</p>
           </div>
 
           <div className="flex items-center gap-3">

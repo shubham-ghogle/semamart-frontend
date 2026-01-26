@@ -6,6 +6,7 @@ import { GrWorkshop } from "react-icons/gr";
 import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
 import { API_URL } from "@/data";
+import { TbCoinRupee } from "react-icons/tb";
 
 type LinkItemProps = {
   to: string;
@@ -166,7 +167,8 @@ export default function AdminNavbar() {
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="flex flex-col gap-1">
               <LinkItem to="/admin" end icon={<RxDashboard />} label="Dashboard" />
-              <LinkItem to="/admin/orders" icon={<GrWorkshop />} label="All Orders" />
+              <LinkItem to="/admin/orders" end icon={<GrWorkshop />} label="All Orders" />
+              <LinkItem to="/admin/orders/sales" icon={<TbCoinRupee />} label="Total Sales"/>
               <LinkItem to="/admin/requests" icon={<LuMessageSquare />} label="Requests" />
               <LinkItem to="/admin/sellers" icon={<GrWorkshop />} label="All Sellers" />
               <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" />
