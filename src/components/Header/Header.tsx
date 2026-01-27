@@ -95,7 +95,7 @@ export default function Header() {
 
   // mobile UI
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [,setMobileSearchOpen] = useState(false);
 
   // refs + navigate
   const categoryRef = useRef<HTMLDivElement | null>(null);
@@ -330,10 +330,10 @@ export default function Header() {
     }
   };
 
-  function labelFromMaybeObject(v?: any) {
-    if (!v) return "";
-    return typeof v === "string" ? v : v?.name ?? "";
-  }
+  // function labelFromMaybeObject(v?: any) {
+  //   if (!v) return "";
+  //   return typeof v === "string" ? v : v?.name ?? "";
+  // }
 
   // open/close cart/wishlist
   const openCartHandler = () => setIsCartOpen((p) => !p);
