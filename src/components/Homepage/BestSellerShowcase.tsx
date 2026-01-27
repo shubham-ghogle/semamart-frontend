@@ -126,73 +126,72 @@ export default function BestSellerShowcase({
       <div
         className="
           rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row 
-          gap-6 md:gap-5 items-start overflow-hidden
+          gap-4 md:gap-5 items-start overflow-hidden
         "
         style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
       >
-        {/* LEFT BLOCK — improved on mobile */}
+        {/* LEFT BLOCK
+            - MOBILE: a compact single row with icon + title (left) and small View All (right)
+            - MD+: original stacked hero (icon, title, badge, subtext, CTA) remains
+        */}
         <div
-          className="
-            flex-shrink-0 w-full md:w-56
-            text-center md:text-left
-            flex flex-col items-center md:items-start
-            gap-3
-          "
+          className="flex-shrink-0 w-full md:w-56 text-center md:text-left flex flex-col items-center md:items-start gap-3"
           style={{ color: textColor }}
         >
-          <div className="flex items-center gap-3 md:gap-2">
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center shadow"
-              style={{ background: iconBg }}
-              aria-hidden
-            >
-              {icon}
+          {/* MOBILE header row */}
+          <div className="w-full flex items-center justify-between md:hidden">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shadow" style={{ background: iconBg }} aria-hidden>
+                {icon}
+              </div>
+              <h3 className="text-base font-extrabold leading-tight">{title}</h3>
             </div>
 
-            <h3 className="text-2xl font-extrabold leading-tight">{title}</h3>
+            <a
+              href={viewAllLink}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-lg font-semibold text-sm bg-white/10"
+              style={{ color: textColor }}
+            >
+              View All →
+            </a>
           </div>
 
-          <div
-            className="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm font-semibold"
-            style={{ background: accentBg }}
-          >
-            <span className="text-xs">₹</span>
-            {badgeText}
+          {/* MD+ full block (unchanged) */}
+          <div className="hidden md:flex md:flex-col md:items-start md:gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow" style={{ background: iconBg }} aria-hidden>
+                {icon}
+              </div>
+              <h3 className="text-2xl font-extrabold leading-tight">{title}</h3>
+            </div>
+
+            <div
+              className="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm font-semibold"
+              style={{ background: accentBg }}
+            >
+              <span className="text-xs">₹</span>
+              {badgeText}
+            </div>
+
+            <p className="mt-1 text-sm opacity-90">{subText}</p>
+
+            <a
+              href={viewAllLink}
+              className="mt-3 inline-flex items-center justify-center px-5 py-3 rounded-xl font-semibold text-sm shadow-md transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
+              style={{ background: accentBg, color: textColor }}
+            >
+              View All →
+            </a>
+
+            <p className="text-xs mt-1 opacity-80">Swipe → to explore products</p>
           </div>
-
-          <p className="mt-1 text-sm opacity-90">{subText}</p>
-
-          {/* CTA optimized for mobile */}
-          <a
-            href={viewAllLink}
-            className="
-              mt-3 md:mt-4
-              w-full md:w-auto
-              inline-flex items-center justify-center
-              px-5 py-3 rounded-xl font-semibold
-              text-sm md:text-base
-              shadow-md transition-transform duration-200
-              hover:scale-[1.03] active:scale-[0.97]
-            "
-            style={{ background: accentBg, color: textColor }}
-          >
-            View All →
-          </a>
-
-          <p className="text-xs mt-1 opacity-80 md:hidden" style={{ color: textColor }}>
-            Swipe → to explore products
-          </p>
         </div>
 
         {/* RIGHT SWIPER */}
         <div className="relative flex-1 w-full">
           <div
             ref={scrollRef}
-            className="
-              flex gap-4 py-3 px-3 md:px-6 
-              overflow-x-auto scroll-smooth items-start 
-              snap-x snap-mandatory md:snap-none
-            "
+            className="flex gap-3 py-3 px-1 md:px-6 overflow-x-auto scroll-smooth items-start snap-x snap-mandatory md:snap-none"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             <style>{`div::-webkit-scrollbar { display: none !important; }`}</style>
@@ -200,19 +199,14 @@ export default function BestSellerShowcase({
             {items.map((p) => (
               <div
                 key={p._id}
-                className="
-                  flex-shrink-0 snap-center md:snap-start
-                  w-[82vw] max-w-[320px]
-                  md:w-[220px] md:max-w-[220px]
-                  min-w-0
-                "
+                className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover">
                   <ProductCard product={p} />
                 </div>
               </div>
             ))}
-            <div style={{ minWidth: 240 }} aria-hidden />
+            <div style={{ minWidth: 140 }} aria-hidden />
           </div>
         </div>
       </div>

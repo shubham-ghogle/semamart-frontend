@@ -311,9 +311,6 @@ export default function Header() {
       removeUser();
       removeSeller();
 
-
-
-
       // close menus
       setIsUserHovered(false);
       setMobileProfileOpen(false);
@@ -365,7 +362,7 @@ export default function Header() {
                 <IoMdMenu size={22} />
               </button>
 
-              <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+              <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}> 
                 <Logo />
               </div>
             </div>
@@ -440,14 +437,7 @@ export default function Header() {
 
               {/* Search bar: compact on md+, full icon on mobile */}
               <div className="flex items-center w-full">
-                {/* mobile: show icon that opens full-screen search */}
-                <button
-                  onClick={() => setMobileSearchOpen(true)}
-                  className="md:hidden p-2 mr-2 rounded-md hover:bg-gray-100"
-                  aria-label="Open search"
-                >
-                  <AiOutlineSearch size={20} />
-                </button>
+                
 
                 {/* desktop search */}
                 <div
@@ -881,45 +871,60 @@ export default function Header() {
         </div>
 
         {/* mobile search overlay */}
-        {mobileSearchOpen && (
-          <div className="fixed inset-0 z-50 bg-white">
-            <div className="max-w-[1100px] mx-auto px-4 py-3">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setMobileSearchOpen(false)} className="p-2 rounded-md hover:bg-gray-100"><IoMdClose size={20} /></button>
-                <input
-                  autoFocus
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={handleSearchKeyDown}
-                  className="flex-1 px-3 py-2 border rounded-md text-[#1C647C] outline-none"
-                  placeholder="Search for products, brands and more"
-                />
-                <button onClick={() => {
-                  if (query.trim()) navigate(`/search?q=${encodeURIComponent(query)}`);
-                  setMobileSearchOpen(false);
-                }} className="px-4 py-2 rounded-md bg-[#006666] text-white">Search</button>
-              </div>
+        <div className="md:hidden bg-white border-t">
+          <div className="max-w-[1100px] mx-auto px-4 py-3">
+            <div className="flex items-center h-10 relative" ref={containerRef}>
+              <input
+                autoFocus={false}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                className="flex-1 px-3 text-sm outline-none bg-white text-[#1C647C] placeholder:text-sm placeholder-[#1C647C] h-10 border border-gray-200 rounded-l-full"
+                placeholder="Search for products, brands and more"
+              />
+              <button onClick={() => {
+                if (query.trim()) navigate(`/search?q=${encodeURIComponent(query)}`);
+                setMobileSearchOpen(false);
+                setQuery("");
+              }} className="flex items-center justify-center px-3 bg-[#006666] hover:bg-[#005555] h-10 rounded-r-full text-white">
+                <AiOutlineSearch size={18} />
+              </button>
 
               {showSug && suggestions.length > 0 && (
-                <ul className="mt-3 max-h-[60vh] overflow-auto">
+                <ul className="absolute left-0 right-0 top-full mt-2 z-50 max-h-80 overflow-auto bg-white rounded-md shadow-lg border border-gray-200 text-sm">
                   {suggestions.map((p, i) => {
-                    const prod = p as any;
-                    const categoryLabel = labelFromMaybeObject(prod.category);
+                    const id = (p as any)._id;
+                    const rawCategory = (p as any).category;
+                    const categoryLabel = typeof rawCategory === "string" ? rawCategory : rawCategory?.name || "";
+                    const imgCandidate =
+                      Array.isArray((p as any).images) && (p as any).images.length > 0
+                        ? (p as any).images[0]
+                        : Array.isArray((p as any).variants) && (p as any).variants.length > 0
+                        ? (p as any).variants[0].thumbnail
+                        : undefined;
+                    const imgSrc = toImageUrl(imgCandidate);
                     return (
                       <li
-                        key={prod._id || i}
-                        className="p-2 border-b flex items-center gap-3"
-                        onMouseDown={() => { if (prod._id) navigate(`/product/${prod._id}`); setMobileSearchOpen(false); }}
+                        key={id || `${(p as any).name}-${i}`}
+                        onMouseDown={() => {
+                          if (id) navigate(`/product/${id}`);
+                          setShowSug(false);
+                          setQuery("");
+                          setActiveIdx(-1);
+                        }}
+                        className={`flex items-center gap-3 p-3 cursor-pointer ${i === activeIdx ? "bg-gray-100" : "hover:bg-gray-50"}`}
                       >
                         <img
-                          src={toImageUrl(prod.images?.[0] ?? prod.variants?.[0]?.thumbnail)}
+                          src={imgSrc}
+                          alt={(p as any).name || "product"}
                           className="w-12 h-12 object-contain bg-gray-100 rounded"
-                          alt={prod.name || "product"}
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_IMG; }}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_IMG;
+                          }}
                         />
-                        <div>
-                          <div className="font-medium">{prod.name}</div>
-                          <div className="text-xs text-gray-500">{categoryLabel}</div>
+                        <div className="flex flex-col text-sm">
+                          <span className="font-medium text-gray-800 line-clamp-1">{(p as any).name}</span>
+                          <span className="text-gray-500 text-xs">{categoryLabel}</span>
                         </div>
                       </li>
                     );
@@ -928,7 +933,7 @@ export default function Header() {
               )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* mobile menu slide-over */}
         {mobileMenuOpen && (

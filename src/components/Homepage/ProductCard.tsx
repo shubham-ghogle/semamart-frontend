@@ -51,9 +51,12 @@ export default function ProductCard({ product }: Props) {
     (w: any) => (w.product && (w.product as any)._id === product._id) || w.productId === product._id
   );
 
-  const handleAddCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddCart = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    // allow calling without event (e.g. programmatically)
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
     if(!user){
       n("/login")
@@ -70,9 +73,9 @@ export default function ProductCard({ product }: Props) {
     const perPiecePrice = discountPrice ?? originalPrice ?? 0;
 
     const parsedMinMaxQty = JSON.parse(
-      product.minmaxrule as unknown as string,
+      (product.minmaxrule as unknown as string) || '{"minQty":"1","maxQty":"1"}',
     ) as { minQty: string; maxQty: string };
-    const intMinQty = parseInt(parsedMinMaxQty.minQty);
+    const intMinQty = parseInt(parsedMinMaxQty.minQty || "1");
 
     addToCart({
       productId: product._id,
@@ -161,10 +164,14 @@ export default function ProductCard({ product }: Props) {
   const categoryLabel = getCategoryLabel();
 
   return (
-    <div className="group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden md:w-[220px] w-full md:h-[340px]">
+    <div
+      className="
+        group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden
+        md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-44
+      ">
       {/* Discount Badge */}
       {discountPercent >= 0 && (
-        <div className="absolute top-2 left-2 bg-green-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md z-10">
+        <div className="absolute top-2 left-2 bg-green-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md z-10">
           {discountPercent}% OFF
         </div>
       )}
@@ -172,12 +179,12 @@ export default function ProductCard({ product }: Props) {
       {/* Wishlist Button */}
       <button
         onClick={handleToggleWishlist}
-        className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200 hover:scale-110 transition-transform"
+        className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200 hover:scale-105 transition-transform"
         title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
         aria-pressed={inWishlist}
       >
         <span
-          className="w-4 h-4 inline-block transition duration-200"
+          className="w-3.5 h-3.5 inline-block transition duration-200"
           style={{
             WebkitMaskImage: "url('/heart_icon.png')",
             WebkitMaskRepeat: "no-repeat",
@@ -195,11 +202,11 @@ export default function ProductCard({ product }: Props) {
       {/* Whole card clickable */}
       <Link to={`/product/${product._id}`} className="block h-full">
         {/* Image Section */}
-        <div className="md:h-[190px] h-56 flex items-center justify-center bg-gray-50 overflow-hidden">
+        <div className="flex items-center justify-center bg-gray-50 overflow-hidden md:h-[190px] h-24 p-2">
           <img
             src={imageUrl}
             alt={product.name}
-            className="max-h-[90%] max-w-[90%] object-contain transition-transform duration-300 group-hover:scale-105"
+            className="max-h-[84%] max-w-[84%] object-contain transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
             }}
@@ -215,9 +222,11 @@ export default function ProductCard({ product }: Props) {
           }
         >
           <h3 className="text-sm font-medium text-gray-800 truncate">{product.name}</h3>
-          <p className="text-xs text-gray-500 truncate capitalize">{categoryLabel}</p>
 
-          <div className="flex items-center gap-1 mt-1" aria-hidden>
+          {/* hide category & rating on mobile to reduce clutter */}
+          <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
+
+          <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -228,27 +237,26 @@ export default function ProductCard({ product }: Props) {
           </div>
 
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-lg font-semibold text-gray-900">
-            ₹{(
-                discountPrice ?? originalPrice ?? "-"
+            <span className="text-base md:text-lg font-semibold text-gray-900">
+              ₹{(
+                discountPrice ?? originalPrice ?? 0
               ).toLocaleString("en-IN", {
                 minimumFractionDigits: 2,
-            })}
-
+              })}
             </span>
+            {/* hide crossed original price on mobile */}
             {discountPrice != null && originalPrice != null && discountPrice < originalPrice && (
-              <span className="text-sm text-gray-500 line-through">₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              <span className="text-sm text-gray-500 line-through hidden md:inline">₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             )}
           </div>
         </div>
 
-        {/* Add to Cart Button */}
+        {/* Desktop: Add to Cart Button (kept for md+, hidden on mobile) */}
         {stock > 0 && (
           <div
             className={
-              "left-0 w-full flex justify-center transition-all duration-300 " +
-              "opacity-100 mt-2 md:mt-0 -translate-y-2 z-10 " +
-              "md:opacity-0 md:translate-y-4 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:absolute md:bottom-3"
+              "hidden md:flex left-0 w-full justify-center transition-all duration-300 " +
+              "opacity-0 md:mt-0 md:translate-y-4 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:absolute md:bottom-3"
             }
           >
             <button
@@ -272,6 +280,24 @@ export default function ProductCard({ product }: Props) {
           </div>
         )}
       </Link>
+
+      {/* Mobile: small circular Add-to-cart icon at bottom-right (visible only on mobile) */}
+      {stock > 0 && (
+  <button
+    onClick={handleAddCart}
+    aria-label={`Add ${product.name} to cart`}
+    title={`Add ${product.name} to cart`}
+    className="md:hidden absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full bg-[#1C647C] shadow-lg flex items-center justify-center text-white border-2 border-white/20 hover:scale-105 transition-transform"
+  >
+    {/* slightly smaller centered cart icon */}
+    <ShoppingCart size={14} />
+
+    {/* smaller white badge with green '+' */}
+    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#059669] text-[9px] font-semibold shadow-sm">
+      +
+    </span>
+  </button>
+)}
     </div>
   );
 }

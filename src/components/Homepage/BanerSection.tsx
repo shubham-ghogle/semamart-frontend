@@ -20,9 +20,9 @@ type BannerSectionProps = {
 
 /* ================= SKELETON LOADER ================= */
 const BannerSkeleton = () => (
-  <div className="flex gap-6 items-stretch">
-    <div className="w-1/2 min-w-0 aspect-[5/2] bg-gray-200 rounded-lg animate-pulse" />
-    <div className="w-1/2 min-w-0 aspect-[5/2] bg-gray-200 rounded-lg animate-pulse" />
+  <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
+    <div className="w-full md:w-1/2 min-w-0 aspect-[5/2] bg-gray-200 rounded-lg animate-pulse" />
+    <div className="w-full md:w-1/2 min-w-0 aspect-[5/2] bg-gray-200 rounded-lg animate-pulse" />
   </div>
 );
 
@@ -33,7 +33,7 @@ export default function BannerSection({
   const [banners, setBanners] = useState<BannerItem[]>([]);
 
   useEffect(() => {
-    fetch(API_URL+"sectionbanner/getallsectionbanner")
+    fetch(API_URL + "sectionbanner/getallsectionbanner")
       .then((res) => res.json())
       .then((result) => setBanners(result.data || []))
       .catch((err) => console.error("Banner fetch error:", err));
@@ -51,20 +51,20 @@ export default function BannerSection({
 
   return (
     <div className={`w-full max-w-[1440px] mx-auto px-6 ${className} py-6`}>
-      {/* Always side-by-side */}
-      <div className="flex gap-6 items-stretch">
+      {/* Stacks on mobile, side-by-side on md+ */}
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
         {/* Left Banner */}
         <a
           href={banner.left.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative w-1/2 min-w-0 aspect-[5/2] rounded-lg overflow-hidden flex items-center justify-center"
+          className="relative w-full md:w-1/2 min-w-0 aspect-[5/2] rounded-lg overflow-hidden flex items-center justify-center"
         >
           {banner.left.image ? (
             <img
               src={BASE_URL + "images/" + banner.left.image}
               alt={banner.left.name}
-              className="w-full h-full object-cover object-left"
+              className="w-full h-full object-cover object-center md:object-left"
               loading="lazy"
             />
           ) : (
@@ -77,13 +77,13 @@ export default function BannerSection({
           href={banner.right.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative w-1/2 min-w-0 aspect-[5/2] rounded-lg overflow-hidden flex items-center justify-center"
+          className="relative w-full md:w-1/2 min-w-0 aspect-[5/2] rounded-lg overflow-hidden flex items-center justify-center"
         >
           {banner.right.image ? (
             <img
               src={BASE_URL + "images/" + banner.right.image}
               alt={banner.right.name}
-              className="w-full h-full object-cover object-right"
+              className="w-full h-full object-cover object-center md:object-right"
               loading="lazy"
             />
           ) : (

@@ -19,7 +19,41 @@ export default function ImageSliderHome() {
   const [rightBanners, setRightBanners] = useState<Banner[]>([]);
   const [current, setCurrent] = useState(0);
 
+  // track small-screen state (matches Tailwind "sm" breakpoint)
+  const [isMobile, setIsMobile] = useState(false);
+
+  // intervalRef holds the ID returned by window.setInterval
   const intervalRef = useRef<number | null>(null);
+
+  /* ================= HANDLE RESIZE / MEDIA QUERY ================= */
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)"); // Tailwind sm = 640px
+
+    // Accept both MediaQueryList and MediaQueryListEvent
+    const update = (e: MediaQueryList | MediaQueryListEvent) => {
+      // both types expose `matches`
+      setIsMobile((e as MediaQueryList).matches);
+    };
+
+    // initial value
+    update(mq);
+
+    // prefer modern API, fallback to legacy - use runtime typeof checks to avoid TS narrowing issues
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update as (ev: MediaQueryListEvent) => void);
+    } else if (typeof (mq as any).addListener === "function") {
+      // legacy browsers
+      (mq as any).addListener(update);
+    }
+
+    return () => {
+      if (typeof mq.removeEventListener === "function") {
+        mq.removeEventListener("change", update as (ev: MediaQueryListEvent) => void);
+      } else if (typeof (mq as any).removeListener === "function") {
+        (mq as any).removeListener(update);
+      }
+    };
+  }, []);
 
   /* ================= FETCH HERO DATA ================= */
   useEffect(() => {
@@ -50,6 +84,12 @@ export default function ImageSliderHome() {
 
   /* ================= AUTO SLIDE ================= */
   useEffect(() => {
+    // clear previous interval if exists
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     if (total <= 1) return;
 
     intervalRef.current = window.setInterval(() => {
@@ -57,7 +97,10 @@ export default function ImageSliderHome() {
     }, 3000);
 
     return () => {
-      if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [total]);
 
@@ -90,8 +133,11 @@ export default function ImageSliderHome() {
         <div className="flex gap-4 items-stretch">
           {/* LEFT: large slider */}
           <div
-            /* keep width proportion and aspect ratio */
-            style={{ flex: `0 0 ${leftPct}`, aspectRatio: "1440/550" }}
+            /* keep width proportion and aspect ratio; on mobile expand to full width */
+            style={{
+              flex: isMobile ? "1 1 0%" : `0 0 ${leftPct}`,
+              aspectRatio: isMobile ? "16/9" : "1440/550",
+            }}
             className="relative rounded-xl overflow-hidden bg-white shadow-lg group min-w-0"
           >
             {/* TRACK: width = slides.length * 100% */}
@@ -122,6 +168,7 @@ export default function ImageSliderHome() {
             {/* ARROWS */}
             <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
               <button
+                type="button"
                 onClick={prev}
                 className="pointer-events-auto opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-2 shadow"
                 aria-label="Previous slide"
@@ -129,6 +176,7 @@ export default function ImageSliderHome() {
                 ‹
               </button>
               <button
+                type="button"
                 onClick={next}
                 className="pointer-events-auto opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-2 shadow"
                 aria-label="Next slide"
@@ -143,6 +191,7 @@ export default function ImageSliderHome() {
                 {sliders.map((_, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => setCurrent(i)}
                     className={`w-2.5 h-2.5 rounded-full transition ${
                       current === i ? "bg-[#1C647C] scale-125" : "bg-gray-300"
@@ -154,29 +203,30 @@ export default function ImageSliderHome() {
             </div>
           </div>
 
-          {/* RIGHT banners */}
-          {rightBanners.map((item, i) => (
-            <div
-              key={i}
-              style={{ flex: `0 0 ${rightPct}`, aspectRatio: "450/550" }}
-              className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl min-w-0"
-            >
-              <a
-                href={item.link || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full h-full transform transition-transform duration-500 group-hover:scale-105"
+          {/* RIGHT banners - hidden on mobile */}
+          {!isMobile &&
+            rightBanners.map((item, i) => (
+              <div
+                key={i}
+                style={{ flex: `0 0 ${rightPct}`, aspectRatio: "450/550" }}
+                className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl min-w-0"
               >
-                <img
-                  src={BASE_URL + "images/" + item.imagePath}
-                  alt={item.name || "Banner"}
-                  className="w-full h-full object-cover object-center"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </a>
-            </div>
-          ))}
+                <a
+                  href={item.link || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full h-full transform transition-transform duration-500 group-hover:scale-105"
+                >
+                  <img
+                    src={BASE_URL + "images/" + item.imagePath}
+                    alt={item.name || "Banner"}
+                    className="w-full h-full object-cover object-center"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </a>
+              </div>
+            ))}
         </div>
       </div>
     </section>
