@@ -17,6 +17,15 @@ const BULK_ORDER_STATUSES = [
 
 type BulkOrderStatus = (typeof BULK_ORDER_STATUSES)[number];
 
+const STATUS_TEXT_COLOR: Record<BulkOrderStatus, string> = {
+  NEW: "text-blue-600",
+  CONTACTED: "text-yellow-600",
+  APPROVED: "text-green-600",
+  REJECTED: "text-red-600",
+  CLOSED: "text-gray-600",
+};
+
+
 /* -------------------- TYPES -------------------- */
 type AdminNote = {
   note: string;
@@ -183,7 +192,6 @@ export default function BulkOrdersTable() {
       header: "Institute Price",
       cell: ({ row }) =>
         `₹${row.original.customerPrice.toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
         })}`,
     },
     { accessorKey: "quantity", header: "Quantity" },
@@ -287,7 +295,7 @@ export default function BulkOrdersTable() {
               <div key={i} className="mb-4">
                 <p className="text-xs text-gray-500 mb-1">
                   {new Date(note.createdAt).toLocaleString()} —{" "}
-                  <span className="font-medium">{note.status}</span>
+                  <span className={`font-medium ${STATUS_TEXT_COLOR[note.status]}`}>{note.status}</span>
                 </p>
                 <p>{note.note}</p>
               </div>

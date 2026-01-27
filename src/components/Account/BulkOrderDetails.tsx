@@ -27,6 +27,8 @@ type BulkOrderRow = {
   viewOrder: (id: string) => void;
 };
 
+
+
 export default function BulkOrderDetails() {
   const [bulkOrders, setBulkOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,35 +194,27 @@ export default function BulkOrderDetails() {
               Admin Notes History: {historyOrder.product}
             </h3>
 
-            <div className="border-l-2 border-gray-300 pl-4">
-              {historyOrder.adminNotes.length === 0 && (
-                <p className="text-sm text-gray-500">No notes yet.</p>
-              )}
+            {historyOrder.adminNotes.length === 0 && (
+              <p className="text-sm text-gray-500">No notes yet.</p>
+            )}
 
-              {historyOrder.adminNotes.map((note, i) => (
-                <div key={i} className="mb-4">
-                  <p className="text-xs text-gray-500 mb-1">
-                    {new Date(note.createdAt).toLocaleString()}
-                  </p>
-                  <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        statusColors[note.status] || "text-gray-700 bg-gray-100"
-                      }`}
-                    >
-                      {note.status}
-                    </span>
-                  <p>{note.note}</p>
-                </div>
-              ))}
-            </div>
+            {historyOrder.adminNotes.map((note, i) => (
+              <div key={i} className="mb-4">
+                <p className="text-xs text-gray-500 mb-1">
+                  {new Date(note.createdAt).toLocaleString()} —{" "}
+                  <span className={`font-medium ${statusColors[note.status]}`}>{note.status}</span>
+                </p>
+                <p>{note.note}</p>
+              </div>
+            ))}
 
             <div className="flex justify-end mt-4">
-              <span
+              <button
+                className="px-4 py-2 border rounded hover:bg-gray-100"
                 onClick={() => setHistoryOrder(null)}
-                className="cursor-pointer px-4 py-2 border rounded hover:bg-gray-100"
               >
                 Close
-              </span>
+              </button>
             </div>
           </div>
         </div>
