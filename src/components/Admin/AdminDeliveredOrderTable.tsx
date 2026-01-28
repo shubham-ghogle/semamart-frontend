@@ -11,6 +11,7 @@ type Row = {
   businessName: string; // ✅ NEW
   productName: string;
   totalPrice: number;
+  commission: number;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -24,9 +25,12 @@ export default function AdminDeliveredOrderTable({
 
   const rows: Row[] = orders.map((el) => {
     let productName = "-";
+    let commission=0;
+    
     const pid =
       typeof el.variant === "object" ? (el.variant as any)?.productId : null;
     if (pid && typeof pid === "object") productName = pid.name ?? "-";
+    if (pid && typeof pid === "object") commission = pid.commission ?? 0;
 
     return {
       id: el._id,
@@ -38,6 +42,7 @@ export default function AdminDeliveredOrderTable({
 
       productName,
       totalPrice: el.totalPrice ?? 0,
+      commission,
       orderedOn: el.createdAt
         ? new Date(el.createdAt).toLocaleDateString("en-IN")
         : "-",
@@ -93,6 +98,13 @@ export default function AdminDeliveredOrderTable({
         row.original.totalPrice.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
+        }),
+    },
+    {
+      accessorKey: "commission",
+      header: "Platform Fee",
+      cell: ({ row }) => row.original.commission.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
         }),
     },
     {

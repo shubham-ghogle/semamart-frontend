@@ -12,6 +12,7 @@ type Row = {
   customer: string;
   shop: string;
   totalPrice: number;
+  commission: number;
   orderedOn: string;
   productName: string;
   viewOrder: (orderId: string) => void;
@@ -27,6 +28,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const rows: Row[] = orders.map((el) => {
     // Defensive extraction of product name — handle null, string, nested object
     let productName = "-";
+    let commission=0;
 
     if (!el.variant) {
       productName = "-";
@@ -43,7 +45,9 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         // pid is object
         productName = pid?.name ?? "-";
       }
+      if (pid && typeof pid === "object") commission = pid.commission ?? 0;
     }
+    
 
     return {
       id: el._id,
@@ -52,6 +56,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       shop: typeof el.shop === "string" ? "-" : (el.shop?.businessName ?? "-"),
       productName,
       totalPrice: el.totalPrice ?? 0,
+      commission,
       orderedOn: el.createdAt ? new Date(el.createdAt).toLocaleDateString("en-IN") : "-",
       viewOrder: (orderId: string) => {
         // navigate to a sensible path — adjust if your route differs
@@ -110,6 +115,14 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       header: "Total Price",
       cell: ({ row }) =>
         (row.original.totalPrice ?? 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
+    {
+      accessorKey: "commission",
+      header: "Platform Fee",
+      cell: ({ row }) =>
+        (row.original.commission ?? 0).toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         }),
     },
