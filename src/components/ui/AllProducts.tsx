@@ -1,6 +1,5 @@
 // ProductBasedOnType.tsx
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import { Product } from "../../Types/types";
@@ -18,8 +17,6 @@ export default function AllProducts() {
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
   const [showFilters, setShowFilters] = useState(false);
-
-  const { id } = useParams<{ id: string }>();
 
   // Fetch products from API
   useEffect(() => {
