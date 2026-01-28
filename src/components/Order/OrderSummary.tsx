@@ -5,7 +5,8 @@ import { useUserStore } from "@/store/userStore";
 import OrderBreadcrumb from "../ui/OrderBredcrum"; 
 import { FiDownload } from "react-icons/fi";
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
+import PaymentViewDialog from "../ui/PaymentViewDialog";
 
 interface Product {
   _id: string;
@@ -33,6 +34,7 @@ interface Order {
   status: string;
   createdAt?: string;
   deliveredAt?: string;
+  paymentFile?: string;
   shippingAddress?: {
     state: string;
     district: string;
@@ -128,14 +130,17 @@ const OrderSummary = () => {
   const shippingAddress = order.shippingAddress;
   const trackingDetails = order.trackingDetails;
 
-  // Timeline steps
-  const statusSteps = ["Packed", "Shipped", "Out for Delivery", "Delivered"];
-  const filteredSteps = statusSteps.filter(
-    (s) => s !== "Out for Delivery" || trackingDetails
-  );
+  // Improved Timeline
+  const statusSteps = [
+    { key: "Packed", color: "bg-blue-500", icon: "📦" },
+    { key: "Shipped", color: "bg-orange-500", icon: "🚚" },
+    { key: "Delivered", color: "bg-green-500", icon: "✅" },
+  ];
 
-  const currentIndex = filteredSteps.findIndex(s => s === order.status);
-  const safeCurrentIndex = currentIndex === -1 ? filteredSteps.length - 1 : currentIndex;
+  const currentIndex = statusSteps.findIndex(
+    (s) => s.key === order.status
+  );
+  const safeCurrentIndex = currentIndex === -1 ? statusSteps.length - 1 : currentIndex;
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -173,130 +178,133 @@ const OrderSummary = () => {
                   ₹{orderedProduct.discountPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500">Qty: {order.qty}</p>
+                <div className="mt-2">
+                   <PaymentViewDialog paymentData={order.paymentFile ?? null}  />
+                </div>
+                
               </div>
             </div>
 
-            {/* Order Timeline */}
-            <div className="mt-8 relative">
-              <h3 className="font-semibold text-gray-800 mb-3">Order Progress</h3>
-              <div className="relative flex justify-between items-start mt-6">
-                <div className="absolute top-[10px] left-0 w-full h-[2px] bg-blue-300 z-0"></div>
+            {/* Improved Order Timeline */}
+             <div className="mt-8">
+              <h3 className="font-semibold text-gray-800 mb-4">Order Status</h3>
+              <div className="relative flex justify-between items-center">
+                {/* Base line (gray) */}
+                <div className="absolute top-3 left-0 w-full h-1 bg-gray-200 z-0"></div>
 
-                {filteredSteps.map((status, index) => {
+                {/* Dynamic blue line - only show if status is Packed or later */}
+                {safeCurrentIndex >= 0 && (
+                  <div
+                    className="absolute top-3 left-0 h-1 bg-blue-500 z-10 transition-all duration-500"
+                    style={{
+                      width: `${((safeCurrentIndex + 1) / statusSteps.length) * 100}%`,
+                    }}
+                  ></div>
+                )}
+
+                {statusSteps.map((step, index) => {
                   const isActive = index <= safeCurrentIndex;
-                  const isCompleted = index < safeCurrentIndex;
-
-                  const statusHistoryItem = order.statusHistory?.find(s => s.status === status);
+                  const stepHistory = order.statusHistory?.find(
+                    (s) => s.status === step.key
+                  );
 
                   return (
-                    <div key={status} className="relative flex flex-col items-center flex-1 z-10">
-                      {index > 0 && (
-                        <div
-                          className={`absolute top-[10px] left-[-50%] w-full h-[2px] ${isActive ? "bg-blue-500" : "bg-blue-200"}`}
-                        ></div>
-                      )}
-
+                    <div
+                      key={step.key}
+                      className="relative flex flex-col items-center z-20"
+                    >
                       <div
-                        className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                          isActive
-                            ? "bg-blue-500 border-blue-500 text-white shadow-[0_0_0_3px_rgba(59,130,246,0.2)]"
-                            : "bg-white border-blue-200 text-blue-300"
+                        className={`w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-300
+                          ${isActive ? step.color : "bg-gray-200"}`}
+                      >
+                        <span>{step.icon}</span>
+                      </div>
+                      <span
+                        className={`mt-2 text-xs font-semibold ${
+                          isActive ? "text-black" : "text-gray-400"
                         }`}
                       >
-                        {isCompleted ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : (
-                          <span className="text-[10px] font-bold">{index + 1}</span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col items-center mt-3 text-center">
-                        <span className={`text-xs font-semibold ${isActive ? "text-black" : "text-gray-400"}`}>
-                          {status.toUpperCase()}
+                        {step.key}
+                      </span>
+                      {stepHistory && (
+                        <span className="text-[10px] text-gray-500 mt-1 text-center">
+                          {(() => {
+                            const date = new Date(stepHistory.updatedAt);
+                            return isNaN(date.getTime())
+                              ? "N/A"
+                              : date.toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                });
+                          })()}
                         </span>
-                        <span className={`text-[10px] mt-1 ${isActive ? "text-black" : "text-gray-400"}`}>
-                          {statusHistoryItem ? new Date(statusHistoryItem.updatedAt).toLocaleString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          }) : "--"}  
-                          <br/>
-                        </span>
-
-                        {/* Shipping info under Shipped */}
-                        {/* {status === "Out for Delivery" && trackingDetails && order.shippingAddress && (
-                              <div className="mt-2 text-[11px] text-gray-600 leading-snug max-w-[180px]">
-                                <div className="mt-1 text-xs">
-                                  <span className="font-semibold">Tracking ID:</span> 
-                                  <span className="text-blue-600">
-                                    {trackingDetails.trackingNumber || "Will be shared once out for delivery"}
-                                  </span>
-                                </div>
-                              </div>
-                            )} */}
-
-                      </div>
+                      )}
                     </div>
                   );
                 })}
-                
               </div>
-              
             </div>
+
             {trackingDetails && (
-  <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 space-y-2">
-    <h4 className="font-semibold text-gray-800 mb-2">Tracking Details</h4>
+              <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 space-y-2">
+                <h4 className="font-semibold text-gray-800 mb-2">Tracking Details</h4>
+                <div className="flex justify-between">
+                  <span className="font-medium">Logistic Partner:</span>
+                  <span className="text-gray-900 capitalize">{trackingDetails.logisticPartner}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Pickup Person:</span>
+                  <span className="text-gray-900">{trackingDetails.pickupPerson}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Pickup Phone:</span>
+                  <span className="text-gray-900">{trackingDetails.pickupPersonPhone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Tracking Number:</span>
+                  <span className="text-blue-600 font-semibold">{trackingDetails.trackingNumber}</span>
+                </div>
+                {trackingDetails?.trackingDocument && (
+                  <div className="flex justify-between">
+                    <span className="font-medium">Tracking Document:</span>
+                    <button
+                        onClick={() => {
+                          const doc = trackingDetails.trackingDocument;
+                          if (!doc) return; // exit if undefined
 
-    <div className="flex justify-between">
-      <span className="font-medium">Logistic Partner:</span>
-      <span className="text-gray-900 capitalize">{trackingDetails.logisticPartner}</span>
-    </div>
+                          const url = `${BASE_URL}payment-docs/${doc}`;
 
-    <div className="flex justify-between">
-      <span className="font-medium">Pickup Person:</span>
-      <span className="text-gray-900">{trackingDetails.pickupPerson}</span>
-    </div>
-
-    <div className="flex justify-between">
-      <span className="font-medium">Pickup Phone:</span>
-      <span className="text-gray-900">{trackingDetails.pickupPersonPhone}</span>
-    </div>
-
-    <div className="flex justify-between">
-      <span className="font-medium">Tracking Number:</span>
-      <span className="text-blue-600 font-semibold">{trackingDetails.trackingNumber}</span>
-    </div>
-
-    {trackingDetails?.trackingDocument && (
-            <div className="flex justify-between">
-              <span className="font-medium">Tracking Document:</span>
-              <button
-                onClick={() => {
-                  if (!trackingDetails.trackingDocument) return; // safety check
-                  const link = document.createElement("a");
-                  link.href = `/${trackingDetails.trackingDocument}`; // adjust path if needed
-                  // Use only the file name, not full path
-                  link.download = trackingDetails.trackingDocument.split("/").pop() || "document.pdf";
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-                className=" inline-flex cursor-pointer items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 font-medium rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm"
-              >
-                Download Document
-              </button>
-            </div>
-          )}
-
-            </div>
-          )}
+                          fetch(url)
+                            .then((response) => {
+                              if (!response.ok) throw new Error("Network response was not ok");
+                              return response.blob();
+                            })
+                            .then((blob) => {
+                              const blobUrl = window.URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.href = blobUrl;
+                              link.download = doc; // guaranteed string now
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(blobUrl);
+                            })
+                            .catch((err) => console.error("Download failed:", err));
+                        }}
+                        className="inline-flex cursor-pointer items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 font-medium rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm"
+                      >
+                        Download Document
+                      </button>
 
 
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ---------------- RIGHT SECTION ---------------- */}
