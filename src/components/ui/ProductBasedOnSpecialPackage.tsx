@@ -2,62 +2,59 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
+import { Product } from "../../Types/types";
+import DefaultProductCard from "../../components/Product/ProductCard";
 import { API_URL } from "@/data";
-
-
-// ✅ Define Variant type
-type Variant = {
-  discountPrice: number;
-  originalPrice: number;
-};
-
-// ✅ Product type
-type Product = {
-  id: string;
-  name: string;
-  manufacturerName: string;
-  originalPrice: number;
-  discountPrice: number;
-  deliveryDate?: string;
-  rating?: number;
-  image: string;
-  badge?: string;
-  variants: Variant[];
-};
 
 export default function ProductBasedOnSpecialPackagetypes() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // const [searchInput] = useState("");
-  const [search] = useState("");
+  const [search, setSearch] = useState("");
   const [sort, setSort] = useState("popularity");
-  const [selectedmanufacturerName, setSelectedmanufacturerName] = useState<string[]>([]);
+  const [selectedManufacturerName, setSelectedManufacturerName] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
-  const [cartItems, setCartItems] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const { id } = useParams<{ id: string }>();
 
-  // Fetch products
+  // ---------------- FETCH (same structure as category) ----------------
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        setError("Invalid speciality package ID");
+        return;
+      }
       try {
-        const res = await fetch(`${API_URL}product/get-products-by-speciality-package/${id}`);
+        const res = await fetch(
+          `${API_URL}product/get-products-by-speciality-package/${id}`
+        );
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
+
         if (Array.isArray(data)) {
-          setProducts(data);
-          setError(null);
-        } else if (typeof data === "object" && data.message) {
-          setProducts([]);
+          // 🔥 SAME manufacturer normalization as category page
+          const fixedProducts = data.map((p: any) => {
+            if (!p.manufacturer && p.manufacturerName) {
+              p.manufacturer = {
+                manufacturerName: p.manufacturerName,
+                email: p.email || "",
+                phone: p.phone || "",
+                origin: p.origin || "",
+              };
+            }
+            return p;
+          });
+
+          setProducts(fixedProducts);
           setError(null);
         } else {
-          throw new Error("Unexpected response format");
+          setProducts([]);
+          setError(null);
         }
       } catch (err: any) {
         setError(err.message || "Something went wrong");
@@ -65,69 +62,84 @@ export default function ProductBasedOnSpecialPackagetypes() {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, [id]);
 
-  // Unique brands
-  const allmanufacturerName = [...new Set(products.map((p) => p.manufacturerName))];
+  // ---------------- HELPERS (same as category) ----------------
+  const getManufacturerName = (p: Product) =>
+    typeof p.manufacturer === "string"
+      ? p.manufacturer
+      : p.manufacturer?.manufacturerName ?? "Unknown";
+
+  const allManufacturerNames = [
+    ...new Set(products.map(getManufacturerName)),
+  ].filter(Boolean);
 
   const handleBrandChange = (manufacturerName: string) => {
-    setSelectedmanufacturerName((prev) =>
-      prev.includes(manufacturerName) ? prev.filter((b) => b !== manufacturerName) : [...prev, manufacturerName]
+    setSelectedManufacturerName((prev) =>
+      prev.includes(manufacturerName)
+        ? prev.filter((b) => b !== manufacturerName)
+        : [...prev, manufacturerName]
     );
   };
 
-  const handleAddToCart = (productId: string) => {
-    if (!cartItems.includes(productId)) {
-      setCartItems((prev) => [...prev, productId]);
-      alert("Product added to cart!");
-    } else {
-      alert("Product already in cart");
-    }
-  };
-
-
-
-  // Filter & sort
+  // ---------------- FILTER & SORT (same as category) ----------------
   const filteredProducts = products
     .filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
-      const matchesBrand =
-        selectedmanufacturerName.length === 0 || selectedmanufacturerName.includes(p.manufacturerName);
+      const firstVariant = p.variants?.[0];
+      const price =
+        firstVariant?.discountPrice ??
+        firstVariant?.originalPrice ??
+        0;
 
-      const price = p.variants?.[0]?.discountPrice ?? p.discountPrice;
+      const matchesSearch = p.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+      const matchesBrand =
+        selectedManufacturerName.length === 0 ||
+        selectedManufacturerName.includes(getManufacturerName(p));
+
       const matchesMinPrice = minPrice === "" || price >= minPrice;
       const matchesMaxPrice = maxPrice === "" || price <= maxPrice;
 
-      return matchesSearch && matchesBrand && matchesMinPrice && matchesMaxPrice;
+      return (
+        matchesSearch &&
+        matchesBrand &&
+        matchesMinPrice &&
+        matchesMaxPrice
+      );
     })
     .sort((a, b) => {
-      const getPrice = (p: Product) => p.variants?.[0]?.discountPrice ?? p.discountPrice;
+      const getPrice = (p: Product) =>
+        p.variants?.[0]?.discountPrice ??
+        p.variants?.[0]?.originalPrice ??
+        0;
 
       if (sort === "priceLow") return getPrice(a) - getPrice(b);
       if (sort === "priceHigh") return getPrice(b) - getPrice(a);
-      if (sort === "ratingHigh") return (b.rating ?? 0) - (a.rating ?? 0);
-      if (sort === "deliverySoon") {
-        const dateA = a.deliveryDate ? new Date(a.deliveryDate).getTime() : Infinity;
-        const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : Infinity;
-        return dateA - dateB;
-      }
+      if (sort === "ratingHigh")
+        return (b.ratings ?? 0) - (a.ratings ?? 0);
+
       if (sort === "discountHigh") {
         const getDiscount = (p: Product) => {
-          const original = p.variants?.[0]?.originalPrice ?? p.originalPrice;
-          const discounted = p.variants?.[0]?.discountPrice ?? p.discountPrice;
-          return ((original - discounted) / original) * 100;
+          const v = p.variants?.[0];
+          const original = v?.originalPrice ?? 1;
+          const discounted = v?.discountPrice ?? original;
+          return ((original - discounted) / Math.max(original, 1)) * 100;
         };
         return getDiscount(b) - getDiscount(a);
       }
       return 0;
     });
 
+  // ---------------- STATES ----------------
   if (loading)
     return (
       <>
         <Header />
-        <div className="flex justify-center items-center min-h-screen">
+        <div className="flex justify-center items-center min-h-[60vh]">
           <p className="text-lg">Loading products...</p>
         </div>
         <Footer />
@@ -138,136 +150,126 @@ export default function ProductBasedOnSpecialPackagetypes() {
     return (
       <>
         <Header />
-        <div className="flex justify-center items-center min-h-screen">
+        <div className="flex justify-center items-center min-h-[60vh]">
           <p className="text-red-600 text-lg">Error: {error}</p>
         </div>
         <Footer />
       </>
     );
 
+  // ---------------- RENDER ----------------
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="flex min-h-screen bg-gray-50 text-sm">
-        {/* Sidebar */}
-        <aside className="w-60 hidden md:block bg-white border-r p-4">
-          <h2 className="font-semibold mb-4">Filters</h2>
 
-          {/* Brand Filter */}
-          <div className="mb-4">
-            <h3 className="font-medium text-sm mb-1">Brand</h3>
-            {allmanufacturerName.length > 0 ? (
-              allmanufacturerName.map((manufacturerName) => (
-                <label key={manufacturerName} className="block text-sm cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedmanufacturerName.includes(manufacturerName)}
-                    onChange={() => handleBrandChange(manufacturerName)}
-                    className="mr-2"
-                  />
-                  {manufacturerName}
-                </label>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">No brands available</p>
-            )}
+      {/* Mobile filter toggle */}
+      <div className="md:hidden bg-white border-b">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Products</h2>
+          <button
+            onClick={() => setShowFilters((s) => !s)}
+            className="px-3 py-2 rounded-md border text-sm"
+          >
+            {showFilters ? "Hide filters" : "Show filters"}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <aside
+          className={`fixed md:static z-40 top-0 left-0 h-full md:h-auto w-72 md:w-64 bg-white border-r p-4 transition-transform ${
+            showFilters ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
+        >
+          <h3 className="text-lg font-semibold mb-4">Filters</h3>
+
+          {/* Brand */}
+          <div className="mb-6">
+            <h4 className="font-medium mb-2">Brand</h4>
+            {allManufacturerNames.map((brand) => (
+              <label key={brand} className="flex items-center text-sm">
+                <input
+                  type="checkbox"
+                  checked={selectedManufacturerName.includes(brand)}
+                  onChange={() => handleBrandChange(brand)}
+                  className="mr-2"
+                />
+                {brand}
+              </label>
+            ))}
           </div>
 
-          {/* Price Filter */}
-          <div className="mb-4">
-            <h3 className="font-medium text-sm mb-1">Price Range</h3>
-            <div className="flex flex-col space-y-2">
-              <input
-                type="number"
-                placeholder="Min Price"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
-                className="border px-2 py-1 rounded text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Max Price"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
-                className="border px-2 py-1 rounded text-sm"
-              />
-            </div>
+          {/* Price */}
+          <div className="mb-6">
+            <h4 className="font-medium mb-2">Price Range</h4>
+            <input
+              type="number"
+              placeholder="Min Price"
+              value={minPrice}
+              onChange={(e) =>
+                setMinPrice(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
+              className="border px-3 py-2 rounded w-full mb-2"
+            />
+            <input
+              type="number"
+              placeholder="Max Price"
+              value={maxPrice}
+              onChange={(e) =>
+                setMaxPrice(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
+              className="border px-3 py-2 rounded w-full"
+            />
+          </div>
+
+          {/* Search */}
+          <div>
+            <h4 className="font-medium mb-2">Search</h4>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border px-3 py-2 rounded w-full"
+            />
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-4">
-          {/* Top Filters */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-
-
-            {/* Sort Dropdown */}
+        {/* Main */}
+        <main className="flex-1 p-4 md:p-8">
+          <div className="flex justify-end mb-4">
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="border px-3 py-2 rounded w-full md:w-1/4"
+              className="border px-3 py-2 rounded-md"
             >
               <option value="popularity">Sort by Popularity</option>
               <option value="priceLow">Price -- Low to High</option>
               <option value="priceHigh">Price -- High to Low</option>
               <option value="ratingHigh">Rating -- High to Low</option>
-              <option value="deliverySoon">Earliest Delivery</option>
               <option value="discountHigh">Highest Discount</option>
             </select>
           </div>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-            {filteredProducts.map((product) => {
-              const variant = product.variants?.[0];
-              const discount = variant
-                ? Math.floor(((variant.originalPrice - variant.discountPrice) / variant.originalPrice) * 100)
-                : Math.floor(((product.originalPrice - product.discountPrice) / product.originalPrice) * 100);
-
-              return (
-                <div
-                  key={product.id}
-                  className="relative bg-white border rounded-lg shadow-sm hover:shadow-md p-2 flex flex-col"
-                >
-                  <button
-                    className="absolute top-2 right-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
-                    aria-label="Add to wishlist"
-                  >
-                    <AiOutlineHeart size={20} />
-                  </button>
-
-                  <img src={product.image} alt={product.name} className="w-full h-48 object-contain" />
-
-                  <h3 className="mt-2 font-semibold text-sm">{product.name}</h3>
-                  <p className="text-gray-500 text-xs">{product.manufacturerName}</p>
-
-                  <div className="mt-1">
-                    <span className="text-base font-bold">
-                      ₹{variant?.discountPrice ?? product.discountPrice}
-                    </span>
-                    <span className="line-through text-sm text-gray-400 ml-2">
-                      ₹{variant?.originalPrice ?? product.originalPrice}
-                    </span>
-                    <span className="text-green-600 text-sm ml-2">{discount}% off</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleAddToCart(product.id)}
-                    className="mt-auto flex items-center justify-center gap-2 bg-[#1C647C] text-white rounded px-3 py-2 hover:bg-blue-700 transition"
-                  >
-                    <AiOutlineShoppingCart size={18} />
-                    Add to Cart
-                  </button>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {filteredProducts.map((product) => (
+              <DefaultProductCard key={product._id} product={product} />
+            ))}
           </div>
 
           {filteredProducts.length === 0 && (
-            <p className="text-center text-gray-500 mt-10">No products found.</p>
+            <p className="text-center text-gray-500 mt-10">
+              No products found.
+            </p>
           )}
         </main>
       </div>
+
       <Footer />
     </div>
   );
