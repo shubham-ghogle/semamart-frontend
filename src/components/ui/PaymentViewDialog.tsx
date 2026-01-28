@@ -1,7 +1,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -9,29 +8,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { BASE_URL } from "@/data";
-import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
-import { useParams } from "react-router";
-import { Order } from "@/Types/types";
 
-type AdminPaymentProofDialogProps = {
+type PaymentViewDialogProps = {
   paymentData: string | null;
-  currentStatus: Order["status"];
 };
-export default function OrderPaymentViewDialog({
-  paymentData,
-  currentStatus,
-}: AdminPaymentProofDialogProps) {
+
+export default function PaymentViewDialog({ paymentData }: PaymentViewDialogProps) {
   const [open, setOpen] = useState(false);
 
   const isPDF = paymentData?.toLowerCase().endsWith(".pdf");
-
-  const { mutationStatus, mutateOrder } = useAdminOrderMutation(() => {
-    setOpen(false);
-  });
-
-  const { orderId } = useParams();
-
-  const isPaymentVerified = currentStatus !== "Paid";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -40,6 +25,7 @@ export default function OrderPaymentViewDialog({
           View Payment Proof
         </Button>
       </DialogTrigger>
+
       {open && (
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -63,19 +49,6 @@ export default function OrderPaymentViewDialog({
               />
             )}
           </div>
-
-          <DialogFooter>
-            {!isPaymentVerified && (
-              <Button
-                onClick={() => {
-                  mutateOrder({ orderId: orderId ?? "", status: "Processing" });
-                }}
-                disabled={mutationStatus === "pending"}
-              >
-                Verify
-              </Button>
-            )}
-          </DialogFooter>
         </DialogContent>
       )}
     </Dialog>
