@@ -80,6 +80,7 @@ import AdminOrderSummary from "./components/ui/adminOrderSummary";
 import BulkAndStock from "./Screens/Admin/BulkAndStock";
 import BufferAndOutOfStockScreen from "./Screens/Seller/BufferAndOutOfStockScreen";
 import BulkOrderDetails from "./components/Account/BulkOrderDetails";
+import AllProducts from "./components/ui/AllProducts";
 
 /**
  * redirectToDashboard loader
@@ -446,6 +447,7 @@ export const router = createBrowserRouter([
     element: <SellerActivation />,
   },
   { path: "/account", element: <AccountNavbar /> },
+  { path: "/products", element: <AllProducts /> },
   {
     path: "account/orders/:productId",
     loader: requireUserAuth,
