@@ -5,7 +5,7 @@ import { useUserStore } from "@/store/userStore";
 import OrderBreadcrumb from "../ui/OrderBredcrum"; 
 import { FiDownload } from "react-icons/fi";
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import PaymentViewDialog from "../ui/PaymentViewDialog";
 
 interface Product {
@@ -272,19 +272,35 @@ const OrderSummary = () => {
                   <div className="flex justify-between">
                     <span className="font-medium">Tracking Document:</span>
                     <button
-                      onClick={() => {
-                        if (!trackingDetails.trackingDocument) return;
-                        const link = document.createElement("a");
-                        link.href = `/${trackingDetails.trackingDocument}`;
-                        link.download = trackingDetails.trackingDocument.split("/").pop() || "document.pdf";
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      className="inline-flex cursor-pointer items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 font-medium rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm"
-                    >
-                      Download Document
-                    </button>
+                        onClick={() => {
+                          const doc = trackingDetails.trackingDocument;
+                          if (!doc) return; // exit if undefined
+
+                          const url = `${BASE_URL}payment-docs/${doc}`;
+
+                          fetch(url)
+                            .then((response) => {
+                              if (!response.ok) throw new Error("Network response was not ok");
+                              return response.blob();
+                            })
+                            .then((blob) => {
+                              const blobUrl = window.URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.href = blobUrl;
+                              link.download = doc; // guaranteed string now
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(blobUrl);
+                            })
+                            .catch((err) => console.error("Download failed:", err));
+                        }}
+                        className="inline-flex cursor-pointer items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 font-medium rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm"
+                      >
+                        Download Document
+                      </button>
+
+
                   </div>
                 )}
               </div>

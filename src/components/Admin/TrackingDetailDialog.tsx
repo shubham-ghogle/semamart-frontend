@@ -173,14 +173,13 @@ export default function TrackingDetailDialog({
                 handleChange("logisticPartner", String(v))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full h-10">
                 <SelectValue placeholder="Select company" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="bluedart">Bluedart</SelectItem>
                 <SelectItem value="delhivery">Delhivery</SelectItem>
                 <SelectItem value="dtdc">DTDC</SelectItem>
-                <SelectItem value="ekart">Ekart</SelectItem>
                 <SelectItem value="others">Others</SelectItem>
               </SelectContent>
             </Select>
