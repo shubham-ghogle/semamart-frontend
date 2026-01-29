@@ -18,6 +18,7 @@ type Row = {
   email: string;
   role: string;
   joinedOn: string;
+  instituteName: string;
   deleteUser: (id: string) => void;
   viewUser: (id: string) => void;
 };
@@ -36,6 +37,7 @@ export default function AdminUserTable({
   const rows: Row[] = users.map((u) => ({
     id: u._id,
     name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "-",
+    instituteName: u.instituteName || "-",
     email: u.email || "-",
     role: u.role || "user",
     joinedOn: u.createdAt
@@ -113,6 +115,7 @@ export default function AdminUserTable({
       enableHiding: false,
     },
     { accessorKey: "name", header: "Name" },
+    { accessorKey: "instituteName", header: "Institute" },
     { accessorKey: "email", header: "Email" },
     // { accessorKey: "role", header: "Role" },
     { accessorKey: "joinedOn", header: "Joined On" },

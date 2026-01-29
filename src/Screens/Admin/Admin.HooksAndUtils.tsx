@@ -108,6 +108,7 @@ export async function getAdminProducts() {
 
 // ====== Users ======
 export interface User {
+  instituteName: string;
   _id: string;
   firstName: string;
   lastName: string;

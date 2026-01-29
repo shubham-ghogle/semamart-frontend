@@ -12,15 +12,59 @@ import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import { API_URL, BASE_URL } from "@/data";
 
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
+
 type LinkItemProps = {
   to: string;
   label: string;
   icon: React.ReactNode;
   end?: boolean;
   onClick?: () => void;
+  target?: "_blank" | "_self";
+  rel?: string;
 };
 
-function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
+/* -------------------------------------------------------------------------- */
+/*                                LINK ITEM                                   */
+/* -------------------------------------------------------------------------- */
+
+function LinkItem({
+  to,
+  label,
+  icon,
+  end,
+  onClick,
+  target,
+  rel,
+}: LinkItemProps) {
+  const baseClasses =
+    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
+
+  if (target === "_blank") {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel={rel ?? "noopener noreferrer"}
+        title={label}
+        onClick={onClick}
+        className={`${baseClasses} text-gray-600 hover:bg-sky-50 hover:text-sky-600`}
+      >
+        <span className="shrink-0 text-lg">{icon}</span>
+        <span className="label transition-opacity whitespace-nowrap">{label}</span>
+
+        <span
+          className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
+          aria-hidden="true"
+        >
+          {label}
+        </span>
+      </a>
+    );
+  }
+
   return (
     <NavLink
       to={to}
@@ -28,16 +72,16 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
       onClick={onClick}
       title={label}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors
-         ${isActive ? "bg-sky-50 text-sky-700" : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"}`
+        `${baseClasses} ${
+          isActive
+            ? "bg-sky-50 text-sky-700"
+            : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
+        }`
       }
     >
       <span className="shrink-0 text-lg">{icon}</span>
-
-      {/* label — hidden when sidebar collapsed via CSS but present for a11y */}
       <span className="label transition-opacity whitespace-nowrap">{label}</span>
 
-      {/* tooltip shown only when fully collapsed (CSS controls visibility) */}
       <span
         className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
         aria-hidden="true"
@@ -48,13 +92,16 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*                              SELLER NAVBAR                                 */
+/* -------------------------------------------------------------------------- */
+
 export default function SellerNavbar() {
   const seller = useSellerStore((s) => s.seller);
   const removeSeller = useSellerStore((s) => s.removeSeller);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Desktop pinned state (controlled from header via custom event / storage)
   const [pinned, setPinned] = useState<boolean>(() => {
     try {
       return localStorage.getItem("seller_sidebar_pinned") === "true";
@@ -63,14 +110,11 @@ export default function SellerNavbar() {
     }
   });
 
-  // Mobile drawer state (unchanged)
   const [open, setOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // close mobile drawer on route change
   useEffect(() => setOpen(false), [location.pathname]);
 
-  // keep css var in sync when pinned changes
   useEffect(() => {
     try {
       document.documentElement.style.setProperty(
@@ -80,7 +124,6 @@ export default function SellerNavbar() {
     } catch {}
   }, [pinned]);
 
-  // listen for header toggles + storage changes so header <-> navbar remain synced
   useEffect(() => {
     const onSidebarChange = (e: Event) => {
       const ev = e as CustomEvent<boolean>;
@@ -92,11 +135,14 @@ export default function SellerNavbar() {
         } catch {}
       }
     };
-    window.addEventListener("seller-sidebar-change", onSidebarChange as EventListener);
 
     const onStorage = (e: StorageEvent) => {
-      if (e.key === "seller_sidebar_pinned") setPinned(e.newValue === "true");
+      if (e.key === "seller_sidebar_pinned") {
+        setPinned(e.newValue === "true");
+      }
     };
+
+    window.addEventListener("seller-sidebar-change", onSidebarChange as EventListener);
     window.addEventListener("storage", onStorage);
 
     return () => {
@@ -105,7 +151,6 @@ export default function SellerNavbar() {
     };
   }, []);
 
-  // keyboard escape closes mobile drawer
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -114,24 +159,24 @@ export default function SellerNavbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const fallbackAvatar = seller?.profilePic ? `${BASE_URL}images/${seller?.profilePic}` : "/image60.png";
+  const fallbackAvatar = seller?.profilePic
+    ? `${BASE_URL}images/${seller.profilePic}`
+    : "/image60.png";
 
   const logoutHandler = async () => {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      const res = await fetch(API_URL + "shop/logout", { method: "POST", credentials: "include" });
-      if (res.ok) {
-        removeSeller();
-        toast.success("Logged out", { position: "top-center" });
-        navigate("/", { replace: true });
-        return;
-      }
+      const res = await fetch(API_URL + "shop/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
       removeSeller();
-      toast.info("Logged out", { position: "top-center" });
+      toast[res.ok ? "success" : "info"]("Logged out", { position: "top-center" });
       navigate("/", { replace: true });
     } catch (err) {
-      console.error("Logout error", err);
+      console.error(err);
       toast.error("Network error while logging out", { position: "top-center" });
     } finally {
       setLoggingOut(false);
@@ -140,12 +185,16 @@ export default function SellerNavbar() {
 
   return (
     <>
-      {/* --- Mobile compact header (visible only on small screens) — UNCHANGED --- */}
+      {/* ----------------------------- MOBILE HEADER ----------------------------- */}
       <div className="md:hidden mb-4">
         <div className="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
-              <img src={fallbackAvatar} alt="seller avatar" className="w-9 h-9 rounded-full object-cover border-2 border-white" />
+              <img
+                src={fallbackAvatar}
+                alt="seller avatar"
+                className="w-9 h-9 rounded-full object-cover border-2 border-white"
+              />
             </div>
             <div>
               <p className="text-xs text-gray-400">Welcome</p>
@@ -174,9 +223,11 @@ export default function SellerNavbar() {
         </div>
       </div>
 
-      {/* --- Desktop fixed sidebar (md+) --- */}
+      {/* ----------------------------- DESKTOP SIDEBAR ----------------------------- */}
       <aside
-        className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-30 bg-white shadow-md transition-all duration-200 ${pinned ? "w-[250px]" : "w-[80px]"}`}
+        className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-30 bg-white shadow-md transition-all duration-200 ${
+          pinned ? "w-[250px]" : "w-[80px]"
+        }`}
         aria-expanded={pinned}
       >
         <div className="bg-white rounded-r-xl overflow-hidden h-full flex flex-col">
@@ -188,13 +239,21 @@ export default function SellerNavbar() {
               <img
                 src={fallbackAvatar}
                 alt="seller avatar"
-                className={`rounded-full object-cover border-2 border-white ${pinned ? "w-12 h-12" : "w-8 h-8"}`}
+                className={`rounded-full object-cover border-2 border-white ${
+                  pinned ? "w-12 h-12" : "w-8 h-8"
+                }`}
               />
             </div>
 
-            <div className={`transition-all ${pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
+            <div
+              className={`transition-all ${
+                pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"
+              }`}
+            >
               <p className="text-xs text-gray-400">Hello,</p>
-              <p className="font-semibold text-gray-800 leading-5">{`${seller?.firstName || ""} ${seller?.lastName || ""}`}</p>
+              <p className="font-semibold text-gray-800 leading-5">
+                {`${seller?.firstName || ""} ${seller?.lastName || ""}`}
+              </p>
               <p className="text-xs text-gray-500">{seller?.email}</p>
             </div>
           </div>
@@ -208,8 +267,17 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
               <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
-              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" />
-              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
+              <LinkItem
+                to="/seller/stock-management"
+                icon={<FaBoxOpen />}
+                label="Stock Management"
+              />
+              <LinkItem
+                to={`/shop/${seller?._id}`}
+                icon={<MdStorefront />}
+                label="My Shop"
+                target="_blank"
+              />
             </div>
           </nav>
 
@@ -221,80 +289,29 @@ export default function SellerNavbar() {
               title="Logout"
             >
               <FaSignOutAlt className="text-sky-600" />
-              <span className={`label transition-opacity ${pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
+              <span
+                className={`label transition-opacity ${
+                  pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"
+                }`}
+              >
                 {loggingOut ? "Logging out..." : "Logout"}
               </span>
             </button>
           </div>
         </div>
-
-        {/* internal CSS for labels, tooltips, scrollbar hiding */}
-        <style>{`
-          .nav-scrollarea {
-            scrollbar-width: none; /* firefox */
-            -ms-overflow-style: none; /* IE 10+ */
-          }
-          .nav-scrollarea::-webkit-scrollbar { display: none; } /* webkit */
-
-          /* hide labels when collapsed */
-          aside[aria-expanded="false"] .label {
-            opacity: 0;
-            width: 0;
-            max-width: 0;
-            pointer-events: none;
-            transform: translateX(-6px);
-            transition: all .18s ease;
-          }
-          aside[aria-expanded="true"] .label {
-            opacity: 1;
-            width: auto;
-            max-width: 100%;
-            transform: translateX(0);
-            transition: all .18s ease;
-          }
-
-          /* when collapsed, center items and tighten padding */
-          aside[aria-expanded="false"] nav a {
-            justify-content: center;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-          }
-
-          /* tooltip for collapsed icons */
-          aside[aria-expanded="false"] .group:hover .tooltip {
-            display: block;
-            opacity: 1;
-            transform: translateX(0);
-          }
-          .tooltip {
-            display: none;
-            opacity: 0;
-            transform: translateX(-6px);
-            transition: transform .14s ease, opacity .14s ease;
-            white-space: nowrap;
-            z-index: 50;
-          }
-          aside[aria-expanded="false"] .group:hover .tooltip::before {
-            content: "";
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 6px;
-            border-style: solid;
-            border-color: transparent #ffffff transparent transparent;
-            filter: drop-shadow(-1px 0 0 rgba(0,0,0,0.03));
-          }
-        `}</style>
       </aside>
 
-      {/* --- Mobile slide-over drawer (UNCHANGED) --- */}
+      {/* ----------------------------- MOBILE DRAWER ----------------------------- */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transform ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-40 md:hidden transform ${
+          open ? "pointer-events-auto" : "pointer-events-none"
+        }`}
         aria-hidden={!open}
       >
         <div
-          className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 bg-black/40 transition-opacity ${
+            open ? "opacity-100" : "opacity-0"
+          }`}
           onClick={() => setOpen(false)}
         />
         <div
@@ -307,47 +324,89 @@ export default function SellerNavbar() {
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center">
-                <img src={fallbackAvatar} alt="seller avatar" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
+                <img
+                  src={fallbackAvatar}
+                  alt="seller avatar"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-800">{`${seller?.firstName || ""} ${seller?.lastName || ""}`}</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {`${seller?.firstName || ""} ${seller?.lastName || ""}`}
+                </p>
                 <p className="text-xs text-gray-500">{seller?.email}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button aria-label="Close menu" onClick={() => setOpen(false)} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100">
-                <FaTimes />
-              </button>
-            </div>
+            <button
+              aria-label="Close menu"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100"
+            >
+              <FaTimes />
+            </button>
           </div>
 
-          <nav className="p-3 overflow-auto">
+          <nav className="p-3 overflow-auto flex-1">
             <div className="flex flex-col gap-2">
-              <NavLink to="/seller" end onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+              <NavLink
+                to="/seller"
+                end
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
                 <RxDashboard />
                 <span>Dashboard</span>
               </NavLink>
-              <NavLink to="/seller/add-product" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+              <NavLink
+                to="/seller/my-account"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
+                <FaRegCircleUser />
+                <span>My Account</span>
+              </NavLink>
+              <NavLink
+                to="/seller/add-product"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
                 <TiDocumentAdd />
                 <span>Add Product</span>
               </NavLink>
-              <NavLink to="/seller/products" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+              <NavLink
+                to="/seller/products"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
                 <AiOutlineProduct />
                 <span>All Products</span>
               </NavLink>
-              <NavLink to="/seller/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+              <NavLink
+                to="/seller/orders"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
                 <CiDeliveryTruck />
                 <span>All Orders</span>
               </NavLink>
-               <NavLink to="/seller/stock-management" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
-                <CiDeliveryTruck />
+              <NavLink
+                to="/seller/stock-management"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
+                <FaBoxOpen />
                 <span>Stock Management</span>
               </NavLink>
-              <NavLink to={`/shop/${seller?._id}`} className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50">
+              <a
+                href={`/shop/${seller?._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+              >
                 <MdStorefront />
                 <span>My Shop</span>
-              </NavLink>
+              </a>
 
               <div className="mt-6 pt-4">
                 <button
