@@ -131,16 +131,16 @@ const OrderSummary = () => {
   const trackingDetails = order.trackingDetails;
 
   // Improved Timeline
-  const statusSteps = [
+   const statusSteps = [
     { key: "Packed", color: "bg-blue-500", icon: "📦" },
     { key: "Shipped", color: "bg-orange-500", icon: "🚚" },
     { key: "Delivered", color: "bg-green-500", icon: "✅" },
   ];
 
-  const currentIndex = statusSteps.findIndex(
-    (s) => s.key === order.status
-  );
-  const safeCurrentIndex = currentIndex === -1 ? statusSteps.length - 1 : currentIndex;
+  // Determine which step is active
+  const currentIndex = statusSteps.findIndex((s) => s.key === order?.status);
+  // Will be -1 if order status is not Packed/Shipped/Delivered
+  const safeCurrentIndex = currentIndex; 
 
   return (
     <div className="bg-gray-50 min-h-screen">
