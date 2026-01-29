@@ -28,7 +28,7 @@ export default function AdminDeliveredOrders() {
       const commission =
         pid && typeof pid === "object" ? pid.commission ?? 0 : 0;
 
-      const commissionAmount = commission;
+      const commissionAmount = commission * (o.qty ?? 0);
 
       acc.totalSales += o.totalPrice || 0;
       acc.totalCommission += commissionAmount;

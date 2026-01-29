@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from "react";
-import {  getAllSellers, deleteSeller } from "./Admin.HooksAndUtils";
+import { getAllSellers, deleteSeller, getAllOrders } from "./Admin.HooksAndUtils"; // Added getAllOrders
 import AdminSellerTable from "@/components/Admin/AdminSellerTable";
-import { Seller } from "@/Types/types";
+import { Seller, Order } from "@/Types/types"; // Added Order type
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 
 const AllSellerScreen: React.FC = () => {
   const [sellers, setSellers] = useState<Seller[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]); // Added state for orders
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  const fetchSellers = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const sellersData = await getAllSellers();
+      // Fetch both sellers and orders to satisfy the Net Revenue calculation
+      const [sellersData, ordersData] = await Promise.all([
+        getAllSellers(),
+        getAllOrders()
+      ]);
 
       // ✅ filter verified sellers only
       const verifiedSellers = sellersData.sellers.filter(
-        (seller ) => seller.verified === true
+        (seller: Seller) => seller.verified === true
       );
 
       setSellers(verifiedSellers);
+      setOrders(ordersData.orders || []); // Set orders state
       setLoading(false);
     } catch (err: any) {
       setError(err.message);
@@ -29,7 +35,7 @@ const AllSellerScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchSellers();
+    fetchData();
   }, []);
 
   const handleDeleteSeller = async (id: string) => {
@@ -43,8 +49,8 @@ const AllSellerScreen: React.FC = () => {
     }
   };
 
-  if (loading) return <p>Loading sellers...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <p className="p-8 text-center text-gray-500">Loading sellers and financial data...</p>;
+  if (error) return <p className="text-red-500 p-8">{error}</p>;
 
   return (
     <AdminMainWrapper
@@ -52,7 +58,11 @@ const AllSellerScreen: React.FC = () => {
       heading="Verified Sellers"
       errorMeassage={error}
     >
-      <AdminSellerTable sellers={sellers} onDeleteSeller={handleDeleteSeller}/>
+      <AdminSellerTable 
+        sellers={sellers} 
+        allOrders={orders} 
+        onDeleteSeller={handleDeleteSeller}
+      />
     </AdminMainWrapper>
   );
 };

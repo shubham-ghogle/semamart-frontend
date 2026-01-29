@@ -1,62 +1,77 @@
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import SellerDeliveredOrderTable from "../../components/Seller/SellerDeliveredOrderTable";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getDeliveredOrdersForSeller,
-  getSellerDashboardStats,
-} from "./Seller.Hooks";
+import { getDeliveredOrdersForSeller } from "./Seller.Hooks";
 import { Order } from "../../Types/types";
+
+const formatMoney = (v: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(v);
 
 export default function SellerDeliveredOrders() {
   const {
     data: orders,
-    status: orderStatus,
-    error: orderError,
+    status,
+    error,
   } = useQuery<Order[]>({
     queryKey: ["seller-delivered-orders"],
     queryFn: getDeliveredOrdersForSeller,
   });
 
-  const {
-    data: stats,
-    status: statsStatus,
-    error: statsError,
-  } = useQuery({
-    queryKey: ["seller-dashboard-stats"],
-    queryFn: getSellerDashboardStats,
-  });
+  const deliveredOrders =
+    orders?.filter((o) => o.status === "Delivered") ?? [];
 
-  const isSuccess = orderStatus === "success" && statsStatus === "success";
-  const isError = orderStatus === "error" || statsStatus === "error";
+  const totals = deliveredOrders.reduce(
+    (acc, o) => {
+      const pid =
+        typeof o.variant === "object" ? (o.variant as any)?.productId : null;
 
-  const formatMoney = (v: number) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(v);
+      const commission =
+        pid && typeof pid === "object" ? pid.commission ?? 0 : 0;
+
+      const orderTotal = o.totalPrice || 0;
+
+      // ✅ CORRECT commission calculation
+      const commissionAmount = commission * (o.qty ?? 0);
+
+      acc.totalSales += orderTotal;
+      acc.totalCommission += commissionAmount;
+      acc.totalRevenue += orderTotal - commissionAmount;
+
+      return acc;
+    },
+    {
+      totalSales: 0,
+      totalCommission: 0,
+      totalRevenue: 0,
+    }
+  );
 
   return (
     <SellerMainWrapper
-      status={isSuccess ? "success" : isError ? "error" : "pending"}
-      errorMessage={
-        (orderError as Error)?.message ||
-        (statsError as Error)?.message ||
-        "Something went wrong"
-      }
+      status={status as any}
+      errorMessage={(error as Error)?.message || "Something went wrong"}
       heading="Total Sales"
       subHeading="Sales for orders that have been delivered"
     >
-      {isSuccess && (
+      {status === "success" && (
         <>
-          <div className="mb-6 flex justify-end">
-            <span className="text-lg bg-yellow-100 p-4 rounded-xl text-yellow-900 sm:text-xl font-semibold">
-              Total Sales: {formatMoney(stats.totalSales)}
-            </span>
+          <div className="flex justify-end gap-4 mb-6">
+            <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+              Total Sales: {formatMoney(totals.totalSales)}
+            </div>
+
+            <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+              Net Revenue: {formatMoney(totals.totalRevenue)}
+            </div>
           </div>
 
-          <SellerDeliveredOrderTable orders={orders ?? []} />
+          {/* ✅ Pass ONLY delivered orders */}
+          <SellerDeliveredOrderTable orders={deliveredOrders} />
         </>
       )}
     </SellerMainWrapper>
