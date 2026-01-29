@@ -13,6 +13,8 @@ type Row = {
   productName: string;
   customerName: string;
   totalPrice: number;
+  commission: number;
+  qty: number;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -38,17 +40,23 @@ export default function SellerDeliveredOrderTable({
       typeof order.variant.productId !== "string"
         ? truncate(order.variant.productId.name, 35)
         : "-";
+    let commission = 0;
 
     const customerName =
-      typeof order.user !== "string"
-        ? order.user.instituteName
-        : "-";
+      typeof order.user !== "string" ? order.user.instituteName : "-";
+    const pid =
+      typeof order.variant === "object"
+        ? (order.variant as any)?.productId
+        : null;
+    if (pid && typeof pid === "object") commission = pid.commission ?? 0;
 
     return {
       id: order._id,
       productName,
       customerName,
       totalPrice: order.totalPrice,
+      commission: commission * (order.qty ?? 0),
+      qty: order.qty ?? 0,
       orderedOn: order.createdAt
         ? new Date(order.createdAt).toLocaleDateString("en-IN")
         : "-",
@@ -65,9 +73,7 @@ export default function SellerDeliveredOrderTable({
         <input
           type="checkbox"
           checked={table.getIsAllPageRowsSelected()}
-          onChange={(e) =>
-            table.toggleAllPageRowsSelected(e.target.checked)
-          }
+          onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
         />
       ),
       cell: ({ row }) => (
@@ -106,14 +112,18 @@ export default function SellerDeliveredOrderTable({
         }),
     },
     {
+      accessorKey: "commission",
+      header: "Platform Fee",
+      cell: ({ row }) =>
+        row.original.commission.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
+    },
+    {
       id: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={row.original.viewOrder}
-        >
+        <Button variant="ghost" size="icon" onClick={row.original.viewOrder}>
           <EyeIcon className="w-4 h-4" />
         </Button>
       ),

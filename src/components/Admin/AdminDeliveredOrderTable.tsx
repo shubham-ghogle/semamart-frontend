@@ -12,6 +12,7 @@ type Row = {
   productName: string;
   totalPrice: number;
   commission: number;
+  qty: number;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -42,7 +43,8 @@ export default function AdminDeliveredOrderTable({
 
       productName,
       totalPrice: el.totalPrice ?? 0,
-      commission,
+      commission: commission * (el.qty ?? 0),
+      qty: el.qty ?? 0,
       orderedOn: el.createdAt
         ? new Date(el.createdAt).toLocaleDateString("en-IN")
         : "-",

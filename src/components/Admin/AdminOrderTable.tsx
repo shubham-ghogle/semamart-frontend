@@ -13,6 +13,7 @@ type Row = {
   shop: string;
   totalPrice: number;
   commission: number;
+  qty: number;  
   orderedOn: string;
   productName: string;
   viewOrder: (orderId: string) => void;
@@ -56,7 +57,8 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       shop: typeof el.shop === "string" ? "-" : (el.shop?.businessName ?? "-"),
       productName,
       totalPrice: el.totalPrice ?? 0,
-      commission,
+      commission: commission * (el.qty ?? 0),
+      qty: el.qty ?? 0,
       orderedOn: el.createdAt ? new Date(el.createdAt).toLocaleDateString("en-IN") : "-",
       viewOrder: (orderId: string) => {
         // navigate to a sensible path — adjust if your route differs
@@ -110,6 +112,10 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       accessorKey: "shop",
       header: "Seller",
     },
+    {
+      accessorKey: "qty",
+      header: "Quantity",
+    },  
     {
       accessorKey: "totalPrice",
       header: "Total Price",

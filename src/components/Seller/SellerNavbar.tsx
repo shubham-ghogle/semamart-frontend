@@ -4,7 +4,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
-import { CiDeliveryTruck, CiDollar } from "react-icons/ci";
+import { CiDeliveryTruck } from "react-icons/ci";
 import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { MdStorefront } from "react-icons/md";
@@ -15,6 +15,7 @@ import { API_URL, BASE_URL } from "@/data";
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
+import { TbCoinRupee } from "react-icons/tb";
 
 type LinkItemProps = {
   to: string;
@@ -266,7 +267,7 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" />
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
-              <LinkItem to="/seller/orders/delivered" icon={<CiDollar />} label="Total Sales" />
+              <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" />
               <LinkItem
                 to="/seller/stock-management"
                 icon={<FaBoxOpen />}
@@ -278,6 +279,8 @@ export default function SellerNavbar() {
                 label="My Shop"
                 target="_blank"
               />
+              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" />
+              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>
 

@@ -14,6 +14,8 @@ type Row = {
   productName: string;
   customerName: string;
   totalPrice: number;
+  commission: number;
+  qty: number;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -38,11 +40,19 @@ const truncate = (text: string, max = 35) =>
       typeof order.variant.productId !== "string"
         ? truncate(order.variant.productId.name, 35)
         : "-";
+      
+    let commission = 0;
 
     const customerName =
       typeof order.user !== "string"
         ? order.user.instituteName
         : "-";
+
+    const pid =
+      typeof order.variant === "object"
+        ? (order.variant as any)?.productId
+        : null;
+    if (pid && typeof pid === "object") commission = pid.commission ?? 0;
 
     return {
       id: order._id,
@@ -50,6 +60,8 @@ const truncate = (text: string, max = 35) =>
       productName,
       customerName,
       totalPrice: order.totalPrice,
+      commission: commission * (order.qty ?? 0),
+      qty: order.qty ?? 0,
       orderedOn: order.createdAt
       ? new Date(order.createdAt).toLocaleDateString("en-IN")
       : "-",
@@ -106,8 +118,12 @@ const truncate = (text: string, max = 35) =>
         }),
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "commission",
+      header: "Platform Fee",
+      cell: ({ row }) =>
+        row.original.commission.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        }),
     },
     {
       id: "action",

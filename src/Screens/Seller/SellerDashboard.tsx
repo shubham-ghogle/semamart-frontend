@@ -66,6 +66,25 @@ export default function SellerDashboard() {
     orderErr?.message ||
     "Something went wrong";
 
+  // Filter for delivered orders to match your screenshot requirements
+  const deliveredOrders =
+    orders?.filter((o: any) => o.status === "Delivered") || [];
+
+  // Calculate total commission (Platform Fees) for those delivered orders
+  const totalPlatformFees = deliveredOrders.reduce(
+    (acc: number, order: any) => {
+      const pid =
+        typeof order.variant === "object" ? order.variant?.productId : null;
+      const commissionPerUnit =
+        pid && typeof pid === "object" ? (pid.commission ?? 0) : 0;
+      return acc + commissionPerUnit * (order.qty ?? 0);
+    },
+    0,
+  );
+
+  // Calculate Net Revenue
+  const netRevenue = (dashboardStats?.totalSales ?? 0) - totalPlatformFees;
+
   const variants = products?.flatMap((p: any) => p.variants) || [];
 
   // Items arranged to match Admin cards look & behavior
@@ -73,27 +92,37 @@ export default function SellerDashboard() {
     {
       key: "products",
       label: "All Products",
-      color: "from-sky-500 to-indigo-600",
+      // admin color: from-blue-500 to-indigo-500
+      color: "from-blue-500 to-indigo-500",
       Icon: AiOutlineProduct,
       value: variants?.length ?? 0,
       onClick: () => navigate("products"),
     },
-
     {
       key: "orders",
       label: "All Orders",
-      color: "from-pink-500 to-rose-500",
+      // admin color: from-green-500 to-emerald-500
+      color: "from-green-500 to-emerald-500",
       Icon: CiDeliveryTruck,
       value: orders?.length ?? 0,
       onClick: () => navigate("orders"),
     },
-
     {
       key: "balance",
       label: "Total Sales",
-      color: "from-yellow-400 to-yellow-600",
+      // admin color: from-yellow-500 to-orange-500
+      color: "from-yellow-500 to-orange-500",
       Icon: Coins,
       value: dashboardStats?.totalSales ?? 0,
+      onClick: () => navigate("/seller/orders/delivered"),
+    },
+    {
+      key: "revenue",
+      label: "Net Revenue",
+      // admin color: from-pink-500 to-rose-500
+      color: "from-pink-500 to-rose-500",
+      Icon: Coins,
+      value: netRevenue,
       onClick: () => navigate("/seller/orders/delivered"),
     },
   ];
@@ -114,7 +143,7 @@ export default function SellerDashboard() {
     >
       {isSuccess && (
         <>
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-full mx-auto">
             {CARDS.map((c) => {
               const Icon = c.Icon as any;
               return (
@@ -132,7 +161,7 @@ export default function SellerDashboard() {
                   <div className="flex items-center justify-between relative z-10">
                     <Icon className="text-4xl text-white" />
                     <span className="text-3xl font-bold">
-                      {c.key === "balance"
+                      {["balance", "fees", "revenue"].includes(c.key)
                         ? formatMoney(Number(c.value))
                         : c.value}
                     </span>
