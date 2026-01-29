@@ -1,13 +1,7 @@
-// local dev apis
-export const API_URL = "http://localhost:8000/api/v2/";
-export const BASE_URL = "http://localhost:8000/"
+// // local dev apis
+// export const API_URL = "http://localhost:8000/api/v2/";
+// export const BASE_URL = "http://localhost:8000/"
 
 
-// // live apis
-// export const API_URL = "https://www.semamart.com/api/v2/"
-// export const BASE_URL = "https://www.semamart.com/"
-
-
-// test apis
-// export const API_URL = "https://test.semamart.com/api/v2/"
-// export const BASE_URL = "https://test.semamart.com/"
+export const API_URL = import.meta.env.VITE_API_URL;
+export const BASE_URL = import.meta.env.VITE_BASE_URL;
