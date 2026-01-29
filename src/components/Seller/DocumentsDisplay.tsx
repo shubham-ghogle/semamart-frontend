@@ -235,7 +235,7 @@ type EmptyDocCardProps = {
 function EmptyDocCard({ title, onClick }: EmptyDocCardProps) {
   return (
     <Card
-      className="flex h-[350px] aspect-[0.8] items-center justify-center cursor-pointer border-dashed text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+      className="flex h-[250px] aspect-[0.8] items-center justify-center cursor-pointer border-dashed text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
       onClick={onClick}
     >
       <CardContent className="flex flex-col items-center justify-center gap-2 p-6">
