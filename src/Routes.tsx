@@ -81,6 +81,7 @@ import BulkAndStock from "./Screens/Admin/BulkAndStock";
 import BufferAndOutOfStockScreen from "./Screens/Seller/BufferAndOutOfStockScreen";
 import BulkOrderDetails from "./components/Account/BulkOrderDetails";
 import AllProducts from "./components/ui/AllProducts";
+import ComingSoon from "./components/ui/ComingSoon";
 
 /**
  * redirectToDashboard loader
@@ -509,4 +510,7 @@ export const router = createBrowserRouter([
       { path: "terms-and-conditions", element: <Term /> },
     ],
   },
+  {
+    path:"get-quote", element:<ComingSoon />
+  }
 ]);
