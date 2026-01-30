@@ -262,6 +262,7 @@ export const router = createBrowserRouter([
         element: <WishlistProduct />,
       },
       { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
+      { path: "get-quote", element: <ComingSoon /> }, 
     ],
   },
 
@@ -510,7 +511,4 @@ export const router = createBrowserRouter([
       { path: "terms-and-conditions", element: <Term /> },
     ],
   },
-  {
-    path:"get-quote", element:<ComingSoon />
-  }
 ]);
