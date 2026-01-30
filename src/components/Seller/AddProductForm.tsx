@@ -57,6 +57,8 @@ import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants";
 import { useBlocker, useNavigate } from "react-router";
 import { useDebounce } from "@/hooks";
+import { InfoTooltip } from "../ui/InfoTooltip";
+
 
 type AddProductFormProps =
   | {
@@ -599,7 +601,7 @@ export default function AddProductForm({
             <MainAccordionTrigger>
               Product Identification & Classification
             </MainAccordionTrigger>
-            <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
+            <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4 overflow-visible">
               <FormField
                 control={form.control}
                 name="name"
@@ -620,7 +622,11 @@ export default function AddProductForm({
                   name="category"
                   render={({}) => (
                     <FormItem>
+                      <div className="flex">
                       <SubFormLabel>Primary category</SubFormLabel>
+                      <InfoTooltip description="Select the main category that best describes your product. This helps organize your products and makes it easier for customers to find them" />
+                      </div>
+                    
                       <FormControl>
                         <>
                           {form.getValues("category").map((el) => (
@@ -655,7 +661,11 @@ export default function AddProductForm({
                   name="subCategory"
                   render={({}) => (
                     <FormItem>
-                      <SubFormLabel>Subcategory</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>Subcategory</SubFormLabel>
+                         <InfoTooltip description="Choose a more specific category under the primary category to narrow down your product classification"/>
+                      </div>
+                      
                       <FormControl>
                         <>
                           {form.getValues("subCategory").map((el, i) => (
@@ -717,7 +727,10 @@ export default function AddProductForm({
                 name="brand"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Brand</SubFormLabel>
+                    <div className="flex" >
+                         <SubFormLabel>Brand</SubFormLabel>
+                         <InfoTooltip description="Enter the brand name of the product. This is useful if your product is part of a recognized brand."/>
+                      </div>
                     <FormControl>
                       <Input
                         type="text"
@@ -736,7 +749,10 @@ export default function AddProductForm({
                 name="tags"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Product Tags</SubFormLabel>
+                    <div className="flex" >
+                         <SubFormLabel>Product Tag</SubFormLabel>
+                         <InfoTooltip description="Add keywords that describe your product. Tags help improve searchability and visibility on the platform"/>
+                      </div>
                     <FormControl>
                       <TagsInput
                         value={field.value}
@@ -755,7 +771,10 @@ export default function AddProductForm({
                   name="productType"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Product Type</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>Product Type</SubFormLabel>
+                         <InfoTooltip description="Select the type of product. This is usually a more detailed classification than category and subcategory"/>
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -786,7 +805,10 @@ export default function AddProductForm({
                   name="sku"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Product SKU</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>Product SKU</SubFormLabel>
+                         <InfoTooltip description="Enter your product’s Stock Keeping Unit (SKU), a unique identifier used for inventory management"/>
+                      </div>
                       <FormControl>
                         <Input type="text" {...field} className="w-full" />
                       </FormControl>
@@ -800,7 +822,10 @@ export default function AddProductForm({
                   name="gtin"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>GSTIN</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>GSTIN</SubFormLabel>
+                         <InfoTooltip description="Provide the Goods and Services Tax Identification Number (GSTIN) for the product if applicable. This is used for taxation purposes"/>
+                      </div>
                       <FormControl>
                         <Input type="text" {...field} className="w-full" />
                       </FormControl>
@@ -814,7 +839,10 @@ export default function AddProductForm({
                   name="hsn"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>HSN Code</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>HSN Code</SubFormLabel>
+                         <InfoTooltip description="Enter the Harmonized System of Nomenclature (HSN) code, which classifies products for taxation"/>
+                      </div>
                       <FormControl>
                         <Input type="text" {...field} className="w-full" />
                       </FormControl>
@@ -828,10 +856,11 @@ export default function AddProductForm({
                   name="unspsc"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>
-                        UNSPSC (United Nations Standard Products and Services
-                        Code)
-                      </SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel> UNSPSC Code</SubFormLabel>
+                        
+                         <InfoTooltip description="Enter the UNSPSC code for your product, a global classification system used for business and procurement"/>
+                      </div>
                       <FormControl>
                         <Input type="text" {...field} className="w-full" />
                       </FormControl>
@@ -842,7 +871,10 @@ export default function AddProductForm({
               </div>
 
               <FormItem>
-                <SubFormLabel>Upsell Product URLs</SubFormLabel>
+                <div className="flex" >
+                         <SubFormLabel>Upsell Product URLs</SubFormLabel>
+                         <InfoTooltip description="Add links to products you want to recommend as an upgrade to this product. Upselling encourages customers to buy a more expensive item"/>
+                      </div>
                 <div className="space-y-2">
                   {upsellFields.map((_field, index) => (
                     <div key={index} className="flex gap-2">
@@ -874,7 +906,10 @@ export default function AddProductForm({
               </FormItem>
 
               <FormItem>
-                <SubFormLabel>Cross-sell Product URLs</SubFormLabel>
+                <div className="flex" >
+                         <SubFormLabel>Cross-sell Product URLs</SubFormLabel>
+                         <InfoTooltip description="Add links to related products that can be bought together with this product. Cross-selling increases overall sales by suggesting complementary items"/>
+                      </div>
                 <div className="space-y-2">
                   {crossFields.map((_field, index) => (
                     <div key={index} className="flex gap-2">
@@ -910,7 +945,10 @@ export default function AddProductForm({
                 name="specialityPackage"
                 render={({}) => (
                   <FormItem>
-                    <SubFormLabel>Speciality Package</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>Speciality Package</SubFormLabel>
+                         <InfoTooltip description="Select a predefined healthcare setup package based on the medical specialty or facility you want to establish. These packages include relevant equipment and configurations tailored to specific healthcare needs"/>
+                      </div>
                     <FormControl>
                       <SpecialityDropdown
                         viewMode={product ? true : false}
@@ -1025,7 +1063,11 @@ export default function AddProductForm({
                 name="origin"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Product Origin</SubFormLabel>
+                    
+                    <div className="flex" >
+                         <SubFormLabel>Product Origin</SubFormLabel>
+                         <InfoTooltip description="Where the product is made or manufactured (for example: India, China, Germany)."/>
+                      </div>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -1039,7 +1081,11 @@ export default function AddProductForm({
                 name="shortdescription"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Short Description</SubFormLabel>
+                    
+                    <div className="flex" >
+                         <SubFormLabel>Short Description</SubFormLabel>
+                         <InfoTooltip description="A brief summary of the product in 1–2 lines"/>
+                      </div>
                     <FormControl>
                       <Textarea className="resize-none w-full" {...field} />
                     </FormControl>
@@ -1053,7 +1099,11 @@ export default function AddProductForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Detailed Specification</SubFormLabel>
+                    
+                    <div className="flex" >
+                         <SubFormLabel>Detailed Specification</SubFormLabel>
+                         <InfoTooltip description="Complete technical details of the product such as material, size, capacity, standards, or special features"/>
+                      </div>
                     <FormControl>
                       <Textarea className="resize-none w-full" {...field} />
                     </FormControl>
@@ -1069,7 +1119,11 @@ export default function AddProductForm({
                   const attrs = field.value || [];
                   return (
                     <FormItem>
-                      <SubFormLabel>Custom Attributes</SubFormLabel>
+                      
+                      <div className="flex" >
+                         <SubFormLabel>Custom Attributes</SubFormLabel>
+                         <InfoTooltip description="Use this to add extra product details that are not listed elsewhere"/>
+                      </div>
                       <FormControl>
                         <>
                           {attrs.map((e, i) => (
@@ -1281,7 +1335,11 @@ export default function AddProductForm({
                   name="sterileString"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Sterile Product</SubFormLabel>
+                      
+                      <div className="flex" >
+                         <SubFormLabel>Sterile Product</SubFormLabel>
+                         <InfoTooltip description="Select Yes if the product is sterilized and safe for medical use.Select No if it is non-sterile."/>
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -1306,7 +1364,11 @@ export default function AddProductForm({
                   name="singleUseString"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Single Use Product</SubFormLabel>
+                      
+                      <div className="flex" >
+                         <SubFormLabel>Single Use Product</SubFormLabel>
+                         <InfoTooltip description="Select Yes if the product can be used only once and must be discarded after use.Select No if it can be reused."/>
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -1372,9 +1434,13 @@ export default function AddProductForm({
                     name="productCompilance"
                     render={({ field }) => (
                       <FormItem>
-                        <SubFormLabel>
+                       
+                        <div className="flex" >
+                          <SubFormLabel>
                           Product Compilance Documents
                         </SubFormLabel>
+                         <InfoTooltip description="Upload official certificates or documents related to product standards or approvals (e.g., ISO, CE, FDA certificates)"/>
+                      </div>
                         <FormControl>
                           <Input
                             multiple
@@ -1429,16 +1495,19 @@ export default function AddProductForm({
                   control={form.control}
                   name="minmaxrule.minQty"
                   render={({ field }) => (
-                    <FormItem>
-                      <SubFormLabel>Minimum Order Quantity</SubFormLabel>
+                    <FormItem>                     
+                      <div className="flex" >
+                         <SubFormLabel>Minimum Order Quantity</SubFormLabel>
+                         <InfoTooltip description="The minimum number of units a buyer must purchase in a single order"/>
+                      </div>
                       <FormControl>
                        <Input
-  type="text"
-  inputMode="numeric"
-  pattern="[0-9]*"
-  {...field}
-  className="w-full"
-/>
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          {...field}
+                          className="w-full"
+                        />
 
                       </FormControl>
                       <FormMessage />
@@ -1453,7 +1522,10 @@ export default function AddProductForm({
                   name="taxStatus"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Tax Status</SubFormLabel>
+                      <div className="flex" >
+                         <SubFormLabel>Tax Status</SubFormLabel>
+                         <InfoTooltip description="Select how tax is applied to this product (e.g., taxable, non-taxable, or exempt)"/>
+                      </div>
                       <Select
                         onValueChange={(e) => {
                           form.setValue("taxClass", "0");
@@ -1514,7 +1586,11 @@ export default function AddProductForm({
                 name="unitOfMeasure"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Unit of Measure</SubFormLabel>
+                    
+                    <div className="flex" >
+                         <SubFormLabel>Unit of Measure</SubFormLabel>
+                         <InfoTooltip description="The unit in which the product is sold Examples: Piece, Box, Kg, Liter"/>
+                      </div>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>

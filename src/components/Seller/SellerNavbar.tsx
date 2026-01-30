@@ -279,8 +279,6 @@ export default function SellerNavbar() {
                 label="My Shop"
                 target="_blank"
               />
-              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" />
-              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" />
             </div>
           </nav>
 
