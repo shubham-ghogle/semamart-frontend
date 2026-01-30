@@ -58,6 +58,7 @@ import AddProductFormVariants from "./AddProductFormVariants";
 import { useBlocker, useNavigate } from "react-router";
 import { useDebounce } from "@/hooks";
 import { InfoTooltip } from "../ui/InfoTooltip";
+import Subformlabel from "../ui/Subformlabel";
 
 
 type AddProductFormProps =
@@ -594,9 +595,9 @@ export default function AddProductForm({
             });
           }
         })}
-        className="w-full max-w-full sm:max-w-4xl mx-auto py-6 sm:py-10 bg-white px-4 sm:px-6 rounded-lg shadow"
+        className="w-full max-w-full sm:max-w-4xl mx-auto py-6 sm:py-10 bg-white px-4 sm:px-6 rounded-lg shadow overflow-visible"
       >
-        <Accordion type="multiple" defaultValue={["1"]}>
+       <Accordion type="multiple" defaultValue={["1"]}>
           <AccordionItem value="1">
             <MainAccordionTrigger>
               Product Identification & Classification
@@ -607,7 +608,7 @@ export default function AddProductForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Product Name</SubFormLabel>
+                    <Subformlabel required>Product Name</Subformlabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -623,7 +624,7 @@ export default function AddProductForm({
                   render={({}) => (
                     <FormItem>
                       <div className="flex">
-                      <SubFormLabel>Primary category</SubFormLabel>
+                      <Subformlabel required>Product Category</Subformlabel>
                       <InfoTooltip description="Select the main category that best describes your product. This helps organize your products and makes it easier for customers to find them" />
                       </div>
                     
@@ -662,7 +663,7 @@ export default function AddProductForm({
                   render={({}) => (
                     <FormItem>
                       <div className="flex" >
-                         <SubFormLabel>Subcategory</SubFormLabel>
+                         <Subformlabel required>Product SubCategory</Subformlabel>
                          <InfoTooltip description="Choose a more specific category under the primary category to narrow down your product classification"/>
                       </div>
                       
@@ -736,7 +737,7 @@ export default function AddProductForm({
                         type="text"
                         {...field}
                         className="w-full"
-                        placeholder="Brand name (optional)"
+                        placeholder="Brand name"
                       />
                     </FormControl>
                     <FormMessage />
@@ -750,7 +751,7 @@ export default function AddProductForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex" >
-                         <SubFormLabel>Product Tag</SubFormLabel>
+                         <Subformlabel required>Product Tag</Subformlabel>
                          <InfoTooltip description="Add keywords that describe your product. Tags help improve searchability and visibility on the platform"/>
                       </div>
                     <FormControl>
@@ -772,7 +773,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex" >
-                         <SubFormLabel>Product Type</SubFormLabel>
+                         <Subformlabel required>Product Type</Subformlabel>
                          <InfoTooltip description="Select the type of product. This is usually a more detailed classification than category and subcategory"/>
                       </div>
                       <Select
@@ -806,7 +807,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex" >
-                         <SubFormLabel>Product SKU</SubFormLabel>
+                         <Subformlabel required>Product SKU</Subformlabel>
                          <InfoTooltip description="Enter your product’s Stock Keeping Unit (SKU), a unique identifier used for inventory management"/>
                       </div>
                       <FormControl>
@@ -840,7 +841,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex" >
-                         <SubFormLabel>HSN Code</SubFormLabel>
+                         <Subformlabel required >HSN Code</Subformlabel>
                          <InfoTooltip description="Enter the Harmonized System of Nomenclature (HSN) code, which classifies products for taxation"/>
                       </div>
                       <FormControl>
@@ -981,7 +982,7 @@ export default function AddProductForm({
                 name="manufacturerName"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Manufacturer Name</SubFormLabel>
+                    <Subformlabel required>Manufacturer Name</Subformlabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -1035,7 +1036,7 @@ export default function AddProductForm({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Manufacturer email</SubFormLabel>
+                    <Subformlabel required>Manufacturer email</Subformlabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -1049,7 +1050,7 @@ export default function AddProductForm({
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Manufacturer Phone</SubFormLabel>
+                    <Subformlabel required>Manufacturer Phone</Subformlabel>
                     <FormControl>
                       <Input type="text" {...field} className="w-full" />
                     </FormControl>
@@ -1065,7 +1066,7 @@ export default function AddProductForm({
                   <FormItem>
                     
                     <div className="flex" >
-                         <SubFormLabel>Product Origin</SubFormLabel>
+                         <Subformlabel required>Product Origin</Subformlabel>
                          <InfoTooltip description="Where the product is made or manufactured (for example: India, China, Germany)."/>
                       </div>
                     <FormControl>
@@ -1083,7 +1084,7 @@ export default function AddProductForm({
                   <FormItem>
                     
                     <div className="flex" >
-                         <SubFormLabel>Short Description</SubFormLabel>
+                         <Subformlabel required>Short Description</Subformlabel>
                          <InfoTooltip description="A brief summary of the product in 1–2 lines"/>
                       </div>
                     <FormControl>
@@ -1101,7 +1102,7 @@ export default function AddProductForm({
                   <FormItem>
                     
                     <div className="flex" >
-                         <SubFormLabel>Detailed Specification</SubFormLabel>
+                         <Subformlabel required>Detailed Specification</Subformlabel>
                          <InfoTooltip description="Complete technical details of the product such as material, size, capacity, standards, or special features"/>
                       </div>
                     <FormControl>
@@ -1208,7 +1209,7 @@ export default function AddProductForm({
                   name="productWgt"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Product Weight</SubFormLabel>
+                      <Subformlabel required >Product Weight</Subformlabel>
                       <FormControl>
                         <Input type="number" {...field} className="w-full" />
                       </FormControl>
@@ -1306,7 +1307,7 @@ export default function AddProductForm({
                   name="dimensionUnit"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Dimension Unit</SubFormLabel>
+                      <Subformlabel required>Dimension Unit</Subformlabel>
                       <FormControl>
                         <Select
                           onValueChange={field.onChange}
@@ -1337,7 +1338,7 @@ export default function AddProductForm({
                     <FormItem>
                       
                       <div className="flex" >
-                         <SubFormLabel>Sterile Product</SubFormLabel>
+                         <Subformlabel required>Sterile Product</Subformlabel>
                          <InfoTooltip description="Select Yes if the product is sterilized and safe for medical use.Select No if it is non-sterile."/>
                       </div>
                       <Select
@@ -1366,7 +1367,7 @@ export default function AddProductForm({
                     <FormItem>
                       
                       <div className="flex" >
-                         <SubFormLabel>Single Use Product</SubFormLabel>
+                         <Subformlabel required>Single Use Product</Subformlabel>
                          <InfoTooltip description="Select Yes if the product can be used only once and must be discarded after use.Select No if it can be reused."/>
                       </div>
                       <Select
@@ -1497,7 +1498,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>                     
                       <div className="flex" >
-                         <SubFormLabel>Minimum Order Quantity</SubFormLabel>
+                         <Subformlabel required>Minimum Order Quantity</Subformlabel>
                          <InfoTooltip description="The minimum number of units a buyer must purchase in a single order"/>
                       </div>
                       <FormControl>
@@ -1523,7 +1524,7 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex" >
-                         <SubFormLabel>Tax Status</SubFormLabel>
+                         <Subformlabel required>Tax Status</Subformlabel>
                          <InfoTooltip description="Select how tax is applied to this product (e.g., taxable, non-taxable, or exempt)"/>
                       </div>
                       <Select
@@ -1605,7 +1606,7 @@ export default function AddProductForm({
                   name="stockStatus"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Stock Status</SubFormLabel>
+                      <Subformlabel required>Stock Status</Subformlabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value?.toString()}
@@ -1635,9 +1636,9 @@ export default function AddProductForm({
                   name="deliveryLeadTime"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>
+                      <Subformlabel required>
                         Delivery Leading Time (in days)
-                      </SubFormLabel>
+                      </Subformlabel>
                       <FormControl>
                         <Input {...field} className="w-full" />
                       </FormControl>
@@ -1651,7 +1652,7 @@ export default function AddProductForm({
                   name="warranty"
                   render={({ field }) => (
                     <FormItem>
-                      <SubFormLabel>Warranty (in year)</SubFormLabel>
+                      <Subformlabel required>Warranty (in year)</Subformlabel>
                       <FormControl>
                         <Input {...field} className="w-full" />
                       </FormControl>
@@ -1666,9 +1667,9 @@ export default function AddProductForm({
                 name="rma"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>
+                    <Subformlabel required>
                       RMA (Return merchandise authorization) Policy
-                    </SubFormLabel>
+                    </Subformlabel>
                     <FormControl>
                       <Textarea className="resize-none w-full" {...field} />
                     </FormControl>
@@ -1690,7 +1691,7 @@ export default function AddProductForm({
                 name="dispatchLocation"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Dispatch Location</SubFormLabel>
+                    <Subformlabel required >Dispatch Location</Subformlabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1704,7 +1705,7 @@ export default function AddProductForm({
                 name="dispatchPinCode"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Pincode of Dispatch</SubFormLabel>
+                    <Subformlabel required>Pincode of Dispatch</Subformlabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1718,7 +1719,7 @@ export default function AddProductForm({
                 name="unitsPerCarton"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>No. of units per master carton</SubFormLabel>
+                    <Subformlabel required>No. of units per master carton</Subformlabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1732,7 +1733,7 @@ export default function AddProductForm({
                 name="shippingWeight"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Shipping Weight (in kgs)</SubFormLabel>
+                    <Subformlabel required>Shipping Weight (in kgs)</Subformlabel>
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -1746,7 +1747,7 @@ export default function AddProductForm({
                 name="packagingType"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Packaging Type</SubFormLabel>
+                    <Subformlabel required>Packaging Type</Subformlabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -1764,7 +1765,7 @@ export default function AddProductForm({
                 name="deliveryInstruction"
                 render={({ field }) => (
                   <FormItem>
-                    <SubFormLabel>Delivery Instructions</SubFormLabel>
+                    <Subformlabel required>Delivery Instructions</Subformlabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}

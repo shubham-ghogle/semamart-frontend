@@ -228,23 +228,38 @@ function DocCard({ fileName, onClick, title }: DocCardProps) {
   );
 }
 
-type EmptyDocCardProps = {
+type EmptyDocSlotProps = {
   title: string;
-  onClick: () => void;
+  onClick: (file: File | null) => void;
 };
-function EmptyDocCard({ title, onClick }: EmptyDocCardProps) {
+
+function EmptyDocCard({ title, onClick }: EmptyDocSlotProps) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      onClick(e.target.files[0]);
+    } else {
+      onClick(null);
+    }
+  };
+
   return (
-    <Card
-      className="flex h-[250px] aspect-[0.8] items-center justify-center cursor-pointer border-dashed text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-      onClick={onClick}
-    >
-      <CardContent className="flex flex-col items-center justify-center gap-2 p-6">
-        <span className="text-2xl">＋</span>
-        <span className="text-sm font-medium">{title}</span>
-      </CardContent>
-    </Card>
+    <label className="flex flex-col items-start gap-2 cursor-pointer text-gray-700">
+      <span className="text-sm font-medium mt-2">{title}</span>
+      <input
+        type="file"
+        className="block w-full text-sm text-gray-700
+                   file:mr-4 file:py-2 file:px-4
+                   file:rounded-lg file:border-0
+                   file:text-sm file:font-semibold
+                   file:bg-blue-50 file:text-gray-500
+                   hover:file:bg-blue-100
+                   cursor-pointer"
+        onChange={handleFileChange}
+      />
+    </label>
   );
 }
+
 
 async function editDoc(
   docType: string,

@@ -194,7 +194,7 @@ export default function SellerNavbar() {
               <img
                 src={fallbackAvatar}
                 alt="seller avatar"
-                className="w-9 h-9 rounded-full object-cover border-2 border-white"
+                className="w-9 h-9 rounded-full object-cover "
               />
             </div>
             <div>
@@ -240,7 +240,7 @@ export default function SellerNavbar() {
               <img
                 src={fallbackAvatar}
                 alt="seller avatar"
-                className={`rounded-full object-cover border-2 border-white ${
+                className={`rounded-full object-cover ${
                   pinned ? "w-12 h-12" : "w-8 h-8"
                 }`}
               />
@@ -328,7 +328,7 @@ export default function SellerNavbar() {
                 <img
                   src={fallbackAvatar}
                   alt="seller avatar"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                  className="w-10 h-10 rounded-full object-cover border-2 "
                 />
               </div>
               <div>

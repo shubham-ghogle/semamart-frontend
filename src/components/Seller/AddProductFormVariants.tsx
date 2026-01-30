@@ -63,7 +63,7 @@ export default function AddProductFormVariants({
           name={`variants.${index}.originalPrice`}
           render={() => (
             <FormItem>
-              <FormLabel>MRP (₹)</FormLabel>
+              <FormLabel>MRP (₹)<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input {...form.register(`variants.${index}.originalPrice`)} />
               </FormControl>
@@ -76,7 +76,7 @@ export default function AddProductFormVariants({
           name={`variants.${index}.discountPrice`}
           render={() => (
             <FormItem>
-              <FormLabel>Selling Price (₹)</FormLabel>
+              <FormLabel>Selling Price (₹)<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input {...form.register(`variants.${index}.discountPrice`)} />
               </FormControl>
@@ -118,7 +118,7 @@ export default function AddProductFormVariants({
             name={`variants.${index}.stocks`}
             render={() => (
               <FormItem>
-                <FormLabel>Stocks</FormLabel>
+                <FormLabel>Stocks<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input {...form.register(`variants.${index}.stocks`)} />
                 </FormControl>

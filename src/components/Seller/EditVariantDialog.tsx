@@ -203,15 +203,15 @@ export default function EditVariantDialog({
               <section className="space-y-4">
                 <p className="text-lg">Bulk Orders</p>
                 {bulkOders.map((v, i) => (
-                  <article key={i} className="flex gap-2">
+                  <article key={i} className="flex gap-2 items-center">
                     <InputField
                       label="Quantity"
                       value={v.qty}
                       onChange={(e) =>
-                        setBulkOrders((p) => {
-                          const newP = [...p];
-                          newP[i].qty = Number(e.target.value);
-                          return newP;
+                        setBulkOrders((prev) => {
+                          const newOrders = [...prev];
+                          newOrders[i].qty = Number(e.target.value);
+                          return newOrders;
                         })
                       }
                     />
@@ -219,13 +219,23 @@ export default function EditVariantDialog({
                       label="Price"
                       value={v.price}
                       onChange={(e) =>
-                        setBulkOrders((p) => {
-                          const newP = [...p];
-                          newP[i].price = Number(e.target.value);
-                          return newP;
+                        setBulkOrders((prev) => {
+                          const newOrders = [...prev];
+                          newOrders[i].price = Number(e.target.value);
+                          return newOrders;
                         })
                       }
                     />
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      className="text-red-600 font-bold text-xl mt-5"
+                      onClick={() =>
+                        setBulkOrders((prev) => prev.filter((_, index) => index !== i))
+                      }
+                    >
+                      ×
+                    </button>
                   </article>
                 ))}
                 {bulkOders.length < 3 && (
@@ -234,17 +244,15 @@ export default function EditVariantDialog({
                     size="sm"
                     className="text-green-600 bg-green-200"
                     type="button"
-                    onClick={() => {
-                      setBulkOrders((p) => {
-                        const newP = [...p, { qty: 0, price: 0 }];
-                        return newP;
-                      });
-                    }}
+                    onClick={() =>
+                      setBulkOrders((prev) => [...prev, { qty: 0, price: 0 }])
+                    }
                   >
                     +
                   </Button>
                 )}
               </section>
+
             </div>
             <div className="flex justify-end ">
               <Button variant="outline">Ok</Button>
