@@ -181,31 +181,31 @@ export async function getAdminOrderDetails(orderId?: string) {
   return data;
 }
 
-export function useAdminOrderMutation(onSuccessFn?:()=>void) {
+export function useAdminOrderMutation(onSuccessFn?: () => void) {
   const qc = useQueryClient();
 
   const { status: mutationStatus, mutateAsync: mutateOrder } = useMutation({
-    mutationFn: async function ({
-      status,
-      orderId,
-    }: {
-      status: string;
-      orderId: string;
-    }) {
-      const url = API_URL+"order/update-order-status-admin/" + orderId;
+    // Explicitly name the argument 'variables' to avoid scope confusion
+    mutationFn: async function (variables: { status: string; orderId: string }) {
+      
+      // Destructure inside the function body so the variables are locally scoped
+      const { status, orderId } = variables; 
+
+      const url = API_URL + "order/update-order-status-admin/" + orderId;
 
       const res = await fetch(url, {
         method: "PUT",
-        credentials:"include",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        // Be explicit with the key and value here
+        body: JSON.stringify({ status: status }), 
       });
 
-      if (!res.ok){
-        const err = await res.json()
-        throw new Error(err.message);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Server Error");
       }
 
       return null;
