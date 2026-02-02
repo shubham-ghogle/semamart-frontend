@@ -208,7 +208,8 @@ export function useAdminOrderMutation(onSuccessFn?: () => void) {
         throw new Error(err.message || "Server Error");
       }
 
-      return null;
+      const data = await res.json();
+      return data;    
     },
     onSuccess: async () => {
       await qc.invalidateQueries({
