@@ -10,6 +10,8 @@ function Signup() {
   const [visiblePassword, setVisiblePassword] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [check, setCheck] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false); // T&C
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
@@ -46,7 +48,7 @@ function Signup() {
     if (!/[A-Z]/.test(password)) errors.push("Include at least 1 uppercase letter");
     if (!/[a-z]/.test(password)) errors.push("Include at least 1 lowercase letter");
     if (!/[0-9]/.test(password)) errors.push("Include at least 1 number");
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("Include at least 1 special character");
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) errors.push("Include at least 1 special character");
     return errors.join(", ");
   };
 
@@ -81,7 +83,8 @@ function Signup() {
         if (pwdErr) newErrors.password = pwdErr;
       }
       if (!formData.confirmPassword) newErrors.confirmPassword = "Confirm Password is required";
-      else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+      else if (formData.password !== formData.confirmPassword)
+        newErrors.confirmPassword = "Passwords do not match";
       if (!check) newErrors.check = "You must agree to the terms";
     }
 
@@ -113,8 +116,8 @@ function Signup() {
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      phoneNumber:formData.phoneNumber,
-      instituteName:formData. instituteName,
+      phoneNumber: formData.phoneNumber,
+      instituteName: formData.instituteName,
       addresses: [
         {
           reciever_name: formData.instituteName,
@@ -142,10 +145,14 @@ function Signup() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      <div className="w-1/2  flex flex-col justify-center items-center p-8 text-white">
+      <div className="w-1/2 flex flex-col justify-center items-center p-8 text-white">
         <Link to="/"><img src="/Logo-imag.png" width={120} alt="SEMA Logo" className="mb-6" /></Link>
-        <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]"><IoIosLock />Institute Signup</h2>
-        <p className="text-lg  text-center text-[#006666]">Create your institute account to continue</p>
+        <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]">
+          <IoIosLock />Institute Signup
+        </h2>
+        <p className="text-lg text-center text-[#006666]">
+          Create your institute account to continue
+        </p>
       </div>
 
       {/* Right Side */}
@@ -180,7 +187,6 @@ function Signup() {
                       value={formData[field as keyof typeof formData]}
                       onChange={handleChange}
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors[field]?"border-red-500":"border-gray-300"}`}
-                      placeholder={field==="phoneNumber"?"10-digit Phone Number":""}
                     />
                     {errors[field] && <p className="text-red-600 text-sm mt-1">{errors[field]}</p>}
                   </div>
@@ -247,7 +253,9 @@ function Signup() {
               <>
                 {["password","confirmPassword"].map((field) => (
                   <div key={field}>
-                    <label className="block text-sm font-semibold text-[#1C647C]">{field==="password"?"Password":"Confirm Password"} <span className="text-red-700">*</span></label>
+                    <label className="block text-sm font-semibold text-[#1C647C]">
+                      {field==="password"?"Password":"Confirm Password"} <span className="text-red-700">*</span>
+                    </label>
                     <div className="relative">
                       <input
                         type={field==="password"?(visiblePassword?"text":"password"):(visibleConfirm?"text":"password")}
@@ -269,7 +277,12 @@ function Signup() {
 
                 <div className="flex items-center mt-2">
                   <input type="checkbox" checked={check} onChange={() => setCheck(!check)} />
-                  <label className="ml-2 text-sm text-gray-700">I agree by accepting this with the terms of <b>SEMA Healthcare Pvt. Ltd.</b> <span className="text-red-700">*</span></label>
+                  <label
+                    className="ml-2 text-sm text-gray-700 cursor-pointer underline"
+                    onClick={() => setShowTermsModal(true)}
+                  >
+                    I agree by accepting this with the terms of <b>SEMA Healthcare Pvt. Ltd.</b> <span className="text-red-700">*</span>
+                  </label>
                 </div>
                 {errors.check && <p className="text-red-600 text-sm mt-1">{errors.check}</p>}
 
@@ -282,6 +295,164 @@ function Signup() {
           </form>
         </div>
       </div>
+
+      {/* TERMS & CONDITIONS MODAL */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="bg-white w-[90vw] h-[90vh] rounded-lg flex flex-col">
+           <div className="flex-1 overflow-y-auto p-8 text-sm text-gray-800 leading-relaxed">
+
+  {/* Main Heading */}
+  <h1 className="text-2xl font-bold mb-6 text-center">
+    SEMAMART TERMS & CONDITIONS
+  </h1>
+
+  {/* Sub Heading */}
+  <h2 className="text-lg font-semibold mb-2">
+    SEMAMART – Terms & Conditions (Institute / Buyer)
+  </h2>
+
+  <p className="mb-2"><strong>Effective Date:</strong> [DD/MM/YYYY]</p>
+  <p className="mb-4">
+    <strong>Platform Owner:</strong> Semamart (“SEMAMART”, “we”, “us”, “our”)
+  </p>
+
+  <p className="mb-4">
+    These Terms & Conditions (“Terms”) govern access to and use of the SEMAMART
+    platform (website/app) by any Institute/Buyer (“Buyer”, “you”, “your”),
+    including hospitals, clinics, nursing homes, diagnostic centres, colleges,
+    laboratories, and any authorized user.
+  </p>
+
+  <p className="mb-6 font-medium">
+    By using SEMAMART, you agree to be bound by these Terms.
+  </p>
+
+  {/* Section 1 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">1. Definitions</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li><strong>Buyer/Institute:</strong> Organization purchasing products/services via SEMAMART.</li>
+    <li><strong>Seller/Vendor:</strong> Third-party supplier listing products/services on SEMAMART.</li>
+    <li><strong>Platform:</strong> SEMAMART website/app, dashboards, and order management system.</li>
+    <li><strong>Products/Services:</strong> Items or services listed for procurement.</li>
+    <li><strong>Order:</strong> Buyer’s confirmed purchase request.</li>
+    <li><strong>Transaction:</strong> Commercial exchange facilitated via SEMAMART.</li>
+  </ul>
+
+  {/* Section 2 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">2. Platform Role</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>SEMAMART is a technology and procurement facilitation platform.</li>
+    <li>SEMAMART is not a manufacturer, importer, or seller unless stated.</li>
+    <li>Seller is responsible for product quality, compliance, warranty, and delivery.</li>
+  </ul>
+
+  {/* Section 3 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">3. Eligibility & Registration</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Buyer must be a legally valid entity under Indian laws.</li>
+    <li>Buyer must provide accurate registration and license details.</li>
+    <li>Buyer is responsible for safeguarding login credentials.</li>
+  </ul>
+
+  {/* Section 4 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">4. Product Information & Pricing</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Prices may be inclusive/exclusive of GST.</li>
+    <li>Images are indicative; actual specs may vary.</li>
+    <li>Prices finalize at checkout / PO confirmation.</li>
+  </ul>
+
+  {/* Section 5 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">5. Orders & Confirmation</h3>
+  <p className="pl-2">
+    Orders are confirmed only after buyer approval, seller acceptance,
+    and payment/credit validation.
+  </p>
+
+  {/* Section 6 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">6. Payments & Invoicing</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Buyer agrees to pay total order value including applicable charges.</li>
+    <li>Invoices are raised by Seller or SEMAMART (where applicable).</li>
+    <li>Buyer is responsible for GST input claims.</li>
+  </ul>
+
+  {/* Section 7 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">7. Delivery & Receipt</h3>
+  <p className="pl-2">
+    Buyer must verify goods at delivery and report discrepancies within 24–48 hours.
+  </p>
+
+  {/* Section 8 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">8. Returns, Replacements & Warranty</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Returns governed by supplier policy.</li>
+    <li>Consumables and sterile items are generally non-returnable.</li>
+    <li>Warranty is provided by Seller/Manufacturer.</li>
+  </ul>
+
+  {/* Section 9 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">9. Cancellation Policy</h3>
+  <p className="pl-2">
+    Cancellation allowed only before dispatch. Charges may apply.
+  </p>
+
+  {/* Section 10 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">10. Disputes & Resolution</h3>
+  <p className="pl-2">
+    SEMAMART provides dispute resolution support based on evidence and seller response.
+  </p>
+
+  {/* Section 11 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">11. Compliance with Laws</h3>
+  <p className="pl-2">
+    Buyer must comply with all applicable Indian laws and regulations.
+  </p>
+
+  {/* Section 12 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">12. Prohibited Use</h3>
+  <p className="pl-2">
+    Fraudulent orders, misuse, reverse engineering, and manipulation are prohibited.
+  </p>
+
+  {/* Section 13 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">13. Data Privacy & Communications</h3>
+  <p className="pl-2">
+    Buyer data is handled as per SEMAMART Privacy Policy.
+  </p>
+
+  {/* Section 14 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">14. Limitation of Liability</h3>
+  <p className="pl-2">
+    Liability is limited to the platform fee charged for the transaction.
+  </p>
+
+  {/* Section 15 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">15. Modification of Terms</h3>
+  <p className="pl-2">
+    SEMAMART may update these Terms at any time.
+  </p>
+
+  {/* Section 16 */}
+  <h3 className="text-base font-semibold mt-6 mb-2">16. Governing Law & Jurisdiction</h3>
+  <p className="pl-2 mb-8">
+    Governed by Indian law. Jurisdiction: Courts of Delhi NCR.
+  </p>
+
+</div>
+
+            <div className="border-t p-4 flex justify-end">
+              <button
+                className="px-6 py-2 bg-[#006666] text-white rounded-md"
+                onClick={() => setShowTermsModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -33,6 +33,7 @@ export default function SellerRegistration(): JSX.Element {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [banner, setBanner] = useState<File | null>(null);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
@@ -409,10 +410,22 @@ export default function SellerRegistration(): JSX.Element {
                 {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
 
-              <label className="flex items-center gap-1 text-sm">
-                <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className={`${errors.agree ? "ring-1 ring-red-500" : ""}`} />
-                 I agree by accepting this with the terms of<b>SEMA Healthcare Pvt. Ltd.</b> <span className="text-red-700">*</span>
-              </label>
+             <label className="flex items-center gap-1 text-sm">
+  <input
+    type="checkbox"
+    checked={agree}
+    onChange={(e) => setAgree(e.target.checked)}
+    className={`${errors.agree ? "ring-1 ring-red-500" : ""}`}
+  />
+  <span
+    className="cursor-pointer underline"
+    onClick={() => setShowTermsModal(true)}
+  >
+    I agree by accepting this with the terms of <b>SEMA Healthcare Pvt. Ltd.</b>
+  </span>
+  <span className="text-red-700">*</span>
+</label>
+
               {errors.agree && <p className="text-red-500 text-xs mt-1">{errors.agree}</p>}
 
               <div className="flex gap-2 mt-2">
@@ -464,6 +477,159 @@ export default function SellerRegistration(): JSX.Element {
           </div>
         </div>
       )}
+      {showTermsModal && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
+    <div className="bg-white w-[90vw] h-[90vh] rounded-lg flex flex-col">
+      <div className="flex-1 overflow-y-auto p-8 text-sm text-gray-800 leading-relaxed">
+
+  <h1 className="text-2xl font-bold mb-6 text-center">
+    SEMAMART – Terms & Conditions (Seller / Vendor)
+  </h1>
+
+  <p className="mb-4"><strong>Effective Date:</strong> [DD/MM/YYYY]</p>
+
+  <p className="mb-6">
+    These Seller Terms apply to any manufacturer, distributor, dealer, importer,
+    wholesaler, or service provider (“Seller”, “Vendor”, “you”) listing and selling
+    through SEMAMART.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">1. Seller Eligibility & Onboarding</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller must be a legally registered entity.</li>
+    <li>
+      Seller must provide valid documents: GST certificate, PAN, trade license/firm
+      registration, drug license, CDSCO/MD license (if applicable), bank account proof.
+    </li>
+    <li>Seller must pass SEMAMART verification (KYC + product category approvals).</li>
+    <li>SEMAMART may reject onboarding without assigning reasons.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">2. Seller Responsibilities</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller is solely responsible for authenticity and legality of products.</li>
+    <li>
+      Seller must comply with Drugs & Cosmetics Act, Medical Devices Rules,
+      Legal Metrology, GST and invoicing laws.
+    </li>
+    <li>Seller must provide accurate product descriptions, pricing, HSN codes, and tax rates.</li>
+    <li>Seller must ensure batch/expiry compliance for consumables and reagents.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">3. Listings & Pricing Rules</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller must ensure correct specifications, UOM, pack size, images and no misleading claims.</li>
+    <li>Seller must maintain pricing transparency and MRP/discount compliance where required.</li>
+    <li>SEMAMART may delist products that violate platform rules.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">4. Orders, Acceptance & Fulfilment</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller must accept/reject orders within defined SLA (e.g., 6–24 hours).</li>
+    <li>On acceptance, Seller must dispatch within committed timeline.</li>
+    <li>Seller must pack products safely as per category norms (fragile, sterile, cold chain, etc.).</li>
+    <li>Seller must share tracking details.</li>
+    <li>Failure may lead to penalties and reduced visibility.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">5. Delivery, Damages & DOA</h3>
+  <p className="pl-2">
+    Seller shall be responsible for safe delivery and correct batch, expiry, and serial numbers.
+    If delivered damaged or incorrect, Seller must replace or refund as per policy and evidence.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">6. Return, Replacement & Warranty</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller must clearly define return eligibility and replacement window.</li>
+    <li>Seller must specify warranty terms and support details.</li>
+    <li>Warranty claims must be honoured as per listing and applicable law.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">7. Seller Payments & Settlements</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>SEMAMART will settle payments after delivery confirmation and dispute window closure.</li>
+    <li>Settlement cycles: <strong>[T+X days]</strong>.</li>
+    <li>
+      SEMAMART may deduct platform commission/fees, logistics charges, penalties,
+      reverse pickup costs, and tax deductions as per law.
+    </li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">8. Platform Fee / Commission</h3>
+  <p className="pl-2">
+    Seller agrees SEMAMART may charge commission percentage or fixed fee per transaction
+    and optional premium listing or marketing fees. Fee terms will be shared via
+    Seller Agreement or dashboard.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">9. Service Levels & Penalties</h3>
+  <p className="pl-2">
+    Seller must maintain acceptance SLA, dispatch SLA, low cancellation rate,
+    quality compliance, and minimal return rate. SEMAMART may impose listing suppression,
+    penalties, suspension, or termination.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">10. Seller Conduct & Prohibited Items</h3>
+  <ul className="list-disc pl-6 space-y-1">
+    <li>Seller must not sell counterfeit or unlicensed goods.</li>
+    <li>Seller must not sell expired or near-expiry products beyond allowed threshold.</li>
+    <li>Seller must not manipulate invoices or pricing.</li>
+    <li>Seller must not solicit Buyers outside platform to avoid fees.</li>
+    <li>Seller must not offer gifts or kickbacks to procurement staff.</li>
+  </ul>
+
+  <h3 className="font-semibold mt-6 mb-2">11. Audits & Compliance Checks</h3>
+  <p className="pl-2">
+    SEMAMART may conduct audits of seller documents and request batch or stock proofs.
+    Non-compliance may lead to suspension.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">12. Intellectual Property</h3>
+  <p className="pl-2">
+    Seller grants SEMAMART a limited license to use product photos, descriptions,
+    and catalogues for platform listing and marketing.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">13. Confidentiality</h3>
+  <p className="pl-2">
+    Seller shall keep Buyer data, pricing terms, and platform processes confidential
+    and use them only for order fulfilment.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">14. Limitation of Liability</h3>
+  <p className="pl-2">
+    SEMAMART is not liable for Seller inventory loss, manufacturing defects,
+    buyer misuse, or indirect damages. Liability is limited to platform fees
+    collected for the transaction.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">15. Termination</h3>
+  <p className="pl-2">
+    SEMAMART may suspend or terminate Seller access for fraud, regulatory violations,
+    repeated SLA breaches, or high complaint volume. Seller must fulfil pending
+    confirmed orders unless legally prohibited.
+  </p>
+
+  <h3 className="font-semibold mt-6 mb-2">16. Governing Law & Jurisdiction</h3>
+  <p className="pl-2 mb-8">
+    Indian law applies. Jurisdiction: Courts of Delhi NCR.
+  </p>
+
+</div>
+
+
+      <div className="border-t p-4 flex justify-end">
+        <button
+          className="px-6 py-2 bg-[#006666] text-white rounded-md"
+          onClick={() => setShowTermsModal(false)}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
