@@ -1,6 +1,6 @@
 // src/components/Header.tsx
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   AiOutlineHeart,
   AiOutlineSearch,
@@ -35,12 +35,17 @@ type Category = { _id: string; name: string };
 type Subcategory = { _id: string; name: string };
 type PackageType = { _id: string; name: string };
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export default function Header() {
   // stores
   const cart = useCartStore((s: any) => s.cart) || [];
   const wishlist = useWishlistStore((s: any) => s.wishlist) || [];
   const { user, removeUser } = useUserStore((s: any) => s);
   const { seller, removeSeller } = useSellerStore((s: any) => s);
+  const location = useLocation();
 
   // derive roles
   const isSeller = Boolean(seller);
@@ -88,7 +93,14 @@ export default function Header() {
   const [showSellerDialog, setShowSellerDialog] = useState(false);
 
   // search
-  const [query, setQuery] = useState("");
+  const queryParams = useQuery();
+  const [query, setQuery] = useState(queryParams.get("q") || "");
+
+  useEffect(() => {
+    const q = queryParams.get("q") || "";
+    setQuery(q);
+  }, [location.search]);
+
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSug, setShowSug] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -289,9 +301,11 @@ export default function Header() {
         if ((sel as any)._id) navigate(`/product/${(sel as any)._id}`);
       } else if (query.trim()) {
         navigate(`/search?q=${encodeURIComponent(query)}`);
-      }
+      }else {
+      navigate(`/`); // navigate to search page even if blank
+    }
       setShowSug(false);
-      setQuery("");
+      // setQuery("");
       setActiveIdx(-1);
       setMobileSearchOpen(false);
     } else if (e.key === "Escape") {
@@ -465,7 +479,7 @@ export default function Header() {
                         navigate(`/search?q=${encodeURIComponent(query)}`);
                       }
                       setShowSug(false);
-                      setQuery("");
+                      // setQuery("");
                       setActiveIdx(-1);
                     }}
                     aria-label="Search"
