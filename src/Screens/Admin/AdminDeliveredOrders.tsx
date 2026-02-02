@@ -56,10 +56,6 @@ export default function AdminDeliveredOrders() {
         <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
           Platform Fee: {formatMoney(totals.totalCommission)}
         </div>
-
-        <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
-          Net Revenue: {formatMoney(totals.totalRevenue)}
-        </div>
       </div>
 
       <AdminDeliveredOrderTable orders={deliveredOrders} />
