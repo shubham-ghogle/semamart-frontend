@@ -71,6 +71,8 @@ export const addProductFormDefaultValues = {
       }[],
     },
   ],
+  dispatchState: "",
+  dispatchDistrict: "",
 };
 
 export type FormProduct = typeof addProductFormDefaultValues;

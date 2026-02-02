@@ -184,7 +184,8 @@ brand: z.string().min(2, "Brand is required"),
 
     amc_cms: z.instanceof(File).optional().nullable(),
     rma: z.string().min(1, "Required"),
-    dispatchLocation: z.string().min(1, "Required"),
+    dispatchState: z.string().min(1, "Required"),
+    dispatchDistrict: z.string().min(1, "Required"),
 
     dispatchPinCode: z
       .string()

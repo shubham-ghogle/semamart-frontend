@@ -117,6 +117,8 @@ export default function ViewProductScreen() {
     amc_cms: null,
     rma: product?.rma || "",
     dispatchLocation: product?.dispatchLocation || "",
+    dispatchState: product?.dispatchState || "",
+    dispatchDistrict: product?.dispatchDistrict || "",
     dispatchPinCode: product?.dispatchPinCode.toString() || "",
     unitsPerCarton: product?.unitsPerCarton.toString() || "",
     shippingWeight: product?.shippingWeight.toString() || "",

@@ -59,6 +59,7 @@ import { useBlocker, useNavigate } from "react-router";
 import { useDebounce } from "@/hooks";
 import { InfoTooltip } from "../ui/InfoTooltip";
 import Subformlabel from "../ui/Subformlabel";
+import indiaStates, { getDistricts } from "india-state-district";
 
 
 type AddProductFormProps =
@@ -293,11 +294,98 @@ export default function AddProductForm({
   function removeVideo() {
     setShortVideo(null);
   }
+  const stateCodeMap: { [key: string]: string } = {
+    AN: "Andaman and Nicobar",
+    AP: "Andhra Pradesh",
+    AR: "Arunachal Pradesh",
+    AS: "Assam",
+    BR: "Bihar",
+    CG: "Chhattisgarh",
+    CH: "Chandigarh",
+    DD: "Daman and Diu",
+    DL: "Delhi",
+    GA: "Goa",
+    GJ: "Gujarat",
+    HR: "Haryana",
+    HP: "Himachal Pradesh",
+    JH: "Jharkhand",
+    JK: "Jammu and Kashmir",
+    KA: "Karnataka",
+    KL: "Kerala",
+    LA: "Ladakh",
+    LD: "Lakshadweep",
+    MH: "Maharashtra",
+    ML: "Meghalaya",
+    MN: "Manipur",
+    MP: "Madhya Pradesh",
+    MZ: "Mizoram",
+    NL: "Nagaland",
+    OR: "Odisha",
+    PB: "Punjab",
+    PY: "Puducherry",
+    RJ: "Rajasthan",
+    SK: "Sikkim",
+    TG: "Telangana",
+    TN: "Tamil Nadu",
+    TR: "Tripura",
+    UP: "Uttar Pradesh",
+    UT: "Uttarakhand",
+    WB: "West Bengal",
+  };
 
+  // Reverse mapping: state name to state code
+  const stateNameToCode: { [key: string]: string } = Object.entries(stateCodeMap).reduce(
+    (acc, [code, name]) => {
+      acc[name] = code;
+      return acc;
+    },
+    {} as { [key: string]: string }
+  );
   const [showManuDropdown, setShowManuDropdown] = useState(false);
   const [manufacQuery, setManufacQuery] = useState("");
   const debouncedManuQuery = useDebounce(manufacQuery, 400);
   const [manufacturerList, setManufacturerList] = useState([]);
+  const [states, setStates] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
+
+  
+  const { watch, setValue } = form;
+  const watchedState = watch("dispatchState");
+  const watchedDistrict = watch("dispatchDistrict");
+
+  // ------------------ Load state names from indiaStates.rawData ------------------
+  useEffect(() => {
+    const stateNames = Object.keys((indiaStates as any).rawData).map(
+      (code) => stateCodeMap[code] || code
+    );
+    console.log("State names:", stateNames);
+    setStates(stateNames);
+  }, []);
+
+  // ------------------ Load districts when state changes ------------------
+  useEffect(() => {
+  if (!watchedState) {
+    setDistricts([]);
+    setValue("dispatchDistrict", ""); // Only reset when state is empty
+    return;
+  }
+
+  const stateCode = stateNameToCode[watchedState];
+  const districtsOfState = getDistricts(stateCode) || [];
+
+  setDistricts(districtsOfState);
+
+  // Reset only if previous district is not in new list
+  if (!districtsOfState.includes(watchedDistrict)) {
+    setValue("dispatchDistrict", "");
+  }
+}, [watchedState, setValue]);
+  // ------------------ Log selected state & district ------------------
+  useEffect(() => {
+    console.log("Selected State:", watchedState);
+    console.log("Selected District:", watchedDistrict);
+  }, [watchedState, watchedDistrict]);
+
 
   const { mutate: mutateManufacturer } = useMutation({
     mutationFn: searchManufacturers,
@@ -456,7 +544,8 @@ export default function AddProductForm({
       newForm.append("warranty", values.warranty);
     }
     newForm.append("rma", values.rma);
-    newForm.append("dispatchLocation", values.dispatchLocation);
+    newForm.append("dispatchState", values.dispatchState);
+    newForm.append("dispatchDistrict", values.dispatchDistrict);
     newForm.append("dispatchPinCode", values.dispatchPinCode.toString());
     newForm.append("unitsPerCarton", values.unitsPerCarton.toString());
     newForm.append("shippingWeight", values.shippingWeight.toString());
@@ -729,7 +818,7 @@ export default function AddProductForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex" >
-                         <SubFormLabel>Brand</SubFormLabel>
+                         <Subformlabel required>Brand</Subformlabel>
                          <InfoTooltip description="Enter the brand name of the product. This is useful if your product is part of a recognized brand."/>
                       </div>
                     <FormControl>
@@ -1686,19 +1775,67 @@ export default function AddProductForm({
               Logistics & Fulfillment
             </MainAccordionTrigger>
             <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
-              <FormField
-                control={form.control}
-                name="dispatchLocation"
-                render={({ field }) => (
-                  <FormItem>
-                    <Subformlabel required >Dispatch Location</Subformlabel>
-                    <FormControl>
-                      <Input {...field} className="w-full" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="flex gap-4">
+      {/* State Dropdown */}
+      <FormField
+        control={form.control}
+        name="dispatchState"
+        render={({ field }) => (
+          <FormItem className="flex flex-col gap-2">
+            <label className="font-medium">Dispatched State</label>
+            <FormControl>
+              <Select
+                onValueChange={(val) => setValue("dispatchState", val)}
+                value={field.value || ""}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* District Dropdown */}
+      <FormField
+        control={form.control}
+        name="dispatchDistrict"
+        render={({ field }) => (
+          <FormItem className="flex flex-col gap-2">
+            <label className="font-medium">Dispatched District</label>
+            <FormControl>
+              <Select
+                onValueChange={(val) => setValue("dispatchDistrict", val)}
+                value={field.value || ""}
+                disabled={districts.length === 0}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select District" />
+                </SelectTrigger>
+                <SelectContent>
+                  {districts.map((district) => (
+                    <SelectItem key={district} value={district}>
+                      {district}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+
 
               <FormField
                 control={form.control}

@@ -87,6 +87,8 @@ export interface Product {
   amc_cms: string;
   rma: string;
   dispatchLocation: string;
+  dispatchState: string;
+  dispatchDistrict: string;
   dispatchPinCode: number;
   unitsPerCarton: number;
   shippingWeight: number;
