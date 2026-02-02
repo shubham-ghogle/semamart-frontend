@@ -7,6 +7,7 @@ import { formatDate } from "../UIComponents/Inputs";
 import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
 import { Button } from "../ui/button";
 import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
+import { toast } from "react-toastify";
 
 type AdminOrderDetailProps = {
   data: Order;
@@ -260,14 +261,24 @@ const shippedDate = shippedDateRaw
               </select>
             </article>
             <button
-              className="px-3 py-2 bg-accent-yellow rounded-sm mt-4 w-full shadow-md"
-              onClick={async () =>
+              className="px-3 py-2 bg-accent-yellow rounded-sm mt-4 w-full shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
+              onClick={async () => {
+                // 1. Prevent firing if status is empty
+                if (!status) {
+                  toast.error("Please select a status first");
+                  return;
+                }
+                
                 await mutateOrder({
                   status,
                   orderId: orderId || "",
-                })
-              }
-              disabled={mutationStatus === "pending"}
+                });
+
+                // 2. Optional: Reset selection after success
+                setStatus(""); 
+              }}
+              // 3. Keep button disabled if pending OR if no status is selected
+              disabled={mutationStatus === "pending" || !status}
             >
               {mutationStatus === "pending" ? "Updating.." : "Update Status"}
             </button>

@@ -8,7 +8,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Product } from "@/Types/types";
-import { Card, CardContent } from "../ui/card";
 
 export default function DocumentsDisplay() {
   const { id } = useParams();

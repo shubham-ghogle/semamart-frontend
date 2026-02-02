@@ -68,11 +68,16 @@ export default function OrderPaymentViewDialog({
             {!isPaymentVerified && (
               <Button
                 onClick={() => {
-                  mutateOrder({ orderId: orderId ?? "", status: "Processing" });
+                  if (orderId) {
+                    mutateOrder({ 
+                      orderId: orderId, 
+                      status: "Processing" // This string must match your Backend Enum
+                    });
+                  }
                 }}
                 disabled={mutationStatus === "pending"}
               >
-                Verify
+                {mutationStatus === "pending" ? "Verifying..." : "Verify & Start Processing"}
               </Button>
             )}
           </DialogFooter>
