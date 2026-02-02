@@ -161,13 +161,12 @@ export default function BulkOrderDetails() {
           </Link>
 
           {/* History Icon */}
-          <span
+         <button
             onClick={() => setHistoryOrder(row.original)}
-            className="cursor-pointer text-gray-600 hover:text-gray-900"
-            title="View Admin History"
+            className="w-8 h-8 flex items-center cursor-pointer justify-center rounded hover:bg-gray-100"
           >
-            <ClockIcon className="w-5 h-5" />
-          </span>
+            <ClockIcon className="w-4 h-4 text-gray-600" />
+          </button>
         </div>
       ),
     },

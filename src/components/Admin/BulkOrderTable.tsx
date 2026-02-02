@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
-import { EyeIcon, ClockIcon } from "lucide-react";
+import { EyeIcon, ClockIcon,  MessageSquare } from "lucide-react";
 
 import { DataTable } from "../ui/data-table";
 import { BASE_URL } from "@/data";
@@ -45,6 +45,7 @@ type BulkOrderRow = {
   customerPrice: number;
   thumbnail: string;
   adminNotes: AdminNote[];
+  comment?: string;
 };
 
 /* -------------------- HELPER -------------------- */
@@ -70,11 +71,14 @@ export default function BulkOrdersTable() {
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] =
-    useState<BulkOrderStatus>("NEW");
+  useState<BulkOrderStatus>("NEW");
   const [note, setNote] = useState("");
 
   const [historyOrder, setHistoryOrder] =
     useState<BulkOrderRow | null>(null);
+  
+  const [commentOrder, setCommentOrder] = useState<BulkOrderRow | null>(null);
+  
 
   /* -------------------- FETCH -------------------- */
   useEffect(() => {
@@ -98,6 +102,7 @@ export default function BulkOrdersTable() {
               order.variant_id?.thumbnail || ""
             }`,
             adminNotes: order.adminNotes || [],
+            commentOrder: order.comment || "",
           }));
 
           setBulkOrders(mapped);
@@ -219,18 +224,31 @@ export default function BulkOrdersTable() {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Link to={`/product/${row.original.productId}`} target="_blank">
-            <EyeIcon />
-          </Link>
-          <span
-            onClick={() => setHistoryOrder(row.original)}
-            className="cursor-pointer text-gray-600 hover:text-gray-900"
+          <Link
+            to={`/product/${row.original.productId}`}
+            target="_blank"
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"
           >
-            <ClockIcon />
-          </span>
+            <EyeIcon className="w-4 h-4 text-gray-600" />
+          </Link>
+
+          <button
+            onClick={() => setHistoryOrder(row.original)}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"
+          >
+            <ClockIcon className="w-4 h-4 text-gray-600" />
+          </button>
+
+          <button
+            onClick={() => setCommentOrder(row.original)}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"
+          >
+            <MessageSquare className="w-4 h-4 text-gray-600" />
+          </button>
         </div>
       ),
-    },
+    }
+
   ];
 
   /* -------------------- RENDER -------------------- */
@@ -278,6 +296,27 @@ export default function BulkOrdersTable() {
           </div>
         </div>
       )}
+
+      {/* COMMENT MODAL */}
+      {commentOrder && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-[500px] p-5 rounded shadow-lg">
+            <h3 className="font-semibold mb-2">Customer Comment</h3>
+
+            <p className="border p-3 rounded bg-gray-50">{commentOrder.comment || "No comment"}</p>
+
+            <div className="flex justify-end mt-4">
+              <button
+                className="px-4 py-2 border rounded hover:bg-gray-100"
+                onClick={() => setCommentOrder(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* HISTORY MODAL */}
       {historyOrder && (

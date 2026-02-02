@@ -2,6 +2,11 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useUserStore } from "@/store/userStore";
 import type { Address } from "@/Types/types";
 import { API_URL } from "@/data";
+import {
+  FaPen,
+  FaTrash,
+} from "react-icons/fa";
+
 
 const initialFormData: Address = {
   reciever_name: "",
@@ -518,13 +523,13 @@ const ManageAddress = () => {
                       onClick={() => handleEditClick(addr)}
                       className="text-blue-600 cursor-pointer text-sm"
                     >
-                      Edit
+                      <FaPen />
                     </button>
                     <button
                       onClick={() => addr._id && handleDeleteClick(addr._id)}
                       className="text-red-600 cursor-pointer text-sm"
                     >
-                      Delete
+                      <FaTrash />
                     </button>
                   </div>
                 </li>

@@ -140,8 +140,12 @@ export default function StockUpdateTable() {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Link to={`/product/${row.original.productId}`} target="_blank">
-          <EyeIcon />
+        <Link
+            to={`/product/${row.original.productId}`}
+            target="_blank"
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"
+          >
+            <EyeIcon className="w-4 h-4 text-gray-600" />
         </Link>
       ),
     },
