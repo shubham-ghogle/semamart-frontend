@@ -126,6 +126,10 @@ const truncate = (text: string, max = 35) =>
         }),
     },
     {
+      accessorKey: "status",
+      header: "Status",
+    },
+    {
       id: "action",
       header: "Action",
       cell: ({ row }) => (
