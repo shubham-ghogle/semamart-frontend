@@ -1,28 +1,41 @@
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartItem, useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 
+// -------------------
+// Main AddToCart Component
+// -------------------
 export default function AddToCart() {
   const cart = useCartStore((state) => state.cart);
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // ✅ Calculate totals using data.price (bulk-aware)
-  const { subTotal, totalGST, grandTotal } = cart.reduce(
-    (acc, item) => {
-      const basePrice = item.price; // already bulk-aware
-      const gstRate = item.taxClass ?? 0;
-      const gstAmount = (basePrice * gstRate) / 100;
+  // ✅ Track first product by ID to avoid shuffling
+  const firstProduct = useMemo(() => {
+    if (!cart.length) return null;
+    const firstId = cart[0].product?._id;
+    return cart.find((i) => i.product?._id === firstId)?.product || null;
+  }, [cart]);
 
-      acc.subTotal += basePrice * item.qty;
-      acc.totalGST += gstAmount * item.qty;
-      acc.grandTotal += (basePrice + gstAmount) * item.qty;
-      return acc;
-    },
-    { subTotal: 0, totalGST: 0, grandTotal: 0 }
-  );
+  // ✅ Calculate totals using data.price (bulk-aware)
+  const { subTotal, totalGST, grandTotal } = useMemo(() => {
+    return cart.reduce(
+      (acc, item) => {
+        const basePrice = item.price; // already bulk-aware
+        const gstRate = item.taxClass ?? 0;
+        const gstAmount = (basePrice * gstRate) / 100;
+
+        acc.subTotal += basePrice * item.qty;
+        acc.totalGST += gstAmount * item.qty;
+        acc.grandTotal += (basePrice + gstAmount) * item.qty;
+        return acc;
+      },
+      { subTotal: 0, totalGST: 0, grandTotal: 0 }
+    );
+  }, [cart]);
 
   function checkoutHandler() {
     if (!user) {
@@ -116,7 +129,7 @@ export default function AddToCart() {
       </div>
 
       {/* Related Products */}
-      {cart.length > 0 && (
+      {firstProduct && (
         <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto px-4">
           <hr className="border-t border-gray-400" />
           <h2 className="font-bold text-2xl mt-6 text-center text-[#1C647C]">
@@ -124,8 +137,8 @@ export default function AddToCart() {
           </h2>
           <div className="flex flex-wrap justify-center mt-8">
             <RelatedProducts
-              productType={(cart[0].product as any).productType}
-              productId={(cart[0].product as any)._id}
+              productType={firstProduct.productType}
+              productId={firstProduct._id}
             />
           </div>
         </div>
@@ -141,7 +154,7 @@ type CartSingleProps = {
   data: CartItem;
 };
 
-const CartSingle = ({ data }: CartSingleProps) => {
+const CartSingle = React.memo(({ data }: CartSingleProps) => {
   const { removeFromCart, changeQyt } = useCartStore();
 
   const product = data.product;
@@ -149,7 +162,6 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
   if (!product) return null;
 
-  // ✅ safe image
   const imageUrl =
     variant?.thumbnail
       ? `/images/${variant.thumbnail}`
@@ -157,8 +169,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
       ? `/images/${product.images[0]}`
       : "/default-image.png";
 
-  // ✅ use data.price (bulk-aware)
-  const basePrice = data.price; // per-piece price already calculated
+  const basePrice = data.price; // bulk-aware
   const gstRate = data.taxClass ?? 0;
   const gstAmountPerPiece = (basePrice * gstRate) / 100;
 
@@ -167,17 +178,13 @@ const CartSingle = ({ data }: CartSingleProps) => {
   const totalGST = gstAmountPerPiece * qty;
   const totalInclGST = totalBase + totalGST;
 
-  // Discount display
   const originalPrice =
-    variant?.originalPrice ??
-    product.variants?.[0]?.originalPrice ??
-    basePrice;
+    variant?.originalPrice ?? product.variants?.[0]?.originalPrice ?? basePrice;
   const discountPercent =
     originalPrice && basePrice
       ? Math.round(((originalPrice - basePrice) / originalPrice) * 100)
       : 0;
 
-  // IDs
   const productId =
     typeof data.productId === "string" ? data.productId : data.productId?._id;
   const variantId =
@@ -185,7 +192,6 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
   return (
     <div className="flex gap-4 py-6 border-b border-gray-200">
-      {/* Left: Product Image */}
       <div className="w-28 flex-shrink-0">
         <img
           src={imageUrl}
@@ -194,7 +200,6 @@ const CartSingle = ({ data }: CartSingleProps) => {
         />
       </div>
 
-      {/* Right: Product Info */}
       <div className="flex flex-col flex-1 justify-between">
         <div className="flex justify-between items-center mb-1">
           <h4 className="text-base font-semibold text-gray-900">
@@ -211,33 +216,26 @@ const CartSingle = ({ data }: CartSingleProps) => {
             {variant?.size ? ` | Size: ${variant.size}` : ""}
           </p>
 
-          {/* Price Breakdown */}
           <div className="space-y-1 mt-2">
             <div>
-              Unit Price (Excl. GST): ₹{basePrice.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })} × {qty} ={" "}
-              <strong>₹{totalBase.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}</strong>
+              Unit Price (Excl. GST): ₹
+              {basePrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })} ×{" "}
+              {qty} ={" "}
+              <strong>
+                ₹{totalBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </strong>
             </div>
             <div>GST Rate: {gstRate}%</div>
             <div>
-              GST Amount: ₹{gstAmountPerPiece.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })} × {qty} ={" "}
-              <strong>₹{totalGST.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}</strong>
+              GST Amount: ₹
+              {gstAmountPerPiece.toLocaleString("en-IN", { minimumFractionDigits: 2 })} ×{" "}
+              {qty} = <strong>₹{totalGST.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</strong>
             </div>
             <div className="font-semibold text-gray-900">
-              Price (Incl. GST): ₹{totalInclGST.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}
+              Price (Incl. GST): ₹{totalInclGST.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
-          {/* Discount */}
           {discountPercent > 0 && (
             <span className="text-green-600 font-semibold mt-1 block">
               {discountPercent}% OFF
@@ -247,7 +245,6 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
         <hr className="border-gray-300 mb-2" />
 
-        {/* Quantity + Actions */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 border rounded-md overflow-hidden">
             <button
@@ -286,4 +283,4 @@ const CartSingle = ({ data }: CartSingleProps) => {
       </div>
     </div>
   );
-};
+});

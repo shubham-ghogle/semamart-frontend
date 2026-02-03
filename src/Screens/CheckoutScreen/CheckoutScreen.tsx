@@ -116,6 +116,8 @@ export default function CheckoutScreen(): JSX.Element {
         (unitBase + gstAmountPerLine) * qty,
       tax: el.taxClass || 0,
       unitPrice: unitBase,
+      dispatchState: el.product?.dispatchState ?? null,
+      dispatchDistrict: el.product?.dispatchDistrict ?? null,
     };
   });
 
