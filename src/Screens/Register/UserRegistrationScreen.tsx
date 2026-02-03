@@ -1,6 +1,5 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { IoIosLock } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom"; 
 import { useRegisterUser } from "./Registration.Hooks";
@@ -148,7 +147,7 @@ function Signup() {
       <div className="w-1/2 flex flex-col justify-center items-center p-8 text-white">
         <Link to="/"><img src="/Logo-imag.png" width={120} alt="SEMA Logo" className="mb-6" /></Link>
         <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]">
-          <IoIosLock />Institute Signup
+        Institute Signup
         </h2>
         <p className="text-lg text-center text-[#006666]">
           Create your institute account to continue

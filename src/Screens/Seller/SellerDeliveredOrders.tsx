@@ -22,8 +22,7 @@ export default function SellerDeliveredOrders() {
     queryFn: getDeliveredOrdersForSeller,
   });
 
-  const deliveredOrders =
-    orders?.filter((o) => o.status === "Delivered") ?? [];
+  const deliveredOrders = orders?.filter((o) => o.status === "Delivered") ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc, o) => {
@@ -31,7 +30,7 @@ export default function SellerDeliveredOrders() {
         typeof o.variant === "object" ? (o.variant as any)?.productId : null;
 
       const commission =
-        pid && typeof pid === "object" ? pid.commission ?? 0 : 0;
+        pid && typeof pid === "object" ? (pid.commission ?? 0) : 0;
 
       const orderTotal = o.totalPrice || 0;
 
@@ -48,7 +47,7 @@ export default function SellerDeliveredOrders() {
       totalSales: 0,
       totalCommission: 0,
       totalRevenue: 0,
-    }
+    },
   );
 
   return (
@@ -61,11 +60,12 @@ export default function SellerDeliveredOrders() {
       {status === "success" && (
         <>
           <div className="flex justify-end gap-4 mb-6">
-            <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+            {/* Updated to Semamart Teal with white text */}
+            <div className="bg-[#006666] text-white px-5 py-3 rounded-xl font-semibold text-lg shadow-sm">
               Total Sales: {formatMoney(totals.totalSales)}
             </div>
 
-            <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+            <div className="bg-[#006666] text-white px-5 py-3 rounded-xl font-semibold text-lg shadow-sm">
               Net Revenue: {formatMoney(totals.totalRevenue)}
             </div>
           </div>
