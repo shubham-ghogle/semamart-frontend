@@ -66,6 +66,7 @@ interface Order {
     trackingDocument?: string;
     deliveredAt?: string;
   };
+  invoicePdf?:string;
 }
 
 const OrderSummary = () => {
@@ -375,15 +376,38 @@ const OrderSummary = () => {
 
               {/* Download Invoice */}
               <button
-                type="button"
-                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2
-                  text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700
-                  transition-all duration-200 shadow-sm"
-                onClick={() => console.log("Download invoice clicked")}
-              >
-                <FiDownload size={18} className="text-blue-600" />
-                Download Invoice
-              </button>
+  type="button"
+  className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2
+    text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700
+    transition-all duration-200 shadow-sm"
+  onClick={() => {
+    const invoice = order.invoicePdf;
+    if (!invoice) return alert("Invoice not available yet");
+
+    const url = `${BASE_URL}/${invoice}`;
+
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to download invoice");
+        return res.blob();
+      })
+      .then((blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = invoice;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(() => alert("Invoice download failed"));
+  }}
+>
+  <FiDownload size={18} className="text-blue-600" />
+  Download Invoice
+</button>
+
             </div>
           </div>
         </div>
