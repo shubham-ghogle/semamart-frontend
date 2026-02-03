@@ -49,11 +49,11 @@ export default function AdminDeliveredOrders() {
       subHeading="Sales for orders that have been delivered"
     >
       <div className="flex justify-end gap-4 mb-6">
-        <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+        <div className="bg-[#006666] text-white px-5 py-3 rounded-xl font-semibold text-lg shadow-sm">
           Total Sales: {formatMoney(totals.totalSales)}
         </div>
 
-        <div className="bg-yellow-100 text-yellow-900 px-5 py-3 rounded-xl font-semibold text-lg">
+        <div className="bg-[#006666] text-white px-5 py-3 rounded-xl font-semibold text-lg shadow-sm">
           Platform Fee: {formatMoney(totals.totalCommission)}
         </div>
       </div>

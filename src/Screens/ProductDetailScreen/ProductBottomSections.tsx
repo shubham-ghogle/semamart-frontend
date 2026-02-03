@@ -1,21 +1,46 @@
 // src/components/Product/ProductBottomSections.tsx
 import { useMemo, useState } from "react";
-
+import { X, FileText, Eye, Download } from "lucide-react"; // Added Eye and Download
+import { BASE_URL } from "@/data"; // Ensure this import matches your project structure
 export default function ProductBottomSections({ product, selectedVariant }: any) {
   const STAR_COLOR = "#FFD700";
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
 
   const tabs = useMemo(
     () => [
       { id: "highlights", label: "Product Highlights" },
       { id: "description", label: "Full Description" },
       { id: "technical", label: "Technical Details" },
-      { id: "attributes", label: "Attributes" }, // NEW
+      { id: "attributes", label: "Attributes" },
       { id: "reviews", label: "Customer Reviews" },
+      { id: "documents", label: "Relevant Documents" }, // ADDED
     ],
     []
   );
 
-  const [activeTabIdx, setActiveTabIdx] = useState(0);
+  // Logic to extract documents from your product object
+  const documents = useMemo(() => {
+    const docs: { label: string; url: string }[] = [];
+    
+    // Single file fields
+    if (product?.amc_cms) docs.push({ label: "AMC/CMS", url: product.amc_cms });
+    if (product?.oemLetter) docs.push({ label: "OEM Letter", url: product.oemLetter });
+    if (product?.productComparisionSheet) docs.push({ label: "Comparison Sheet", url: product.productComparisionSheet });
+    
+    // Array file fields
+    if (Array.isArray(product?.productCompilance)) {
+      product.productCompilance.forEach((url: string, i: number) => docs.push({ label: `Compliance ${i + 1}`, url }));
+    }
+    if (Array.isArray(product?.msds_ifu_leaflet)) {
+      product.msds_ifu_leaflet.forEach((url: string, i: number) => docs.push({ label: `Leaflet ${i + 1}`, url }));
+    }
+    if (Array.isArray(product?.certificate)) {
+      product.certificate.forEach((url: string, i: number) => docs.push({ label: `Certificate ${i + 1}`, url }));
+    }
+    
+    return docs;
+  }, [product]);
 
   const technicalPairs = [
     ["SKU", product?.sku ?? "N/A"],
@@ -30,45 +55,93 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
   ];
 
   const reviews = product?.reviews ?? [];
-
-  // Normalize attributes: expect array of objects, but handle gracefully
   const attributes = Array.isArray(product?.attributes) ? product.attributes : [];
 
   return (
     <section className="w-full mt-8">
+      {/* --- Document Popup Modal --- */}
+      {selectedDoc && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-5xl h-[85vh] bg-white rounded-xl shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <span className="font-semibold text-[#1C647C]">Document Viewer</span>
+              <button 
+                onClick={() => setSelectedDoc(null)}
+                className="p-2 hover:bg-gray-100 rounded-full transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex-1 bg-gray-100">
+              <iframe src={selectedDoc} className="w-full h-full border-none" title="Doc" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-sm border">
         {/* Tab row */}
-        <div
-  role="tablist"
-  aria-label="Product sections"
-  className="overflow-x-auto px-3 py-3 border-b scrollbar-hide"
-  style={{ WebkitOverflowScrolling: "touch" }}
->
-  <div className="flex gap-2 w-max">
-    {tabs.map((t, i) => {
-      const active = activeTabIdx === i;
-      return (
-        <button
-          key={t.id}
-          onClick={() => setActiveTabIdx(i)}
-          role="tab"
-          aria-selected={active}
-          aria-controls={`tabpanel-${t.id}`}
-          id={`tab-${t.id}`}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap
-            ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
-          `}
-        >
-          {t.label}
-        </button>
-      );
-    })}
-  </div>
-</div>
-
+        <div role="tablist" className="overflow-x-auto px-3 py-3 border-b scrollbar-hide">
+          <div className="flex gap-2 w-max">
+            {tabs.map((t, i) => {
+              const active = activeTabIdx === i;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTabIdx(i)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap
+                    ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-4 min-h-[200px]">
+          {/* ... Existing Highlights, Description, Technical, Attributes, Reviews Tabs ... */}
+          {/* (Kept your logic for activeTabIdx 0 through 4) */}
+
+          {/* Documents Tab */}
+          <div className={`${activeTabIdx === 5 ? "block" : "hidden"} transition`}>
+            <h3 className="text-lg font-semibold text-[#1C647C] mb-4">Relevant Documents</h3>
+            {documents.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {documents.map((doc, idx) => (
+                  <div 
+                    key={idx}
+                    className="group border rounded-xl p-4 bg-gray-50 hover:bg-white hover:border-[#1C647C] hover:shadow-lg transition flex flex-col items-center text-center relative"
+                  >
+                    <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-3">
+                      <FileText size={28} />
+                    </div>
+                    <p className="text-xs font-bold text-gray-800 mb-1 truncate w-full">{doc.label}</p>
+                    <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                       <button 
+                        onClick={() => setSelectedDoc(`${BASE_URL}docs/${doc.url}`)}
+                        className="p-1.5 bg-[#1C647C] text-white rounded-md hover:bg-[#154d60]"
+                       >
+                         <Eye size={14} />
+                       </button>
+                       <a 
+                        href={`${BASE_URL}docs/${doc.url}`} 
+                        download 
+                        className="p-1.5 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                       >
+                         <Download size={14} />
+                       </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No documents available.</p>
+            )}
+          </div>
+
+          {/* Re-insert your existing tab content divs here (0-4) */}
           {/* Highlights */}
           <div id="tabpanel-highlights" role="tabpanel" aria-labelledby="tab-highlights" aria-hidden={activeTabIdx !== 0} className={`${activeTabIdx === 0 ? "block" : "hidden"} transition`}>
             <h3 className="text-lg font-semibold text-[#1C647C] mb-3">Product Highlights</h3>
