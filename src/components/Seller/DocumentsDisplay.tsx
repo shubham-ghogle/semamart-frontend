@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Product } from "@/Types/types";
-import axios from "axios";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 import { Trash2, RotateCcw } from "lucide-react";
@@ -13,10 +12,10 @@ export default function DocumentsDisplay() {
   const queryClient = useQueryClient();
   const product = queryClient.getQueryData(["product", id]) as Product;
 
-  // Local state for new files and staged deletions
   const [selectedFiles, setSelectedFiles] = useState<{ [key: string]: { file: File, idx?: number } }>({});
-  const [pendingDeletions, setPendingDeletions] = useState<string[]>([]); // Tracks docType keys to be deleted
+  const [pendingDeletions, setPendingDeletions] = useState<string[]>([]);
 
+  // UPLOAD MUTATION WITH FETCH
   const { mutateAsync: uploadFile, status: uploadStatus } = useMutation({
     mutationFn: async ({ docType, file, idx }: { docType: string; file: File; idx?: number }) => {
       const formData = new FormData();
@@ -24,21 +23,42 @@ export default function DocumentsDisplay() {
       formData.append("docType", docType);
       if (idx !== undefined) formData.append("idx", idx.toString());
 
-      const res = await axios.put(`${API_URL}product/upload-doc/${id}`, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await fetch(`${API_URL}product/upload-doc/${id}`, {
+        method: "PUT",
+        body: formData,
+        // credentials: "include" is required to send cookies/session with fetch
+        credentials: "include", 
       });
-      return res.data.product;
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
+      }
+
+      const data = await res.json();
+      return data.product;
     }
   });
 
+  // DELETE MUTATION WITH FETCH
   const { mutateAsync: deleteFile, status: deleteStatus } = useMutation({
     mutationFn: async ({ docType, idx }: { docType: string; idx?: number }) => {
-      const res = await axios.delete(`${API_URL}product/delete-doc/${id}`, {
-        data: { docType, idx },
-        withCredentials: true
+      const res = await fetch(`${API_URL}product/delete-doc/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ docType, idx }),
+        credentials: "include",
       });
-      return res.data.product;
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Delete failed");
+      }
+
+      const data = await res.json();
+      return data.product;
     }
   });
 
@@ -55,7 +75,6 @@ export default function DocumentsDisplay() {
 
       // 1. Process Deletions First
       for (const key of deleteKeys) {
-        // Find if it was an array field (simplified logic for your schema)
         const isArray = ["msds_ifu_leaflet", "productCompilance", "certificate"].includes(key);
         await deleteFile({ docType: key, idx: isArray ? 0 : undefined });
       }
@@ -70,8 +89,8 @@ export default function DocumentsDisplay() {
       setSelectedFiles({});
       setPendingDeletions([]);
       toast.update(mainToastId, { render: "Changes saved successfully!", type: "success", isLoading: false, autoClose: 3000 });
-    } catch (error) {
-      toast.error("An error occurred during sync.");
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during sync.");
     }
   };
 
@@ -88,13 +107,13 @@ export default function DocumentsDisplay() {
         <label className="flex flex-col items-start gap-2 cursor-pointer text-gray-700">
           <span className="text-sm font-medium mt-2">{label}</span>
           <input
+            key={isSelected ? "selected" : isMarkedForDeletion ? "deleted" : "empty"}
             type="file"
             className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-gray-500 hover:file:bg-blue-100 cursor-pointer"
             onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                     setSelectedFiles(prev => ({ ...prev, [docType]: { file, idx: isArray ? 0 : undefined } }));
-                    // If we select a new file for a field marked for delete, remove from delete list
                     setPendingDeletions(prev => prev.filter(k => k !== docType));
                 }
             }}
@@ -103,7 +122,10 @@ export default function DocumentsDisplay() {
         
         <div className="flex items-center justify-between mt-1 min-h-[20px]">
           {isSelected ? (
-            <p className="text-[10px] text-blue-600 font-bold italic">Pending Upload: {selectedFiles[docType as string].file.name}</p>
+            <div className="flex items-center gap-2">
+               <p className="text-[10px] text-blue-600 font-bold italic">Pending Upload: {selectedFiles[docType as string].file.name}</p>
+               <button onClick={() => setSelectedFiles(prev => {const n = {...prev}; delete n[docType as string]; return n;})} className="text-gray-400 hover:text-red-500"><RotateCcw size={12}/></button>
+            </div>
           ) : isMarkedForDeletion ? (
             <div className="flex items-center gap-2">
               <p className="text-[10px] text-red-500 font-bold line-through">Marked for deletion</p>
@@ -122,9 +144,7 @@ export default function DocumentsDisplay() {
                 <p className="text-[10px] text-green-600 truncate max-w-[150px]">Current: {existingFileName}</p>
                 <button 
                   type="button"
-                  onClick={() => {
-                    setPendingDeletions(prev => [...prev, docType as string]);
-                  }}
+                  onClick={() => setPendingDeletions(prev => [...prev, docType as string])}
                   className="text-red-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 size={14} />
@@ -155,7 +175,7 @@ export default function DocumentsDisplay() {
         <button 
           type="button"
           onClick={handleGlobalSubmit}
-          className="bg-[#1C647C] text-white px-2.5 py-2.5 rounded shadow-md hover:bg-[#154d5f] transition-all font-semibold"
+          className="bg-[#1C647C] text-white px-6 py-2 rounded shadow-md hover:bg-[#154d5f] transition-all font-semibold"
         >
           Update All Documents
         </button>
