@@ -136,7 +136,26 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     {
       accessorKey: "status",
       header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+
+        // Define color based on status
+        let bgColor = "bg-gray-200 text-gray-800";
+        if (status === "Verify Payment") bgColor = "bg-yellow-100 text-yellow-800";
+        else if (status === "Pending") bgColor = "bg-blue-100 text-blue-800";
+        else if (status === "Processing") bgColor = "bg-indigo-100 text-indigo-800";
+        else if (status === "Shipped") bgColor = "bg-purple-100 text-purple-800";
+        else if (status === "Delivered") bgColor = "bg-green-100 text-green-800";
+        else if (status === "Cancelled") bgColor = "bg-red-100 text-red-800";
+
+        return (
+          <span className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor}`}>
+            {status}
+          </span>
+        );
+      },
     },
+
     {
       accessorKey: "action",
       header: "Action",
