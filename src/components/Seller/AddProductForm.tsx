@@ -360,7 +360,7 @@ export default function AddProductForm({
     const stateNames = Object.keys((indiaStates as any).rawData).map(
       (code) => stateCodeMap[code] || code
     );
-    console.log("State names:", stateNames);
+    
     setStates(stateNames);
   }, []);
 
@@ -383,10 +383,7 @@ export default function AddProductForm({
   }
 }, [watchedState, setValue]);
   // ------------------ Log selected state & district ------------------
-  useEffect(() => {
-    console.log("Selected State:", watchedState);
-    console.log("Selected District:", watchedDistrict);
-  }, [watchedState, watchedDistrict]);
+
 
 
   const { mutate: mutateManufacturer } = useMutation({
