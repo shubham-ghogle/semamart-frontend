@@ -102,6 +102,14 @@ export default function CheckoutScreen(): JSX.Element {
       (unitBase * (el.taxClass || 0)) / 100;
     const qty = el.qty ?? 1;
 
+    const totalPrice =
+      Number(el.paymentslip?.grandTotal) ||
+      (unitBase + (gstAmountPerLine / qty || 0)) * qty ||
+      (unitBase + gstAmountPerLine) * qty;
+    
+    const perUnitCommission = el.product?.commission || 0;
+    const adminCommission = perUnitCommission * qty;
+
     return {
       shopId:
         typeof el.product?.shopId === "string"
@@ -110,14 +118,13 @@ export default function CheckoutScreen(): JSX.Element {
       productId: el.product!._id,
       variantId: el.variant?._id ?? fallbackVariantId,
       qty: el.qty,
-      totalPrice:
-        Number(el.paymentslip?.grandTotal) ||
-        (unitBase + (gstAmountPerLine / qty || 0)) * qty ||
-        (unitBase + gstAmountPerLine) * qty,
+      totalPrice: totalPrice,
       tax: el.taxClass || 0,
       unitPrice: unitBase,
       dispatchState: el.product?.dispatchState ?? null,
       dispatchDistrict: el.product?.dispatchDistrict ?? null,
+      adminCommision: adminCommission,
+      sellerPayout: totalPrice - adminCommission,
     };
   });
 

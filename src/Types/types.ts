@@ -239,7 +239,8 @@ export type Order = {
     trackingNumber: string;
     trackingDocument: string;
   };
-  paymentFile:null | string
+  paymentFile:null | string;
+  sellerPayout:number;
 };
 
 export type CategoryApiRes = {
