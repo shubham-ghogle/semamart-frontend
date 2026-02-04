@@ -704,6 +704,8 @@ return (
 
               // Accordion 4
               dispatchPinCode: "4",
+              dispatchState: "4",
+              dispatchDistrict: "4",
               unitsPerCarton: "4",
               shippingWeight: "4",
               packagingType: "4",
