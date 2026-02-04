@@ -1,9 +1,12 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLoading, AiOutlineCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "@/data";
+import indiaStates, { getDistricts } from "india-state-district";
+import Select from "react-select";
+
 
 interface SellerForm {
   firstName: string;
@@ -15,6 +18,8 @@ interface SellerForm {
   businessType: string;
   password: string;
   confirmPassword: string;
+  state: string;
+  district: string;
 }
 
 export default function SellerRegistration(): JSX.Element {
@@ -29,6 +34,8 @@ export default function SellerRegistration(): JSX.Element {
     businessType: "",
     password: "",
     confirmPassword: "",
+    state: "",
+    district: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,6 +48,57 @@ export default function SellerRegistration(): JSX.Element {
   const [regStatus, setRegStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [showVerificationDialog, setShowVerificationDialog] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [states, setStates] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [districtSearch, setDistrictSearch] = useState<string>("");
+
+
+    const stateCodeMap: { [key: string]: string } = {
+    AN: "Andaman and Nicobar", AP: "Andhra Pradesh", AR: "Arunachal Pradesh", AS: "Assam",
+    BR: "Bihar", CG: "Chhattisgarh", CH: "Chandigarh", DD: "Daman and Diu",
+    DL: "Delhi", GA: "Goa", GJ: "Gujarat", HR: "Haryana", HP: "Himachal Pradesh",
+    JH: "Jharkhand", JK: "Jammu and Kashmir", KA: "Karnataka", KL: "Kerala",
+    LA: "Ladakh", LD: "Lakshadweep", MH: "Maharashtra", ML: "Meghalaya",
+    MN: "Manipur", MP: "Madhya Pradesh", MZ: "Mizoram", NL: "Nagaland",
+    OR: "Odisha", PB: "Punjab", PY: "Puducherry", RJ: "Rajasthan",
+    SK: "Sikkim", TG: "Telangana", TN: "Tamil Nadu", TR: "Tripura",
+    UP: "Uttar Pradesh", UT: "Uttarakhand", WB: "West Bengal"
+  };
+
+  // Reverse mapping for easy lookup
+  const stateNameToCode: { [key: string]: string } = Object.fromEntries(
+    Object.entries(stateCodeMap).map(([code, name]) => [name, code])
+  );
+
+
+  useEffect(() => {
+    // Load state names
+    const stateNames = Object.keys((indiaStates as any).rawData).map(
+      code => stateCodeMap[code] || code
+    );
+    setStates(stateNames);
+  }, []);
+
+  // Load districts whenever state changes
+  useEffect(() => {
+    if (!formData.state) {
+      setDistricts([]);
+      setFormData(prev => ({ ...prev, district: "" }));
+      return;
+    }
+    const stateCode = stateNameToCode[formData.state];
+    const districtsOfState = getDistricts(stateCode) || [];
+    setDistricts(districtsOfState);
+
+    // Reset district if previous is invalid
+    if (!districtsOfState.includes(formData.district)) {
+      setFormData(prev => ({ ...prev, district: "" }));
+    }
+  }, [formData.state]);
+
+
+
+
 
   const steps = [
     { id: 1, title: "Personal Details" },
@@ -107,6 +165,8 @@ export default function SellerRegistration(): JSX.Element {
       if (!formData.lastName) newErrors.lastName = "Last name is required.";
       if (!formData.email) newErrors.email = "Email is required.";
       else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email.";
+      if (!formData.state) newErrors.state = "State is required.";
+      if (!formData.district) newErrors.district = "District is required.";
     }
 
     if (step === 2) {
@@ -177,6 +237,8 @@ export default function SellerRegistration(): JSX.Element {
         businessType: "",
         password: "",
         confirmPassword: "",
+        state: "",
+        district: "",
       });
       setBanner(null);
       setProfilePic(null);
@@ -253,11 +315,10 @@ export default function SellerRegistration(): JSX.Element {
           {/* STEP 1: Personal Details */}
           {step === 1 && (
             <div className="space-y-4">
-              {["firstName", "lastName", "email"].map((key) => (
+              {/* First Name, Last Name, Email */}
+              {["firstName", "lastName", "email"].map(key => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700">
-                    {labels[key]} <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">{labels[key]} <span className="text-red-500">*</span></label>
                   <input
                     type={key === "email" ? "email" : "text"}
                     name={key}
@@ -269,12 +330,38 @@ export default function SellerRegistration(): JSX.Element {
                 </div>
               ))}
 
-                <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">
-                  Next
-                </button>
+              {/* State Select */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">State <span className="text-red-500">*</span></label>
+                <Select
+                  options={states.map(s => ({ value: s, label: s }))}
+                  value={formData.state ? { value: formData.state, label: formData.state } : null}
+                  onChange={(selected: any) => setFormData(prev => ({ ...prev, state: selected?.value || "", district: "" }))}
+                  placeholder="Search or select a State"
+                  isSearchable
+                />
+                {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+              </div>
 
+              {/* District Select */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">District <span className="text-red-500">*</span></label>
+                <Select
+                  options={districts.map(d => ({ value: d, label: d }))}
+                  value={formData.district ? { value: formData.district, label: formData.district } : null}
+                  onChange={(selected: any) => setFormData(prev => ({ ...prev, district: selected?.value || "" }))}
+                  placeholder="Search or select a District"
+                  isSearchable
+                  isDisabled={!formData.state}
+                />
+                {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
+              </div>
+
+              {/* Next Button */}
+              <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">Next</button>
             </div>
           )}
+
 
           {/* STEP 2: Business Details */}
           {step === 2 && (
