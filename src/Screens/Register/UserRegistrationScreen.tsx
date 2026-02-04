@@ -311,7 +311,7 @@ function Signup() {
     SEMAMART – Terms & Conditions (Institute / Buyer)
   </h2>
 
-  <p className="mb-2"><strong>Effective Date:</strong> [DD/MM/YYYY]</p>
+  <p className="mb-2"><strong>Effective Date:</strong> [05/02/2026]</p>
   <p className="mb-4">
     <strong>Platform Owner:</strong> Semamart (“SEMAMART”, “we”, “us”, “our”)
   </p>

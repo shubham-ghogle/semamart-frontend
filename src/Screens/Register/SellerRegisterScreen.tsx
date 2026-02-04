@@ -572,7 +572,7 @@ export default function SellerRegistration(): JSX.Element {
     SEMAMART – Terms & Conditions (Seller / Vendor)
   </h1>
 
-  <p className="mb-4"><strong>Effective Date:</strong> [DD/MM/YYYY]</p>
+  <p className="mb-4"><strong>Effective Date:</strong> [05/02/2026]</p>
 
   <p className="mb-6">
     These Seller Terms apply to any manufacturer, distributor, dealer, importer,
@@ -700,6 +700,172 @@ export default function SellerRegistration(): JSX.Element {
   <p className="pl-2 mb-8">
     Indian law applies. Jurisdiction: Courts of Delhi NCR.
   </p>
+
+  {/* ======================= DIVIDER ======================= */}
+<hr className="my-12 border-gray-400" />
+
+{/* ======================= VENDOR AGREEMENT ======================= */}
+
+<h1 className="text-2xl font-bold mb-6 text-center">VENDOR AGREEMENT</h1>
+
+<p className="text-center mb-4">Between</p>
+
+<p className="text-center mb-6 leading-relaxed">
+  <strong>Sema Healthcare Private Limited</strong><br />
+  (Registered under the Companies Act, 2013)<br />
+  Having its registered office at:<br />
+  317, 2nd Floor, SS Plaza, Delhi-Palam Road,<br />
+  Mahavir Enclave, Delhi 110045<br />
+  (Hereinafter referred to as the “Company” or “Semamart”)
+</p>
+
+<p className="text-center mb-4">AND</p>
+
+<p className="text-center mb-6 leading-relaxed">
+  <strong>{formData.businessName || "[Vendor Name]"}</strong><br />
+  {formData.businessType || "[Type of Entity]"}<br />
+  Having its principal place of business at:<br />
+  {formData.district && formData.state
+    ? `${formData.district}, ${formData.state}`
+    : "[Insert Full Address]"}<br />
+  (Hereinafter referred to as the “Vendor”)
+</p>
+
+<p className="text-center mb-10">
+  <strong>Effective Date:</strong>{" "}
+  {new Date().toLocaleDateString("en-GB")}
+</p>
+
+{/* ---------------- TABLE OF CONTENTS ---------------- */}
+
+<h3 className="font-semibold mb-4">TABLE OF CONTENTS</h3>
+<ol className="list-decimal pl-6 space-y-1 mb-12">
+  <li>Purpose</li>
+  <li>Vendor Obligations</li>
+  <li>Company Obligations</li>
+  <li>Term and Termination</li>
+  <li>Warranties</li>
+  <li>Returns</li>
+  <li>Confidentiality</li>
+  <li>Fees and Payments</li>
+  <li>Intellectual Property</li>
+  <li>Indemnity</li>
+  <li>Limitation of Liability</li>
+  <li>Force Majeure</li>
+  <li>Relationship of the Parties</li>
+  <li>Governing Law and Dispute Resolution</li>
+  <li>Miscellaneous Provisions</li>
+  <li>Annexure A: Product List</li>
+  <li>Annexure B: Fees & Commissions</li>
+  <li>Annexure C: Return Policy</li>
+</ol>
+
+{/* ---------------- AGREEMENT BODY ---------------- */}
+
+<h3 className="font-semibold mt-8 mb-2">VENDOR AGREEMENT</h3>
+
+<p className="mb-4">
+  This Vendor Agreement ("Agreement") is made and entered into on the Effective
+  Date, by and between:
+</p>
+
+<p className="mb-4">
+  <strong>Sema Healthcare Private Limited</strong>, a company incorporated under
+  the Companies Act, 2013, having its registered office at Mahavir Enclave, Delhi,
+  India, hereinafter referred to as the <strong>"Company"</strong>, which owns and
+  operates the business-to-business (B2B) digital commerce platform known as
+  <strong> "Semamart"</strong>;
+</p>
+
+<p className="mb-4">
+  AND <strong>{formData.businessName || "[Vendor Name]"}</strong>, a{" "}
+  {formData.businessType || "[Type of Entity]"} duly registered and having its
+  principal place of business at{" "}
+  {formData.district && formData.state
+    ? `${formData.district}, ${formData.state}`
+    : "[Vendor Address]"}, hereinafter referred to as the{" "}
+  <strong>"Vendor"</strong>.
+</p>
+
+<p className="mb-6">
+  Collectively referred to as the <strong>"Parties"</strong> and individually as
+  a <strong>"Party"</strong>.
+</p>
+
+<p className="mb-6">
+  WHEREAS the purpose of this Agreement is to establish and regulate the terms and
+  conditions under which the Vendor shall be permitted to list, display, market,
+  and sell its products on the Semamart platform, and to outline the respective
+  obligations of the Vendor and the Company in connection with such sale,
+  including delivery, return, post-sale support, dispute resolution, and
+  financial settlements.
+</p>
+
+<p className="mb-6 font-semibold">
+  NOW, THEREFORE, IN ORDER TO SUBSTANTIATE AND RECORD THE TERMS AND CONDITIONS OF
+  THIS AGREEMENT AND IN CONSIDERATION OF THE MUTUAL COVENANTS AND FOR OTHER GOOD
+  VALUABLE CONSIDERATION, THE PARTIES AGREE AS FOLLOWS:
+</p>
+
+<h4 className="font-semibold mt-6 mb-2">1. VENDOR OBLIGATIONS</h4>
+<p>1.1 The Vendor agrees to comply with all applicable laws including GST, Legal Metrology Act, and Drugs & Cosmetics Act.</p>
+<p>1.2 The Vendor shall maintain accurate product listings including pricing, taxes, batch and expiry details.</p>
+<p>1.3 The Vendor shall ensure products are genuine and meet quality standards.</p>
+<p>1.4 The Vendor is responsible for inventory availability and timely fulfilment.</p>
+<p>1.5 The Vendor shall provide post-sale support including returns and warranties.</p>
+<p>1.6 Returns for defective, expired, counterfeit or damaged products must be honoured within 7 days.</p>
+<p>1.7 Vendor shall maintain all licenses and approvals required for sale.</p>
+<p>1.8 Vendor accepts full liability for product compliance.</p>
+<p>1.9 Vendor shall not list prohibited or misleading products.</p>
+
+<h4 className="font-semibold mt-6 mb-2">2. COMPANY OBLIGATIONS</h4>
+<p>2.1 The Company shall provide platform access and seller tools.</p>
+<p>2.2 The Company acts solely as a facilitator.</p>
+<p>2.3 Optional services may be provided separately.</p>
+
+<h4 className="font-semibold mt-6 mb-2">3. TERM & TERMINATION</h4>
+<p>3.1 Agreement valid for one (1) year and auto-renews.</p>
+<p>3.2 Either Party may terminate with 30 days notice.</p>
+<p>3.3 Immediate termination in case of breach or fraud.</p>
+<p>3.4 Pending orders must be fulfilled post termination.</p>
+
+<h4 className="font-semibold mt-6 mb-2">4. WARRANTIES</h4>
+<p>The Vendor warrants authority, accuracy of information, and non-infringement.</p>
+
+<h4 className="font-semibold mt-6 mb-2">5. RETURNS</h4>
+<p>Vendor shall process refunds or replacements within 7 business days. Return shipping borne by Vendor.</p>
+
+<h4 className="font-semibold mt-6 mb-2">6. CONFIDENTIALITY</h4>
+<p>Confidential information must be protected for 3 years post termination.</p>
+
+<h4 className="font-semibold mt-6 mb-2">7. FEES & PAYMENTS</h4>
+<p>Payments settled within 3 working days after confirmation. Taxes borne by Vendor.</p>
+
+<h4 className="font-semibold mt-6 mb-2">8. INTELLECTUAL PROPERTY</h4>
+<p>Vendor grants license to use branding and product content.</p>
+
+<h4 className="font-semibold mt-6 mb-2">9. INDEMNITY</h4>
+<p>Vendor indemnifies Company against losses from defects, violations or infringement.</p>
+
+<h4 className="font-semibold mt-6 mb-2">10. LIMITATION OF LIABILITY</h4>
+<p>Company liability limited to fees earned in preceding one (1) month.</p>
+
+<h4 className="font-semibold mt-6 mb-2">11. FORCE MAJEURE</h4>
+<p>No liability for events beyond reasonable control.</p>
+
+<h4 className="font-semibold mt-6 mb-2">12. RELATIONSHIP OF PARTIES</h4>
+<p>Principal-to-principal relationship only.</p>
+
+<h4 className="font-semibold mt-6 mb-2">13. GOVERNING LAW & DISPUTE RESOLUTION</h4>
+<p>Indian law applies. Jurisdiction: Courts of Delhi. Arbitration applicable.</p>
+
+<h4 className="font-semibold mt-6 mb-2">14. MISCELLANEOUS</h4>
+<p>Entire agreement, amendments only in writing, notices via registered channels.</p>
+
+<h4 className="font-semibold mt-6 mb-12">15. ENTIRE AGREEMENT</h4>
+<p> This Agreement constitutes the entire understanding between the Parties and supersedes all prior communications.
+</p>
+
 
 </div>
 
