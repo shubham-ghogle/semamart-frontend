@@ -50,7 +50,6 @@ export default function SellerRegistration(): JSX.Element {
   const navigate = useNavigate();
   const [states, setStates] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
-  const [districtSearch, setDistrictSearch] = useState<string>("");
 
 
     const stateCodeMap: { [key: string]: string } = {
