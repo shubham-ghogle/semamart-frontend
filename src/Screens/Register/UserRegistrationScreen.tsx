@@ -3,6 +3,9 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom"; 
 import { useRegisterUser } from "./Registration.Hooks";
+import { useEffect } from "react";
+import indiaStates, { getDistricts } from "india-state-district";
+
 
 function Signup() {
   const [step, setStep] = useState(1);
@@ -10,6 +13,9 @@ function Signup() {
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [check, setCheck] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false); // T&C
+  const [states, setStates] = useState<string[]>([]);
+const [districts, setDistricts] = useState<string[]>([]);
+
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -39,6 +45,68 @@ function Signup() {
     "Uttar Pradesh","West Bengal","Andaman and Nicobar Islands","Chandigarh",
     "Dadra and Nagar Haveli","Daman and Diu","Delhi","Lakshadweep","Puducherry"
   ];
+
+  const stateCodeMap: { [key: string]: string } = {
+  AN: "Andaman and Nicobar Islands",
+  AP: "Andhra Pradesh",
+  AR: "Arunachal Pradesh",
+  AS: "Assam",
+  BR: "Bihar",
+  CG: "Chhattisgarh",
+  CH: "Chandigarh",
+  DD: "Daman and Diu",
+  DL: "Delhi",
+  GA: "Goa",
+  GJ: "Gujarat",
+  HR: "Haryana",
+  HP: "Himachal Pradesh",
+  JH: "Jharkhand",
+  JK: "Jammu and Kashmir",
+  KA: "Karnataka",
+  KL: "Kerala",
+  LD: "Lakshadweep",
+  MH: "Maharashtra",
+  ML: "Meghalaya",
+  MN: "Manipur",
+  MP: "Madhya Pradesh",
+  MZ: "Mizoram",
+  NL: "Nagaland",
+  OR: "Odisha",
+  PB: "Punjab",
+  PY: "Puducherry",
+  RJ: "Rajasthan",
+  SK: "Sikkim",
+  TN: "Tamil Nadu",
+  TG: "Telangana",
+  TR: "Tripura",
+  UP: "Uttar Pradesh",
+  UT: "Uttarakhand",
+  WB: "West Bengal",
+};
+const stateNameToCode: { [key: string]: string } = Object.fromEntries(
+  Object.entries(stateCodeMap).map(([code, name]) => [name, code])
+);
+useEffect(() => {
+  const stateNames = Object.keys((indiaStates as any).rawData).map(
+    (code) => stateCodeMap[code] || code
+  );
+  setStates(stateNames);
+}, []);
+useEffect(() => {
+  if (!formData.state) {
+    setDistricts([]);
+    setFormData((prev) => ({ ...prev, district: "" }));
+    return;
+  }
+
+  const stateCode = stateNameToCode[formData.state];
+  const d = getDistricts(stateCode) || [];
+  setDistricts(d);
+
+  if (!d.includes(formData.district)) {
+    setFormData((prev) => ({ ...prev, district: "" }));
+  }
+}, [formData.state]);
 
   // ---------- Validation ----------
   const validatePassword = (password: string) => {
@@ -214,18 +282,7 @@ function Signup() {
                 ))}
 
                 <div className="flex gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-semibold text-[#1C647C]">District <span className="text-red-700">*</span></label>
-                    <input
-                      type="text"
-                      name="district"
-                      value={formData.district}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors.district?"border-red-500":"border-gray-300"}`}
-                    />
-                    {errors.district && <p className="text-red-600 text-sm mt-1">{errors.district}</p>}
-                  </div>
-                  <div className="flex-1">
+                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-[#1C647C]">State <span className="text-red-700">*</span></label>
                     <select
                       name="state"
@@ -237,7 +294,27 @@ function Signup() {
                       {indianStates.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                     {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state}</p>}
+                  </div> 
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-[#1C647C]">District <span className="text-red-700">*</span></label>
+                  <select
+  name="district"
+  value={formData.district}
+  onChange={handleChange}
+  disabled={!formData.state}
+  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${
+    errors.district ? "border-red-500" : "border-gray-300"
+  }`}
+>
+  <option value="">Select District</option>
+  {districts.map((d) => (
+    <option key={d} value={d}>{d}</option>
+  ))}
+</select>
+
+                    {errors.district && <p className="text-red-600 text-sm mt-1">{errors.district}</p>}
                   </div>
+                
                 </div>
 
                 <div className="flex gap-2 mt-2">
