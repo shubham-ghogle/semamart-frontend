@@ -347,6 +347,8 @@ export default function AddProductForm({
   const [manufacturerList, setManufacturerList] = useState([]);
   const [states, setStates] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
+  const [openAccordions, setOpenAccordions] = useState<string[]>(["1"]); 
+
 
   
   const { watch, setValue } = form;
@@ -358,7 +360,7 @@ export default function AddProductForm({
     const stateNames = Object.keys((indiaStates as any).rawData).map(
       (code) => stateCodeMap[code] || code
     );
-    console.log("State names:", stateNames);
+    
     setStates(stateNames);
   }, []);
 
@@ -381,10 +383,7 @@ export default function AddProductForm({
   }
 }, [watchedState, setValue]);
   // ------------------ Log selected state & district ------------------
-  useEffect(() => {
-    console.log("Selected State:", watchedState);
-    console.log("Selected District:", watchedDistrict);
-  }, [watchedState, watchedDistrict]);
+
 
 
   const { mutate: mutateManufacturer } = useMutation({
@@ -614,79 +613,138 @@ export default function AddProductForm({
     form.setValue("subCategory", subCats);
   }
 
-  function switchMultiVarianMode() {
-    setIsMultiVariant((p) => !p);
-    form.setValue("variants", [
-      {
-        size: null,
-        colorOption: null,
-        originalPrice: "",
-        discountPrice: "",
-        stocks: "",
-      },
-    ]);
-    setThumbnail([]);
-  }
+function switchMultiVarianMode() {
+  setIsMultiVariant((p) => !p);
+  form.setValue("variants", [
+    {
+      size: null,
+      colorOption: null,
+      originalPrice: "",
+      discountPrice: "",
+      stocks: "",
+    },
+  ]);
+  setThumbnail([]);
+}
 
-  /**
-   * Small style wrappers (DRY):
-   * - MainAccordionTrigger: heading style (no underline on hover + distinct color)
-   * - SubFormLabel: muted, smaller sublabel style
-   *
-   * These accept all normal props so they can replace AccordionTrigger/FormLabel directly.
-   */
-  type MainAccordionTriggerProps = React.ComponentProps<
-    typeof AccordionTrigger
-  > & {
-    children?: React.ReactNode;
-    className?: string;
-  };
-  const MainAccordionTrigger: React.FC<MainAccordionTriggerProps> = ({
-    children,
-    className = "",
-    ...props
-  }) => (
-    <AccordionTrigger
-      {...props}
-      className={`text-lg no-underline hover:no-underline focus:no-underline text-[#1C647C] font-semibold ${className}`}
-    >
-      {children}
-    </AccordionTrigger>
-  );
 
-  /* SubFormLabel: typed to match FormLabel's props */
-  type SubFormLabelProps = React.ComponentProps<typeof FormLabel> & {
-    children?: React.ReactNode;
-    className?: string;
-  };
-  const SubFormLabel: React.FC<SubFormLabelProps> = ({
-    children,
-    className = "",
-    ...props
-  }) => (
-    <FormLabel {...props} className={`text-sm text-gray-600 ${className}`}>
-      {children}
-    </FormLabel>
-  );
 
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit, (e) => {
-          console.log(e);
-          const missingThumbnail = thumbnail.some(
-            (t) => t === null || t === undefined,
-          );
-          if (missingThumbnail) {
-            form.setError("thumbnail" as any, {
-              type: "manual",
-              message: "Please upload thumbnail image",
-            });
+
+type MainAccordionTriggerProps = React.ComponentProps<
+  typeof AccordionTrigger
+> & {
+  children?: React.ReactNode;
+  className?: string;
+};
+const MainAccordionTrigger: React.FC<MainAccordionTriggerProps> = ({
+  children,
+  className = "",
+  ...props
+}) => (
+  <AccordionTrigger
+    {...props}
+    className={`text-lg no-underline hover:no-underline focus:no-underline text-[#1C647C] font-semibold ${className}`}
+  >
+    {children}
+  </AccordionTrigger>
+);
+
+type SubFormLabelProps = React.ComponentProps<typeof FormLabel> & {
+  children?: React.ReactNode;
+  className?: string;
+};
+const SubFormLabel: React.FC<SubFormLabelProps> = ({
+  children,
+  className = "",
+  ...props
+}) => (
+  <FormLabel {...props} className={`text-sm text-gray-600 ${className}`}>
+    {children}
+  </FormLabel>
+);
+
+return (
+  <Form {...form}>
+    <form
+        onSubmit={form.handleSubmit(
+          onSubmit,
+          (errors: Record<string, any>) => {
+            console.log("Validation errors:", errors);
+            const missingThumbnail = thumbnail.some((t) => t === null || t === undefined);
+            if (missingThumbnail) {
+              form.setError("thumbnail" as any, {
+                type: "manual",
+                message: "Please upload thumbnail image",
+              });
+            }
+            const fieldToAccordionMap: Record<string, string> = {
+              // Accordion 2
+              manufacturerName: "2",
+              email: "2",
+              phone: "2",
+              origin: "2",
+              shortdescription: "2",
+              description: "2",
+              productWgt: "2",
+              productWgtUnit: "2",
+              dimension_l: "2",
+              dimension_h: "2",
+              dimension_w: "2",
+              sterileString: "2",
+              singleUseString: "2",
+
+              // Accordion 3
+              "minmaxrule.minQty": "3",
+              taxStatus: "3",
+              taxClass: "3",
+              stockStatus: "3",
+              deliveryLeadTime: "3",
+              warranty: "3",
+              rma: "3",
+
+              // Accordion 4
+              dispatchPinCode: "4",
+              dispatchState: "4",
+              dispatchDistrict: "4",
+              unitsPerCarton: "4",
+              shippingWeight: "4",
+              packagingType: "4",
+              deliveryInstruction: "4",
+            };
+            function getAllErrorFields(errors: any, parentKey = ""): string[] {
+              let result: string[] = [];
+              for (const key in errors) {
+                const error = errors[key];
+                const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+                if (error?.message || error?.type) {
+                  result.push(fullKey);
+                } else if (typeof error === "object") {
+                  result = result.concat(getAllErrorFields(error, fullKey));
+                }
+              }
+              return result;
+            }
+
+            const errorFields = getAllErrorFields(errors);
+
+            const accordionsToOpen = Array.from(
+              new Set(errorFields.map((f) => fieldToAccordionMap[f]).filter(Boolean))
+            );
+
+            setOpenAccordions((prev) => Array.from(new Set([...prev, ...accordionsToOpen])));
           }
-        })}
+        )}
+
+
         className="w-full max-w-full sm:max-w-4xl mx-auto py-6 sm:py-10 bg-white px-4 sm:px-6 rounded-lg shadow overflow-visible"
       >
-       <Accordion type="multiple" defaultValue={["1"]}>
+       <Accordion
+              type="multiple"
+              value={openAccordions}
+              onValueChange={(values) => setOpenAccordions(values)}
+            >
+
           <AccordionItem value="1">
             <MainAccordionTrigger>
               Product Identification & Classification

@@ -1,9 +1,12 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLoading, AiOutlineCloseCircle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "@/data";
+import indiaStates, { getDistricts } from "india-state-district";
+import Select from "react-select";
+
 
 interface SellerForm {
   firstName: string;
@@ -15,6 +18,8 @@ interface SellerForm {
   businessType: string;
   password: string;
   confirmPassword: string;
+  state: string;
+  district: string;
 }
 
 export default function SellerRegistration(): JSX.Element {
@@ -29,6 +34,8 @@ export default function SellerRegistration(): JSX.Element {
     businessType: "",
     password: "",
     confirmPassword: "",
+    state: "",
+    district: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,6 +48,56 @@ export default function SellerRegistration(): JSX.Element {
   const [regStatus, setRegStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [showVerificationDialog, setShowVerificationDialog] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [states, setStates] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
+
+
+    const stateCodeMap: { [key: string]: string } = {
+    AN: "Andaman and Nicobar", AP: "Andhra Pradesh", AR: "Arunachal Pradesh", AS: "Assam",
+    BR: "Bihar", CG: "Chhattisgarh", CH: "Chandigarh", DD: "Daman and Diu",
+    DL: "Delhi", GA: "Goa", GJ: "Gujarat", HR: "Haryana", HP: "Himachal Pradesh",
+    JH: "Jharkhand", JK: "Jammu and Kashmir", KA: "Karnataka", KL: "Kerala",
+    LA: "Ladakh", LD: "Lakshadweep", MH: "Maharashtra", ML: "Meghalaya",
+    MN: "Manipur", MP: "Madhya Pradesh", MZ: "Mizoram", NL: "Nagaland",
+    OR: "Odisha", PB: "Punjab", PY: "Puducherry", RJ: "Rajasthan",
+    SK: "Sikkim", TG: "Telangana", TN: "Tamil Nadu", TR: "Tripura",
+    UP: "Uttar Pradesh", UT: "Uttarakhand", WB: "West Bengal"
+  };
+
+  // Reverse mapping for easy lookup
+  const stateNameToCode: { [key: string]: string } = Object.fromEntries(
+    Object.entries(stateCodeMap).map(([code, name]) => [name, code])
+  );
+
+
+  useEffect(() => {
+    // Load state names
+    const stateNames = Object.keys((indiaStates as any).rawData).map(
+      code => stateCodeMap[code] || code
+    );
+    setStates(stateNames);
+  }, []);
+
+  // Load districts whenever state changes
+  useEffect(() => {
+    if (!formData.state) {
+      setDistricts([]);
+      setFormData(prev => ({ ...prev, district: "" }));
+      return;
+    }
+    const stateCode = stateNameToCode[formData.state];
+    const districtsOfState = getDistricts(stateCode) || [];
+    setDistricts(districtsOfState);
+
+    // Reset district if previous is invalid
+    if (!districtsOfState.includes(formData.district)) {
+      setFormData(prev => ({ ...prev, district: "" }));
+    }
+  }, [formData.state]);
+
+
+
+
 
   const steps = [
     { id: 1, title: "Personal Details" },
@@ -107,6 +164,8 @@ export default function SellerRegistration(): JSX.Element {
       if (!formData.lastName) newErrors.lastName = "Last name is required.";
       if (!formData.email) newErrors.email = "Email is required.";
       else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email.";
+      if (!formData.state) newErrors.state = "State is required.";
+      if (!formData.district) newErrors.district = "District is required.";
     }
 
     if (step === 2) {
@@ -177,6 +236,8 @@ export default function SellerRegistration(): JSX.Element {
         businessType: "",
         password: "",
         confirmPassword: "",
+        state: "",
+        district: "",
       });
       setBanner(null);
       setProfilePic(null);
@@ -253,11 +314,10 @@ export default function SellerRegistration(): JSX.Element {
           {/* STEP 1: Personal Details */}
           {step === 1 && (
             <div className="space-y-4">
-              {["firstName", "lastName", "email"].map((key) => (
+              {/* First Name, Last Name, Email */}
+              {["firstName", "lastName", "email"].map(key => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700">
-                    {labels[key]} <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">{labels[key]} <span className="text-red-500">*</span></label>
                   <input
                     type={key === "email" ? "email" : "text"}
                     name={key}
@@ -269,12 +329,38 @@ export default function SellerRegistration(): JSX.Element {
                 </div>
               ))}
 
-                <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">
-                  Next
-                </button>
+              {/* State Select */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">State <span className="text-red-500">*</span></label>
+                <Select
+                  options={states.map(s => ({ value: s, label: s }))}
+                  value={formData.state ? { value: formData.state, label: formData.state } : null}
+                  onChange={(selected: any) => setFormData(prev => ({ ...prev, state: selected?.value || "", district: "" }))}
+                  placeholder="Search or select a State"
+                  isSearchable
+                />
+                {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+              </div>
 
+              {/* District Select */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">District <span className="text-red-500">*</span></label>
+                <Select
+                  options={districts.map(d => ({ value: d, label: d }))}
+                  value={formData.district ? { value: formData.district, label: formData.district } : null}
+                  onChange={(selected: any) => setFormData(prev => ({ ...prev, district: selected?.value || "" }))}
+                  placeholder="Search or select a District"
+                  isSearchable
+                  isDisabled={!formData.state}
+                />
+                {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
+              </div>
+
+              {/* Next Button */}
+              <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">Next</button>
             </div>
           )}
+
 
           {/* STEP 2: Business Details */}
           {step === 2 && (
@@ -486,7 +572,7 @@ export default function SellerRegistration(): JSX.Element {
     SEMAMART – Terms & Conditions (Seller / Vendor)
   </h1>
 
-  <p className="mb-4"><strong>Effective Date:</strong> [DD/MM/YYYY]</p>
+  <p className="mb-4"><strong>Effective Date:</strong> [05/02/2026]</p>
 
   <p className="mb-6">
     These Seller Terms apply to any manufacturer, distributor, dealer, importer,
@@ -614,6 +700,172 @@ export default function SellerRegistration(): JSX.Element {
   <p className="pl-2 mb-8">
     Indian law applies. Jurisdiction: Courts of Delhi NCR.
   </p>
+
+  {/* ======================= DIVIDER ======================= */}
+<hr className="my-12 border-gray-400" />
+
+{/* ======================= VENDOR AGREEMENT ======================= */}
+
+<h1 className="text-2xl font-bold mb-6 text-center">VENDOR AGREEMENT</h1>
+
+<p className="text-center mb-4">Between</p>
+
+<p className="text-center mb-6 leading-relaxed">
+  <strong>Sema Healthcare Private Limited</strong><br />
+  (Registered under the Companies Act, 2013)<br />
+  Having its registered office at:<br />
+  317, 2nd Floor, SS Plaza, Delhi-Palam Road,<br />
+  Mahavir Enclave, Delhi 110045<br />
+  (Hereinafter referred to as the “Company” or “Semamart”)
+</p>
+
+<p className="text-center mb-4">AND</p>
+
+<p className="text-center mb-6 leading-relaxed">
+  <strong>{formData.businessName || "[Vendor Name]"}</strong><br />
+  {formData.businessType || "[Type of Entity]"}<br />
+  Having its principal place of business at:<br />
+  {formData.district && formData.state
+    ? `${formData.district}, ${formData.state}`
+    : "[Insert Full Address]"}<br />
+  (Hereinafter referred to as the “Vendor”)
+</p>
+
+<p className="text-center mb-10">
+  <strong>Effective Date:</strong>{" "}
+  {new Date().toLocaleDateString("en-GB")}
+</p>
+
+{/* ---------------- TABLE OF CONTENTS ---------------- */}
+
+<h3 className="font-semibold mb-4">TABLE OF CONTENTS</h3>
+<ol className="list-decimal pl-6 space-y-1 mb-12">
+  <li>Purpose</li>
+  <li>Vendor Obligations</li>
+  <li>Company Obligations</li>
+  <li>Term and Termination</li>
+  <li>Warranties</li>
+  <li>Returns</li>
+  <li>Confidentiality</li>
+  <li>Fees and Payments</li>
+  <li>Intellectual Property</li>
+  <li>Indemnity</li>
+  <li>Limitation of Liability</li>
+  <li>Force Majeure</li>
+  <li>Relationship of the Parties</li>
+  <li>Governing Law and Dispute Resolution</li>
+  <li>Miscellaneous Provisions</li>
+  <li>Annexure A: Product List</li>
+  <li>Annexure B: Fees & Commissions</li>
+  <li>Annexure C: Return Policy</li>
+</ol>
+
+{/* ---------------- AGREEMENT BODY ---------------- */}
+
+<h3 className="font-semibold mt-8 mb-2">VENDOR AGREEMENT</h3>
+
+<p className="mb-4">
+  This Vendor Agreement ("Agreement") is made and entered into on the Effective
+  Date, by and between:
+</p>
+
+<p className="mb-4">
+  <strong>Sema Healthcare Private Limited</strong>, a company incorporated under
+  the Companies Act, 2013, having its registered office at Mahavir Enclave, Delhi,
+  India, hereinafter referred to as the <strong>"Company"</strong>, which owns and
+  operates the business-to-business (B2B) digital commerce platform known as
+  <strong> "Semamart"</strong>;
+</p>
+
+<p className="mb-4">
+  AND <strong>{formData.businessName || "[Vendor Name]"}</strong>, a{" "}
+  {formData.businessType || "[Type of Entity]"} duly registered and having its
+  principal place of business at{" "}
+  {formData.district && formData.state
+    ? `${formData.district}, ${formData.state}`
+    : "[Vendor Address]"}, hereinafter referred to as the{" "}
+  <strong>"Vendor"</strong>.
+</p>
+
+<p className="mb-6">
+  Collectively referred to as the <strong>"Parties"</strong> and individually as
+  a <strong>"Party"</strong>.
+</p>
+
+<p className="mb-6">
+  WHEREAS the purpose of this Agreement is to establish and regulate the terms and
+  conditions under which the Vendor shall be permitted to list, display, market,
+  and sell its products on the Semamart platform, and to outline the respective
+  obligations of the Vendor and the Company in connection with such sale,
+  including delivery, return, post-sale support, dispute resolution, and
+  financial settlements.
+</p>
+
+<p className="mb-6 font-semibold">
+  NOW, THEREFORE, IN ORDER TO SUBSTANTIATE AND RECORD THE TERMS AND CONDITIONS OF
+  THIS AGREEMENT AND IN CONSIDERATION OF THE MUTUAL COVENANTS AND FOR OTHER GOOD
+  VALUABLE CONSIDERATION, THE PARTIES AGREE AS FOLLOWS:
+</p>
+
+<h4 className="font-semibold mt-6 mb-2">1. VENDOR OBLIGATIONS</h4>
+<p>1.1 The Vendor agrees to comply with all applicable laws including GST, Legal Metrology Act, and Drugs & Cosmetics Act.</p>
+<p>1.2 The Vendor shall maintain accurate product listings including pricing, taxes, batch and expiry details.</p>
+<p>1.3 The Vendor shall ensure products are genuine and meet quality standards.</p>
+<p>1.4 The Vendor is responsible for inventory availability and timely fulfilment.</p>
+<p>1.5 The Vendor shall provide post-sale support including returns and warranties.</p>
+<p>1.6 Returns for defective, expired, counterfeit or damaged products must be honoured within 7 days.</p>
+<p>1.7 Vendor shall maintain all licenses and approvals required for sale.</p>
+<p>1.8 Vendor accepts full liability for product compliance.</p>
+<p>1.9 Vendor shall not list prohibited or misleading products.</p>
+
+<h4 className="font-semibold mt-6 mb-2">2. COMPANY OBLIGATIONS</h4>
+<p>2.1 The Company shall provide platform access and seller tools.</p>
+<p>2.2 The Company acts solely as a facilitator.</p>
+<p>2.3 Optional services may be provided separately.</p>
+
+<h4 className="font-semibold mt-6 mb-2">3. TERM & TERMINATION</h4>
+<p>3.1 Agreement valid for one (1) year and auto-renews.</p>
+<p>3.2 Either Party may terminate with 30 days notice.</p>
+<p>3.3 Immediate termination in case of breach or fraud.</p>
+<p>3.4 Pending orders must be fulfilled post termination.</p>
+
+<h4 className="font-semibold mt-6 mb-2">4. WARRANTIES</h4>
+<p>The Vendor warrants authority, accuracy of information, and non-infringement.</p>
+
+<h4 className="font-semibold mt-6 mb-2">5. RETURNS</h4>
+<p>Vendor shall process refunds or replacements within 7 business days. Return shipping borne by Vendor.</p>
+
+<h4 className="font-semibold mt-6 mb-2">6. CONFIDENTIALITY</h4>
+<p>Confidential information must be protected for 3 years post termination.</p>
+
+<h4 className="font-semibold mt-6 mb-2">7. FEES & PAYMENTS</h4>
+<p>Payments settled within 3 working days after confirmation. Taxes borne by Vendor.</p>
+
+<h4 className="font-semibold mt-6 mb-2">8. INTELLECTUAL PROPERTY</h4>
+<p>Vendor grants license to use branding and product content.</p>
+
+<h4 className="font-semibold mt-6 mb-2">9. INDEMNITY</h4>
+<p>Vendor indemnifies Company against losses from defects, violations or infringement.</p>
+
+<h4 className="font-semibold mt-6 mb-2">10. LIMITATION OF LIABILITY</h4>
+<p>Company liability limited to fees earned in preceding one (1) month.</p>
+
+<h4 className="font-semibold mt-6 mb-2">11. FORCE MAJEURE</h4>
+<p>No liability for events beyond reasonable control.</p>
+
+<h4 className="font-semibold mt-6 mb-2">12. RELATIONSHIP OF PARTIES</h4>
+<p>Principal-to-principal relationship only.</p>
+
+<h4 className="font-semibold mt-6 mb-2">13. GOVERNING LAW & DISPUTE RESOLUTION</h4>
+<p>Indian law applies. Jurisdiction: Courts of Delhi. Arbitration applicable.</p>
+
+<h4 className="font-semibold mt-6 mb-2">14. MISCELLANEOUS</h4>
+<p>Entire agreement, amendments only in writing, notices via registered channels.</p>
+
+<h4 className="font-semibold mt-6 mb-12">15. ENTIRE AGREEMENT</h4>
+<p> This Agreement constitutes the entire understanding between the Parties and supersedes all prior communications.
+</p>
+
 
 </div>
 

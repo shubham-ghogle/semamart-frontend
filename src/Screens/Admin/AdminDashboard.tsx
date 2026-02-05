@@ -148,17 +148,16 @@ const AdminDashboard = () => {
       </div>
 
 
-        <section className="mt-8">
           <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">Recent Orders</h2>
-            <div className="bg-white rounded-lg shadow p-4">
+           
               <AdminMainWrapper
                     status={ordersStatus}
                     heading="All Orders"
                   >
                   {ordersData && <AdminOrderTable orders={ordersData?.orders} />}
               </AdminMainWrapper>
-            </div>
-        </section>          
+           
+                 
                  
     </div>
   );

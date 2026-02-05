@@ -8,6 +8,8 @@ import { useAdminOrderMutation } from "@/Screens/Admin/Admin.HooksAndUtils";
 import { Button } from "../ui/button";
 import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
 import { toast } from "react-toastify";
+import { FaSpinner } from "react-icons/fa";
+
 
 type AdminOrderDetailProps = {
   data: Order;
@@ -17,6 +19,8 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   const { orderId } = useParams();
   const { mutationStatus, mutateOrder } = useAdminOrderMutation();
   const [status, setStatus] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+
 
   const getOptionsForStatus = () => {
     const statuses = {
@@ -31,24 +35,41 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     return statuses.default;
   };
 
-  const handleDownloadInvoice = async (orderId: string | undefined) => {
-    if (!orderId) return;
-    try {
-      const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
-        method: "GET",
-      });
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice-${orderId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch (err) {
-      console.error("Invoice download failed:", err);
+  const handleDownloadInvoice = async (orderId: string | undefined, status: string) => {
+  if (status !== "Delivered") {
+    toast.error("Invoice can only be downloaded once the order is delivered.");
+    return;
+  }
+
+  if (!orderId) return;
+
+  try {
+    setIsDownloading(true); // start spinner
+    const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch invoice");
     }
-  };
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${orderId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url); // free memory
+  } catch (err) {
+    console.error("Invoice download failed:", err);
+    toast.error("Failed to download invoice. Please try again.");
+  } finally {
+    setIsDownloading(false); // stop spinner
+  }
+};
+
 
   const orderStatus = data.status === "Paid" ? "Paid: Verify Payment" : data.status
   const isShipped =
@@ -76,12 +97,16 @@ const shippedDate = shippedDateRaw
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
         <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
-        <Button
-          variant="outline"
-          onClick={() => handleDownloadInvoice(orderId)}
-        >
-          Download Invoice
-        </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleDownloadInvoice(orderId, data.status)}
+            disabled={isDownloading}
+            className="flex items-center justify-center gap-2"
+          >
+            {isDownloading && <FaSpinner className="animate-spin" />}
+            {isDownloading ? "Downloading..." : "Download Invoice"}
+          </Button>
+
       </section>
       <section className="mt-6 flex justify-between border-b pb-4">
         <OrderDetailsField label="Order ID:" value={data?._id} />

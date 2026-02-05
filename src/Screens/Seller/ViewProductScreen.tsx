@@ -8,10 +8,8 @@ import AddProductForm from "@/components/Seller/AddProductForm";
 import { LoaderIcon } from "lucide-react";
 import { API_URL } from "@/data";
 
-
 export default function ViewProductScreen() {
   const { id } = useParams();
- 
 
   const { data: product, status } = useQuery({
     queryKey: ["product", id],
@@ -48,24 +46,26 @@ export default function ViewProductScreen() {
     );
   }
 
+  // FIXED: Added safe checks for includes and mapping
   const category = data
-    .filter((el) => product.category.includes(el._id))
+    .filter((el) => product.category?.includes(el._id))
     .map((c) => ({ name: c.name, val: c._id }));
+
   const subCategory = subCats
-    .filter((el: any) => product.subCategory.includes(el._id))
+    .filter((el: any) => product.subCategory?.includes(el._id))
     .map((el: any) => ({ name: el.name, val: el._id }));
 
   const minmaxrule = product?.minmaxrule
-    ? JSON.parse(product.minmaxrule as unknown as string)
+    ? typeof product.minmaxrule === "string"
+      ? JSON.parse(product.minmaxrule)
+      : product.minmaxrule
     : { minQty: "0", maxQty: "0" };
 
   const formProduct: FormProduct = {
     expiry: product?.manufacturingDate
       ? new Date(product?.manufacturingDate)
       : new Date(),
-    // tags: JSON.parse(product.tags as unknown as string) || [],
     tags: product.tags || [],
-    // attributes: JSON.parse(product?.attributes as unknown as string) || [],
     attributes: product?.attributes || [],
     name: product?.name || "",
     brand: product?.brand || "",
@@ -97,31 +97,33 @@ export default function ViewProductScreen() {
         : "",
     shortdescription: product?.shortdescription || "",
     description: product?.description || "",
-    productWgt: product?.weight.split(" ")[0] || "",
-    productWgtUnit: product?.weight.split(" ")[1] || "",
-    dimensionUnit: product?.dimension.split(" ")[1] || "",
-    dimension_l: product?.dimension.split(" ")[0].split("x")[0] || "",
-    dimension_h: product?.dimension.split(" ")[0].split("x")[1] || "",
-    dimension_w: product?.dimension.split(" ")[0].split("x")[2] || "",
+    // FIXED: Safe splitting for weight/dimension
+    productWgt: product?.weight?.split(" ")[0] || "",
+    productWgtUnit: product?.weight?.split(" ")[1] || "",
+    dimensionUnit: product?.dimension?.split(" ")[1] || "",
+    dimension_l: product?.dimension?.split(" ")[0]?.split("x")[0] || "",
+    dimension_h: product?.dimension?.split(" ")[0]?.split("x")[1] || "",
+    dimension_w: product?.dimension?.split(" ")[0]?.split("x")[2] || "",
     sterileString: product?.sterile ? "true" : "false",
     singleUseString: product?.singleUse ? "true" : "false",
     productCompilance: null,
     msds_ifu_leaflet: null,
     minmaxrule: minmaxrule,
-    taxClass: product?.taxClass?.toString() || "",
+    // FIXED: Added .toString() safety
+    taxClass: product?.taxClass?.toString() ?? "",
     taxStatus: product?.taxStatus || "",
     unitOfMeasure: product?.unitOfMeasure || "",
     stockStatus: product?.stockStatus || "",
     deliveryLeadTime: product?.deliveryLeadTime || "",
-    warranty: product?.warranty ? product.warranty.toString() : "",
+    warranty: product?.warranty?.toString() ?? "",
     amc_cms: null,
     rma: product?.rma || "",
     dispatchLocation: product?.dispatchLocation || "",
     dispatchState: product?.dispatchState || "",
     dispatchDistrict: product?.dispatchDistrict || "",
-    dispatchPinCode: product?.dispatchPinCode.toString() || "",
-    unitsPerCarton: product?.unitsPerCarton.toString() || "",
-    shippingWeight: product?.shippingWeight.toString() || "",
+    dispatchPinCode: product?.dispatchPinCode?.toString() ?? "",
+    unitsPerCarton: product?.unitsPerCarton?.toString() ?? "",
+    shippingWeight: product?.shippingWeight?.toString() ?? "",
     packagingType: product?.packagingType || "",
     deliveryInstruction: product?.deliveryInstruction || "",
     shelfing_storage_req: product?.shelfing_storage_req || "",
@@ -130,14 +132,15 @@ export default function ViewProductScreen() {
     oemLetter: null,
     productComparisionSheet: null,
     specialityPackage: product?.specialityPackage || "",
+    // FIXED: Safe mapping for variants and nested stocks
     variants:
-      product?.variants.map((el) => ({
+      product?.variants?.map((el) => ({
         size: el?.size || null,
-        colorOption: el.colorOption || null,
-        originalPrice: el?.originalPrice?.toString() || "",
-        discountPrice: el?.discountPrice?.toString() || "",
-        stocks: el.stock.toString() || "",
-        bulkOrders: el.bulkOrders,
+        colorOption: el?.colorOption || null,
+        originalPrice: el?.originalPrice?.toString() ?? "",
+        discountPrice: el?.discountPrice?.toString() ?? "",
+        stocks: el?.stock?.toString() ?? "0",
+        bulkOrders: el?.bulkOrders || [],
       })) || [],
     specialityPackageType: product?.specialityPackageType || "",
   };
@@ -147,17 +150,14 @@ export default function ViewProductScreen() {
       status={status}
       errorMessage="Something went wrong"
       heading="Product Detail"
-      
     >
       {status === "success" && catStatus === "success" && data && product && (
-        <>
-          <AddProductForm
-            categories={data}
-            product={formProduct}
-            multiVariant={product.variants.length > 1}
-            productId={product._id}
-          />
-        </>
+        <AddProductForm
+          categories={data}
+          product={formProduct}
+          multiVariant={product.variants.length > 1}
+          productId={product._id}
+        />
       )}
     </SellerMainWrapper>
   );
@@ -168,5 +168,5 @@ async function getSubcats() {
   const res = await fetch(url);
   if (!res.ok) throw new Error();
   const data = await res.json();
-  return data; 
+  return data;
 }

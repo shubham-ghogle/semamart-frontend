@@ -3,10 +3,11 @@ import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
 import OrderBreadcrumb from "../ui/OrderBredcrum"; 
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiLoader } from "react-icons/fi";
 import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
 import { API_URL, BASE_URL } from "@/data";
 import PaymentViewDialog from "../ui/PaymentViewDialog";
+import { toast } from "react-toastify";
 
 interface Product {
   _id: string;
@@ -66,6 +67,7 @@ interface Order {
     trackingDocument?: string;
     deliveredAt?: string;
   };
+  invoicePdf?:string;
 }
 
 const OrderSummary = () => {
@@ -76,6 +78,7 @@ const OrderSummary = () => {
   const [orderedProduct, setOrderedProduct] = useState<Variant | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const normalizeImage = (src?: string | null): string => {
     if (!src) return "/placeholder.png";
@@ -113,6 +116,41 @@ const OrderSummary = () => {
 
     fetchOrderForProduct();
   }, [user?._id, productId]);
+
+  const handleDownloadInvoice = async (orderId: string | undefined, ) => {
+    if (order?.status !== "Delivered") {
+      toast.error("Invoice can only be downloaded once the order is delivered.");
+      return;
+    }
+  
+    if (!orderId) return;
+  
+    try {
+      setIsDownloading(true); // start spinner
+      const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
+        method: "GET",
+      });
+  
+      if (!res.ok) {
+        throw new Error("Failed to fetch invoice");
+      }
+  
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url); // free memory
+    } catch (err) {
+      console.error("Invoice download failed:", err);
+      toast.error("Failed to download invoice. Please try again.");
+    } finally {
+      setIsDownloading(false); // stop spinner
+    }
+  };
 
   if (error)
     return <div className="p-10 text-center text-red-600">{error}</div>;
@@ -378,12 +416,18 @@ const OrderSummary = () => {
                 type="button"
                 className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2
                   text-gray-700 font-medium hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700
-                  transition-all duration-200 shadow-sm"
-                onClick={() => console.log("Download invoice clicked")}
+                  transition-all duration-200 shadow-sm cursor-pointer"
+                onClick={() => handleDownloadInvoice(order._id)}
+                disabled={isDownloading}
               >
-                <FiDownload size={18} className="text-blue-600" />
-                Download Invoice
+                {isDownloading ? (
+                  <FiLoader className="animate-spin text-blue-600" size={18} />
+                ) : (
+                  <FiDownload className="text-blue-600" size={18} />
+                )}
+                {isDownloading ? "Downloading..." : "Download Invoice"}
               </button>
+
             </div>
           </div>
         </div>
@@ -393,3 +437,5 @@ const OrderSummary = () => {
 };
 
 export default OrderSummary;
+
+

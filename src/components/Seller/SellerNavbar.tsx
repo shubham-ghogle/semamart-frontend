@@ -12,12 +12,11 @@ import { MdStorefront } from "react-icons/md";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import { API_URL, BASE_URL } from "@/data";
+import { TbCoinRupee } from "react-icons/tb";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
-import { TbCoinRupee } from "react-icons/tb";
-
 type LinkItemProps = {
   to: string;
   label: string;
@@ -26,6 +25,7 @@ type LinkItemProps = {
   onClick?: () => void;
   target?: "_blank" | "_self";
   rel?: string;
+  pinned?: boolean;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -40,9 +40,33 @@ function LinkItem({
   onClick,
   target,
   rel,
+  pinned = true,
 }: LinkItemProps) {
-  const baseClasses =
-    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
+  const collapsed = !pinned;
+
+  // adjust spacing/justification when collapsed so only icon is visible
+  const baseClasses = [
+    "group",
+    "relative",
+    "flex",
+    "items-center",
+    collapsed ? "justify-center" : "gap-3",
+    "rounded-md",
+    collapsed ? "px-0 py-2" : "px-3 py-2",
+    "text-sm",
+    "font-medium",
+    "transition-colors",
+  ].join(" ");
+
+  const linkVisualClasses = (isActive: boolean) =>
+    `${baseClasses} ${
+      isActive
+        ? "bg-sky-50 text-sky-700"
+        : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
+    }`;
+
+  const tooltipCommon =
+    "pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700";
 
   if (target === "_blank") {
     return (
@@ -55,11 +79,17 @@ function LinkItem({
         className={`${baseClasses} text-gray-600 hover:bg-sky-50 hover:text-sky-600`}
       >
         <span className="shrink-0 text-lg">{icon}</span>
-        <span className="label transition-opacity whitespace-nowrap">{label}</span>
 
+        {/* only render label when expanded (pinned) */}
+        {pinned && (
+          <span className="label transition-opacity whitespace-nowrap">{label}</span>
+        )}
+
+        {/* tooltip: only used in collapsed state and shown on hover */}
         <span
-          className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
+          className={`hidden group-hover:block ${tooltipCommon}`}
           aria-hidden="true"
+          style={{ display: collapsed ? undefined : "none" }}
         >
           {label}
         </span>
@@ -73,20 +103,20 @@ function LinkItem({
       end={end}
       onClick={onClick}
       title={label}
-      className={({ isActive }) =>
-        `${baseClasses} ${
-          isActive
-            ? "bg-sky-50 text-sky-700"
-            : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
-        }`
-      }
+      className={({ isActive }) => linkVisualClasses(isActive)}
     >
       <span className="shrink-0 text-lg">{icon}</span>
-      <span className="label transition-opacity whitespace-nowrap">{label}</span>
 
+      {/* only render label when expanded (pinned) */}
+      {pinned && (
+        <span className="label transition-opacity whitespace-nowrap">{label}</span>
+      )}
+
+      {/* tooltip: only used in collapsed state and shown on hover */}
       <span
-        className="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 hidden rounded-md border bg-white shadow-lg px-3 py-2 text-sm text-gray-700"
+        className={`hidden group-hover:block ${tooltipCommon}`}
         aria-hidden="true"
+        style={{ display: collapsed ? undefined : "none" }}
       >
         {label}
       </span>
@@ -242,16 +272,12 @@ export default function SellerNavbar() {
               <img
                 src={fallbackAvatar}
                 alt="seller avatar"
-                className={`rounded-full object-cover ${
-                  pinned ? "" : "w-8 h-8"
-                }`}
+                className={`rounded-full object-cover ${pinned ? "" : "w-8 h-8"}`}
               />
             </div>
 
             <div
-              className={`transition-all ${
-                pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"
-              }`}
+              className={`transition-all ${pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}
             >
               <p className="text-xs text-gray-400">Hello,</p>
               <p className="font-semibold text-gray-800 leading-5">
@@ -264,24 +290,15 @@ export default function SellerNavbar() {
           {/* nav area */}
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="flex flex-col gap-1">
-              <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" />
-              <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" />
-              <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" />
-              <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
-              <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
-              <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" />
-            <SidebarNavlinks icon={<LuMessageSquare />} to="/seller/support" label="Support" />
-              <LinkItem
-                to="/seller/stock-management"
-                icon={<FaBoxOpen />}
-                label="Stock Management"
-              />
-              <LinkItem
-                to={`/shop/${seller?._id}`}
-                icon={<MdStorefront />}
-                label="My Shop"
-                target="_blank"
-              />
+              <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" pinned={pinned} />
+              <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" pinned={pinned} />
+              <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" pinned={pinned} />
+              <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
+              <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" pinned={pinned} />
+              <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" pinned={pinned} />
+              <SidebarNavlinks icon={<LuMessageSquare />} to="/seller/support" label="Support" />
+              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" pinned={pinned} />
+              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" target="_blank" pinned={pinned} />
             </div>
           </nav>
 
@@ -293,13 +310,12 @@ export default function SellerNavbar() {
               title="Logout"
             >
               <FaSignOutAlt className="text-sky-600" />
-              <span
-                className={`label transition-opacity ${
-                  pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"
-                }`}
-              >
-                {loggingOut ? "Logging out..." : "Logout"}
-              </span>
+              {/* hide label when collapsed */}
+              {pinned && (
+                <span className="label transition-opacity">
+                  {loggingOut ? "Logging out..." : "Logout"}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -307,15 +323,11 @@ export default function SellerNavbar() {
 
       {/* ----------------------------- MOBILE DRAWER ----------------------------- */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transform ${
-          open ? "pointer-events-auto" : "pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-40 md:hidden transform ${open ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!open}
       >
         <div
-          className={`absolute inset-0 bg-black/40 transition-opacity ${
-            open ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
           onClick={() => setOpen(false)}
         />
         <div

@@ -8,6 +8,8 @@ import { API_URL, BASE_URL } from "@/data";
 import TrackingDetailDialog from "../Admin/TrackingDetailDialog";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { FaSpinner } from "react-icons/fa";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -19,6 +21,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const { mutationStatus, mutateOrder } = useSellerOrderMutation();
   const [status, setStatus] = useState("");
   const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
 
   // ✅ Default price total (without tax)
@@ -47,8 +50,13 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   };
 
   const handleDownloadInvoice = async (orderId: string | undefined) => {
+      if (data.status !== "Delivered") {
+          toast.error("Invoice can only be downloaded once the order is delivered.");
+          return;
+        }
     if (!orderId) return;
     try {
+      setIsDownloading(true);
       const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
         method: "GET",
       });
@@ -62,6 +70,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       a.remove();
     } catch (err) {
       console.error("Invoice download failed:", err);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -69,12 +79,15 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       {/* Download Invoice */}
       <section className="flex items-center mb-4">
-        <Button
-          variant="outline"
-          onClick={() => handleDownloadInvoice(orderId)}
-        >
-          Download Invoice
-        </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownloadInvoice(orderId)}
+                    disabled={isDownloading}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    {isDownloading && <FaSpinner className="animate-spin" />}
+                    {isDownloading ? "Downloading..." : "Download Invoice"}
+                  </Button>
       </section>
 
       {/* Order Header */}

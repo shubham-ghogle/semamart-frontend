@@ -1,281 +1,185 @@
-import { API_URL, BASE_URL } from "@/data";
-import { Button } from "../ui/button";
-import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Product } from "@/Types/types";
+import { API_URL } from "@/data";
+import { toast } from "react-toastify";
+import { Trash2, RotateCcw } from "lucide-react";
 
 export default function DocumentsDisplay() {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const product = queryClient.getQueryData(["product", id]) as Product;
 
-  const [open, setOpen] = useState(false);
-  const [docType, setDocType] = useState("");
-  const [file, setFile] = useState<null | File>(null);
-  const [idx, setIdx] = useState<undefined | number>();
+  const [selectedFiles, setSelectedFiles] = useState<{ [key: string]: { file: File, idx?: number } }>({});
+  const [pendingDeletions, setPendingDeletions] = useState<string[]>([]);
 
-  const { mutate, status } = useMutation({
-    mutationFn: ({
-      docType,
-      file,
-      idx,
-    }: {
-      docType: string;
-      file: File;
-      idx?: number;
-    }) => editDoc(docType, file, id ?? "", idx),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["product", id] });
-      setOpen(false);
-      setDocType("");
-      setFile(null);
-      setIdx(undefined);
-    },
+  // UPLOAD MUTATION WITH FETCH
+  const { mutateAsync: uploadFile, status: uploadStatus } = useMutation({
+    mutationFn: async ({ docType, file, idx }: { docType: string; file: File; idx?: number }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("docType", docType);
+      if (idx !== undefined) formData.append("idx", idx.toString());
+
+      const res = await fetch(`${API_URL}product/upload-doc/${id}`, {
+        method: "PUT",
+        body: formData,
+        // credentials: "include" is required to send cookies/session with fetch
+        credentials: "include", 
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
+      }
+
+      const data = await res.json();
+      return data.product;
+    }
   });
 
-  function openDialog(docType: string, i?: number) {
-    setDocType(docType);
-    setOpen(true);
-    if (i !== undefined) {
-      setIdx(i);
+  // DELETE MUTATION WITH FETCH
+  const { mutateAsync: deleteFile, status: deleteStatus } = useMutation({
+    mutationFn: async ({ docType, idx }: { docType: string; idx?: number }) => {
+      const res = await fetch(`${API_URL}product/delete-doc/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ docType, idx }),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Delete failed");
+      }
+
+      const data = await res.json();
+      return data.product;
     }
-  }
+  });
 
-  function handleUpdateDoc() {
-    console.log(file);
-    if (file) {
-      mutate({ file: file, docType: docType, idx: idx });
+  const handleGlobalSubmit = async () => {
+    const fileKeys = Object.keys(selectedFiles);
+    const deleteKeys = pendingDeletions;
+
+    if (fileKeys.length === 0 && deleteKeys.length === 0) {
+      return toast.warn("No changes to update.");
     }
-  }
 
-  const testReports = product?.certificate || [];
+    try {
+      const mainToastId = toast.loading("Syncing document changes...");
 
-  return (
-    <div className="mt-4">
-      {status === "pending" && <ScreenOverlayLoaderUi />}
-      <p className="text-lg font-semibold">Documents</p>
+      // 1. Process Deletions First
+      for (const key of deleteKeys) {
+        const isArray = ["msds_ifu_leaflet", "productCompilance", "certificate"].includes(key);
+        await deleteFile({ docType: key, idx: isArray ? 0 : undefined });
+      }
 
-      <section className="grid grid-cols-3">
-        {product?.amc_cms ? (
-          <DocCard
-            title="AMC/CMS"
-            fileName={product.amc_cms}
-            onClick={() => {
-              openDialog("amc_cms");
-            }}
-          />
-        ) : (
-          <EmptyDocCard
-            title="Add AMC/CMS"
-            onClick={() => {
-              openDialog("amc_cms");
-            }}
-          />
-        )}
-        {product.oemLetter ? (
-          <DocCard
-            title="OEM Letter"
-            fileName={product.oemLetter}
-            onClick={() => {
-              openDialog("oemLetter");
-            }}
-          />
-        ) : (
-          <EmptyDocCard
-            title="Add OEM Letter"
-            onClick={() => {
-              openDialog("oemLetter");
-            }}
-          />
-        )}
-        {product.productComparisionSheet ? (
-          <DocCard
-            title="Product Comparision Sheet"
-            fileName={product.productComparisionSheet}
-            onClick={() => {
-              openDialog("productComparisionSheet");
-            }}
-          />
-        ) : (
-          <EmptyDocCard
-            title="Add Product Comparision Sheet"
-            onClick={() => {
-              openDialog("productComparisionSheet");
-            }}
-          />
-        )}
-        {product.msds_ifu_leaflet &&
-          product.msds_ifu_leaflet.map((v, i) => (
-            <DocCard
-              key={i}
-              title={"MSDS/IFU Leaflet" + (1 + i)}
-              fileName={v}
-              onClick={() => {
-                openDialog("msds_ifu_leaflet", i);
-              }}
-            />
-          ))}
-        <EmptyDocCard
-          title="Add MSDS/IFU Leaflet"
-          onClick={() => {
-            openDialog("msds_ifu_leaflet", 0);
-          }}
-        />
+      // 2. Process Uploads
+      for (const key of fileKeys) {
+        const item = selectedFiles[key];
+        await uploadFile({ docType: key, file: item.file, idx: item.idx });
+      }
 
-        {product.productCompilance ? (
-          product.productCompilance.map((v, i) => (
-            <DocCard
-              key={i}
-              title={"Product Compilance" + (1 + i)}
-              fileName={v}
-              onClick={() => {
-                openDialog("productCompilance", i);
-              }}
-            />
-          ))
-        ) : (
-          <EmptyDocCard
-            title="Add Product Compilance"
-            onClick={() => {
-              openDialog("productCompilance");
-            }}
-          />
-        )}
-      </section>
-
-      <section className="mt-2">
-        {testReports.length > 0 ? (
-          <div className="grid grid-cols-3">
-            {testReports.map((el, i) => (
-              <DocCard
-                title={"Certifcate-" + (i + 1)}
-                key={i}
-                fileName={el}
-                onClick={() => {
-                  openDialog("certificate", i);
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyDocCard
-            title="Certifcate"
-            onClick={() => {
-              openDialog("certificate", 0);
-            }}
-          />
-        )}
-      </section>
-
-      {open && (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Upload document</DialogTitle>
-            </DialogHeader>
-            <Input
-              type="file"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setFile(file);
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={() => {
-                handleUpdateDoc();
-              }}
-            >
-              Ok
-            </Button>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-}
-
-type DocCardProps = {
-  fileName: string;
-  onClick: () => void;
-  title: string;
-};
-function DocCard({ fileName, onClick, title }: DocCardProps) {
-  return (
-    <div className="relative m-2 h-[350px] aspect-[0.8]">
-      <p>{title}</p>
-      <iframe
-        src={BASE_URL + "docs/" + fileName}
-        className="border rounded-md h-[90%] w-full overflow-hidden"
-      />
-      <Button
-        className="absolute bottom-4 left-1.5 rounded-sm"
-        variant="outline"
-        onClick={onClick}
-        type="button"
-      >
-        <Edit2 />
-      </Button>
-    </div>
-  );
-}
-
-type EmptyDocSlotProps = {
-  title: string;
-  onClick: (file: File | null) => void;
-};
-
-function EmptyDocCard({ title, onClick }: EmptyDocSlotProps) {
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      onClick(e.target.files[0]);
-    } else {
-      onClick(null);
+      queryClient.invalidateQueries({ queryKey: ["product", id] });
+      setSelectedFiles({});
+      setPendingDeletions([]);
+      toast.update(mainToastId, { render: "Changes saved successfully!", type: "success", isLoading: false, autoClose: 3000 });
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during sync.");
     }
   };
 
+  const RenderInput = (label: string, docType: keyof Product, isArray = false) => {
+    const existingFileName = isArray 
+      ? (product?.[docType] as string[])?.[0] 
+      : (product?.[docType] as string);
+    
+    const isSelected = !!selectedFiles[docType as string];
+    const isMarkedForDeletion = pendingDeletions.includes(docType as string);
+
+    return (
+      <div className="flex flex-col gap-1 border-b pb-4 last:border-0 md:border-0">
+        <label className="flex flex-col items-start gap-2 cursor-pointer text-gray-700">
+          <span className="text-sm font-medium mt-2">{label}</span>
+          <input
+            key={isSelected ? "selected" : isMarkedForDeletion ? "deleted" : "empty"}
+            type="file"
+            className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-gray-500 hover:file:bg-blue-100 cursor-pointer"
+            onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                    setSelectedFiles(prev => ({ ...prev, [docType]: { file, idx: isArray ? 0 : undefined } }));
+                    setPendingDeletions(prev => prev.filter(k => k !== docType));
+                }
+            }}
+          />
+        </label>
+        
+        <div className="flex items-center justify-between mt-1 min-h-[20px]">
+          {isSelected ? (
+            <div className="flex items-center gap-2">
+               <p className="text-[10px] text-blue-600 font-bold italic">Pending Upload: {selectedFiles[docType as string].file.name}</p>
+               <button onClick={() => setSelectedFiles(prev => {const n = {...prev}; delete n[docType as string]; return n;})} className="text-gray-400 hover:text-red-500"><RotateCcw size={12}/></button>
+            </div>
+          ) : isMarkedForDeletion ? (
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-red-500 font-bold line-through">Marked for deletion</p>
+              <button 
+                type="button" 
+                onClick={() => setPendingDeletions(prev => prev.filter(k => k !== docType))}
+                className="text-gray-400 hover:text-blue-500"
+                title="Undo deletion"
+              >
+                <RotateCcw size={14} />
+              </button>
+            </div>
+          ) : (
+            existingFileName && (
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-green-600 truncate max-w-[150px]">Current: {existingFileName}</p>
+                <button 
+                  type="button"
+                  onClick={() => setPendingDeletions(prev => [...prev, docType as string])}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <label className="flex flex-col items-start gap-2 cursor-pointer text-gray-700">
-      <span className="text-sm font-medium mt-2">{title}</span>
-      <input
-        type="file"
-        className="block w-full text-sm text-gray-700
-                   file:mr-4 file:py-2 file:px-4
-                   file:rounded-lg file:border-0
-                   file:text-sm file:font-semibold
-                   file:bg-blue-50 file:text-gray-500
-                   hover:file:bg-blue-100
-                   cursor-pointer"
-        onChange={handleFileChange}
-      />
-    </label>
+    <div className="mt-4 p-6 bg-white rounded-lg border shadow-sm">
+      {(uploadStatus === "pending" || deleteStatus === "pending") && <ScreenOverlayLoaderUi />}
+      <p className="text-xl font-bold mb-6 text-[#1C647C]">Manage Product Documents</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6">
+        {RenderInput("AMC/CMS", "amc_cms")}
+        {RenderInput("OEM Letter", "oemLetter")}
+        {RenderInput("Product Comparison Sheet", "productComparisionSheet")}
+        {RenderInput("MSDS/IFU Leaflet", "msds_ifu_leaflet", true)}
+        {RenderInput("Compliance", "productCompilance", true)}
+        {RenderInput("Certificate", "certificate", true)}
+      </div>
+
+      <div className="flex justify-end mt-12 pt-6 border-t">
+        <button 
+          type="button"
+          onClick={handleGlobalSubmit}
+          className="bg-[#1C647C] text-white px-6 py-2 rounded shadow-md hover:bg-[#154d5f] transition-all font-semibold"
+        >
+          Update All Documents
+        </button>
+      </div>
+    </div>
   );
-}
-
-
-async function editDoc(
-  docType: string,
-  file: File,
-  productId: string,
-  idx?: number,
-) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("docType", docType);
-  if (idx !== undefined) {
-    formData.append("idx", idx.toString());
-  }
-
-  await fetch(API_URL + "product/upload-doc/" + productId, {
-    method: "PUT",
-    body: formData,
-    credentials: "include",
-  });
 }
