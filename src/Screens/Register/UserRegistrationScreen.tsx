@@ -13,7 +13,7 @@ function Signup() {
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [check, setCheck] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false); // T&C
-  const [states, setStates] = useState<string[]>([]);
+  const [, setStates] = useState<string[]>([]);
 const [districts, setDistricts] = useState<string[]>([]);
 
 
