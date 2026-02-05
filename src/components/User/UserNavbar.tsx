@@ -2,6 +2,7 @@ import { RxDashboard } from "react-icons/rx";
 import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
 import { FaRegAddressBook } from "react-icons/fa";
 import { CiDeliveryTruck } from "react-icons/ci";
+import { LuMessageSquare } from "react-icons/lu";
 
 export default function UserNavbar() {
   return (
@@ -21,6 +22,11 @@ export default function UserNavbar() {
           icon={<CiDeliveryTruck />}
           to="orders"
           label="All Orders"
+        />
+        <SidebarNavlinks
+          icon={<LuMessageSquare />}
+          to="support"
+          label="Support"
         />
       </ul>
     </nav>

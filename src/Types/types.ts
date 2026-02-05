@@ -267,3 +267,26 @@ export type CategoryDetailApiRes = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// SUPPORT TYPES /////
+export interface SupportMessage {
+  _id: string;
+  from: 'User' | 'Admin' | 'Seller';
+  message: string;
+  date: string;
+  attachments?: string[];
+}
+
+export interface SupportTicket {
+  _id: string;
+  caseId: string;
+  userType: 'Seller' | 'Customer' | 'Institute';
+  user: string | User;
+  topic: string;
+  message: string;
+  status: 'New' | 'In Progress' | 'Closed';
+  conversation: SupportMessage[];
+  documents: string[];
+  createdAt: string;
+  updatedAt: string;
+}

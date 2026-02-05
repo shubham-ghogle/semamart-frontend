@@ -4,6 +4,7 @@ import { RxDashboard } from "react-icons/rx";
 import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
 import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
+import { FaHeadset } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
 import { API_URL } from "@/data";
 import { TbCoinRupee } from "react-icons/tb";
@@ -175,6 +176,7 @@ export default function AdminNavbar() {
               <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" />
               <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" />
               <LinkItem to="/admin/bulk-order-request" icon={<FaBoxOpen />} label="Stock Management" />
+              <LinkItem to="/admin/support" icon={<FaHeadset />} label="Support" />
             </div>
           </nav>
 
@@ -239,7 +241,8 @@ export default function AdminNavbar() {
             <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" onClick={() => setDrawerOpen(false)} />
             <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/bulk-order-request" icon={<GrWorkshop />} label="Bulk Order Request" onClick={() => setDrawerOpen(false)} />
+             <LinkItem to="/admin/bulk-order-request" icon={<FaBoxOpen />} label="Stock Management" onClick={() => setDrawerOpen(false)} />
+             <LinkItem to="/admin/support" icon={<FaHeadset />} label="Support" onClick={() => setDrawerOpen(false)} />
 
             <div className="mt-6 pt-4 px-3">
               <button onClick={() => { setDrawerOpen(false); logoutHandler(); }} disabled={loggingOut} className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 rounded-none">

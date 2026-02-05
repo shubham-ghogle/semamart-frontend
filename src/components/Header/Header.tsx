@@ -714,6 +714,18 @@ export default function Header() {
                           <span>Go to Dashboard</span>
                         </Link>
 
+                        <Link
+                          onClick={() => {
+                            setMobileProfileOpen(false);
+                            setIsUserHovered(false);
+                          }}
+                          to={isSeller ? "/seller/support" : "/admin/support"}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+                        >
+                          <MdOutlineSupportAgent size={16} />
+                          <span>Support</span>
+                        </Link>
+
                         <hr className="my-1" />
 
                         <button
@@ -783,7 +795,7 @@ export default function Header() {
                             setMobileProfileOpen(false);
                             setIsUserHovered(false);
                           }}
-                          to="/support"
+                          to="/user/support"
                           className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
                         >
                           <MdOutlineSupportAgent size={16} />

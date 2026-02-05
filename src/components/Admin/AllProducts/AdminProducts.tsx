@@ -4,11 +4,11 @@ import { API_URL, BASE_URL } from "@/data";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { AiOutlineEye } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import { ScreenOverlayLoaderUi } from "@/components/UIComponents/LoaderUi";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
 import UpdateCommissionDialog from "../UpdateCommissionDialog";
+import { Link } from "react-router-dom";
 
 type VariantRow = {
   id: string;

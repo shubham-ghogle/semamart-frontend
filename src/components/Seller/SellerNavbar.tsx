@@ -1,4 +1,5 @@
 // src/components/Seller/SellerNavbar.tsx
+import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
@@ -95,7 +96,8 @@ function LinkItem({
 
 /* -------------------------------------------------------------------------- */
 /*                              SELLER NAVBAR                                 */
-/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */import { LuMessageSquare } from "react-icons/lu";
+
 
 export default function SellerNavbar() {
   const seller = useSellerStore((s) => s.seller);
@@ -268,6 +270,7 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" />
               <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" />
+            <SidebarNavlinks icon={<LuMessageSquare />} to="/seller/support" label="Support" />
               <LinkItem
                 to="/seller/stock-management"
                 icon={<FaBoxOpen />}

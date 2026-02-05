@@ -73,6 +73,10 @@ import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 import AdminSellerAccount from "./components/Admin/AdminSellerAccount";
 import AdminImageUploader from "./components/Admin/AdminImageUploader";
 import AdminUserAccount from "./components/Admin/AdminUserAccount";
+import AdminSupportScreen from "./Screens/Admin/AdminSupportScreen";
+import SellerSupportScreen from "./Screens/Seller/SellerSupportScreen";
+import UserSupportScreen from "./Screens/User/UserSupportScreen";
+import SupportDetail from "./Screens/Admin/SupportDetail";
 import OrderProductCard from "./components/ui/OrderProductCard";
 import UserWishlist from "./components/ui/UserWishlist";
 import UserCart from "./components/ui/UserCart";
@@ -366,6 +370,8 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "products", element: <AdminProduct /> },
+      { path: "support", element: <AdminSupportScreen /> },
+      { path: "support/:id", element: <SupportDetail /> },
       {
         path: "orders",
         children: [
@@ -410,6 +416,8 @@ export const router = createBrowserRouter([
           { path: ":orderId", element: <OrderDetailsScreen /> },
         ],
       },
+      { path: "support", element: <SellerSupportScreen /> },
+      { path: "support/:id", element: <SupportDetail /> },
     ],
   },
 
@@ -427,6 +435,8 @@ export const router = createBrowserRouter([
           { path: ":orderId", element: <UserOrderDetailsScreen /> },
         ],
       },
+      { path: "support", element: <UserSupportScreen /> },
+      { path: "support/:id", element: <SupportDetail /> },
     ],
   },
 
