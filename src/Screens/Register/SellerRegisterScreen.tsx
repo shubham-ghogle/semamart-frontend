@@ -755,9 +755,8 @@ export default function SellerRegistration(): JSX.Element {
   <li>Relationship of the Parties</li>
   <li>Governing Law and Dispute Resolution</li>
   <li>Miscellaneous Provisions</li>
-  <li>Annexure A: Product List</li>
-  <li>Annexure B: Fees & Commissions</li>
-  <li>Annexure C: Return Policy</li>
+  <li>Annexure A: Return Policy</li>
+
 </ol>
 
 {/* ---------------- AGREEMENT BODY ---------------- */}
@@ -862,9 +861,11 @@ export default function SellerRegistration(): JSX.Element {
 <h4 className="font-semibold mt-6 mb-2">14. MISCELLANEOUS</h4>
 <p>Entire agreement, amendments only in writing, notices via registered channels.</p>
 
-<h4 className="font-semibold mt-6 mb-12">15. ENTIRE AGREEMENT</h4>
-<p> This Agreement constitutes the entire understanding between the Parties and supersedes all prior communications.
-</p>
+<h4 className="font-semibold mt-6 mb-2">ANNEXURE A: RETURN POLICY</h4>
+<p>1. Return Eligibility: Defective, expired, incorrect, or damaged goods</p>
+<p>2. Return Window: [7–15 days from delivery date]</p>
+<p>3. Conditions: Product must be unused, in original packaging</p>
+<p>4. Refund/Replacements: Within [7 business days] of approval</p>
 
 
 </div>
