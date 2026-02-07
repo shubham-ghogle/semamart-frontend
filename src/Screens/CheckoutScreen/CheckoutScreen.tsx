@@ -120,11 +120,12 @@ export default function CheckoutScreen(): JSX.Element {
       qty: el.qty,
       totalPrice: totalPrice,
       tax: el.taxClass || 0,
-      unitPrice: unitBase,
+      unitPrice: el.variant?.originalPrice ?? 0,
       dispatchState: el.product?.dispatchState ?? null,
       dispatchDistrict: el.product?.dispatchDistrict ?? null,
       adminCommision: adminCommission,
       sellerPayout: totalPrice - adminCommission,
+      discounted_price: unitBase,
     };
   });
 
