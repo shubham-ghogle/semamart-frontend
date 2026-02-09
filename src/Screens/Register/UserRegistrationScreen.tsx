@@ -1,16 +1,18 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom"; 
 import { useRegisterUser } from "./Registration.Hooks";
+import indiaStates, { getDistricts } from "india-state-district";
 
 function Signup() {
   const [step, setStep] = useState(1);
   const [visiblePassword, setVisiblePassword] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [check, setCheck] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false); // T&C
-
+  const [showTermsModal, setShowTermsModal] = useState(false); 
+  const [, setStates] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
@@ -27,6 +29,7 @@ function Signup() {
     state: "",
     password: "",
     confirmPassword: "",
+    gstNumber: "",
   });
 
   const { mutateUser } = useRegisterUser();
@@ -40,6 +43,71 @@ function Signup() {
     "Dadra and Nagar Haveli","Daman and Diu","Delhi","Lakshadweep","Puducherry"
   ];
 
+  const stateCodeMap: { [key: string]: string } = {
+    AN: "Andaman and Nicobar Islands",
+    AP: "Andhra Pradesh",
+    AR: "Arunachal Pradesh",
+    AS: "Assam",
+    BR: "Bihar",
+    CG: "Chhattisgarh",
+    CH: "Chandigarh",
+    DD: "Daman and Diu",
+    DL: "Delhi",
+    GA: "Goa",
+    GJ: "Gujarat",
+    HR: "Haryana",
+    HP: "Himachal Pradesh",
+    JH: "Jharkhand",
+    JK: "Jammu and Kashmir",
+    KA: "Karnataka",
+    KL: "Kerala",
+    LD: "Lakshadweep",
+    MH: "Maharashtra",
+    ML: "Meghalaya",
+    MN: "Manipur",
+    MP: "Madhya Pradesh",
+    MZ: "Mizoram",
+    NL: "Nagaland",
+    OR: "Odisha",
+    PB: "Punjab",
+    PY: "Puducherry",
+    RJ: "Rajasthan",
+    SK: "Sikkim",
+    TN: "Tamil Nadu",
+    TG: "Telangana",
+    TR: "Tripura",
+    UP: "Uttar Pradesh",
+    UT: "Uttarakhand",
+    WB: "West Bengal",
+  };
+
+  const stateNameToCode: { [key: string]: string } = Object.fromEntries(
+    Object.entries(stateCodeMap).map(([code, name]) => [name, code])
+  );
+
+  useEffect(() => {
+    const stateNames = Object.keys((indiaStates as any).rawData).map(
+      (code) => stateCodeMap[code] || code
+    );
+    setStates(stateNames);
+  }, []);
+
+  useEffect(() => {
+    if (!formData.state) {
+      setDistricts([]);
+      setFormData((prev) => ({ ...prev, district: "" }));
+      return;
+    }
+
+    const stateCode = stateNameToCode[formData.state];
+    const d = getDistricts(stateCode) || [];
+    setDistricts(d);
+
+    if (!d.includes(formData.district)) {
+      setFormData((prev) => ({ ...prev, district: "" }));
+    }
+  }, [formData.state]);
+
   // ---------- Validation ----------
   const validatePassword = (password: string) => {
     const errors: string[] = [];
@@ -47,7 +115,7 @@ function Signup() {
     if (!/[A-Z]/.test(password)) errors.push("Include at least 1 uppercase letter");
     if (!/[a-z]/.test(password)) errors.push("Include at least 1 lowercase letter");
     if (!/[0-9]/.test(password)) errors.push("Include at least 1 number");
-    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) errors.push("Include at least 1 special character");
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("Include at least 1 special character");
     return errors.join(", ");
   };
 
@@ -62,6 +130,9 @@ function Signup() {
         newErrors.phoneNumber = "Phone Number must be 10 digits";
       if (!formData.email.trim()) newErrors.email = "Email is required";
       else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
+      if (!formData.gstNumber.trim()) newErrors.gstNumber = "GST Number is required";
+      else if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(formData.gstNumber))
+        newErrors.gstNumber = "Enter a valid GST Number";
     }
 
     if (step === 2) {
@@ -99,12 +170,13 @@ function Signup() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "gstNumber" ? value.toUpperCase() : value,
+    }));
   };
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange(e);
-  };
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => handleChange(e);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -130,6 +202,7 @@ function Signup() {
           addressType: "Home",
         },
       ],
+      gstNumber: formData.gstNumber,
     };
 
     await mutateUser(payload);
@@ -147,7 +220,7 @@ function Signup() {
       <div className="w-1/2 flex flex-col justify-center items-center p-8 text-white">
         <Link to="/"><img src="/Logo-imag.png" width={120} alt="SEMA Logo" className="mb-6" /></Link>
         <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-[#006666]">
-        Institute Signup
+          Institute Signup
         </h2>
         <p className="text-lg text-center text-[#006666]">
           Create your institute account to continue
@@ -190,6 +263,23 @@ function Signup() {
                     {errors[field] && <p className="text-red-600 text-sm mt-1">{errors[field]}</p>}
                   </div>
                 ))}
+
+                {/* GST Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#1C647C]">
+                    GST Number <span className="text-red-700">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="gstNumber"
+                    value={formData.gstNumber}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors.gstNumber ? "border-red-500" : "border-gray-300"}`}
+                    placeholder="Ex: 22AAAAA0000A1Z5"
+                  />
+                  {errors.gstNumber && <p className="text-red-600 text-sm mt-1">{errors.gstNumber}</p>}
+                </div>
+
                 <button type="button" onClick={nextStep} className="w-full h-10 bg-[#006666] text-white rounded-md mt-2">Next</button>
               </>
             )}
@@ -214,18 +304,7 @@ function Signup() {
                 ))}
 
                 <div className="flex gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-semibold text-[#1C647C]">District <span className="text-red-700">*</span></label>
-                    <input
-                      type="text"
-                      name="district"
-                      value={formData.district}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${errors.district?"border-red-500":"border-gray-300"}`}
-                    />
-                    {errors.district && <p className="text-red-600 text-sm mt-1">{errors.district}</p>}
-                  </div>
-                  <div className="flex-1">
+                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-[#1C647C]">State <span className="text-red-700">*</span></label>
                     <select
                       name="state"
@@ -237,7 +316,27 @@ function Signup() {
                       {indianStates.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                     {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state}</p>}
+                  </div> 
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-[#1C647C]">District <span className="text-red-700">*</span></label>
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    disabled={!formData.state}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#1C647C] ${
+                      errors.district ? "border-red-500" : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">Select District</option>
+                    {districts.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+
+                    {errors.district && <p className="text-red-600 text-sm mt-1">{errors.district}</p>}
                   </div>
+                
                 </div>
 
                 <div className="flex gap-2 mt-2">
