@@ -46,6 +46,12 @@ const Orderpage = () => {
     return `/images/${src}`;
   };
 
+  const getOrderDate = (order: Order): Date => {
+    if (order.createdAt) return new Date(order.createdAt);
+    if (order.deliveredAt) return new Date(order.deliveredAt);
+    return new Date(0);
+  };
+
   const getStatusInfo = (order: Order) => {
     if (order.status === "Created") {
       if (order.paymentFile) {
@@ -104,13 +110,7 @@ const Orderpage = () => {
 
     if (timeFilters.length > 0) {
       const now = new Date();
-      const orderDate = order.createdAt
-        ? new Date(order.createdAt)
-        : order.deliveredAt
-        ? new Date(order.deliveredAt)
-        : null;
-
-      if (!orderDate) return false;
+      const orderDate = getOrderDate(order);
 
       const diffDays =
         (now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
@@ -141,16 +141,14 @@ const Orderpage = () => {
   /* ---------------- GROUP BY createdAt (DESC) ---------------- */
 
   const sortedOrders = [...(filteredOrders ?? [])].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() -
-      new Date(a.createdAt).getTime()
+    (a, b) => getOrderDate(b).getTime() - getOrderDate(a).getTime()
   );
 
   const TIME_WINDOW_MS = 15 * 1000;
   const groupedOrders: Order[][] = [];
 
   sortedOrders.forEach((order) => {
-    const orderTime = new Date(order.createdAt).getTime();
+    const orderTime = getOrderDate(order).getTime();
     const lastGroup = groupedOrders[groupedOrders.length - 1];
 
     if (!lastGroup) {
@@ -158,8 +156,8 @@ const Orderpage = () => {
       return;
     }
 
-    const lastOrderTime = new Date(
-      lastGroup[lastGroup.length - 1].createdAt
+    const lastOrderTime = getOrderDate(
+      lastGroup[lastGroup.length - 1]
     ).getTime();
 
     if (Math.abs(orderTime - lastOrderTime) <= TIME_WINDOW_MS) {
@@ -318,7 +316,7 @@ const Orderpage = () => {
               >
                 <div className="flex justify-end border-b pb-2">
                   <p className="text-sm text-gray-500">
-                    {new Date(group[0].createdAt).toLocaleString()}
+                    {getOrderDate(group[0]).toLocaleString()}
                   </p>
                 </div>
 
@@ -339,7 +337,6 @@ const Orderpage = () => {
                       }
                       className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 cursor-pointer"
                     >
-                      {/* Image */}
                       <div className="sm:col-span-2">
                         <img
                           src={normalizeImage(
@@ -349,7 +346,6 @@ const Orderpage = () => {
                         />
                       </div>
 
-                      {/* Name */}
                       <div className="sm:col-span-5 min-w-0">
                         <h3 className="text-md font-semibold text-gray-900 line-clamp-2">
                           {product.name}
@@ -359,14 +355,12 @@ const Orderpage = () => {
                         </p>
                       </div>
 
-                      {/* Price */}
                       <div className="sm:col-span-2 text-center">
                         <p className="text-lg font-bold">
                           ₹{order.totalPrice.toLocaleString("en-IN")}
                         </p>
                       </div>
 
-                      {/* Status */}
                       <div className="sm:col-span-3 flex flex-col items-end space-y-2">
                         <div className="flex items-center gap-2">
                           <span
