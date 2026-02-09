@@ -184,6 +184,8 @@ type PaymentInfo = {
   id?: string;
   status?: string;
   method?: string;
+  groupId?: string;
+  transactionId?: string;
   // paidAt?: string;
 };
 

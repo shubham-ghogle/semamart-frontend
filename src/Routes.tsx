@@ -41,6 +41,7 @@ import SearchLayout from "./components/Layouts/SearchLayout";
 import SearchResultsPage from "./Screens/Search/SearchResultsPage";
 import MyProfile from "./components/Account/MyProfile";
 import PaymentScreen from "./Screens/Payment/PaymentScreen";
+import HdfcReturnScreen from "./Screens/Payment/HdfcReturnScreen";
 import AdminLogin from "./Screens/Admin/AdminLogin";
 import OrderSummary from "./components/Order/OrderSummary";
 import ManageAddress from "./components/Account/ManageAddress";
@@ -255,6 +256,10 @@ export const router = createBrowserRouter([
         path: "checkout/payment",
         loader: requireUserAuth,
         element: <PaymentScreen />,
+      },
+      {
+        path: "payment/hdfc/return",
+        element: <HdfcReturnScreen />,
       },
       {
         path: "wishlist",
