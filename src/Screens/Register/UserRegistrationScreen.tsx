@@ -77,7 +77,7 @@ function Signup() {
     TG: "Telangana",
     TR: "Tripura",
     UP: "Uttar Pradesh",
-    UT: "Uttarakhand",
+    UK: "Uttarakhand",
     WB: "West Bengal",
   };
 
