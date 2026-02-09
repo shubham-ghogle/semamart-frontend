@@ -258,6 +258,37 @@ const shippedDate = shippedDateRaw
             : "Will be available once shipped"
         }
       />
+      {hasTracking && (
+          <Button
+            variant="outline"
+            className="mt-2 w-fit"
+            onClick={() => {
+             const doc = (data as any).trackingDetails.trackingDocument;
+                          if (!doc) return; // exit if undefined
+
+                          const url = `${BASE_URL}payment-docs/${doc}`;
+
+                          fetch(url)
+                            .then((response) => {
+                              if (!response.ok) throw new Error("Network response was not ok");
+                              return response.blob();
+                            })
+                            .then((blob) => {
+                              const blobUrl = window.URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.href = blobUrl;
+                              link.download = doc; // guaranteed string now
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(blobUrl);
+                            })
+                            .catch((err) => console.error("Download failed:", err));
+                        }}             
+  >
+    Download Courier Slip
+  </Button>
+)}
     </div>
   )}
 </section>
