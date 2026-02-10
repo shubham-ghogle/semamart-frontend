@@ -159,25 +159,36 @@ export function useCustomEnsureQuerty<T>(
 }
 
 export async function getSellerDashboardStats() {
-  const res = await fetch(API_URL + "order/seller-dashboard-stats", {
-    credentials: "include", // cookie-based seller auth
-  });
+  console.log("Fetching seller dashboard stats...");
+  try {
+    const res = await fetch(API_URL + "order/seller-dashboard-stats", {
+      credentials: "include", // cookie-based seller auth
+    });
+    console.log("Response status:", res.status);
+    console.log("Response headers:", res.headers);
+    
+    if (!res.ok) {
+      const errorData = await res.text();
+      console.log("Error response:", errorData);
+      throw new Error(`Failed to fetch seller dashboard stats - ${res.status}: ${res.statusText}`);
+    }
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch seller dashboard stats");
+    const data = await res.json();
+    console.log("Response data:", data);
+
+    if (!data.success) {
+      throw new Error("Dashboard stats fetch unsuccessful");
+    }
+
+    return data as {
+      success: boolean;
+      totalSales: number;
+      deliveredOrders: number;
+    };
+  } catch (error) {
+    console.error("Error in getSellerDashboardStats:", error);
+    throw error;
   }
-
-  const data = await res.json();
-
-  if (!data.success) {
-    throw new Error("Dashboard stats fetch unsuccessful");
-  }
-
-  return data as {
-    success: boolean;
-    totalSales: number;
-    deliveredOrders: number;
-  };
 }
 
 export async function getDeliveredOrdersForSeller() {
