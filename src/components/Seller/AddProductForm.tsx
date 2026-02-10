@@ -329,7 +329,7 @@ export default function AddProductForm({
     TN: "Tamil Nadu",
     TR: "Tripura",
     UP: "Uttar Pradesh",
-    UT: "Uttarakhand",
+    UK: "Uttarakhand",
     WB: "West Bengal",
   };
 

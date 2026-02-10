@@ -61,7 +61,7 @@ export default function SellerRegistration(): JSX.Element {
     MN: "Manipur", MP: "Madhya Pradesh", MZ: "Mizoram", NL: "Nagaland",
     OR: "Odisha", PB: "Punjab", PY: "Puducherry", RJ: "Rajasthan",
     SK: "Sikkim", TG: "Telangana", TN: "Tamil Nadu", TR: "Tripura",
-    UP: "Uttar Pradesh", UT: "Uttarakhand", WB: "West Bengal"
+    UP: "Uttar Pradesh", UK: "Uttarakhand", WB: "West Bengal"
   };
 
   // Reverse mapping for easy lookup

@@ -22,6 +22,8 @@ export default function CheckoutScreen(): JSX.Element {
 
   const navigate = useNavigate();
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"Manual" | "HDFC">("Manual");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -97,7 +99,12 @@ export default function CheckoutScreen(): JSX.Element {
     shippingAddress: address,
     user: user?._id ?? null,
     totalPrice: grandTotal,
-    paymentInfo: { id: "pending", status: "Pending", method: "Manual" },
+    paymentMethod,
+    paymentInfo: {
+      id: "pending",
+      status: "Pending",
+      method: paymentMethod === "HDFC" ? "HDFC" : "Manual",
+    },
   };
 
   async function postOrder(data: any) {
@@ -108,7 +115,7 @@ export default function CheckoutScreen(): JSX.Element {
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.message || "Could not create order");
-    return res;
+    return result;
   }
 
   const { mutateAsync, status } = useMutation({
@@ -134,7 +141,32 @@ export default function CheckoutScreen(): JSX.Element {
       }
     }
 
-    await mutateAsync(orderPayload);
+    const result = await mutateAsync(orderPayload);
+
+    if (paymentMethod === "HDFC") {
+      const paymentGroupId = result?.paymentGroupId;
+      if (!paymentGroupId) {
+        toast.error("Missing payment group id");
+        return;
+      }
+
+      setIsRedirecting(true);
+      localStorage.setItem("hdfc_payment_group_id", paymentGroupId);
+
+      const sessionRes = await fetch(API_URL + "order/create-payment-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentGroupId }),
+      });
+      const sessionData = await sessionRes.json();
+      if (!sessionRes.ok) {
+        toast.error(sessionData.message || "Failed to start payment session");
+        setIsRedirecting(false);
+        return;
+      }
+
+      window.location.href = sessionData.paymentLink;
+    }
   }
 
   // Success screen
@@ -249,13 +281,41 @@ export default function CheckoutScreen(): JSX.Element {
             <span>{formatter.format(grandTotal)}</span>
           </div>
 
+          <div className="mt-6">
+            <h3 className="font-semibold mb-2">Payment Method</h3>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="payment-method"
+                  checked={paymentMethod === "HDFC"}
+                  onChange={() => setPaymentMethod("HDFC")}
+                />
+                <span>Pay Online (HDFC)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="payment-method"
+                  checked={paymentMethod === "Manual"}
+                  onChange={() => setPaymentMethod("Manual")}
+                />
+                <span>Pay Manual (Upload Payment Proof)</span>
+              </label>
+            </div>
+          </div>
+
           <button
             onClick={handlePlaceOrder}
-            disabled={status === "pending"}
+            disabled={status === "pending" || isRedirecting}
             className="w-full mt-6 py-3 text-white rounded"
             style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}
           >
-            {status === "pending" ? "Creating Order..." : "Create Order"}
+            {status === "pending"
+              ? "Creating Order..."
+              : isRedirecting
+                ? "Redirecting to HDFC..."
+                : "Create Order"}
           </button>
         </aside>
       </div>
