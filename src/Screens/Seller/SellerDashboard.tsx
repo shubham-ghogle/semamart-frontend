@@ -40,8 +40,6 @@ export default function SellerDashboard() {
 
   const {
     data: dashboardStats,
-    status: statsStatus,
-    error: statsError,
   } = useQuery({
     queryKey: ["seller-dashboard-stats"],
     queryFn: getSellerDashboardStats,
@@ -52,10 +50,6 @@ export default function SellerDashboard() {
       success: true,
       totalSales: 0,
       deliveredOrders: 0,
-    },
-    // Handle errors gracefully
-    onError: (error) => {
-      console.error("Failed to fetch seller dashboard stats:", error);
     },
   });
 
@@ -71,7 +65,6 @@ export default function SellerDashboard() {
   else if (isError) overAllStatus = "error";
 
   const overAllError =
-    (statsError as Error)?.message ||
     proError?.message ||
     orderErr?.message ||
     "Something went wrong";
