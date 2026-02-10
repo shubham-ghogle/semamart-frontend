@@ -46,6 +46,7 @@ export default function SellerDashboard() {
     queryKey: ["seller-dashboard-stats"],
     queryFn: getSellerDashboardStats,
     staleTime: Infinity,
+    enabled: !!seller?._id,
   });
 
   const isSuccess =
