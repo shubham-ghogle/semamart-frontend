@@ -21,8 +21,9 @@ const AdminSupportScreen = () => {
   const [endDate, setEndDate] = useState<Date | undefined>();
 
   const filteredCases = tickets.filter(c => {
+    console.log('Checking ticket:', c);
     const userDetails = typeof c.user === 'object' ? c.user : null;
-    const userName = userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : '';
+    const userName = userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : (typeof c.user === 'string' ? c.user : '');
     const caseCreatedAt = new Date(c.createdAt);
 
     // Search filter
@@ -34,7 +35,9 @@ const AdminSupportScreen = () => {
     const matchesDateRange = (!startDate || caseCreatedAt >= startDate) &&
       (!endDate || caseCreatedAt <= endDate);
 
-    return matchesSearch && matchesDateRange;
+    const result = matchesSearch && matchesDateRange;
+    console.log('Ticket matches:', result);
+    return result;
   });
 
   const getStatusBadgeClass = (status: string) => {
@@ -125,11 +128,12 @@ const AdminSupportScreen = () => {
           <tbody>
             {filteredCases.map(c => {
               const userDetails = typeof c.user === 'object' ? c.user : null;
+              const userDisplayName = userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : (typeof c.user === 'string' ? c.user : 'N/A');
               return (
                 <tr key={c._id} className="border-t">
                   <td className="p-2 border">{c.caseId}</td>
                   <td className="p-2 border">{c.userType}</td>
-                  <td className="p-2 border">{userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : 'N/A'}</td>
+                  <td className="p-2 border">{userDisplayName}</td>
                   <td className="p-2 border">{c.topic}</td>
                   <td className="p-2 border">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(c.status)}`}>

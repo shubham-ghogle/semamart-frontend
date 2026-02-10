@@ -34,9 +34,10 @@ const UserSupportScreen = () => {
     e.preventDefault();
     if (!user) return;
 
-    // Validate fields
-    if (!topic.trim() || !message.trim() || !files || files.length === 0) {
-      setShowError('Please fill Topic, Message, and upload Documents before submitting');
+    // Validate fields - check if message is not just empty HTML tags
+    const strippedMessage = message.replace(/<[^>]*>/g, '').trim();
+    if (!topic.trim() || !strippedMessage) {
+      setShowError('Please fill Topic and Message before submitting');
       setTimeout(() => setShowError(''), 3000);
       return;
     }
@@ -63,9 +64,9 @@ const UserSupportScreen = () => {
       }
     }
 
-    await createTicket({
+     await createTicket({
       userType: user.role === 'Seller' ? 'Seller' : user.role === 'Institute' ? 'Institute' : 'Customer',
-      user: user,
+      user: user.email, // Store email as string for consistency
       topic,
       message,
       documents: documentList,
@@ -129,7 +130,7 @@ const UserSupportScreen = () => {
         </div>
         <button 
           type="submit" 
-          disabled={!topic.trim() || !message.trim() || !files || files.length === 0} 
+          disabled={!topic.trim() || !message.replace(/<[^>]*>/g, '').trim()} 
           className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors w-full sm:w-auto"
         >
           Submit
