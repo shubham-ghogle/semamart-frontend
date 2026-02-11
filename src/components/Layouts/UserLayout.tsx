@@ -6,12 +6,14 @@ export default function UserLayout() {
   return (
     <>
       <UserHeader />
-      <section className="container mx-auto grid grid-cols-[250px_1fr] min-h-[calc(100vh-80px)]">
-        <UserNavbar />
-        <main className="bg-bg-gray">
+      <div className="flex min-h-[calc(100vh-80px)]">
+        <aside className="fixed left-0 top-[80px] bottom-0 w-[250px] bg-white shadow-md z-20">
+          <UserNavbar />
+        </aside>
+        <main className="flex-1 ml-[250px] bg-bg-gray overflow-y-auto">
           <Outlet />
         </main>
-      </section>
+      </div>
     </>
   );
 }

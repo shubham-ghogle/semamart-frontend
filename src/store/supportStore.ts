@@ -114,9 +114,94 @@ export const useSupportStore = create<SupportStore>((set, get) => {
         // TODO: Replace with actual API call
         // const res = await fetch('/api/support/tickets');
         // const tickets = await res.json();
-        const storedTickets = localStorage.getItem('supportTickets');
+        // Load test tickets if no tickets are stored
+        let storedTickets = localStorage.getItem('supportTickets');
         console.log('Stored tickets raw:', storedTickets);
         let tickets = storedTickets ? JSON.parse(storedTickets) : [];
+        
+        // Add test tickets if no tickets are found
+        if (tickets.length === 0) {
+          console.log('No tickets found, adding test tickets...');
+          tickets = [
+            {
+              _id: "1",
+              caseId: "U001",
+              userType: "Customer",
+              user: {
+                firstName: "Neelam",
+                lastName: "Verma",
+                email: "neelam@example.com"
+              },
+              topic: "abc",
+              status: "In Progress",
+              createdAt: new Date("2026-02-02").toISOString(),
+              updatedAt: new Date("2026-02-02").toISOString(),
+              conversation: [],
+              documents: []
+            },
+            {
+              _id: "2",
+              caseId: "U002",
+              userType: "Customer",
+              user: "cabak57087@amtile.com",
+              topic: "bhvh",
+              status: "New",
+              createdAt: new Date("2026-02-09").toISOString(),
+              updatedAt: new Date("2026-02-09").toISOString(),
+              conversation: [],
+              documents: []
+            },
+            {
+              _id: "3",
+              caseId: "U003",
+              userType: "Customer",
+              user: "cabak57087@amtile.com",
+              topic: "abcd",
+              status: "New",
+              createdAt: new Date("2026-02-09").toISOString(),
+              updatedAt: new Date("2026-02-09").toISOString(),
+              conversation: [],
+              documents: []
+            },
+            {
+              _id: "4",
+              caseId: "U004",
+              userType: "Customer",
+              user: "cabak57087@amtile.com",
+              topic: "Abc",
+              status: "New",
+              createdAt: new Date("2026-02-09").toISOString(),
+              updatedAt: new Date("2026-02-09").toISOString(),
+              conversation: [],
+              documents: []
+            },
+            {
+              _id: "5",
+              caseId: "U005",
+              userType: "Customer",
+              user: "cabak57087@amtile.com",
+              topic: "cxd",
+              status: "New",
+              createdAt: new Date("2026-02-10").toISOString(),
+              updatedAt: new Date("2026-02-10").toISOString(),
+              conversation: [],
+              documents: []
+            },
+            {
+              _id: "6",
+              caseId: "U006",
+              userType: "Customer",
+              user: "cabak57087@amtile.com",
+              topic: "product issue",
+              status: "New",
+              createdAt: new Date("2026-02-10").toISOString(),
+              updatedAt: new Date("2026-02-10").toISOString(),
+              conversation: [],
+              documents: []
+            }
+          ];
+          localStorage.setItem('supportTickets', JSON.stringify(tickets));
+        }
         
         // Ensure all tickets have required fields for compatibility
         tickets = tickets.map((ticket: any) => ({
