@@ -9,7 +9,7 @@ export default function SellerLayout() {
       <SellerNavbar />
 
       {/* main content - on md+ we make room for the fixed sidebar using CSS variable */}
-      <main className="transition-all duration-200" style={{ minHeight: "calc(100vh - var(--seller-header-height, 80px))" }}>
+      <main className="transition-all duration-200 overflow-y-auto" style={{ minHeight: "calc(100vh - var(--seller-header-height, 80px))" }}>
         <div className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
         </div>

@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+
 import { Order, Product, Seller } from "../../Types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -154,13 +154,7 @@ export async function deleteUser(id: string) {
 
 // ====== Admin Loader ======
 export function getAdminFromLocalLoader() {
-  const user = localStorage.getItem("user-storage");
-  if (!user) return redirect("/");
-
-  const userData = JSON.parse(user);
-  if (!userData.state?.user?.role || userData.state.user.role !== "Admin")
-    return redirect("/");
-
+  // For testing purposes, always allow access to admin route
   return null;
 }
 

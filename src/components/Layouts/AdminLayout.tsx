@@ -10,7 +10,7 @@ export default function AdminLayout() {
       {/* fixed sidebar / navbar rendered as sibling */}
       <AdminNavbar />
 
-      <main className="transition-all duration-200" style={{ minHeight: "calc(100vh - var(--admin-header-height, 80px))" }}>
+      <main className="transition-all duration-200 overflow-y-auto" style={{ minHeight: "calc(100vh - var(--admin-header-height, 80px))" }}>
         <section className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
         </section>
