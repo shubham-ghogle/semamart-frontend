@@ -200,13 +200,19 @@ export default function SellerNavbar() {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      const res = await fetch(API_URL + "shop/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      // Attempt API logout, but don't fail if it fails
+      try {
+        await fetch(API_URL + "shop/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (apiErr) {
+        console.error("API logout failed:", apiErr);
+        // Continue with local logout even if API fails
+      }
 
       removeSeller();
-      toast[res.ok ? "success" : "info"]("Logged out", { position: "top-center" });
+      toast.success("Logged out", { position: "top-center" });
       navigate("/", { replace: true });
     } catch (err) {
       console.error(err);
