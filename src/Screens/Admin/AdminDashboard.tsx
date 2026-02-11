@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getAdminDashboardSummary, DashboardSummary, getAllOrders } from "./Admin.HooksAndUtils";
-import { FaRegAddressCard, FaBuilding, FaShoppingCart } from "react-icons/fa";
+import { FaRegAddressCard, FaBuilding, FaShoppingCart, FaTimes } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa6";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
+import { API_URL } from "@/data";
 
 const OVERVIEW_ITEMS = [
   { label: "New Vendors", color: "from-blue-500 to-indigo-500", IconComponent: IoPersonAdd },
@@ -16,171 +19,205 @@ const OVERVIEW_ITEMS = [
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
+  // --- Modal & Form States ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(""); // "Product Manager" or "Accountant"
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
+
   // Query for dashboard summary
   const {
     data: dashboardData,
-    error: dashboardError,
     isLoading: dashboardLoading,
     isError: dashboardIsError,
+    error: dashboardError,
   } = useQuery<DashboardSummary, Error>({
     queryKey: ["admin-dashboard-summary"],
     queryFn: getAdminDashboardSummary,
-    retry: 3,
   });
 
   // Query for all orders
   const {
     data: ordersData,
-    error: ordersError,
     isLoading: ordersLoading,
-    isError: ordersIsError,
     status: ordersStatus,
+    isError: ordersIsError,
+    error: ordersError,
   } = useQuery({
     queryKey: ["admin-all-orders"],
     queryFn: getAllOrders,
   });
 
-  // Show loading if either query is loading
-  if (dashboardLoading || ordersLoading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-lg text-gray-500">
-        Loading Dashboard...
-      </div>
-    );
-  }
+  // --- Handlers ---
+  const openModal = (role: string) => {
+    setSelectedRole(role);
+    setIsModalOpen(true);
+  };
 
-  // Show error if either query failed
-  if (dashboardIsError || ordersIsError) {
-    return (
-      <div className="flex flex-col justify-center items-center h-64 text-red-500">
-        {dashboardIsError && <p>Error loading dashboard: {dashboardError?.message}</p>}
-        {ordersIsError && <p>Error loading orders: {ordersError?.message}</p>}
-      </div>
-    );
-  }
-
-  // Map overview items to counts and trends
-  const stockData = OVERVIEW_ITEMS.map((item) => {
-    let count = 0;
-    let trend = "0.0%";
-
-    switch (item.label) {
-      case "New Vendors":
-        count = dashboardData?.newVendors ?? 0;
-        trend = dashboardData?.vendorTrend ? `${(+dashboardData.vendorTrend).toFixed(1)}%` : trend;
-        break;
-      case "Vendors":
-        count = dashboardData?.vendors ?? 0;
-        trend = dashboardData?.vendorTrend ? `${(+dashboardData.vendorTrend).toFixed(1)}%` : trend;
-        break;
-      case "Institutes":
-        count = dashboardData?.institutes ?? 0;
-        trend = dashboardData?.instituteTrend ? `${(+dashboardData.instituteTrend).toFixed(1)}%` : trend;
-        break;
-      case "Orders":
-        count = dashboardData?.orders ?? 0;
-        trend = dashboardData?.orderTrend ? `${(+dashboardData.orderTrend).toFixed(1)}%` : trend;
-        break;
-    }
-
-    return {
-      ...item,
-      count,
-      trend,
-    };
-  });
-
-  // Handle card click navigation
-  const handleCardClick = (label: string) => {
-    switch (label) {
-      case "Vendors":
-        navigate("/admin/sellers");
-        break;
-      case "New Vendors":
-        navigate("/admin/requests");
-        break;
-      case "Institutes":
-        navigate("/admin/users");
-        break;
-      case "Orders":
-        navigate("/admin/orders");
-        break;
-      default:
-        break;
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}user/registerStaff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, role: selectedRole }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(`${selectedRole} added successfully!`);
+        setIsModalOpen(false);
+        setFormData({ firstName: "", lastName: "", email: "", password: "" });
+      } else {
+        alert(data.message || "Something went wrong");
+      }
+    } catch (err) {
+      alert("Server error");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (dashboardLoading || ordersLoading) {
+    return <div className="flex justify-center items-center h-64">Loading Dashboard...</div>;
+  }
+
+  if (dashboardIsError || ordersIsError) {
+    return <div className="text-red-500 p-10 text-center">Error loading data.</div>;
+  }
+
+  const stockData = OVERVIEW_ITEMS.map((item) => {
+    let count = 0;
+    if (item.label === "New Vendors") count = dashboardData?.newVendors ?? 0;
+    if (item.label === "Vendors") count = dashboardData?.vendors ?? 0;
+    if (item.label === "Institutes") count = dashboardData?.institutes ?? 0;
+    if (item.label === "Orders") count = dashboardData?.orders ?? 0;
+    return { ...item, count };
+  });
+
   return (
-    <div className="bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
+    <div className="bg-gradient-to-br from-white to-gray-100 p-8 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
-         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-  {/* Heading */}
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-            Welcome back, Admin 👋
-          </h1>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 p-6 rounded-xl">
+          {/* 1. Welcome Message */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              Welcome back, Admin 👋
+            </h1>
+          </div>
 
-  {/* Buttons */}
-        <div className="flex gap-3 mt-4 sm:mt-0">
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-            onClick={() => console.log("Add Manager clicked")}
-          >
-            + Manager
-          </button>
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
-            onClick={() => console.log("Add Accountant clicked")}
-          >
-            + Accountant
-          </button>
-        </div>
+  {/* 2. Buttons Row */}
+  <div className="flex flex-wrap gap-3">
+    {/* Product Manager Button */}
+    <button 
+      className="flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold border-2 border-indigo-600 text-indigo-600 bg-transparent rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
+      onClick={() => openModal("Product Manager")}
+    >
+      <FaPlus className="text-xs" /> 
+      <span>Product Manager</span>
+    </button>
+    
+    {/* Accountant Button */}
+    <button 
+      className="flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold border-2 border-emerald-600 text-emerald-600 bg-transparent rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
+      onClick={() => openModal("Accountant")}
+    >
+      <FaPlus className="text-xs" /> 
+      <span>Accountant</span>
+    </button>
+  </div>
 
-        {/* Last update */}
-        <p className="text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">
-          Last updated: {new Date().toLocaleDateString()}
-        </p>
-      </div>
-
-        </div>
-
-        {/* Overview cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {stockData.map((item, index) => {
-            const Icon = item.IconComponent;
-            return (
-              <div
-                key={index}
-                className={`bg-gradient-to-r ${item.color} text-white rounded-2xl p-6 shadow-lg cursor-pointer relative overflow-hidden hover:scale-105 transition-transform`}
-                onClick={() => handleCardClick(item.label)}
-              >
-                <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-8 -translate-y-8"></div>
-                <div className="flex items-center justify-between relative z-10">
-                  <Icon className="text-4xl text-white" />
-                  <span className="text-4xl font-bold">{item.count}</span>
-                </div>
-                <p className="text-lg mt-4 font-medium">{item.label}</p>
-                {/* Uncomment if you want to show trend */}
-                {/* <p className="text-sm mt-2 text-white/80">{item.trend} this month</p> */}
+  {/* 3. Last Updated Message */}
+  <div>
+    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium italic">
+      Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+    </p>
+  </div>
+</div>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          {stockData.map((item, index) => (
+            <div 
+              key={index}
+              onClick={() => navigate(item.label === "Vendors" ? "/admin/sellers" : item.label === "New Vendors" ? "/admin/requests" : item.label === "Institutes" ? "/admin/users" : "/admin/orders")}
+              className={`bg-gradient-to-r ${item.color} text-white rounded-2xl p-6 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+            >
+              <div className="flex items-center justify-between">
+                <item.IconComponent className="text-4xl" />
+                <span className="text-4xl font-bold">{item.count}</span>
               </div>
-            );
-          })}
+              <p className="text-lg mt-4 font-medium">{item.label}</p>
+            </div>
+          ))}
         </div>
-      </div>
 
+        {/* Orders Table */}
+        <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">Recent Orders</h2>
+        <AdminMainWrapper status={ordersStatus} heading="All Orders">
+          {ordersData && <AdminOrderTable orders={ordersData?.orders} />}
+        </AdminMainWrapper>
 
-          <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">Recent Orders</h2>
-           
-              <AdminMainWrapper
-                    status={ordersStatus}
-                    heading="All Orders"
+        {/* --- Registration Modal --- */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+              <div className="p-6 border-b flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">Add {selectedRole}</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <FaTimes size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <input 
+                    type="text" placeholder="First Name" required
+                    className="p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                  />
+                  <input 
+                    type="text" placeholder="Last Name" required
+                    className="p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                  />
+                </div>
+                <input 
+                  type="email" placeholder="Email Address" required
+                  className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+                <input 
+                  type="password" placeholder="Set Password" required
+                  className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                />
+                
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button" onClick={() => setIsModalOpen(false)}
+                    className="flex-1 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200"
                   >
-                  {ordersData && <AdminOrderTable orders={ordersData?.orders} />}
-              </AdminMainWrapper>
-           
-                 
-                 
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" disabled={loading}
+                    className="flex-1 py-3 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                  >
+                    {loading ? "Processing..." : "Save Account"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 };
