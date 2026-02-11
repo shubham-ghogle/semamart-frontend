@@ -115,12 +115,34 @@ const AdminDashboard = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+  {/* Heading */}
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
             Welcome back, Admin 👋
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">
-            Last updated: {new Date().toLocaleDateString()}
-          </p>
+
+  {/* Buttons */}
+        <div className="flex gap-3 mt-4 sm:mt-0">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            onClick={() => console.log("Add Manager clicked")}
+          >
+            + Manager
+          </button>
+          <button
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+            onClick={() => console.log("Add Accountant clicked")}
+          >
+            + Accountant
+          </button>
+        </div>
+
+        {/* Last update */}
+        <p className="text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">
+          Last updated: {new Date().toLocaleDateString()}
+        </p>
+      </div>
+
         </div>
 
         {/* Overview cards */}
