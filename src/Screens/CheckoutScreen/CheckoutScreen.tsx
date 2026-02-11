@@ -118,6 +118,17 @@ export default function CheckoutScreen(): JSX.Element {
     return result;
   }
 
+  async function createHdfcSession(data: any) {
+    const res = await fetch(API_URL + "order/create-payment-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Could not create payment session");
+    return result;
+  }
+
   const { mutateAsync, status } = useMutation({
     mutationFn: (data: any) => postOrder(data),
     onError: (err: any) => toast.error(err.message ?? "Failed to create order"),
@@ -141,32 +152,31 @@ export default function CheckoutScreen(): JSX.Element {
       }
     }
 
-    const result = await mutateAsync(orderPayload);
-
     if (paymentMethod === "HDFC") {
-      const paymentGroupId = result?.paymentGroupId;
-      if (!paymentGroupId) {
-        toast.error("Missing payment group id");
-        return;
-      }
-
       setIsRedirecting(true);
-      localStorage.setItem("hdfc_payment_group_id", paymentGroupId);
 
-      const sessionRes = await fetch(API_URL + "order/create-payment-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentGroupId }),
-      });
-      const sessionData = await sessionRes.json();
-      if (!sessionRes.ok) {
-        toast.error(sessionData.message || "Failed to start payment session");
+      try {
+        const sessionData = await createHdfcSession({
+          cart: orderPayload.cart,
+          shippingAddress: orderPayload.shippingAddress,
+          user: orderPayload.user,
+          totalPrice: orderPayload.totalPrice,
+        });
+
+        if (!sessionData?.paymentGroupId || !sessionData?.paymentLink) {
+          throw new Error("Invalid payment session response");
+        }
+
+        localStorage.setItem("hdfc_payment_group_id", sessionData.paymentGroupId);
+        window.location.href = sessionData.paymentLink;
+      } catch (err: any) {
+        toast.error(err.message || "Failed to start payment session");
         setIsRedirecting(false);
-        return;
       }
-
-      window.location.href = sessionData.paymentLink;
+      return;
     }
+
+    await mutateAsync(orderPayload);
   }
 
   // Success screen
@@ -311,7 +321,7 @@ export default function CheckoutScreen(): JSX.Element {
             className="w-full mt-6 py-3 text-white rounded"
             style={{ background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)" }}
           >
-            {status === "pending"
+          {status === "pending"
               ? "Creating Order..."
               : isRedirecting
                 ? "Redirecting to HDFC..."
