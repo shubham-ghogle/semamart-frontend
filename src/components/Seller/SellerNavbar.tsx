@@ -1,5 +1,5 @@
 // src/components/Seller/SellerNavbar.tsx
-import SidebarNavlinks from "../UIComponents/SidebarNavlinks";
+
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
@@ -200,13 +200,19 @@ export default function SellerNavbar() {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      const res = await fetch(API_URL + "shop/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      // Attempt API logout, but don't fail if it fails
+      try {
+        await fetch(API_URL + "shop/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (apiErr) {
+        console.error("API logout failed:", apiErr);
+        // Continue with local logout even if API fails
+      }
 
       removeSeller();
-      toast[res.ok ? "success" : "info"]("Logged out", { position: "top-center" });
+      toast.success("Logged out", { position: "top-center" });
       navigate("/", { replace: true });
     } catch (err) {
       console.error(err);
@@ -296,7 +302,7 @@ export default function SellerNavbar() {
               <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
               <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" pinned={pinned} />
               <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" pinned={pinned} />
-              <SidebarNavlinks icon={<LuMessageSquare />} to="/seller/support" label="Support" />
+               <LinkItem to="/seller/support" icon={<LuMessageSquare />} label="Support" pinned={pinned} />
               <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" pinned={pinned} />
               <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" target="_blank" pinned={pinned} />
             </div>
@@ -406,23 +412,31 @@ export default function SellerNavbar() {
                 <CiDeliveryTruck />
                 <span>All Orders</span>
               </NavLink>
-              <NavLink
-                to="/seller/stock-management"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <FaBoxOpen />
-                <span>Stock Management</span>
-              </NavLink>
-              <a
-                href={`/shop/${seller?._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <MdStorefront />
-                <span>My Shop</span>
-              </a>
+               <NavLink
+                  to="/seller/stock-management"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <FaBoxOpen />
+                  <span>Stock Management</span>
+                </NavLink>
+                <NavLink
+                  to="/seller/support"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <LuMessageSquare />
+                  <span>Support</span>
+                </NavLink>
+                <a
+                  href={`/shop/${seller?._id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <MdStorefront />
+                  <span>My Shop</span>
+                </a>
 
               <div className="mt-6 pt-4">
                 <button

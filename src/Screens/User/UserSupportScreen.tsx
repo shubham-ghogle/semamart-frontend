@@ -36,8 +36,8 @@ const UserSupportScreen = () => {
 
     // Validate fields - check if message is not just empty HTML tags
     const strippedMessage = message.replace(/<[^>]*>/g, '').trim();
-    if (!topic.trim() || !strippedMessage) {
-      setShowError('Please fill Topic and Message before submitting');
+    if (!topic.trim() || !strippedMessage || !files || files.length === 0) {
+      setShowError('Please fill in all required fields (Topic, Message, and Documents) before submitting.');
       setTimeout(() => setShowError(''), 3000);
       return;
     }
@@ -130,7 +130,7 @@ const UserSupportScreen = () => {
         </div>
         <button 
           type="submit" 
-          disabled={!topic.trim() || !message.replace(/<[^>]*>/g, '').trim()} 
+          disabled={!topic.trim() || !message.replace(/<[^>]*>/g, '').trim() || !files || files.length === 0} 
           className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors w-full sm:w-auto"
         >
           Submit

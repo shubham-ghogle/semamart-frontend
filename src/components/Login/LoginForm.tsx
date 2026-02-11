@@ -51,7 +51,7 @@ export default function LoginForm() {
      },
    });
 
-  function handleSubmit(e: React.FormEvent) {
+   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (accountType === "seller") {
       sellerMutation.mutate({ email, password });
@@ -122,14 +122,14 @@ export default function LoginForm() {
           <div>
             <p className="block text-sm font-semibold text-[#1C647C] mb-1">Account type</p>
             <section className="flex items-center justify-around">
-              <article className="flex items-center gap-1">
-                <input required type="radio" id="user" name="account_type" value="user" onChange={(e) => setAccountType(e.target.value)} className="accent-[#1C647C]" />
-                <label htmlFor="user" className="text-sm text-gray-700 font-medium">Institute</label>
-              </article>
-              <article className="flex items-center gap-1">
-                <input type="radio" id="seller" name="account_type" value="seller" required onChange={(e) => setAccountType(e.target.value)} className="accent-[#1C647C]" />
-                <label htmlFor="seller" className="text-sm text-gray-700 font-medium">Seller</label>
-              </article>
+               <article className="flex items-center gap-1">
+                 <input type="radio" id="user" name="account_type" value="user" checked={accountType === "user"} onChange={(e) => setAccountType(e.target.value)} className="accent-[#1C647C]" />
+                 <label htmlFor="user" className="text-sm text-gray-700 font-medium">Institute</label>
+               </article>
+                <article className="flex items-center gap-1">
+                  <input type="radio" id="seller" name="account_type" value="seller" checked={accountType === "seller"} onChange={(e) => setAccountType(e.target.value)} className="accent-[#1C647C]" />
+                  <label htmlFor="seller" className="text-sm text-gray-700 font-medium">Seller</label>
+                </article>
             </section>
           </div>
 

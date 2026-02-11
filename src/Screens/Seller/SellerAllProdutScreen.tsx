@@ -9,7 +9,7 @@ export default function SellerAllProductsScreen() {
   const { seller } = useSellerStore((state) => state);
   const { data, status } = useQuery({
     queryKey: ["seller-products", seller?._id],
-    queryFn: () => getProductsForSeller(seller?._id),
+    queryFn: () => getProductsForSeller(seller?._id || ""),
   });
 
   const errMess = "Something went wrong";
