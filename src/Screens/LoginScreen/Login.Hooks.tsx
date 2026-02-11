@@ -41,7 +41,7 @@ export async function postUser(userData: UserData) {
   }
 }
 
-export async function postSeller() {
+export async function postSeller(userData: UserData) {
   try {
     // Return dummy data for testing purposes
     return {
@@ -53,7 +53,7 @@ export async function postSeller() {
         businessName: "Test Shop",
         businessType: "Retail",
         gstNumber: "123456789012",
-        email: "seller@example.com",
+        email: userData.email,
         phoneNumber: "0987654321",
         role: "Seller",
         profilePic: "",
@@ -64,7 +64,7 @@ export async function postSeller() {
         availableBalance: 0,
         createdAt: "2023-10-05T14:48:00.000Z",
         verified: true,
-        password: "password123",
+        password: userData.password,
         transections: [],
         __v: 0,
       },

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
@@ -12,17 +12,12 @@ import { Logo } from "../UIComponents/Logo";
 import type { User } from "../../Types/types";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("seller@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
-  const [accountType, setAccountType] = useState<string | null>("seller");
+  const [accountType, setAccountType] = useState<string | null>(null);
 
   const navigate = useNavigate();
-
-  // Auto login when component mounts (for testing purposes)
-  useEffect(() => {
-    handleSubmit({ preventDefault: () => {} } as React.FormEvent);
-  }, []);
 
   const addUser = useUserStore((state) => state.addUser);
   const addSeller = useSellerStore((state) => state.addSeller);
@@ -59,7 +54,7 @@ export default function LoginForm() {
    function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (accountType === "seller") {
-      sellerMutation.mutate();
+      sellerMutation.mutate({ email, password });
     } else {
       userMutation.mutate({ email, password });
     }

@@ -21,8 +21,8 @@ export default function SellerDashboard() {
     error: orderErr,
     status: orderStatus,
   } = useQuery({
-    queryKey: ["seller-orders"],
-    queryFn: getOrdersForSeller,
+    queryKey: ["seller-orders", seller?._id],
+    queryFn: () => getOrdersForSeller(seller?._id || ""),
     staleTime: Infinity,
     enabled: !!seller?._id,
   });
@@ -32,8 +32,8 @@ export default function SellerDashboard() {
     status: proStatus,
     error: proError,
   } = useQuery({
-    queryKey: ["seller-products"],
-    queryFn: getProductsForSeller,
+    queryKey: ["seller-products", seller?._id],
+    queryFn: () => getProductsForSeller(seller?._id || ""),
     staleTime: Infinity,
     enabled: !!seller?._id,
   });

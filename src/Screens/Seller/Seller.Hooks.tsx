@@ -16,14 +16,16 @@ export function requireSellerAuth() {
 }
 
 // ✅ Fetch all seller orders
-export async function getOrdersForSeller() {
+export async function getOrdersForSeller(id: string) {
   // Return dummy data for testing purposes
+  console.log("Fetching orders for seller:", id);
   return [];
 }
 
 // ✅ Fetch all products for a seller
-export async function getProductsForSeller() {
+export async function getProductsForSeller(id: string) {
   // Return dummy data for testing purposes
+  console.log("Fetching products for seller:", id);
   return [];
 }
 

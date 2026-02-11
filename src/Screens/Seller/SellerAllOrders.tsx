@@ -8,7 +8,7 @@ import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 export default function SellerAllOrders() {
   const seller = useSellerStore(state => state.seller)
   const { data: orders, status } = useCustomEnsureQuerty<Order[]>(["seller-orders", seller?._id],
-    getOrdersForSeller, seller?._id)
+    () => getOrdersForSeller(seller?._id || ""), seller?._id)
 
   const errMess = "Something went wrong"
 
