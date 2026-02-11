@@ -96,6 +96,9 @@ export default function HdfcReturnScreen() {
               <strong>Status:</strong>{" "}
               {data.status === "CHARGED" ? "Success" : data.status || "Unknown"}
             </p>
+            <p className="mb-4">
+              <strong>Transaction ID:</strong> {data.paymentId || "NA"}
+            </p>
             {data.status === "CHARGED" && data.orderCreated ? (
               <div className="space-y-3">
                 <p className="text-green-600 font-medium">

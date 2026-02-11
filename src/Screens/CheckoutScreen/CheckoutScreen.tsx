@@ -180,7 +180,7 @@ export default function CheckoutScreen(): JSX.Element {
   }
 
   // Success screen
-  if (status === "success") {
+  if (status === "success" && paymentMethod === "Manual") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
         <Confetti />
