@@ -1,5 +1,5 @@
 import { QueryFunction, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Order, Product } from "../../Types/types";
+import { Order } from "../../Types/types";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { redirect } from "react-router"; // ✅ added for route protection
@@ -16,13 +16,13 @@ export function requireSellerAuth() {
 }
 
 // ✅ Fetch all seller orders
-export async function getOrdersForSeller(id: string) {
+export async function getOrdersForSeller() {
   // Return dummy data for testing purposes
   return [];
 }
 
 // ✅ Fetch all products for a seller
-export async function getProductsForSeller(id?: string) {
+export async function getProductsForSeller() {
   // Return dummy data for testing purposes
   return [];
 }
