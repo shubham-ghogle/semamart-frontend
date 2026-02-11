@@ -8,7 +8,7 @@ export default function AdminSellerProductScreen() {
   const { sellerId } = useParams();
   const { data, status } = useQuery({
     queryKey: ["seller-products", sellerId],
-    queryFn: () => getProductsForSeller(sellerId),
+    queryFn: getProductsForSeller,
     enabled: !!sellerId,
   });
 

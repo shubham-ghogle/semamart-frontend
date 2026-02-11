@@ -56,10 +56,10 @@ export default function LoginForm() {
      },
    });
 
-  function handleSubmit(e: React.FormEvent) {
+   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (accountType === "seller") {
-      sellerMutation.mutate({ email, password });
+      sellerMutation.mutate();
     } else {
       userMutation.mutate({ email, password });
     }

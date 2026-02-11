@@ -35,7 +35,6 @@ const AdminDashboard = () => {
     data: dashboardData,
     isLoading: dashboardLoading,
     isError: dashboardIsError,
-    error: dashboardError,
   } = useQuery<DashboardSummary, Error>({
     queryKey: ["admin-dashboard-summary"],
     queryFn: getAdminDashboardSummary,
@@ -47,7 +46,6 @@ const AdminDashboard = () => {
     isLoading: ordersLoading,
     status: ordersStatus,
     isError: ordersIsError,
-    error: ordersError,
   } = useQuery({
     queryKey: ["admin-all-orders"],
     queryFn: getAllOrders,

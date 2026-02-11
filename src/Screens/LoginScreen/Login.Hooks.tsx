@@ -1,6 +1,6 @@
 // 🟢 Login.Hooks.js
 import { redirect } from "react-router";
-import { Seller, User } from "../../Types/types";
+import { User } from "../../Types/types";
 import { API_URL } from "@/data";
 
 type UserData = {
@@ -15,10 +15,7 @@ type PostUserApiResponse = {
   message?: string;
 };
 
-type PostSellerApiResponse = {
-  success: boolean;
-  user: Seller; // <-- corrected field name
-};
+
 
 export async function postUser(userData: UserData) {
   try {
@@ -44,7 +41,7 @@ export async function postUser(userData: UserData) {
   }
 }
 
-export async function postSeller(userData: UserData) {
+export async function postSeller() {
   try {
     // Return dummy data for testing purposes
     return {
@@ -61,7 +58,7 @@ export async function postSeller(userData: UserData) {
         role: "Seller",
         profilePic: "",
         banner: "",
-        avatar: null,
+        avatar: undefined,
         address: "123 Test Street, Test City",
         zipCode: 123456,
         availableBalance: 0,
