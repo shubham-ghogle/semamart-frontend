@@ -49,7 +49,14 @@ interface Order {
   paymentInfo?: {
     method?: string;
     status?: string;
+    transactionId?: string;
   };
+  paymentAttempts?: {
+    attemptedAt?: string;
+    status?: string;
+    paymentId?: string;
+    message?: string;
+  }[];
   shop?: {
     businessName?: string;
   };
@@ -410,6 +417,35 @@ const OrderSummary = () => {
                   <span>{order.paymentInfo?.method || "Manual"}</span>
                 </div>
               </div>
+              <div className="mt-2 bg-gray-50 rounded-lg p-3 text-sm text-gray-700 space-y-1">
+                <div className="flex justify-between">
+                  <span>Payment Status</span>
+                  <span className="font-semibold">{order.paymentInfo?.status || "Pending"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Transaction ID</span>
+                  <span className="font-semibold">{order.paymentInfo?.transactionId || "NA"}</span>
+                </div>
+              </div>
+
+              {order.paymentAttempts && order.paymentAttempts.length > 0 && (
+                <div className="mt-3 bg-gray-50 rounded-lg p-3 text-sm text-gray-700">
+                  <h4 className="font-semibold mb-2">Payment Attempts</h4>
+                  <div className="space-y-2 max-h-36 overflow-auto">
+                    {order.paymentAttempts
+                      .slice()
+                      .reverse()
+                      .map((attempt, idx) => (
+                        <div key={idx} className="border rounded p-2 bg-white">
+                          <p>Status: <strong>{attempt.status || "NA"}</strong></p>
+                          <p>Txn ID: <strong>{attempt.paymentId || "NA"}</strong></p>
+                          <p>At: <strong>{attempt.attemptedAt ? new Date(attempt.attemptedAt).toLocaleString() : "NA"}</strong></p>
+                          <p>Message: <strong>{attempt.message || "NA"}</strong></p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Download Invoice */}
               <button

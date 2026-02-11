@@ -189,6 +189,15 @@ type PaymentInfo = {
   // paidAt?: string;
 };
 
+type PaymentAttempt = {
+  attemptedAt?: string;
+  gateway?: string;
+  status?: string;
+  paymentId?: string;
+  orderGroupId?: string;
+  message?: string;
+};
+
 export type Order = {
   _id: string;
   cart?: {
@@ -214,6 +223,7 @@ export type Order = {
     | "Processing refund"
     | "Refund Success";
   paymentInfo?: PaymentInfo;
+  paymentAttempts?: PaymentAttempt[];
   paidAt?: Date;
   deliveredAt?: Date;
   createdAt?: Date;

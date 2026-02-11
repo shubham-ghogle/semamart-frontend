@@ -177,20 +177,38 @@ const shippedDate = shippedDateRaw
             })}`}
           />
 
-          {/* <OrderDetailsField
+          <OrderDetailsField
             label="Status:"
-            value={
-              data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"
-            }
+            value={data?.paymentInfo?.status || "Pending"}
           />
           <OrderDetailsField
             label="Method:"
-            value={
-              data?.paymentInfo?.method ? data?.paymentInfo?.method : "Not Paid"
-            }
-          /> */}
+            value={data?.paymentInfo?.method || "NA"}
+          />
+          <OrderDetailsField
+            label="Transaction ID:"
+            value={data?.paymentInfo?.transactionId || "NA"}
+          />
         </div>
       </section>
+      {data?.paymentAttempts && data.paymentAttempts.length > 0 && (
+        <section className="mt-4 border-b pb-4">
+          <h4 className="text-lg font-semibold mb-2">Payment Attempts</h4>
+          <div className="space-y-2 max-h-44 overflow-auto">
+            {data.paymentAttempts
+              .slice()
+              .reverse()
+              .map((attempt: any, idx: number) => (
+                <div key={idx} className="border rounded p-2 bg-gray-50 text-sm">
+                  <p>Status: <strong>{attempt?.status || "NA"}</strong></p>
+                  <p>Txn ID: <strong>{attempt?.paymentId || "NA"}</strong></p>
+                  <p>At: <strong>{attempt?.attemptedAt ? formatDate(attempt.attemptedAt) : "NA"}</strong></p>
+                  <p>Message: <strong>{attempt?.message || "NA"}</strong></p>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
       <section className="mt-6 flex justify-between border-b pb-4">
         <h4 className="text-xl">Shipping Address:</h4>
         <article>

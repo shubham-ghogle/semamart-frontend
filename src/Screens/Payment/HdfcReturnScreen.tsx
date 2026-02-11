@@ -111,6 +111,18 @@ export default function HdfcReturnScreen() {
                   View Orders
                 </button>
               </div>
+            ) : data.orderCreated ? (
+              <div className="space-y-3">
+                <p className="text-yellow-700 font-medium">
+                  Payment failed, but order is created. Please retry payment from My Orders.
+                </p>
+                <button
+                  className="px-4 py-2 bg-gray-800 text-white rounded"
+                  onClick={() => navigate("/account/orders")}
+                >
+                  Go to My Orders
+                </button>
+              </div>
             ) : (
               <div className="space-y-3">
                 <p className="text-red-600 font-medium">

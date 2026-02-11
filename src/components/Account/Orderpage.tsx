@@ -54,6 +54,12 @@ const Orderpage = () => {
 
   const getStatusInfo = (order: Order) => {
     if (order.status === "Created") {
+      if (order.paymentInfo?.status === "Failed") {
+        return {
+          label: "Payment failed - pay again",
+          color: "bg-red-500",
+        };
+      }
       if (order.paymentFile) {
         return {
           label: "Waiting for payment verification",
