@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API_URL } from "@/data";
+import { useCartStore } from "@/store/cartStore";
 
 type ConfirmResponse = {
   success: boolean;
@@ -8,6 +9,7 @@ type ConfirmResponse = {
   orderId?: string;
   paymentId?: string;
   amount?: number;
+  orderCreated?: boolean;
   message?: string;
 };
 
@@ -17,6 +19,7 @@ export default function HdfcReturnScreen() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ConfirmResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const clearCart = useCartStore((s) => s.clearCart);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -41,6 +44,9 @@ export default function HdfcReturnScreen() {
         );
         const result = await res.json();
         if (!res.ok) throw new Error(result.message || "Failed to confirm payment");
+        if (result?.status === "CHARGED" && result?.orderCreated) {
+          clearCart();
+        }
         setData(result);
       } catch (err: any) {
         setError(err.message || "Failed to confirm payment");
@@ -65,9 +71,9 @@ export default function HdfcReturnScreen() {
             <p className="text-red-600 mb-4">{error}</p>
             <button
               className="px-4 py-2 bg-gray-800 text-white rounded"
-              onClick={() => navigate("/account/orders")}
+              onClick={() => navigate("/checkout")}
             >
-              Go to Orders
+              Back to Checkout
             </button>
           </>
         )}
@@ -90,12 +96,31 @@ export default function HdfcReturnScreen() {
               <strong>Status:</strong>{" "}
               {data.status === "CHARGED" ? "Success" : data.status || "Unknown"}
             </p>
-            <button
-              className="px-4 py-2 bg-green-600 text-white rounded"
-              onClick={() => navigate("/account/orders")}
-            >
-              View Orders
-            </button>
+            {data.status === "CHARGED" && data.orderCreated ? (
+              <div className="space-y-3">
+                <p className="text-green-600 font-medium">
+                  Payment successful and order created.
+                </p>
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  onClick={() => navigate("/account/orders")}
+                >
+                  View Orders
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-red-600 font-medium">
+                  Payment failed or interrupted. Order not created.
+                </p>
+                <button
+                  className="px-4 py-2 bg-gray-800 text-white rounded"
+                  onClick={() => navigate("/checkout")}
+                >
+                  Back to Checkout
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
