@@ -46,18 +46,32 @@ export async function postUser(userData: UserData) {
 
 export async function postSeller(userData: UserData) {
   try {
-    const res = await fetch(API_URL + "shop/login-shop", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    // Return dummy data for testing purposes
+    return {
+      success: true,
+      user: {
+        _id: "test-seller-1",
+        firstName: "Test",
+        lastName: "Seller",
+        businessName: "Test Shop",
+        businessType: "Retail",
+        gstNumber: "123456789012",
+        email: "seller@example.com",
+        phoneNumber: "0987654321",
+        role: "Seller",
+        profilePic: "",
+        banner: "",
+        avatar: null,
+        address: "123 Test Street, Test City",
+        zipCode: 123456,
+        availableBalance: 0,
+        createdAt: "2023-10-05T14:48:00.000Z",
+        verified: true,
+        password: "password123",
+        transections: [],
+        __v: 0,
       },
-      credentials: "include",
-      body: JSON.stringify(userData),
-    });
-    const data = (await res.json()) as PostSellerApiResponse;
-    if (!res.ok) throw new Error(res.statusText);
-    if (!data.success) throw new Error(res.statusText);
-    return data;
+    };
   } catch {
     throw new Error("Something went wrong");
   }
