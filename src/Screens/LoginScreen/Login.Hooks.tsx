@@ -1,6 +1,6 @@
 // 🟢 Login.Hooks.js
 import { redirect } from "react-router";
-import { User } from "../../Types/types";
+import { Seller, User } from "../../Types/types";
 import { API_URL } from "@/data";
 
 type UserData = {
@@ -11,6 +11,13 @@ type UserData = {
 type PostUserApiResponse = {
   success: boolean;
   user?: User;
+  token?: string;
+  message?: string;
+};
+
+type PostSellerApiResponse = {
+  success: boolean;
+  user?: Seller;
   token?: string;
   message?: string;
 };
@@ -43,34 +50,23 @@ export async function postUser(userData: UserData) {
 
 export async function postSeller(userData: UserData) {
   try {
-    // Return dummy data for testing purposes
-    return {
-      success: true,
-      user: {
-        _id: "test-seller-1",
-        firstName: "Test",
-        lastName: "Seller",
-        businessName: "Test Shop",
-        businessType: "Retail",
-        gstNumber: "123456789012",
-        email: userData.email,
-        phoneNumber: "0987654321",
-        role: "Seller",
-        profilePic: "",
-        banner: "",
-        avatar: undefined,
-        address: "123 Test Street, Test City",
-        zipCode: 123456,
-        availableBalance: 0,
-        createdAt: "2023-10-05T14:48:00.000Z",
-        verified: true,
-        password: userData.password,
-        transections: [],
-        __v: 0,
+    const res = await fetch(API_URL + "shop/login-shop", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    };
-  } catch {
-    throw new Error("Something went wrong");
+      credentials: "include",
+      body: JSON.stringify(userData),
+    });
+
+    const data = (await res.json()) as PostSellerApiResponse;
+
+    if (!res.ok) throw new Error(data?.message || "Seller login failed");
+    if (!data.success) throw new Error(data?.message || "Seller login failed");
+
+    return data;
+  } catch (err: any) {
+    throw new Error(err?.message || "Something went wrong");
   }
 }
 

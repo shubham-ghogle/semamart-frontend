@@ -9,7 +9,7 @@ import { useSellerStore } from "../../store/sellerStore";
 import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
 import { loginFailureToast } from "../UIComponents/Toasts";
 import { Logo } from "../UIComponents/Logo";
-import type { User } from "../../Types/types";
+import type { Seller, User } from "../../Types/types";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -43,7 +43,13 @@ export default function LoginForm() {
   const sellerMutation = useMutation({
      mutationFn: postSeller,
      onSuccess: (data) => {
-       addSeller(data.user);
+       const maybeSeller = data?.user as Seller | undefined;
+       if (!maybeSeller) {
+         console.error("postSeller returned unexpected shape:", data);
+         loginFailureToast("Seller login failed (unexpected response)");
+         return;
+       }
+       addSeller(maybeSeller);
        navigate("/seller");
      },
      onError: (a) => {
