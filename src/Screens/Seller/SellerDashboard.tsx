@@ -4,10 +4,13 @@ import { CiDeliveryTruck } from "react-icons/ci";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import { useSellerStore } from "../../store/sellerStore";
 import { useQuery } from "@tanstack/react-query";
-import { getOrdersForSeller, getProductsForSeller } from "./Seller.Hooks";
+import {
+  getDeliveredOrdersForSeller,
+  getOrdersForSeller,
+  getProductsForSeller,
+} from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
-import { getSellerDashboardStats } from "./Seller.Hooks";
 import { Coins } from "lucide-react";
 
 type status = "pending" | "success" | "error";
@@ -39,26 +42,25 @@ export default function SellerDashboard() {
   });
 
   const {
-    data: dashboardStats,
+    data: deliveredOrdersData,
+    status: deliveredStatus,
+    error: deliveredErr,
   } = useQuery({
-    queryKey: ["seller-dashboard-stats"],
-    queryFn: getSellerDashboardStats,
-    staleTime: Infinity,
+    queryKey: ["seller-delivered-orders", seller?._id],
+    queryFn: getDeliveredOrdersForSeller,
+    staleTime: 60 * 1000,
     enabled: !!seller?._id,
-    // Fallback data if API fails
-    initialData: {
-      success: true,
-      totalSales: 0,
-      deliveredOrders: 0,
-    },
   });
 
   const isSuccess =
     orderStatus === "success" &&
-    proStatus === "success";
+    proStatus === "success" &&
+    deliveredStatus === "success";
 
   const isError =
-    orderStatus === "error" || proStatus === "error";
+    orderStatus === "error" ||
+    proStatus === "error" ||
+    deliveredStatus === "error";
 
   let overAllStatus: status = "pending";
   if (isSuccess) overAllStatus = "success";
@@ -67,26 +69,27 @@ export default function SellerDashboard() {
   const overAllError =
     proError?.message ||
     orderErr?.message ||
+    (deliveredErr as Error | null)?.message ||
     "Something went wrong";
 
-  // Filter for delivered orders to match your screenshot requirements
   const deliveredOrders =
-    orders?.filter((o: any) => o.status === "Delivered") || [];
+    deliveredOrdersData?.filter((o: any) => o.status === "Delivered") ?? [];
 
-  // Calculate total commission (Platform Fees) for those delivered orders
-  const totalPlatformFees = deliveredOrders.reduce(
-    (acc: number, order: any) => {
+  const totals = deliveredOrders.reduce(
+    (acc: { totalSales: number; totalRevenue: number }, order: any) => {
       const pid =
         typeof order.variant === "object" ? order.variant?.productId : null;
       const commissionPerUnit =
         pid && typeof pid === "object" ? (pid.commission ?? 0) : 0;
-      return acc + commissionPerUnit * (order.qty ?? 0);
-    },
-    0,
-  );
+      const orderTotal = order.totalPrice || 0;
+      const commissionAmount = commissionPerUnit * (order.qty ?? 0);
 
-  // Calculate Net Revenue
-  const netRevenue = (dashboardStats?.totalSales ?? 0) - totalPlatformFees;
+      acc.totalSales += orderTotal;
+      acc.totalRevenue += orderTotal - commissionAmount;
+      return acc;
+    },
+    { totalSales: 0, totalRevenue: 0 },
+  );
 
   const variants = products?.flatMap((p: any) => p.variants) || [];
 
@@ -116,7 +119,7 @@ export default function SellerDashboard() {
       // admin color: from-yellow-500 to-orange-500
       color: "from-yellow-500 to-orange-500",
       Icon: Coins,
-      value: dashboardStats?.totalSales ?? 0,
+      value: totals.totalSales,
       onClick: () => navigate("/seller/orders/delivered"),
     },
     {
@@ -125,7 +128,7 @@ export default function SellerDashboard() {
       // admin color: from-pink-500 to-rose-500
       color: "from-pink-500 to-rose-500",
       Icon: Coins,
-      value: netRevenue,
+      value: totals.totalRevenue,
       onClick: () => navigate("/seller/orders/delivered"),
     },
   ];
