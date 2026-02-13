@@ -67,10 +67,16 @@ export default function GroupPaymentDialog({ orders }: GroupPaymentDialogProps) 
 
     setIsRedirecting(true);
     try {
+      const idsToPay =
+        selectedIds.length > 0 ? selectedIds : payableOrders.map((o) => o._id);
+
       const res = await fetch(API_URL + "order/create-payment-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderIds: selectedIds }),
+        body: JSON.stringify({
+          orderIds: idsToPay,
+          selectedOrderIds: idsToPay,
+        }),
       });
 
       const data = await res.json();
@@ -88,11 +94,13 @@ export default function GroupPaymentDialog({ orders }: GroupPaymentDialogProps) 
   const { mutate: uploadManualPayment, isPending } = useMutation({
     mutationFn: async (file: File | null) => {
       if (!file) throw new Error("Add payment file");
-      if (selectedIds.length === 0) throw new Error("Select at least one order");
+      const idsToPay =
+        selectedIds.length > 0 ? selectedIds : payableOrders.map((o) => o._id);
+      if (idsToPay.length === 0) throw new Error("Select at least one order");
 
       const formData = new FormData();
       formData.append("payment_file", file);
-      formData.append("orderIds", JSON.stringify(selectedIds));
+      formData.append("orderIds", JSON.stringify(idsToPay));
 
       const res = await fetch(API_URL + "order/update-order-payment-bulk", {
         method: "PUT",
