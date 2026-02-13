@@ -15,6 +15,8 @@ type Row = {
   commission: number;
   qty: number;  
   orderedOn: string;
+  orderedAtTs: number;
+  groupStyle: string;
   productName: string;
   sellerPayout: number;
   viewOrder: (orderId: string) => void;
@@ -26,8 +28,9 @@ type AdminOrderTableProps = {
 
 export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const navigate = useNavigate();
+  const GROUP_WINDOW_MS = 15 * 60 * 1000;
 
-  const rows: Row[] = orders.map((el) => {
+  const baseRows: Row[] = orders.map((el) => {
     // Defensive extraction of product name — handle null, string, nested object
     let productName = "-";
     let commission=0;
@@ -51,9 +54,24 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     }
     
 
+    const paymentMethod = (el.paymentInfo?.method || "").toLowerCase();
+    const paymentStatus = (el.paymentInfo?.status || "").toLowerCase();
+    const isOnlinePaid =
+      ["hdfc", "online", "razorpay"].includes(paymentMethod) ||
+      paymentStatus === "paid";
+
+    const displayStatus =
+      el.status === "Paid"
+        ? (isOnlinePaid ? "Processing" : "Verify Payment")
+        : (el.status || "-");
+
+    const orderedAtTs = el.createdAt
+      ? new Date(el.createdAt).getTime()
+      : 0;
+
     return {
       id: el._id,
-      status: el.status === "Paid" ? "Verify Payment" : el.status || "-",
+      status: displayStatus,
       customer: typeof el.user === "string" ? "-" : (el.user?.instituteName ?? "-"),
       shop: typeof el.shop === "string" ? "-" : (el.shop?.businessName ?? "-"),
       productName,
@@ -62,12 +80,64 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       commission: commission * (el.qty ?? 0),
       qty: el.qty ?? 0,
       orderedOn: el.createdAt ? new Date(el.createdAt).toLocaleDateString("en-IN") : "-",
+      orderedAtTs,
+      groupStyle: "",
       viewOrder: (orderId: string) => {
         // navigate to a sensible path — adjust if your route differs
         navigate(`/admin/orders/${orderId}`);
       },
     };
   });
+
+  const rows: Row[] = (() => {
+    const groupStyles = [
+      "border-l-4 border-l-sky-400 bg-sky-100",
+      "border-l-4 border-l-emerald-400 bg-emerald-100",
+      "border-l-4 border-l-amber-400 bg-amber-100",
+      "border-l-4 border-l-rose-400 bg-rose-100",
+      "border-l-4 border-l-violet-400 bg-violet-100",
+    ];
+
+    const byCustomerTimeAsc = [...baseRows].sort((a, b) => {
+      if (a.customer !== b.customer) {
+        return a.customer.localeCompare(b.customer);
+      }
+      return a.orderedAtTs - b.orderedAtTs;
+    });
+
+    let groupCounter = 0;
+    let prevCustomer = "";
+    let prevTs = -1;
+    const groupMap = new Map<string, number>();
+
+    for (const row of byCustomerTimeAsc) {
+      const isNewGroup =
+        row.customer !== prevCustomer ||
+        prevTs < 0 ||
+        Math.abs(row.orderedAtTs - prevTs) > GROUP_WINDOW_MS;
+
+      if (isNewGroup) {
+        groupCounter += 1;
+      }
+
+      groupMap.set(row.id, groupCounter);
+      prevCustomer = row.customer;
+      prevTs = row.orderedAtTs;
+    }
+
+    return [...baseRows]
+      .map((row) => ({
+        ...row,
+        groupStyle:
+          groupStyles[((groupMap.get(row.id) || 1) - 1) % groupStyles.length],
+      }))
+      .sort((a, b) => {
+        const groupA = groupMap.get(a.id) || 0;
+        const groupB = groupMap.get(b.id) || 0;
+        if (groupA !== groupB) return groupB - groupA;
+        return b.orderedAtTs - a.orderedAtTs;
+      });
+  })();
 
   const columns: ColumnDef<Row>[] = [
     {
@@ -92,6 +162,11 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     {
       accessorKey: "orderedOn",
       header: "Date",
+      cell: ({ row }) => (
+        <div className={`pl-2 pr-2 py-1 rounded-sm ${row.original.groupStyle}`}>
+          {row.original.orderedOn}
+        </div>
+      ),
     },
     {
       accessorKey: "id",

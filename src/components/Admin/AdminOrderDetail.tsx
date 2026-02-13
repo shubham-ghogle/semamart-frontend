@@ -20,6 +20,19 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   const { mutationStatus, mutateOrder } = useAdminOrderMutation();
   const [status, setStatus] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
+  const formatDateTime = (dateValue?: string | Date) => {
+    if (!dateValue) return "NA";
+    const d = new Date(dateValue);
+    if (Number.isNaN(d.getTime())) return "NA";
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
 
   const getOptionsForStatus = () => {
@@ -70,8 +83,17 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   }
 };
 
+  const paymentMethod = (data?.paymentInfo?.method || "").toLowerCase();
+  const paymentStatus = (data?.paymentInfo?.status || "").toLowerCase();
+  const isOnlinePaidOrder =
+    data.status === "Paid" &&
+    (["hdfc", "online", "razorpay"].includes(paymentMethod) ||
+      paymentStatus === "paid");
 
-  const orderStatus = data.status === "Paid" ? "Paid: Verify Payment" : data.status
+  const orderStatus =
+    data.status === "Paid"
+      ? (isOnlinePaidOrder ? "Processing" : "Paid: Verify Payment")
+      : data.status;
   const isShipped =
   ["Shipped", "Out for Delivery", "Delivered"].includes(data.status);
 
@@ -96,7 +118,9 @@ const shippedDate = shippedDateRaw
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
-        <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
+        {!isOnlinePaidOrder && (
+          <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
+        )}
           <Button
             variant="outline"
             onClick={() => handleDownloadInvoice(orderId, data.status)}
@@ -202,7 +226,7 @@ const shippedDate = shippedDateRaw
                 <div key={idx} className="border rounded p-2 bg-gray-50 text-sm">
                   <p>Status: <strong>{attempt?.status || "NA"}</strong></p>
                   <p>Txn ID: <strong>{attempt?.paymentId || "NA"}</strong></p>
-                  <p>At: <strong>{attempt?.attemptedAt ? formatDate(attempt.attemptedAt) : "NA"}</strong></p>
+                  <p>At: <strong>{formatDateTime(attempt?.attemptedAt)}</strong></p>
                   <p>Message: <strong>{attempt?.message || "NA"}</strong></p>
                 </div>
               ))}

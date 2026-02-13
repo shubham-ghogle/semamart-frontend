@@ -71,6 +71,7 @@ interface DataTableProps<TData, TValue> {
   statusColumnId?: string;
   statusOptions?: string[];
   onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
+  getRowClassName?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -90,6 +91,7 @@ export function DataTable<TData, TValue>({
   enableStatusFilter = false,
   statusColumnId,
   statusOptions = ["All", "Created", "Processing", "Shipped", "Delivered"],
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -462,6 +464,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={getRowClassName ? getRowClassName(row.original) : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
