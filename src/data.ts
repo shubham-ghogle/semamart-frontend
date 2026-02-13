@@ -1,6 +1,6 @@
-// // // // local dev apis
-export const API_URL = "http://localhost:8000/api/v2/";
-export const BASE_URL = "http://localhost:8000/"
+// // // // // local dev apis
+// export const API_URL = "http://localhost:8000/api/v2/";
+// export const BASE_URL = "http://localhost:8000/"
 
 
 // //live apis
@@ -13,6 +13,6 @@ export const BASE_URL = "http://localhost:8000/"
 // export const BASE_URL = "https://test.semamart.com/"
 
 
-// //beta apis
-// export const API_URL = "https://beta.semamart.com/api/v2/"
-// export const BASE_URL = "https://beta.semamart.com/"
+//beta apis
+export const API_URL = "https://beta.semamart.com/api/v2/"
+export const BASE_URL = "https://beta.semamart.com/"
