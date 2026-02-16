@@ -104,9 +104,9 @@ const OrderSummary = () => {
 
         if (!data.success) throw new Error("Failed to fetch orders");
 
-        const foundOrder = data.orders.find(
-          (o: Order) => o.variant?.productId?._id === productId
-        );
+        const foundOrder =
+          data.orders.find((o: Order) => o._id === productId) ||
+          data.orders.find((o: Order) => o.variant?.productId?._id === productId);
 
         if (!foundOrder) {
           setError("No order found for this product");
@@ -174,6 +174,13 @@ const OrderSummary = () => {
 
   const shippingAddress = order.shippingAddress;
   const trackingDetails = order.trackingDetails;
+  const paymentMethod = (order.paymentInfo?.method || "").toLowerCase();
+  const isOnlinePayment = ["hdfc", "online", "razorpay"].includes(paymentMethod);
+  const displayPaymentStatus =
+    order.paymentInfo?.status === "Pending" &&
+    ["Processing", "Packed", "Shipped", "Delivered"].includes(order.status)
+      ? "Paid"
+      : (order.paymentInfo?.status || "Pending");
 
   // Improved Timeline
    const statusSteps = [
@@ -224,7 +231,9 @@ const OrderSummary = () => {
                 </p>
                 <p className="text-xs text-gray-500">Qty: {order.qty}</p>
                 <div className="mt-2">
-                   <PaymentViewDialog paymentData={order.paymentFile ?? null}  />
+                  {!isOnlinePayment && (
+                    <PaymentViewDialog paymentData={order.paymentFile ?? null} />
+                  )}
                 </div>
                 
               </div>
@@ -420,11 +429,13 @@ const OrderSummary = () => {
               <div className="mt-2 bg-gray-50 rounded-lg p-3 text-sm text-gray-700 space-y-1">
                 <div className="flex justify-between">
                   <span>Payment Status</span>
-                  <span className="font-semibold">{order.paymentInfo?.status || "Pending"}</span>
+                  <span className="font-semibold">{displayPaymentStatus}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Transaction ID</span>
-                  <span className="font-semibold">{order.paymentInfo?.transactionId || "NA"}</span>
+                  <span className="font-semibold text-right break-all max-w-[60%]">
+                    {order.paymentInfo?.transactionId || "NA"}
+                  </span>
                 </div>
               </div>
 
@@ -438,7 +449,12 @@ const OrderSummary = () => {
                       .map((attempt, idx) => (
                         <div key={idx} className="border rounded p-2 bg-white">
                           <p>Status: <strong>{attempt.status || "NA"}</strong></p>
-                          <p>Txn ID: <strong>{attempt.paymentId || "NA"}</strong></p>
+                          <p>
+                            Txn ID:{" "}
+                            <strong className="break-all inline-block align-top">
+                              {attempt.paymentId || "NA"}
+                            </strong>
+                          </p>
                           <p>At: <strong>{attempt.attemptedAt ? new Date(attempt.attemptedAt).toLocaleString() : "NA"}</strong></p>
                           <p>Message: <strong>{attempt.message || "NA"}</strong></p>
                         </div>

@@ -155,6 +155,17 @@ const Orderpage = () => {
     navigate(`/account/orders/${productId}`);
   };
 
+  const isOnlinePaidOrder = (order: Order) => {
+    const method = (order.paymentInfo?.method || "").toLowerCase();
+    return ["hdfc", "online", "razorpay"].includes(method);
+  };
+
+  const canOpenOrderDetails = (order: Order) => {
+    if (order.status === "Created") return false;
+    if (order.status === "Paid" && !isOnlinePaidOrder(order)) return false;
+    return true;
+  };
+
   /* ---------------- GROUP BY createdAt (DESC) ---------------- */
 
   const sortedOrders = [...(filteredOrders ?? [])].sort(
@@ -333,7 +344,7 @@ const Orderpage = () => {
               >
                 {group.length > 1 && (
                   <div className="border-b pb-3">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                       <div>
                         <p className="text-gray-500">Order placed</p>
                         <p className="font-semibold text-gray-900">
@@ -371,12 +382,6 @@ const Orderpage = () => {
                         </p>
                       </div>
 
-                      <div className="md:text-right">
-                        <p className="text-gray-500">Order Ref</p>
-                        <p className="font-semibold text-gray-900">
-                          #{group[0]?._id?.slice(-10)} ({group.length} items)
-                        </p>
-                      </div>
                     </div>
 
                     <div className="mt-3 flex justify-end">
@@ -399,11 +404,7 @@ const Orderpage = () => {
                   return (
                     <div
                       key={order._id}
-                      onClick={() =>
-                        (order.status !== "Created" &&
-                          order.status !== "Paid") &&
-                        handleOrderClick(product._id)
-                      }
+                      onClick={() => canOpenOrderDetails(order) && handleOrderClick(order._id)}
                       className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 cursor-pointer"
                     >
                       <div className="sm:col-span-2">
