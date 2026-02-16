@@ -47,9 +47,47 @@ export default function BestSellerShowcase({
   const [showRight, setShowRight] = useState(false);
   const [leftArrowLeft, setLeftArrowLeft] = useState<number>(20);
 
-  const items = useMemo(() => {
+  // --- Helpers to determine minimum order and stock availability ---
+  const getMinOrder = (product: Product): number => {
+    try {
+      // 1) check product.minmaxrule.minOrder
+      if (product.minmaxrule && typeof product.minmaxrule.minOrder === "number") {
+        return product.minmaxrule.minOrder;
+      }
+
+      // 2) otherwise, look for smallest bulkOrders qty across variants
+      const bulkQtys: number[] =
+        product.variants
+          ?.flatMap((v: any) => (Array.isArray(v.bulkOrders) ? v.bulkOrders.map((b: any) => Number(b.qty || 0)).filter(Boolean) : [])) ?? [];
+
+      if (bulkQtys.length > 0) return Math.min(...bulkQtys);
+
+      // 3) fallback minimum order = 1
+      return 1;
+    } catch {
+      return 1;
+    }
+  };
+
+  const hasSufficientStock = (product: Product): boolean => {
+    if (!product || !Array.isArray(product.variants) || product.variants.length === 0) return false;
+
+    const minOrder = getMinOrder(product);
+
+    // any positive stock?
+    const anyPositive = product.variants.some((v: any) => typeof v.stock === "number" && v.stock > 0);
+    if (!anyPositive) return false;
+
+    // require at least one variant with stock >= minOrder
+    const meetsMin = product.variants.some((v: any) => typeof v.stock === "number" && v.stock >= minOrder);
+    return meetsMin;
+  };
+
+  // build list and filter out products that don't meet stock/min-order criteria
+  const filteredItems = useMemo(() => {
     const arr = Array.isArray(products) ? products : [];
-    return arr.slice(0, maxItems);
+    const pass = arr.filter((p) => hasSufficientStock(p));
+    return pass.slice(0, maxItems);
   }, [products, maxItems]);
 
   useEffect(() => {
@@ -84,7 +122,7 @@ export default function BestSellerShowcase({
       ro.disconnect();
       window.removeEventListener("resize", check);
     };
-  }, [items.length]);
+  }, [filteredItems.length]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
@@ -111,7 +149,7 @@ export default function BestSellerShowcase({
       </section>
     );
 
-  if (items.length === 0)
+  if (filteredItems.length === 0)
     return (
       <section className="w-full mb-12">
         <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
@@ -196,7 +234,7 @@ export default function BestSellerShowcase({
           >
             <style>{`div::-webkit-scrollbar { display: none !important; }`}</style>
 
-            {items.map((p) => (
+            {filteredItems.map((p) => (
               <div
                 key={p._id}
                 className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
