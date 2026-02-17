@@ -21,7 +21,7 @@ const AdminDashboard = () => {
 
   // --- Modal & Form States ---
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(""); // "Product Manager" or "Accountant"
+  const [selectedRole] = useState(""); // "Product Manager" or "Accountant"
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
           {/* 1. Welcome Message */}
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-              Welcome back, Admin 👋
+              Welcome back 👋
             </h1>
           </div>
 
