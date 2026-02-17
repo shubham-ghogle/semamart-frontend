@@ -141,7 +141,10 @@ export default function HeroSectionUploader() {
 
   /* -------- FETCH -------- */
   useEffect(() => {
-    fetch(API_URL+"heroslider/getallimg")
+      fetch(API_URL + "heroslider/getallimg", {
+        method: "GET",
+        credentials: "include", // ✅ send cookie
+      })
       .then((r) => r.json())
       .then((res) => {
         const r0 = res.data?.[0];

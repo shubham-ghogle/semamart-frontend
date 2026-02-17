@@ -31,7 +31,11 @@ const SectionBannerUploader: React.FC = () => {
   // Fetch banners from API
  const fetchBanners = async () => {
   try {
-    const res = await fetch(API_URL+"sectionbanner/getallsectionbanner");
+    const res = await fetch(API_URL + "sectionbanner/getallsectionbanner", {
+      method: "GET",
+      credentials: "include", // ✅ include cookie
+    });
+
     const data = await res.json();
 
     if (data.success && data.data.length) {

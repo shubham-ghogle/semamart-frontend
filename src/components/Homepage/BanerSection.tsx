@@ -33,7 +33,7 @@ export default function BannerSection({
   const [banners, setBanners] = useState<BannerItem[]>([]);
 
   useEffect(() => {
-    fetch(API_URL + "sectionbanner/getallsectionbanner")
+    fetch(API_URL + "sectionbanner/getsectionbanner")
       .then((res) => res.json())
       .then((result) => setBanners(result.data || []))
       .catch((err) => console.error("Banner fetch error:", err));

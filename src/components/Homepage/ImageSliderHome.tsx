@@ -59,7 +59,7 @@ export default function ImageSliderHome() {
   useEffect(() => {
     const fetchHero = async () => {
       try {
-        const res = await fetch(API_URL + "heroslider/getallimg");
+        const res = await fetch(API_URL + "heroslider/getheroimg");
         if (!res.ok) throw new Error("Hero API failed");
 
         const json = await res.json();

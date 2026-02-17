@@ -1,5 +1,4 @@
-"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
@@ -9,40 +8,90 @@ import { loginFailureToast } from "@/components/UIComponents/Toasts";
 import { postUser } from "../LoginScreen/Login.Hooks";
 import { useUserStore } from "@/store/userStore";
 import type { User } from "@/Types/types";
+import { API_URL } from "@/data";
+
+
+
+/* -------------------- Role Type -------------------- */
+type Role = {
+  _id: string;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<string>("Admin"); // Default role is Admin
+  const [role, setRole] = useState<string>("Admin"); // default selected
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+
   const navigate = useNavigate();
   const addUser = useUserStore((state) => state.addUser);
 
+  /* -------------------- Fetch Roles -------------------- */
+  const fetchRoles = async () => {
+    try {
+      setRolesLoading(true);
+
+      const res = await fetch(`${API_URL}user/get-roles`, {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to fetch roles");
+
+      const fetchedRoles: Role[] = data.roles || [];
+
+      // Inject Admin manually at the top
+      const adminRole: Role = {
+        _id: "admin-static-id",
+        name: "Admin",
+      };
+
+      setRoles([adminRole, ...fetchedRoles]);
+
+      // Always default select Admin
+      setRole("Admin");
+    } catch (err) {
+      console.error("Failed to fetch roles:", err);
+
+      // Even if API fails, still show Admin
+      setRoles([
+        {
+          _id: "admin-static-id",
+          name: "Admin",
+        },
+      ]);
+      setRole("Admin");
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  /* -------------------- Login Mutation -------------------- */
   const { mutate, status } = useMutation({
     mutationFn: postUser,
     onSuccess: (data: any) => {
       const maybeUser = data?.user as User | undefined;
+
       if (!maybeUser) {
-        console.error("postUser returned unexpected shape:", data);
         loginFailureToast("Login failed (unexpected response)");
         return;
       }
 
-      // Optional: ensure the returned role matches selected role
-      if (maybeUser.role !== role) {
-        loginFailureToast(`User is not assigned the ${role} role`);
-        return;
-      }
-
-      // Save user with permissions to global store
       addUser(maybeUser);
-
-      // Navigate to admin page for all roles
       navigate("/admin");
     },
     onError: (err: any) => {
-      console.error("Admin login error:", err);
-      loginFailureToast(err?.message || "Invalid email, password, or role");
+      loginFailureToast(err?.message || "Invalid email or password");
     },
   });
 
@@ -51,10 +100,11 @@ export default function AdminLoginForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Ensure role is sent; defaults to "Admin"
-    const selectedRole = role || "Admin";
-
-    mutate({ email, password, role: selectedRole });
+    mutate({
+      email,
+      password,
+      role,
+    });
   }
 
   return (
@@ -63,7 +113,7 @@ export default function AdminLoginForm() {
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <Logo />
-          <h2 className="text-3xl font-extrabold text-[#1C647C] drop-shadow-lg text-center">
+          <h2 className="text-3xl font-extrabold text-[#1C647C] text-center">
             Administrators Login
           </h2>
           <p className="text-base text-gray-700 mt-1 text-center font-medium">
@@ -71,29 +121,27 @@ export default function AdminLoginForm() {
           </p>
         </div>
 
-        {/* Form Section */}
+        {/* Form */}
         <section className="mt-4 bg-white/80 backdrop-blur-3xl p-8 rounded-2xl shadow-2xl border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-[#1C647C]">
+              <label className="block text-sm font-semibold text-[#1C647C]">
                 Email address
               </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C]"
-                />
-              </div>
+              <input
+                type="email"
+                required
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1C647C] focus:border-[#1C647C]"
+              />
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#1C647C]">
+              <label className="block text-sm font-semibold text-[#1C647C]">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -103,7 +151,7 @@ export default function AdminLoginForm() {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C]"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1C647C] focus:border-[#1C647C]"
                 />
                 {visible ? (
                   <AiOutlineEye
@@ -123,37 +171,40 @@ export default function AdminLoginForm() {
 
             {/* Role Dropdown */}
             <div>
-              <label htmlFor="role" className="block text-sm font-semibold text-[#1C647C] mb-1">
+              <label className="block text-sm font-semibold text-[#1C647C] mb-1">
                 Select Role
               </label>
+
               <select
-                id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-none focus:ring-[#1C647C] focus:border-[#1C647C] sm:text-sm"
+                disabled={rolesLoading}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1C647C] focus:border-[#1C647C]"
               >
-                <option value="Admin">Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Accountant">Accountant</option>
-                <option value="DigitalMedia">DigitalMedia</option>
+                {roles.map((r) => (
+                  <option key={r._id} value={r.name}>
+                    {r.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             {/* Submit */}
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-[40px] flex justify-center py-2 px-4 text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all disabled:opacity-60"
-              >
-                {isLoading ? "Signing in..." : "Login"}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-[40px] flex justify-center items-center text-sm font-semibold rounded-md text-white bg-[#1C647C] hover:bg-[#14506A] transition-all disabled:opacity-60"
+            >
+              {isLoading ? "Signing in..." : "Login"}
+            </button>
 
-            {/* Back to home */}
+            {/* Back */}
             <div className="flex items-center justify-center mt-2">
               <span className="text-sm text-gray-700">Go back to </span>
-              <Link to="/" className="text-[#1C647C] pl-1 font-semibold hover:underline">
+              <Link
+                to="/"
+                className="text-[#1C647C] pl-1 font-semibold hover:underline"
+              >
                 Home
               </Link>
             </div>

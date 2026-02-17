@@ -43,6 +43,9 @@ export async function postUser(userData: UserData) {
 
     if (!res.ok) throw new Error(data?.message || "Login failed");
     if (!data.success) throw new Error(data?.message || "Login failed");
+    if (data.user && data.user.role !== userData.role) {
+      throw new Error(`You are not allowed to login as ${userData.role}`);
+    }
 
     return data;
   } catch (err: any) {

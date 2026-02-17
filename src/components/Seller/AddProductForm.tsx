@@ -2092,7 +2092,7 @@ return (
             </MainAccordionTrigger>
             {product ? (
               <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
-                <VariantsDisplay />
+               <VariantsDisplay minQty={Number(form.getValues("minmaxrule.minQty"))} />
                 <MediaDisplay />
               </AccordionContent>
             ) : (
@@ -2127,6 +2127,7 @@ return (
                             (form.formState.errors as any).thumbnail
                           }
                           removeThumbnail={removeThumbnail}
+                          // minQty={Number(form.getValues("minmaxrule.minQty"))}
                         />
                       </div>
                     ))}
