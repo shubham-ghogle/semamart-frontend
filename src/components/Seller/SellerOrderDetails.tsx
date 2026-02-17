@@ -23,6 +23,20 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const formatDateTime = (dateValue?: string | Date) => {
+    if (!dateValue) return "NA";
+    const d = new Date(dateValue);
+    if (Number.isNaN(d.getTime())) return "NA";
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
 
   // ✅ Default price total (without tax)
   const defaultTotal =
@@ -165,10 +179,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
             label="Method:"
             value={data?.paymentInfo?.method || "NA"}
           />
-          <OrderDetailsField
-            label="Transaction ID:"
-            value={data?.paymentInfo?.transactionId || "NA"}
-          />
         </div>
       </section>
       {data?.paymentAttempts && data.paymentAttempts.length > 0 && (
@@ -181,8 +191,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               .map((attempt: any, idx: number) => (
                 <div key={idx} className="border rounded p-2 bg-gray-50 text-sm">
                   <p>Status: <strong>{attempt?.status || "NA"}</strong></p>
-                  <p>Txn ID: <strong>{attempt?.paymentId || "NA"}</strong></p>
-                  <p>At: <strong>{attempt?.attemptedAt ? formatDate(attempt.attemptedAt) : "NA"}</strong></p>
+                  <p>At: <strong>{formatDateTime(attempt?.attemptedAt)}</strong></p>
                   <p>Message: <strong>{attempt?.message || "NA"}</strong></p>
                 </div>
               ))}

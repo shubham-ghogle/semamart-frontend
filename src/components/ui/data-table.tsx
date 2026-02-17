@@ -71,6 +71,7 @@ interface DataTableProps<TData, TValue> {
   statusColumnId?: string;
   statusOptions?: string[];
   onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
+  getRowClassName?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -90,6 +91,7 @@ export function DataTable<TData, TValue>({
   enableStatusFilter = false,
   statusColumnId,
   statusOptions = ["All", "Created", "Processing", "Shipped", "Delivered"],
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -187,53 +189,186 @@ export function DataTable<TData, TValue>({
     .map((col) => col.column.columnDef.header as string);
   const rows = selectedData.map((row) => visibleColumns.map((col) => row[col]));
 
+   let logoDataUrl: string | null = null;
+let logoAspect = 1;
+let logoReady = false;
+
+(function preloadAndOptimizeLogo() {
+  const img = new Image();
+  img.src = "/logo.png";
+
+  img.onload = () => {
+    const TARGET_WIDTH = 160; // exact display width in PDF
+    const scale = TARGET_WIDTH / img.naturalWidth;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = TARGET_WIDTH;
+    canvas.height = img.naturalHeight * scale;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // high-quality scaling
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // 👉 PNG keeps logo sharp (still small because canvas is small)
+    logoDataUrl = canvas.toDataURL("image/png");
+    logoAspect = canvas.height / canvas.width;
+    logoReady = true;
+  };
+})();
+
+  const formatDate = (d = new Date()) =>
+  d.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+
   function exportPdf() {
-    const doc = new jsPDF({ orientation: "landscape" });
-    const pageWidth = doc.internal.pageSize.getWidth();
+  // create doc in landscape to match table width
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-    const date = new Date().toLocaleDateString("en-IN");
+  // design constants (keeps header compact and at the extreme top)
+  const MARGIN = 14; // left & right
+  const HEADER_HEIGHT = 60; // moderate compact header
+  const FOOTER_HEIGHT = 48;
+  const CONTENT_START_Y = HEADER_HEIGHT + 12;
+  const BRAND_TEAL = "#1C6C84";
+  const BRAND_ORANGE = "#F9A11B";
+  const TEXT_COLOR = "#222222";
 
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.text(docName + " Report", 11, 20);
+  const contact = "SEMA Healthcare Private Limited | info@semamart.com | GST: 07ABKCS8538F1ZX";
+  const phone = "+91 93196 54455 | +91 73037 69555";
 
-    doc.setDrawColor(150);
-    doc.line(14, 25, pageWidth - 14, 25);
+  // draw header + footer for a given page (uses autoTable's data.pageNumber)
+  function drawHeaderAndFooter(data: any) {
+    const pageNumber = data.pageNumber ?? 1;
 
-    const hospitalTextY = 32;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Hospital Name: ", 14, hospitalTextY);
+    // Header: white background and thin brand lines
+    doc.setFillColor("#ffffff");
+    doc.rect(0, 0, pageWidth, HEADER_HEIGHT, "F");
+
+    doc.setDrawColor(BRAND_TEAL);
+    doc.setLineWidth(3);
+    doc.line(0, 6, pageWidth, 6);
+
+    doc.setDrawColor(BRAND_ORANGE);
+    doc.setLineWidth(3);
+    doc.line(0, HEADER_HEIGHT - 6, pageWidth, HEADER_HEIGHT - 6);
+
+    // Center emblem + brand text (simple and reliable in browser)
+    const headerCenterY = HEADER_HEIGHT / 2;
+
+// LEFT: Logo
+if (logoReady && logoDataUrl) {
+  const logoWidth = 120; // slightly smaller for left placement
+  const logoHeight = logoWidth * logoAspect;
+
+  const logoX = MARGIN;
+  const logoY = headerCenterY - logoHeight / 2;
+
+  doc.addImage(
+    logoDataUrl,
+    "PNG",
+    logoX,
+    logoY,
+    logoWidth,
+    logoHeight,
+    "SEMA_LOGO"
+  );
+}
+
+// CENTER: Report / Table name
+doc.setFont("helvetica", "bold");
+doc.setFontSize(14);
+doc.setTextColor(BRAND_TEAL);
+doc.text(
+  `${docName} Report`,
+  pageWidth / 2,
+  headerCenterY + 5,
+  { align: "center" }
+);
+
+// RIGHT: Created date
+doc.setFont("helvetica", "normal");
+doc.setFontSize(9);
+doc.setTextColor(TEXT_COLOR);
+doc.text(
+  `Created at: ${formatDate()}`,
+  pageWidth - MARGIN,
+  headerCenterY + 4,
+  { align: "right" }
+);
+
+
+
+    // Footer
+    const footerTopY = pageHeight - FOOTER_HEIGHT + 8;
+    doc.setDrawColor("#e6e6e6");
+    doc.setLineWidth(0.5);
+    doc.line(MARGIN, footerTopY - 6, pageWidth - MARGIN, footerTopY - 6);
+
     doc.setFont("helvetica", "normal");
-
-    const hosAddTextY = 38;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Hospital Address: ", 14, hosAddTextY);
-    doc.setFont("helvetica", "normal");
-
-    const dateY = 44;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Date: ", 14, dateY);
-    doc.setFont("helvetica", "normal");
-    doc.text(date, 17 + doc.getTextWidth("Date: "), dateY);
-
-    doc.setDrawColor(150);
-    doc.line(14, 50, pageWidth - 14, 50);
-
-    autoTable(doc, {
-      startY: 54,
-      head: [tableHeader],
-      headStyles: {
-        fillColor: [64, 117, 140],
-      },
-      body: rows,
+    doc.setFontSize(9);
+    doc.setTextColor("#6b7280");
+    doc.text(contact, pageWidth / 2, footerTopY + 6, {
+      maxWidth: pageWidth - MARGIN * 2,
+      align: "center",
     });
 
-    doc.save(docName.replace(" ", "_"));
+    doc.text(phone, pageWidth / 2, footerTopY + 20, {
+      maxWidth: pageWidth - MARGIN * 2,
+      align: "center",
+    });
+
+    doc.setFontSize(9);
+    doc.setTextColor(TEXT_COLOR);
+    doc.text(`Page ${pageNumber}`, pageWidth - MARGIN, footerTopY + 20, {
+      align: "right",
+    });
   }
 
+  // Build table head and rows exactly as your existing logic
+  const head = [tableHeader];
+  const body = rows;
+
+  autoTable(doc, {
+    startY: CONTENT_START_Y,
+    head,
+    body,
+    margin: { left: MARGIN, right: MARGIN, top: CONTENT_START_Y, bottom: FOOTER_HEIGHT + 8 },
+    styles: {
+      font: "helvetica",
+      fontSize: 9,
+      cellPadding: 6,
+      overflow: "linebreak",
+    },
+    headStyles: {
+      fillColor: [64, 117, 140], // matches your theme
+      textColor: 255,
+      halign: "left",
+    },
+    didDrawPage: function (data) {
+      // use data.pageNumber from autoTable (also avoids doc.internal typing issues)
+      drawHeaderAndFooter(data);
+    },
+    // keep column widths automatic to preserve layout like the UI table
+  });
+
+  const filename = docName.replace(/\s+/g, "_") + ".pdf";
+  doc.save(filename);
+}
   function exportCsv() {
     const rowsForCsv = rows.map((row: (string | undefined)[]) => {
       return row
@@ -347,7 +482,7 @@ export function DataTable<TData, TValue>({
                     ?.setFilterValue(v === "All" ? undefined : v)
                 }
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-35">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -439,7 +574,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-[#1C647C] font-medium  bg-[#f5f6fa]",
+                        "text-custom-blue font-medium  bg-[#f5f6fa]",
                         bordered && "border"
                       )}
                       colSpan={header.colSpan}
@@ -462,6 +597,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={getRowClassName ? getRowClassName(row.original) : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -500,7 +636,7 @@ export function DataTable<TData, TValue>({
             value={table.getState().pagination.pageSize.toString()}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
-            <SelectTrigger className="w-[70px]">
+            <SelectTrigger className="w-17.5">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

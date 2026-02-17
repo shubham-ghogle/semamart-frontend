@@ -3,6 +3,7 @@ import { useUserStore } from "@/store/userStore";
 import { useNavigate } from "react-router-dom";
 import { Order, Product, Variant } from "@/Types/types";
 import MakePaymentDialog from "./MakePaymentDialog";
+import GroupPaymentDialog from "./GroupPaymentDialog";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 
@@ -51,6 +52,16 @@ const Orderpage = () => {
     if (order.deliveredAt) return new Date(order.deliveredAt);
     return new Date(0);
   };
+
+  const formatIndianDateTime = (date: Date) =>
+    date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
 
   const getStatusInfo = (order: Order) => {
     if (order.status === "Created") {
@@ -144,13 +155,24 @@ const Orderpage = () => {
     navigate(`/account/orders/${productId}`);
   };
 
+  const isOnlinePaidOrder = (order: Order) => {
+    const method = (order.paymentInfo?.method || "").toLowerCase();
+    return ["hdfc", "online", "razorpay"].includes(method);
+  };
+
+  const canOpenOrderDetails = (order: Order) => {
+    if (order.status === "Created") return false;
+    if (order.status === "Paid" && !isOnlinePaidOrder(order)) return false;
+    return true;
+  };
+
   /* ---------------- GROUP BY createdAt (DESC) ---------------- */
 
   const sortedOrders = [...(filteredOrders ?? [])].sort(
     (a, b) => getOrderDate(b).getTime() - getOrderDate(a).getTime()
   );
 
-  const TIME_WINDOW_MS = 15 * 1000;
+  const TIME_WINDOW_MS = 15 * 60 * 1000;
   const groupedOrders: Order[][] = [];
 
   sortedOrders.forEach((order) => {
@@ -320,11 +342,57 @@ const Orderpage = () => {
                 key={gIdx}
                 className="border-l-4 border-yellow-400 bg-yellow-50 rounded-xl p-4 space-y-4"
               >
-                <div className="flex justify-end border-b pb-2">
-                  <p className="text-sm text-gray-500">
-                    {getOrderDate(group[0]).toLocaleString()}
-                  </p>
-                </div>
+                {group.length > 1 && (
+                  <div className="border-b pb-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <p className="text-gray-500">Order placed</p>
+                        <p className="font-semibold text-gray-900">
+                          {formatIndianDateTime(getOrderDate(group[0]))}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-gray-500">Total</p>
+                        <p className="font-semibold text-gray-900">
+                          ₹
+                          {group
+                            .reduce((sum, order) => sum + (order.totalPrice || 0), 0)
+                            .toLocaleString("en-IN")}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-gray-500">Ship to</p>
+                        <p className="font-semibold text-gray-900 truncate">
+                          {group[0]?.shippingAddress?.instituteAddress1 || "NA"}
+                        </p>
+                        <p className="text-xs text-gray-600 truncate">
+                          {group[0]?.shippingAddress?.district || ""}
+                          {group[0]?.shippingAddress?.state
+                            ? `, ${group[0].shippingAddress.state}`
+                            : ""}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-gray-500">Placed by</p>
+                        <p className="font-semibold text-gray-900 truncate">
+                          {user?.instituteName || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "NA"}
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <div className="mt-3 flex justify-end">
+                      {group.some(
+                        (o) =>
+                          o.status === "Created" ||
+                          (o.status === "Paid" && o.paymentInfo?.status === "Failed"),
+                      ) && <GroupPaymentDialog orders={group} />}
+                    </div>
+                  </div>
+                )}
 
                 {group.map((order) => {
                   const variant = order.variant as Variant;
@@ -336,11 +404,7 @@ const Orderpage = () => {
                   return (
                     <div
                       key={order._id}
-                      onClick={() =>
-                        (order.status !== "Created" &&
-                          order.status !== "Paid") &&
-                        handleOrderClick(product._id)
-                      }
+                      onClick={() => canOpenOrderDetails(order) && handleOrderClick(order._id)}
                       className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 cursor-pointer"
                     >
                       <div className="sm:col-span-2">
@@ -377,7 +441,9 @@ const Orderpage = () => {
                           </p>
                         </div>
 
-                        {order.status === "Created" && !order.paymentFile && (
+                        {group.length === 1 &&
+                          order.status === "Created" &&
+                          !order.paymentFile && (
                           <MakePaymentDialog orderId={order._id} />
                         )}
                       </div>
