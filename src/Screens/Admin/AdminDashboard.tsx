@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getAdminDashboardSummary, DashboardSummary, getAllOrders } from "./Admin.HooksAndUtils";
 import { FaRegAddressCard, FaBuilding, FaShoppingCart, FaTimes } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa6";
+// import { FaPlus } from "react-icons/fa6";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
 import { API_URL } from "@/data";
@@ -52,10 +52,10 @@ const AdminDashboard = () => {
   });
 
   // --- Handlers ---
-  const openModal = (role: string) => {
-    setSelectedRole(role);
-    setIsModalOpen(true);
-  };
+  // const openModal = (role: string) => {
+  //   setSelectedRole(role);
+  //   setIsModalOpen(true);
+  // };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
