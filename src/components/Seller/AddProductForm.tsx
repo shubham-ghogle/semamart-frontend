@@ -1840,7 +1840,7 @@ return (
         name="dispatchState"
         render={({ field }) => (
           <FormItem className="flex flex-col gap-2">
-            <label className="font-medium">Dispatched State</label>
+           <Subformlabel required>Dispatch State</Subformlabel>
             <FormControl>
               <Select
                 onValueChange={(val) => setValue("dispatchState", val)}
@@ -1869,7 +1869,7 @@ return (
         name="dispatchDistrict"
         render={({ field }) => (
           <FormItem className="flex flex-col gap-2">
-            <label className="font-medium">Dispatched District</label>
+            <Subformlabel required>Dispatch District</Subformlabel>
             <FormControl>
               <Select
                 onValueChange={(val) => setValue("dispatchDistrict", val)}

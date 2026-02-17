@@ -110,26 +110,7 @@ const AdminDashboard = () => {
             </h1>
           </div>
 
-  {/* 2. Buttons Row */}
-  <div className="flex flex-wrap gap-3">
-    {/* Product Manager Button */}
-    <button 
-      className="flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold border-2 border-indigo-600 text-indigo-600 bg-transparent rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
-      onClick={() => openModal("Product Manager")}
-    >
-      <FaPlus className="text-xs" /> 
-      <span>Product Manager</span>
-    </button>
-    
-    {/* Accountant Button */}
-    <button 
-      className="flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold border-2 border-emerald-600 text-emerald-600 bg-transparent rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
-      onClick={() => openModal("Accountant")}
-    >
-      <FaPlus className="text-xs" /> 
-      <span>Accountant</span>
-    </button>
-  </div>
+
 
   {/* 3. Last Updated Message */}
   <div>

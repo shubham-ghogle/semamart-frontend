@@ -136,6 +136,8 @@ export async function getAllUsers(): Promise<User[]> {
   return data.users;
 }
 
+
+
 export async function deleteUser(id: string) {
   const res = await fetch(`${API_URL}user/delete-user/${id}`, {
     method: "DELETE",

@@ -87,6 +87,7 @@ import BufferAndOutOfStockScreen from "./Screens/Seller/BufferAndOutOfStockScree
 import BulkOrderDetails from "./components/Account/BulkOrderDetails";
 import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
+import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
 
 /**
  * redirectToDashboard loader
@@ -349,6 +350,7 @@ export const router = createBrowserRouter([
       { path: "requests", element: <AdminRequestScreen /> },
       { path: "img-upload", element: <AdminImageUploader /> },
       { path: "bulk-order-request", element: <BulkAndStock /> },
+      {path: "member-access", element: <AdminMemberAccess />},
       {
         path: "sellers",
         children: [

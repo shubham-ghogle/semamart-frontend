@@ -5,9 +5,9 @@ import { LuMessageSquare } from "react-icons/lu";
 import { GrWorkshop } from "react-icons/gr";
 import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import { FaHeadset } from "react-icons/fa";
+import { TbCoinRupee } from "react-icons/tb";
 import { useUserStore } from "@/store/userStore";
 import { API_URL } from "@/data";
-import { TbCoinRupee } from "react-icons/tb";
 
 type LinkItemProps = {
   to: string;
@@ -26,7 +26,9 @@ function LinkItem({ to, label, icon, end, onClick }: LinkItemProps) {
       title={label}
       className={({ isActive }) =>
         `group relative flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${
-          isActive ? "bg-sky-50 text-sky-700" : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
+          isActive
+            ? "bg-sky-50 text-sky-700"
+            : "text-gray-600 hover:bg-sky-50 hover:text-sky-600"
         }`
       }
     >
@@ -63,7 +65,10 @@ export default function AdminNavbar() {
 
   useEffect(() => {
     try {
-      document.documentElement.style.setProperty("--admin-sidebar-width", pinned ? "16rem" : "5rem");
+      document.documentElement.style.setProperty(
+        "--admin-sidebar-width",
+        pinned ? "16rem" : "5rem"
+      );
     } catch {}
   }, [pinned]);
 
@@ -110,9 +115,33 @@ export default function AdminNavbar() {
     navigate("/admin-login", { replace: true });
   };
 
-  // responsive widths (no CSS variables in style prop)
   const expandedWidth = "clamp(16rem, 18vw, 24rem)";
   const collapsedWidth = "clamp(5rem, 6vw, 7rem)";
+
+  // Define all links with permission keys
+  const navLinks: {
+    to: string;
+    label: string;
+    icon: React.ReactNode;
+    permissionKey: string | null;
+  }[] = [
+    { to: "/admin", label: "Dashboard", icon: <RxDashboard />, permissionKey: null },
+    { to: "/admin/orders", label: "All Orders", icon: <GrWorkshop />, permissionKey: "allOrders" },
+    { to: "/admin/orders/sales", label: "Total Sales", icon: <TbCoinRupee />, permissionKey: "allSales" },
+    { to: "/admin/requests", label: "Requests", icon: <LuMessageSquare />, permissionKey: "requests" },
+    { to: "/admin/sellers", label: "All Sellers", icon: <GrWorkshop />, permissionKey: "allSeller" },
+    { to: "/admin/users", label: "All Institutes", icon: <GrWorkshop />, permissionKey: "allInstitutes" },
+    { to: "/admin/products", label: "All Products", icon: <GrWorkshop />, permissionKey: "allProducts" },
+    { to: "/admin/img-upload", label: "Image Upload", icon: <GrWorkshop />, permissionKey: "uploadImage" },
+    { to: "/admin/bulk-order-request", label: "Stock Management", icon: <FaBoxOpen />, permissionKey: "stockmanagement" },
+    { to: "/admin/member-access", label: "Member Access", icon: <GrWorkshop />, permissionKey: "memberAccess" },
+    { to: "/admin/support", label: "Support", icon: <FaHeadset />, permissionKey: "SupportDetail" },
+  ];
+
+  // Filter links: Admin sees all, others based on permissions
+  const filteredLinks = navLinks.filter(
+    (link) => user?.role === "Admin" || link.permissionKey === null || (link.permissionKey && (user as any)?.permissions?.[link.permissionKey])
+  );
 
   return (
     <>
@@ -154,7 +183,13 @@ export default function AdminNavbar() {
       <aside
         className={`hidden md:flex fixed left-0`}
         aria-expanded={isExpanded}
-        style={{ top: "var(--admin-header-height, 80px)", bottom: 0, width: isExpanded ? expandedWidth : collapsedWidth, transition: "width 200ms ease", zIndex: 40 }}
+        style={{
+          top: "var(--admin-header-height, 80px)",
+          bottom: 0,
+          width: isExpanded ? expandedWidth : collapsedWidth,
+          transition: "width 200ms ease",
+          zIndex: 40,
+        }}
       >
         <div className="bg-white border-r h-full flex flex-col overflow-hidden rounded-none">
           <div className="flex items-center gap-4 p-4 border-b">
@@ -167,16 +202,15 @@ export default function AdminNavbar() {
 
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="flex flex-col gap-1">
-              <LinkItem to="/admin" end icon={<RxDashboard />} label="Dashboard" />
-              <LinkItem to="/admin/orders" end icon={<GrWorkshop />} label="All Orders" />
-              <LinkItem to="/admin/orders/sales" icon={<TbCoinRupee />} label="Total Sales"/>
-              <LinkItem to="/admin/requests" icon={<LuMessageSquare />} label="Requests" />
-              <LinkItem to="/admin/sellers" icon={<GrWorkshop />} label="All Sellers" />
-              <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" />
-              <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" />
-              <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" />
-              <LinkItem to="/admin/bulk-order-request" icon={<FaBoxOpen />} label="Stock Management" />
-              <LinkItem to="/admin/support" icon={<FaHeadset />} label="Support" />
+              {filteredLinks.map((link) => (
+                <LinkItem
+                  key={link.to}
+                  to={link.to}
+                  icon={link.icon}
+                  label={link.label}
+                  end={link.to === "/admin"} // Dashboard exact match
+                />
+              ))}
             </div>
           </nav>
 
@@ -188,7 +222,11 @@ export default function AdminNavbar() {
               title="Logout"
             >
               <FaSignOutAlt className="text-sky-600" />
-              <span className={`label transition-opacity ${isExpanded ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
+              <span
+                className={`label transition-opacity ${
+                  isExpanded ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"
+                }`}
+              >
                 {loggingOut ? "Logging out..." : "Logout"}
               </span>
             </button>
@@ -208,16 +246,31 @@ export default function AdminNavbar() {
           .tooltip { display: none; opacity: 0; transform: translateX(-6px); transition: transform .14s ease, opacity .14s ease; white-space: nowrap; z-index: 50; }
           aside[aria-expanded="false"] .group:hover .tooltip::before { content: ""; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); border-width: 6px; border-style: solid; border-color: transparent #ffffff transparent transparent; filter: drop-shadow(-1px 0 0 rgba(0,0,0,0.03)); }
 
-          /* remove rounded corners globally for sidebar/header children */
           .rounded-none { border-radius: 0 !important; }
           button, img, .bg-white { border-radius: 0 !important; }
         `}</style>
       </aside>
 
       {/* mobile drawer */}
-      <div className={`fixed inset-0 z-40 md:hidden transform ${drawerOpen ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!drawerOpen}>
-        <div className={`absolute inset-0 bg-black/40 transition-opacity ${drawerOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setDrawerOpen(false)} />
-        <div className={`absolute left-0 top-0 bottom-0 w-[86%] max-w-sm bg-white shadow-2xl transform transition-transform flex flex-col ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`} role="dialog" aria-modal="true">
+      <div
+        className={`fixed inset-0 z-40 md:hidden transform ${
+          drawerOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+        aria-hidden={!drawerOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-black/40 transition-opacity ${
+            drawerOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={() => setDrawerOpen(false)}
+        />
+        <div
+          className={`absolute left-0 top-0 bottom-0 w-[86%] max-w-sm bg-white shadow-2xl transform transition-transform flex flex-col ${
+            drawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div>
@@ -227,25 +280,37 @@ export default function AdminNavbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button aria-label="Close menu" onClick={() => setDrawerOpen(false)} className="inline-flex items-center justify-center p-2 hover:bg-gray-100 rounded-none">
+              <button
+                aria-label="Close menu"
+                onClick={() => setDrawerOpen(false)}
+                className="inline-flex items-center justify-center p-2 hover:bg-gray-100 rounded-none"
+              >
                 <FaTimes />
               </button>
             </div>
           </div>
 
           <nav className="p-3 overflow-auto">
-            <LinkItem to="/admin" end icon={<RxDashboard />} label="Dashboard" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/orders" icon={<GrWorkshop />} label="All Orders" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/requests" icon={<LuMessageSquare />} label="Requests" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/sellers" icon={<GrWorkshop />} label="All Sellers" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/users" icon={<GrWorkshop />} label="All Institutes" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/products" icon={<GrWorkshop />} label="All Products" onClick={() => setDrawerOpen(false)} />
-            <LinkItem to="/admin/img-upload" icon={<GrWorkshop />} label="Image Upload" onClick={() => setDrawerOpen(false)} />
-             <LinkItem to="/admin/bulk-order-request" icon={<FaBoxOpen />} label="Stock Management" onClick={() => setDrawerOpen(false)} />
-             <LinkItem to="/admin/support" icon={<FaHeadset />} label="Support" onClick={() => setDrawerOpen(false)} />
+            {filteredLinks.map((link) => (
+              <LinkItem
+                key={link.to}
+                to={link.to}
+                icon={link.icon}
+                label={link.label}
+                end={link.to === "/admin"}
+                onClick={() => setDrawerOpen(false)}
+              />
+            ))}
 
             <div className="mt-6 pt-4 px-3">
-              <button onClick={() => { setDrawerOpen(false); logoutHandler(); }} disabled={loggingOut} className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 rounded-none">
+              <button
+                onClick={() => {
+                  setDrawerOpen(false);
+                  logoutHandler();
+                }}
+                disabled={loggingOut}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-sky-50 rounded-none"
+              >
                 <FaSignOutAlt className="text-sky-600" /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>

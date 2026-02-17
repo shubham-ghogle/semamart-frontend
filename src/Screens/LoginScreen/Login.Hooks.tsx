@@ -1,11 +1,13 @@
-// 🟢 Login.Hooks.js
+// 🟢 Login.Hooks.ts
 import { redirect } from "react-router";
 import { Seller, User } from "../../Types/types";
 import { API_URL } from "@/data";
 
-type UserData = {
+// ✅ Updated: Add optional role for admin/other roles
+export type UserData = {
   email: string;
   password: string;
+  role?: string; // optional role: Admin, Manager, Accountant, DigitalMedia
 };
 
 type PostUserApiResponse = {
@@ -22,8 +24,9 @@ type PostSellerApiResponse = {
   message?: string;
 };
 
-
-
+// ---------------------------------
+// Login for regular users / admins
+// ---------------------------------
 export async function postUser(userData: UserData) {
   try {
     const res = await fetch(API_URL + "user/login-user", {
@@ -48,6 +51,9 @@ export async function postUser(userData: UserData) {
   }
 }
 
+// ---------------------------------
+// Login for sellers (if you still need it)
+// ---------------------------------
 export async function postSeller(userData: UserData) {
   try {
     const res = await fetch(API_URL + "shop/login-shop", {
@@ -70,28 +76,32 @@ export async function postSeller(userData: UserData) {
   }
 }
 
-// Redirect if user already logged in (for login page)
+// ---------------------------------
+// Redirects if user already logged in
+// ---------------------------------
 export function getUserFromLocalLoader() {
   const userRaw = localStorage.getItem("user-storage");
   const sellerRaw = localStorage.getItem("seller-storage");
 
-  // 🎯 If seller is logged in → go to seller dashboard
+  // If seller is logged in → go to seller dashboard
   if (sellerRaw) {
     console.log("Seller is logged in, redirecting to /seller");
     return redirect("/seller");
   }
 
-  // 🎯 If normal user is logged in → go to user home (same as before)
+  // If user/admin is logged in → go to admin dashboard
   if (userRaw) {
-    console.log("User is logged in, redirecting to /");
-    return redirect("/");
+    console.log("User is logged in, redirecting to /admin");
+    return redirect("/admin");
   }
 
   // otherwise allow login page to load
   return null;
 }
 
-// Protect user routes
+// ---------------------------------
+// Protect user/admin routes
+// ---------------------------------
 export function requireUserAuth() {
   const user = localStorage.getItem("user-storage");
   if (!user) {
@@ -100,6 +110,7 @@ export function requireUserAuth() {
   return null;
 }
 
+// Protect seller routes
 export function protectSellerRoute() {
   const seller = localStorage.getItem("seller-storage");
   if (!seller) return redirect("/login");
