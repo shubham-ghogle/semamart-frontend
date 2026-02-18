@@ -1,11 +1,12 @@
 // src/Screens/CheckoutScreen/CheckoutScreen.tsx
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCartStore, CartItem } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { Address, Seller } from "../../Types/types";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
+import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
 import { toast } from "react-toastify";
 import { API_URL } from "@/data";
 import { useMutation } from "@tanstack/react-query";
@@ -24,6 +25,12 @@ export default function CheckoutScreen(): JSX.Element {
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"Manual" | "HDFC">("Manual");
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
 
   const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -68,6 +75,28 @@ export default function CheckoutScreen(): JSX.Element {
     acc.grandTotal += lineGrand;
     return acc;
   }, { subTotal: 0, totalGST: 0, grandTotal: 0 });
+
+  const { upsellLinks, crosssellLinks } = useMemo(() => {
+    const upsellSet = new Set<string>();
+    const crossSet = new Set<string>();
+
+    (cart || []).forEach((item) => {
+      const upsells = Array.isArray((item.product as any)?.upsells)
+        ? (((item.product as any)?.upsells || []) as string[])
+        : [];
+      const crosssells = Array.isArray((item.product as any)?.crosssells)
+        ? (((item.product as any)?.crosssells || []) as string[])
+        : [];
+
+      upsells.forEach((u) => u && upsellSet.add(u));
+      crosssells.forEach((c) => c && crossSet.add(c));
+    });
+
+    return {
+      upsellLinks: Array.from(upsellSet),
+      crosssellLinks: Array.from(crossSet),
+    };
+  }, [cart]);
 
   // Payload for API
   const cartToApi = (cart || []).map((el) => {
@@ -210,11 +239,16 @@ export default function CheckoutScreen(): JSX.Element {
   // Checkout Page UI
   return (
     <div className="mt-16 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 p-4">
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 p-4">
 
         {/* Items + Address */}
         <section className="lg:col-span-2 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Your Items</h2>
+          <div className="mb-4 border-b pb-3">
+            <h2 className="text-2xl font-semibold text-[#1C647C]">Your Items</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Review quantity, delivery address, and payment preference before checkout.
+            </p>
+          </div>
 
           <div className="divide-y">
             {cart.map((item) => {
@@ -226,8 +260,12 @@ export default function CheckoutScreen(): JSX.Element {
               const gstPerUnit = gstAmount / qty;
 
               return (
-                <article key={`${productId}-${variantId ?? "nv"}`} className="flex items-center gap-4 py-4">
-                  <img src={thumb} alt={item.product?.name ?? "Product"} className="w-[80px] h-[80px] object-cover rounded shadow-sm" />
+                <article key={`${productId}-${variantId ?? "nv"}`} className="flex items-center gap-4 py-2">
+                  <img
+                    src={thumb}
+                    alt={item.product?.name ?? "Product"}
+                    className="w-[150px] h-[150px] object-cover rounded shadow-sm border"
+                  />
 
                   <div className="flex-1">
                     <h5 className="text-lg font-medium">{item.product?.name}</h5>
@@ -252,7 +290,10 @@ export default function CheckoutScreen(): JSX.Element {
           </div>
 
           {/* Address Section */}
-          <h2 className="text-xl font-semibold mt-8 mb-4">Select Address</h2>
+          <h2 className="text-2xl font-semibold text-[#1C647C] mt-8 mb-2">Select Address</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Delivery updates and invoice details will be sent to this address.
+          </p>
           {user?.addresses?.length ? (
             <div className="flex flex-col gap-4">
               {user.addresses.map((el: Address, i: number) => (
@@ -277,7 +318,10 @@ export default function CheckoutScreen(): JSX.Element {
 
         {/* Order Summary */}
         <aside className="bg-white p-6 rounded-lg shadow h-fit sticky top-20">
-          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+          <h2 className="text-2xl font-semibold text-[#1C647C] mb-2">Order Summary</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Final amount shown below includes GST and line-item totals.
+          </p>
           <div className="flex justify-between mb-2">
             <span>Subtotal (Excl. GST)</span>
             <span>{formatter.format(subTotal)}</span>
@@ -313,6 +357,12 @@ export default function CheckoutScreen(): JSX.Element {
                 <span>Pay Manual (Upload Payment Proof)</span>
               </label>
             </div>
+            <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
+              <p className="font-semibold">Secure checkout</p>
+              <p className="mt-1">
+                Payments are validated server-side. For manual transfer, upload proof to speed up verification.
+              </p>
+            </div>
           </div>
 
           <button
@@ -333,8 +383,17 @@ export default function CheckoutScreen(): JSX.Element {
       {/* Related Products */}
       {cart.length > 0 && (
         <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto px-4">
+          <UpsellCrossSellBlock
+            upsells={upsellLinks}
+            crosssells={crosssellLinks}
+            titlePrefix="Checkout"
+          />
+
           <hr className="border-t border-gray-400" />
-          <h2 className="font-bold text-2xl mt-6 text-center text-[#1C647C]">Related Products</h2>
+          <h2 className="font-semibold text-2xl mt-6 text-left text-[#1C647C]">Related Products</h2>
+          <p className="text-sm text-gray-600">
+            Similar items based on your current cart selection.
+          </p>
           <div className="flex flex-wrap justify-center mt-8">
             <RelatedProducts
               productType={(cart[0].product as any).productType}

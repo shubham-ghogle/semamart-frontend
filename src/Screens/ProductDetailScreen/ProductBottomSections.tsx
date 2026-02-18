@@ -81,15 +81,15 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
 
       <div className="bg-white rounded-lg shadow-sm border">
         {/* Tab row */}
-        <div role="tablist" className="overflow-x-auto px-3 py-3 border-b scrollbar-hide">
-          <div className="flex gap-2 w-max">
+        <div role="tablist" className="px-3 py-3 border-b">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2 w-full">
             {tabs.map((t, i) => {
               const active = activeTabIdx === i;
               return (
                 <button
                   key={t.id}
                   onClick={() => setActiveTabIdx(i)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap
+                  className={`w-full px-3 py-2 rounded-md text-sm font-medium transition text-center
                     ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                 >
                   {t.label}
