@@ -8,6 +8,8 @@ import { FaUser, FaPhoneAlt, FaHome } from "react-icons/fa";
 import { API_URL, BASE_URL } from "@/data";
 import PaymentViewDialog from "../ui/PaymentViewDialog";
 import { toast } from "react-toastify";
+import StarRating from "../Order/StarRating";
+
 
 interface Product {
   _id: string;
@@ -75,7 +77,27 @@ interface Order {
     deliveredAt?: string;
   };
   invoicePdf?:string;
+  review?: {
+    _id: string;
+    rating: number;
+    comment: string;
+    images?: string[];
+  } | null; 
 }
+interface Review {
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+  };
+  productId: string;
+  orderId: string;
+  rating: number;
+  comment: string;
+  images?: string[];
+  createdAt: string;
+}
+
 
 const OrderSummary = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -86,6 +108,126 @@ const OrderSummary = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const canRateProduct = order?.status === "Delivered";
+
+const [reviewData, setReviewData] = useState<{
+  _id?: string;
+  rating: number;
+  comment: string;
+  images: (File | string)[];
+}>({
+  rating: 0,
+  comment: "",
+  images: [],
+});
+
+
+useEffect(() => {
+  if (order?.review) {
+    setReviewData({
+      _id: order.review._id,
+      rating: order.review.rating,
+      comment: order.review.comment || "",
+      images: order.review.images || [],
+    });
+  }
+}, [order?.review]);
+
+
+
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!order?._id) return;
+      try {
+        setReviewsLoading(true);
+        const res = await fetch(`${API_URL}user/getReviews/${order._id}`);
+        const data = await res.json();
+        if (data.success) {
+          setReviews(data.reviews);
+        }
+      } catch (err) {
+        console.error("Failed to fetch reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [order?._id]);
+
+
+ const handleSubmitReview = async () => {
+  if (!reviewData.rating) {
+    toast.error("Please select a rating");
+    return;
+  }
+
+  if (!product?._id || !order?._id || !user?._id) return;
+
+  const formData = new FormData();
+  formData.append("user", user._id);
+  formData.append("productId", product._id);
+  formData.append("orderId", order._id);
+  formData.append("rating", reviewData.rating.toString());
+  formData.append("comment", reviewData.comment);
+
+  reviewData.images.forEach((file) => {
+    if (file instanceof File) formData.append("images", file);
+  });
+
+  try {
+    let res;
+    if (reviewData._id) {
+      res = await fetch(`${API_URL}user/updateReview/${reviewData._id}`, {
+        method: "PUT",
+        body: formData,
+      });
+    } else {
+      res = await fetch(`${API_URL}user/addReview`, {
+        method: "POST",
+        body: formData,
+      });
+    }
+
+    const data = await res.json();
+
+    if (data.success) {
+      toast.success(reviewData._id ? "Review updated!" : "Review submitted!");
+
+      // Update reviewData
+      setReviewData({
+        _id: data.review._id,
+        rating: data.review.rating,
+        comment: data.review.comment,
+        images: data.review.images || [],
+      });
+
+      // Update order.review for real-time display
+      setOrder((prev) => prev ? { ...prev, review: data.review } : prev);
+
+      // Update reviews list if you display multiple reviews
+      setReviews((prev) => {
+        const index = prev.findIndex((r) => r._id === data.review._id);
+        if (index >= 0) {
+          const updated = [...prev];
+          updated[index] = data.review;
+          return updated;
+        }
+        return [data.review, ...prev];
+      });
+    } else {
+      toast.error(data.message || "Something went wrong");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to submit review");
+  }
+};
+
+
 
   const normalizeImage = (src?: string | null): string => {
     if (!src) return "/placeholder.png";
@@ -303,6 +445,103 @@ const OrderSummary = () => {
               </div>
             </div>
 
+            {canRateProduct ? (
+              <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-100 p-5">
+                <h3 className="text-md font-semibold text-gray-800 mb-4">
+                  {order.review ? "Your Review" : "Rate this product"}
+                </h3>
+
+                {/* ---------- Review Form ---------- */}
+                <div className="space-y-3">
+                  {/* Rating */}
+                  <StarRating
+                    rating={reviewData.rating}
+                    onRatingChange={(r) =>
+                      setReviewData((prev) => ({ ...prev, rating: r }))
+                    }
+                  />
+
+                  {/* Comment */}
+                  <textarea
+                    value={reviewData.comment}
+                    onChange={(e) =>
+                      setReviewData((prev) => ({ ...prev, comment: e.target.value }))
+                    }
+                    placeholder="Write your review..."
+                    className="w-full mt-2 border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+
+                  {/* Image Upload */}
+                  <div
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const files = Array.from(e.dataTransfer.files).filter((file) =>
+                        file.type.startsWith("image/")
+                      );
+                      setReviewData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="relative border-2 border-dashed border-gray-300 p-4 text-center rounded cursor-pointer"
+                  >
+                    Drag & drop images here, or click to select
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) =>
+                        setReviewData((prev) => ({
+                          ...prev,
+                          images: [...prev.images, ...Array.from(e.target.files || [])],
+                        }))
+                      }
+                      className="absolute w-full h-full top-0 left-0 opacity-0 cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Preview Uploaded Images */}
+                  {reviewData.images.length > 0 && (
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      {reviewData.images.map((file, idx) => {
+                        const url = file instanceof File ? URL.createObjectURL(file) : normalizeImage(file);
+                        return (
+                          <div key={idx} className="relative">
+                            <img src={url} alt={`preview-${idx}`} className="w-16 h-16 object-cover rounded" />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setReviewData((prev) => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== idx),
+                                }))
+                              }
+                              className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Submit / Update */}
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={handleSubmitReview}
+                      className="px-4 py-2 bg-[#1C647C] text-white rounded hover:bg-[#217b9a] transition cursor-pointer"
+                    >
+                      {reviewData._id ? "Update Review" : "Submit Review"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-100 p-5 text-gray-500 text-sm">
+                You can rate this product once your order is delivered.
+              </div>
+            )}
+
+
             {trackingDetails && (
               <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 space-y-2">
                 <h4 className="font-semibold text-gray-800 mb-2">Tracking Details</h4>
@@ -484,7 +723,7 @@ const OrderSummary = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
   );
 };
 

@@ -5,25 +5,25 @@ import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminMemberTable from "@/components/Admin/AdminMemberTable";
 
 type PermissionsType = {
-  uploadImage: boolean;
-  allOrders: boolean;
-  allSeller: boolean;
-  allSales: boolean;
-  allInstitutes: boolean;
-  requests: boolean;
-  stockmanagement: boolean;
-  allproducts: boolean;
+  UploadImage: boolean;
+  AllOrders: boolean;
+  AllSeller: boolean;
+  AllSales: boolean;
+  AllInstitutes: boolean;
+  Requests: boolean;
+  StockManagement: boolean;
+  AllProducts: boolean;
 };
 
 const defaultPermissions: PermissionsType = {
-  uploadImage: false,
-  allOrders: false,
-  allSeller: false,
-  allSales: false,
-  allInstitutes: false,
-  requests: false,
-  stockmanagement: false,
-  allproducts: false,
+  UploadImage: false,
+  AllOrders: false,
+  AllSeller: false,
+  AllSales: false,
+  AllInstitutes: false,
+  Requests: false,
+  StockManagement: false,
+  AllProducts: false,
 };
 
 type RoleType = {
@@ -338,7 +338,7 @@ const AdminMemberAccess = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 text-white rounded-xl mt-4"
+              className="w-full py-3 bg-[#1C647C] text-white rounded-xl mt-4"
             >
               {loading ? "Processing..." : `Add ${selectedRole}`}
             </button>

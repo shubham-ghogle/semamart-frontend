@@ -88,6 +88,7 @@ import BulkOrderDetails from "./components/Account/BulkOrderDetails";
 import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
 import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
+import ReviewPage from "./components/Order/ReviewPage";
 
 /**
  * redirectToDashboard loader
@@ -471,6 +472,11 @@ export const router = createBrowserRouter([
     path: "account/orders/:productId",
     loader: requireUserAuth,
     element: <OrderSummary />,
+  },
+  {
+    path: "account/orders/review/:id",
+    loader: requireUserAuth,
+    element: <ReviewPage />,
   },
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
   {

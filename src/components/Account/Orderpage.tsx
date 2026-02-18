@@ -34,6 +34,11 @@ const Orderpage = () => {
     },
   });
 
+  const handleRateReviewClick = (orderId: string) => {
+  navigate(`/account/orders/review/${orderId}`);
+};
+
+
   /* ---------------- helpers ---------------- */
 
   const normalizeImage = (src?: string | null) => {
@@ -432,25 +437,33 @@ const Orderpage = () => {
                       </div>
 
                       <div className="sm:col-span-3 flex flex-col items-end space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-3 h-3 rounded-full ${statusInfo.color}`}
-                          />
-                          <p className="font-semibold text-gray-900">
-                            {statusInfo.label}
-                          </p>
-                        </div>
+                       <div className="sm:col-span-3 flex flex-col items-end space-y-2">
+  <div className="flex items-center gap-2">
+    <span className={`w-3 h-3 rounded-full ${statusInfo.color}`} />
+    <p className="font-semibold text-gray-900">{statusInfo.label}</p>
+  </div>
 
-                        {group.length === 1 &&
-                          order.status === "Created" &&
-                          !order.paymentFile && (
-                          <MakePaymentDialog orderId={order._id} />
-                        )}
-                      </div>
+{order.status === "Delivered" && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleRateReviewClick(order._id);
+        }}
+        className="text-[#1C647C] cursor-pointer  text-sm font-medium mt-8 inline-flex items-center gap-1"
+      >
+        Rate & Review
+      </button>
+    )}
+
+  {group.length === 1 && order.status === "Created" && !order.paymentFile && (
+    <MakePaymentDialog orderId={order._id} />
+  )}
+</div>
+</div>                     
                     </div>
                   );
                 })}
-              </div>
+              </div>             
             ))}
           </div>
         </main>

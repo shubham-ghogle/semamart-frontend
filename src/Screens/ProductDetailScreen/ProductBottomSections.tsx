@@ -214,13 +214,24 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
                 {reviews.map((r: any, idx: number) => (
                   <article key={idx} className="border rounded-lg p-4">
                     <div className="flex items-start gap-3 min-w-0">
-                      <img src={r.userAvatar ?? "https://i.pravatar.cc/40"} alt={r.userName ?? "User"} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+                      {/* <img src={r.userAvatar ?? "https://i.pravatar.cc/40"} alt={r.userName ?? "User"} className="w-12 h-12 rounded-full object-cover flex-shrink-0" /> */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <div className="font-semibold">{r.userName ?? "User"}</div>
+                          <div className="font-semibold">{r.user?.name ?? "User"}</div>
                           <div style={{ color: STAR_COLOR }}>{("★".repeat(Math.round(r.rating ?? 5))).padEnd(5, "☆")}</div>
                         </div>
                         <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap break-all">{r.comment ?? "No comment."}</p>
+                        {r.images && r.images.length > 0 ? (
+                          r.images.map((img: string, idx: number) => (
+                            <img 
+                              key={idx}
+                              src={`${BASE_URL}images/${img}`} 
+                              alt={`Review Image ${idx + 1}`} 
+                              className="w-full max-w-xs mt-3 rounded-md object-cover" 
+                            />
+                          ))
+                        ) : null}
+
                         <div className="text-xs text-gray-400 mt-2">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ""}</div>
                       </div>
                     </div>

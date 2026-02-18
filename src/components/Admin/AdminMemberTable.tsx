@@ -4,15 +4,15 @@ import { Button } from "../ui/button";
 import { Pencil } from "lucide-react";
 
 type PermissionsType = {
-  uploadImage: boolean;
-  allOrders: boolean;
-  allSeller: boolean;
-  allSales: boolean;
-  allInstitutes: boolean;
-  requests: boolean;
-  stockmanagement: boolean;
+  UploadImage: boolean;
+  AllOrders: boolean;
+  AllSeller: boolean;
+  AllSales: boolean;
+  AllInstitutes: boolean;
+  Requests: boolean;
+  StockManagement: boolean;
 //   SupportDetail: boolean;
-  allproducts: boolean;
+  AllProducts: boolean;
 };
 
 export type Member = {
