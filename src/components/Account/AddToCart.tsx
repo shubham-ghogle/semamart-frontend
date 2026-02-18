@@ -4,6 +4,7 @@ import { CartItem, useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
+import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
 
 // -------------------
 // Main AddToCart Component
@@ -35,6 +36,15 @@ export default function AddToCart() {
       },
       { subTotal: 0, totalGST: 0, grandTotal: 0 }
     );
+  }, [cart]);
+
+  const { upsellLinks, crosssellLinks } = useMemo(() => {
+    const allUpsells = cart.flatMap((item) => (item.product as any)?.upsells || []);
+    const allCross = cart.flatMap((item) => (item.product as any)?.crosssells || []);
+    return {
+      upsellLinks: [...new Set(allUpsells)],
+      crosssellLinks: [...new Set(allCross)],
+    };
   }, [cart]);
 
   function checkoutHandler() {
@@ -141,6 +151,12 @@ export default function AddToCart() {
               productId={firstProduct._id}
             />
           </div>
+
+          <UpsellCrossSellBlock
+            upsells={upsellLinks}
+            crosssells={crosssellLinks}
+            titlePrefix="Cart"
+          />
         </div>
       )}
     </div>

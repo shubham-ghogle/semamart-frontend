@@ -1,4 +1,3 @@
-// src/components/Product/ProductInfoSection.tsx
 import { useState } from "react";
 import offer from "../../../public/offer.png";
 import { AiOutlineCheckCircle } from "react-icons/ai";
@@ -6,8 +5,6 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 export default function ProductInfoSection({
   product,
   selectedVariant,
-  // selectedPack,
-  // selectedPerPiece,
   minOrderQty,
 }: any) {
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
@@ -17,47 +14,34 @@ export default function ProductInfoSection({
   const displayDiscountPrice =
     selectedVariant?.discountPrice ?? product?.discountPrice;
 
-  // show original per-piece price if available; otherwise fall back to discount
-const mainPrice = displayDiscountPrice ?? displayOriginalPrice ?? 0;
+  const mainPrice = displayDiscountPrice ?? displayOriginalPrice ?? 0;
 
-  
-   // safe number parser
-const safeNumber = (v: any) => {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-};
+  const safeNumber = (v: any) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
 
-// compute effective MOQ
-const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
-const stock = Number(selectedVariant?.stock ?? 0);
+  const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
+  const stock = Number(selectedVariant?.stock ?? 0);
+  const isOutOfStock = moq > 0 && stock < moq;
 
-
-const isOutOfStock = moq > 0 && stock < moq;
-
-
-// compute per-piece price
-const perPiecePrice = safeNumber(
-  selectedVariant?.discountPrice ??
-  selectedVariant?.originalPrice ??
-  product?.discountPrice ??
-  product?.originalPrice
-);
-
-// compute total MOQ cost
-const moqTotal = safeNumber(perPiecePrice * moq);
-
-
-  // compute discount only from original per-piece vs discounted per-piece
-let topDiscount = 0;
-
-if (displayOriginalPrice && displayDiscountPrice) {
-  topDiscount = Math.round(
-    ((displayOriginalPrice - displayDiscountPrice) /
-      Math.max(displayOriginalPrice, 1)) *
-      100
+  const perPiecePrice = safeNumber(
+    selectedVariant?.discountPrice ??
+      selectedVariant?.originalPrice ??
+      product?.discountPrice ??
+      product?.originalPrice
   );
-}
 
+  const moqTotal = safeNumber(perPiecePrice * moq);
+
+  let topDiscount = 0;
+  if (displayOriginalPrice && displayDiscountPrice) {
+    topDiscount = Math.round(
+      ((displayOriginalPrice - displayDiscountPrice) /
+        Math.max(displayOriginalPrice, 1)) *
+        100
+    );
+  }
 
   const offers = [
     { title: "Bank Offers", details: "10% off with HDFC cards" },
@@ -66,7 +50,6 @@ if (displayOriginalPrice && displayDiscountPrice) {
     { title: "EMI options", details: "No Cost EMI on orders above ₹3,000" },
   ];
 
-  // brand may be a string or an object { name: string } — handle both
   const brandText =
     product?.brand && typeof product.brand === "string"
       ? product.brand
@@ -101,31 +84,23 @@ if (displayOriginalPrice && displayDiscountPrice) {
 
   return (
     <div className="w-full max-w-md bg-white rounded-lg p-4 shadow-lg space-y-6 mx-auto min-h-[600px] relative">
-      {/* Product Name */}
       <h2 className="text-black break-words text-[24px] leading-[32px] font-manrope">
         {product?.name}
       </h2>
 
-     
-{brandText && (
-  <div className="text-sm font-semibold text-slate-700">
-    Brand: <span className="text-black">{brandText}</span>
-  </div>
-)}
+      {brandText && (
+        <div className="text-sm font-semibold text-slate-700">
+          Brand: <span className="text-black">{brandText}</span>
+        </div>
+      )}
 
-
-
-      {/* Rating */}
       <div className="flex items-center text-base text-gray-500 gap-3">
         <div className="text-yellow-400 text-xl flex gap-0.5">
           {renderStars(product?.avgRating ?? 0)}
         </div>
-        {product?.reviews?.length > 0 && (
-          <span>({product.reviews.length} reviews)</span>
-        )}
+        {product?.reviews?.length > 0 && <span>({product.reviews.length} reviews)</span>}
       </div>
 
-      {/* Price Section */}
       <div className="mt-2">
         <div className="flex items-baseline gap-3 mt-2 flex-wrap">
           <span className="text-3xl font-bold text-[#FB9573]">
@@ -144,17 +119,13 @@ if (displayOriginalPrice && displayDiscountPrice) {
               {topDiscount}% off
             </span>
           )}
-          
         </div>
 
-        {/* Shipping Info */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 mt-2">
-          {/* GST Note */}
           <div className="text-sm text-gray-500 whitespace-nowrap">
             Price Excluding GST
           </div>
 
-          {/* Shipping Banner */}
           <div
             className="mt-2 sm:mt-0 flex items-center justify-center whitespace-nowrap"
             style={{
@@ -173,16 +144,10 @@ if (displayOriginalPrice && displayDiscountPrice) {
         </div>
       </div>
 
-
-    {/* Stock Status */}
       {isOutOfStock ? (
         <div className="mt-4 p-4 rounded-2xl border border-red-200 bg-red-50 text-center">
-          <div className="text-lg font-bold text-red-600">
-            Out of Stock
-          </div>
-          <div className="text-sm text-red-500 mt-1">
-            Minimum order: {moq} pcs
-          </div>
+          <div className="text-lg font-bold text-red-600">Out of Stock</div>
+          <div className="text-sm text-red-500 mt-1">Minimum order: {moq} pcs</div>
         </div>
       ) : (
         moq > 0 && (
@@ -209,14 +174,12 @@ if (displayOriginalPrice && displayDiscountPrice) {
         )
       )}
 
-      {/* Offers Section */}
       <div>
         <div className="flex items-center gap-3 mt-4">
           <img src={offer} alt="Offer Icon" className="w-7 h-7" />
           <span className="text-base font-semibold text-[#1C647C]">Offers</span>
         </div>
 
-        {/* Offers Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           {offers.map((offerObj) => (
             <div
@@ -238,7 +201,6 @@ if (displayOriginalPrice && displayDiscountPrice) {
         </div>
       </div>
 
-      {/* Slide-out Offer Panel */}
       {selectedOffer && (
         <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg border-l p-5 z-50 overflow-auto transition-transform duration-300">
           <div className="flex justify-between items-center mb-4">

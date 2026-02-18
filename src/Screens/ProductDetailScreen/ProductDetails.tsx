@@ -12,6 +12,7 @@ import ProductMediaSection from "./ProductMediaSection";
 import ProductInfoSection from "./ProductInfoSection";
 import PurchasePanel from "./PurchasePanel";
 import ProductBottomSections from "./ProductBottomSections";
+import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
 
 import { toImageUrl } from "./utils";
 import { useUserStore } from "@/store/userStore";
@@ -384,15 +385,26 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
               minOrderQty={minOrderQty}
             />
           </div>
-
-          <ProductBottomSections
-            product={product}
-            selectedVariant={selectedVariant}
-          />
         </div>
       </div>
 
+      <div className="w-full max-w-[1600px] mx-auto px-4 mt-8">
+        <ProductBottomSections
+          product={product}
+          selectedVariant={selectedVariant}
+        />
+      </div>
+
       <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto px-4">
+        {product && (
+          <UpsellCrossSellBlock
+            upsells={(product as any).upsells || []}
+            crosssells={(product as any).crosssells || []}
+            currentProductId={(product as any)._id}
+            titlePrefix="You may also like"
+          />
+        )}
+
         <hr className="border-t border-gray-400" />
         <h1 className="font-bold text-2xl mt-6 ml-2 text-[#1C647C]">
           Related Products
