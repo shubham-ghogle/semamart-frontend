@@ -23,7 +23,7 @@ type Role = {
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<string>("Admin"); // default selected
+  const [role, setRole] = useState<string>("Admin"); 
   const [roles, setRoles] = useState<Role[]>([]);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -103,7 +103,6 @@ export default function AdminLoginForm() {
     mutate({
       email,
       password,
-      role,
     });
   }
 
@@ -170,7 +169,7 @@ export default function AdminLoginForm() {
             </div>
 
             {/* Role Dropdown */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-semibold text-[#1C647C] mb-1">
                 Select Role
               </label>
@@ -187,7 +186,7 @@ export default function AdminLoginForm() {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* Submit */}
             <button
