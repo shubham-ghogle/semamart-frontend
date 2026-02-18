@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
@@ -8,73 +8,73 @@ import { loginFailureToast } from "@/components/UIComponents/Toasts";
 import { postUser } from "../LoginScreen/Login.Hooks";
 import { useUserStore } from "@/store/userStore";
 import type { User } from "@/Types/types";
-import { API_URL } from "@/data";
+// import { API_URL } from "@/data";
 
 
 
 /* -------------------- Role Type -------------------- */
-type Role = {
-  _id: string;
-  name: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
+// type Role = {
+//   _id: string;
+//   name: string;
+//   createdAt?: string;
+//   updatedAt?: string;
+// };
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<string>("Admin"); 
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [rolesLoading, setRolesLoading] = useState(false);
+  // const [role, setRole] = useState<string>("Admin"); 
+  // const [roles, setRoles] = useState<Role[]>([]);
+  // const [rolesLoading, setRolesLoading] = useState(false);
   const [visible, setVisible] = useState(false);
 
   const navigate = useNavigate();
   const addUser = useUserStore((state) => state.addUser);
 
   /* -------------------- Fetch Roles -------------------- */
-  const fetchRoles = async () => {
-    try {
-      setRolesLoading(true);
+  // const fetchRoles = async () => {
+  //   try {
+  //     setRolesLoading(true);
 
-      const res = await fetch(`${API_URL}user/get-roles`, {
-        credentials: "include",
-      });
+  //     const res = await fetch(`${API_URL}user/get-roles`, {
+  //       credentials: "include",
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Failed to fetch roles");
+  //     if (!res.ok) throw new Error(data.message || "Failed to fetch roles");
 
-      const fetchedRoles: Role[] = data.roles || [];
+  //     const fetchedRoles: Role[] = data.roles || [];
 
-      // Inject Admin manually at the top
-      const adminRole: Role = {
-        _id: "admin-static-id",
-        name: "Admin",
-      };
+  //     // Inject Admin manually at the top
+  //     const adminRole: Role = {
+  //       _id: "admin-static-id",
+  //       name: "Admin",
+  //     };
 
-      setRoles([adminRole, ...fetchedRoles]);
+  //     setRoles([adminRole, ...fetchedRoles]);
 
-      // Always default select Admin
-      setRole("Admin");
-    } catch (err) {
-      console.error("Failed to fetch roles:", err);
+  //     // Always default select Admin
+  //     setRole("Admin");
+  //   } catch (err) {
+  //     console.error("Failed to fetch roles:", err);
 
-      // Even if API fails, still show Admin
-      setRoles([
-        {
-          _id: "admin-static-id",
-          name: "Admin",
-        },
-      ]);
-      setRole("Admin");
-    } finally {
-      setRolesLoading(false);
-    }
-  };
+  //     // Even if API fails, still show Admin
+  //     setRoles([
+  //       {
+  //         _id: "admin-static-id",
+  //         name: "Admin",
+  //       },
+  //     ]);
+  //     setRole("Admin");
+  //   } finally {
+  //     setRolesLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  // useEffect(() => {
+  //   fetchRoles();
+  // }, []);
 
   /* -------------------- Login Mutation -------------------- */
   const { mutate, status } = useMutation({
