@@ -152,8 +152,8 @@ export default function ProductCard({ product }: Props) {
   };
 
   // ratings (0..5)
-  const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
-  const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
+  // const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
+  // const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
 
   // --- resolve category name using categoriesMap fetched from backend ---
   const categoriesMap = useCategoriesMap();

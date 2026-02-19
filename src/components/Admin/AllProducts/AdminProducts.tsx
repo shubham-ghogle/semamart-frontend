@@ -25,6 +25,7 @@ type VariantRow = {
   adminVisibility: boolean;
   seller: string;
   badge: boolean; // ✅ NEW
+  avgRating: number;
 };
 
 export default function AdminProduct() {
@@ -141,6 +142,7 @@ export default function AdminProduct() {
           ? pro.visibilityByAdmin
           : false,
       badge: typeof pro.badge === "boolean" ? pro.badge : false, // ✅ NEW
+      avgRating: pro.avgRating || 0,
     }))
   );
 
@@ -242,7 +244,7 @@ export default function AdminProduct() {
           minimumFractionDigits: 2,
         }),
     },
-
+    { accessorKey: "avgRating", header: "Rating" },
     {
       id: "action",
       header: "Actions",
