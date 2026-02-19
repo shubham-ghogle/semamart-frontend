@@ -634,7 +634,7 @@ export default function SellerRegistration(): JSX.Element {
   <h3 className="font-semibold mt-6 mb-2">7. Seller Payments & Settlements</h3>
   <ul className="list-disc pl-6 space-y-1">
     <li>SEMAMART will settle payments after delivery confirmation and dispute window closure.</li>
-    <li>Settlement cycles: <strong>[T+X days]</strong>.</li>
+    <li>Settlement cycles: <strong>[T+15 days]</strong>.</li>
     <li>
       SEMAMART may deduct platform commission/fees, logistics charges, penalties,
       reverse pickup costs, and tax deductions as per law.

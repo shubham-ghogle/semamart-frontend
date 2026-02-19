@@ -177,7 +177,7 @@ const Orderpage = () => {
     (a, b) => getOrderDate(b).getTime() - getOrderDate(a).getTime()
   );
 
-  const TIME_WINDOW_MS = 15 * 60 * 1000;
+  const TIME_WINDOW_MS = 1 * 60 * 1000;
   const groupedOrders: Order[][] = [];
 
   sortedOrders.forEach((order) => {
