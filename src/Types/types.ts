@@ -119,6 +119,7 @@ export interface Product {
   visibilityBySeller: boolean;
   visibilityByAdmin: boolean;
   brand?: string;
+  badge?:boolean;
 }
 
 export type Address = {
