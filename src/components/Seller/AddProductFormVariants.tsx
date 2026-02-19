@@ -188,13 +188,20 @@ export default function AddProductFormVariants({
             )}
 
             {fields.map((field, i) => (
-              <div key={field.id} className="flex items-center gap-2">
+              <div key={field.id} className="flex items-start gap-2">
                 <Input
                   className="w-20"
                   {...form.register(`variants.${index}.bulkOrders.${i}.qty`, {
                     valueAsNumber: true,
                   })}
                 />
+                {form.formState.errors?.variants?.[index]?.bulkOrders?.[i]?.qty?.message && (
+                  <p className="mt-1 w-20 text-xs text-red-500">
+                    {String(
+                      form.formState.errors?.variants?.[index]?.bulkOrders?.[i]?.qty?.message,
+                    )}
+                  </p>
+                )}
 
                 <Input
                   className="w-28"

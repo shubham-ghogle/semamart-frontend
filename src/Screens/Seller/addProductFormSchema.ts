@@ -225,6 +225,23 @@ brand: z.string().min(2, "Brand is required"),
       message: "Tax class is required for tax status 'Taxable'",
       path: ["taxClass"],
     }
-  );
+  )
+  .superRefine((data, ctx) => {
+    const minOrderQty = Number.parseInt(data.minmaxrule?.minQty || "", 10);
+    if (!Number.isFinite(minOrderQty) || minOrderQty <= 0) return;
+
+    data.variants.forEach((variant, variantIndex) => {
+      const bulkOrders = variant.bulkOrders || [];
+      bulkOrders.forEach((bulk, bulkIndex) => {
+        if (bulk.qty < minOrderQty) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Bulk quantity cannot be less than minimum order quantity (${minOrderQty}).`,
+            path: ["variants", variantIndex, "bulkOrders", bulkIndex, "qty"],
+          });
+        }
+      });
+    });
+  });
 
 export { addProductFormSchema };
