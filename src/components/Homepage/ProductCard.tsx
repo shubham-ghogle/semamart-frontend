@@ -226,14 +226,24 @@ export default function ProductCard({ product }: Props) {
           {/* hide category & rating on mobile to reduce clutter */}
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
 
-          <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`w-3.5 h-3.5 ${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`}
-              />
-            ))}
-            <span className="text-xs text-gray-500 ml-1">({ratingRaw ?? 0})</span>
+         <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
+            {Array.from({ length: 5 }).map((_, i) => {
+              const fillPercent = Math.min(Math.max(product.avgRating - i, 0), 1) * 100;
+
+              return (
+                <div key={i} className="relative w-3.5 h-3.5">
+                  {/* Gray empty star */}
+                  <Star className="absolute w-3.5 h-3.5 text-gray-200" />
+
+                  {/* Yellow filled part */}
+                  <Star
+                    className="absolute w-3.5 h-3.5 text-yellow-400 overflow-hidden"
+                    style={{ width: `${fillPercent}%`, clipPath: `inset(0 ${100 - fillPercent}% 0 0)` }}
+                  />
+                </div>
+              );
+            })}
+            <span className="text-xs text-gray-500 ml-1">({product.avgRating?.toFixed(1) ?? 0})</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
