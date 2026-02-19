@@ -89,7 +89,8 @@ export default function ProductBasedOnType() {
       const getPrice = (p: Product) => p.variants?.[0]?.discountPrice ?? p.variants?.[0]?.originalPrice ?? 0;
       if (sort === "priceLow") return getPrice(a) - getPrice(b);
       if (sort === "priceHigh") return getPrice(b) - getPrice(a);
-      if (sort === "ratingHigh") return (b.ratings ?? 0) - (a.ratings ?? 0);
+      if (sort === "ratingHigh") return (b.avgRating ?? 0) - (a.avgRating ?? 0);
+      if (sort === "ratingLow") return (a.avgRating ?? 0) - (b.avgRating ?? 0);
       if (sort === "discountHigh") {
         const getDiscount = (p: Product) => {
           const v = p.variants?.[0];
@@ -227,6 +228,7 @@ export default function ProductBasedOnType() {
               <option value="priceLow">Price -- Low to High</option>
               <option value="priceHigh">Price -- High to Low</option>
               <option value="ratingHigh">Rating -- High to Low</option>
+              <option value="ratingLow">Rating -- Low to High</option>
               <option value="discountHigh">Highest Discount</option>
             </select>
           </div>

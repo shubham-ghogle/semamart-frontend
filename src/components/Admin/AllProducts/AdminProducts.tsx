@@ -27,6 +27,7 @@ type VariantRow = {
   commissionHistoryDate: string;
   commissionHistoryAmount: number;
   seller: string;
+  avgRating: number;
 };
 
 export default function AdminProduct() {
@@ -98,6 +99,7 @@ export default function AdminProduct() {
       seller: pro?.shopId?.businessName ?? "-",
       sellerVisibility: typeof pro.visibilityBySeller === "boolean" ? pro.visibilityBySeller : true,
       adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
+      avgRating: pro.avgRating || 0,
     }))
   );
 
@@ -163,6 +165,7 @@ export default function AdminProduct() {
           minimumFractionDigits: 2,
         }),
     },
+    { accessorKey: "avgRating", header: "Rating" },
     {
       id: "action",
       header: "Actions",

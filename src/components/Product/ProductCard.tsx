@@ -138,7 +138,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
           <div className="flex items-center gap-2 text-[#FF9529] text-sm mb-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <span key={i} aria-hidden>
-                {i < Math.round(product.ratings ?? 0) ? "★" : "☆"}
+                {i < Math.round(product.avgRating ?? 0) ? "★" : "☆"}
               </span>
             ))}
           </div>

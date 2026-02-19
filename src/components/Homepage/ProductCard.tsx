@@ -127,8 +127,8 @@ export default function ProductCard({ product }: Props) {
 
 
   // ratings (0..5)
-  const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
-  const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
+  // const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
+  // const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
 
   // --- resolve category name using categoriesMap fetched from backend ---
   const categoriesMap = useCategoriesMap();
@@ -226,7 +226,7 @@ export default function ProductCard({ product }: Props) {
           {/* hide category & rating on mobile to reduce clutter */}
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
 
-         <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
+          <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
             {Array.from({ length: 5 }).map((_, i) => {
               const fillPercent = Math.min(Math.max(product.avgRating - i, 0), 1) * 100;
 

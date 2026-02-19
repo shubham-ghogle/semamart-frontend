@@ -26,6 +26,7 @@ type VariantRow = {
   commission: number;
   sellerVisibility: boolean;
   commissionHistory: { updatedAt: string; commission: number }[];
+  avgRating: number;
   
 };
 
@@ -53,6 +54,7 @@ export default function SellerProductTable({
       commission: pro.commission || 0,
       sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
       commissionHistory: pro.commissionHistory || [],
+      avgRating: pro.avgRating || 0,
     })),
   );
 
@@ -140,6 +142,7 @@ export default function SellerProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
+    { accessorKey: "avgRating", header: "Rating" },
     {
       accessorKey: "commission",
       header: () => (
