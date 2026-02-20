@@ -54,7 +54,7 @@ export default function SellerProductTable({
       commission: pro.commission || 0,
       sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
       commissionHistory: pro.commissionHistory || [],
-      avgRating: pro.avgRating || 0,
+      avgRating: pro.avgRating ?? "-",
     })),
   );
 

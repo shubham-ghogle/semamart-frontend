@@ -99,7 +99,7 @@ export default function AdminProduct() {
       seller: pro?.shopId?.businessName ?? "-",
       sellerVisibility: typeof pro.visibilityBySeller === "boolean" ? pro.visibilityBySeller : true,
       adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
-      avgRating: pro.avgRating || 0,
+      avgRating: pro.avgRating ?? "-",
     }))
   );
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import offer from "../../../public/offer.png";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import StarIcons from "@/components/ui/StarIcons";
 
 export default function ProductInfoSection({
   product,
@@ -95,9 +96,10 @@ export default function ProductInfoSection({
       )}
 
       <div className="flex items-center text-base text-gray-500 gap-3">
-        <div className="text-yellow-400 text-xl flex gap-0.5">
-          {renderStars(product?.avgRating ?? 0)}
-        </div>
+        <StarIcons
+            stars={product.avgRating ?? 0}
+            reviews={product.avgRating ?? 0}
+          />
         {product?.reviews?.length > 0 && <span>({product.reviews.length} reviews)</span>}
       </div>
 
