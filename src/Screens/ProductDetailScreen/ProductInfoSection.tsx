@@ -56,32 +56,7 @@ export default function ProductInfoSection({
       ? product.brand
       : product?.brand?.name || null;
 
-    const renderStars = (avgRating: number) => {
-    const fullStars = Math.floor(avgRating);
-    const decimal = avgRating - fullStars;
-    const hasHalfStar = decimal >= 0.25 && decimal < 0.75;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    return (
-      <>
-        {/* Full stars */}
-        {"★".repeat(fullStars)}
-
-        {/* Half star */}
-        {hasHalfStar && (
-          <span className="relative inline-block w-5 h-5 align-middle">
-            <span className="absolute overflow-hidden left-0 top-0 w-1/2 text-yellow-400">
-              ★
-            </span>
-            <span className="text-gray-300">★</span>
-          </span>
-        )}
-
-        {/* Empty stars */}
-        {"☆".repeat(emptyStars)}
-      </>
-    );
-  };    
+     
 
   return (
     <div className="w-full max-w-md bg-white rounded-lg p-4 shadow-lg space-y-6 mx-auto min-h-[600px] relative">

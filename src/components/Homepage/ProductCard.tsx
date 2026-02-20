@@ -1,6 +1,6 @@
 import React from "react";
 import { Product } from "@/Types/types";
-import { Star, ShoppingCart, Plus } from "lucide-react";
+import {  ShoppingCart, Plus } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { Link, useNavigate } from "react-router-dom";

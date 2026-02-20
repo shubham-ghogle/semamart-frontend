@@ -8,7 +8,6 @@ import { useUserStore } from "@/store/userStore";
 import { Heart, ShoppingCart } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StarIcon from "../ui/StarIcons";
 import StarIcons from "../ui/StarIcons";
 
 
