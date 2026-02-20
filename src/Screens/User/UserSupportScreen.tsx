@@ -18,7 +18,7 @@ const UserSupportScreen = () => {
   const [showError, setShowError] = useState('');
 
   useEffect(() => {
-    fetchTickets();
+    fetchTickets('User');
   }, [fetchTickets]);
 
   // Filter tickets for current user
@@ -156,7 +156,7 @@ const UserSupportScreen = () => {
                 <td className="p-2 border">{c.status}</td>
                   <td className="p-2 border">
                     <button 
-                      onClick={() => navigate(`/user/support/${c._id}`)} 
+                      onClick={() => navigate(`/account/support/${c._id}`)} 
                       className="text-blue-500 hover:text-blue-700 p-1 rounded"
                       title="View Ticket Details"
                     >

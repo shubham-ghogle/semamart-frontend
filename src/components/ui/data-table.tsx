@@ -405,10 +405,7 @@ doc.text(
   return (
     <div className="w-full">
       <section
-        className={
-          "mb-4 flex items-center " +
-          (disableSearch ? "justify-end" : "justify-between")
-        }
+        className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
       >
         {/* serach input */}
         {!disableSearch && (
@@ -421,7 +418,7 @@ doc.text(
             onChange={(event) =>
               table.getColumn(searchColId)?.setFilterValue(event.target.value)
             }
-            className="max-w-sm p-2 border rounded"
+            className="max-w-sm p-2 border rounded w-full sm:w-auto"
           />
         )}
         

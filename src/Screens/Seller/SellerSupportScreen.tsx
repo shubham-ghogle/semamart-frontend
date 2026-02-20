@@ -18,7 +18,7 @@ const SellerSupportScreen = () => {
   const [showError, setShowError] = useState('');
 
   useEffect(() => {
-    fetchTickets();
+    fetchTickets('Seller');
   }, [fetchTickets]);
 
   // Filter tickets for current seller

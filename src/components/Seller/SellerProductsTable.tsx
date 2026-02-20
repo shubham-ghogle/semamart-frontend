@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { API_URL, BASE_URL } from "@/data";
 import { Product } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { AiOutlineEdit, AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { DataTable } from "../ui/data-table";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
@@ -26,7 +27,8 @@ type VariantRow = {
   commission: number;
   sellerVisibility: boolean;
   commissionHistory: { updatedAt: string; commission: number }[];
-  
+  rawCreatedAt: Date;
+  productCategories: string[]; // Add product categories
 };
 
 type SellerProductTableProps = {
@@ -37,24 +39,94 @@ export default function SellerProductTable({
   products,
 }: SellerProductTableProps) {
   const { seller } = useSellerStore((state) => state);
+  const [sortBy, setSortBy] = useState("newest");
+  // Filter states
+  const [category, setCategory] = useState("");
+  const [productStatus, setProductStatus] = useState("");
+  const [minPrice, setMinPrice] = useState<number | "">("");
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
 
-  const rows: VariantRow[] = products.flatMap((pro) =>
-    pro.variants.map((v) => ({
-      id: v._id,
-      productName: pro.name,
-      thumbnail: BASE_URL + "images/" + v.thumbnail,
-      colorOption: v.colorOption || "-",
-      size: v.size || "-",
-      stock: v.stock,
-      originalPrice: v.originalPrice,
-      discountPrice: v.discountPrice ?? 0,
-      createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
-      productId: pro._id,
-      commission: pro.commission || 0,
-      sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
-      commissionHistory: pro.commissionHistory || [],
-    })),
-  );
+  // Fetch categories for filter dropdown
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await fetch(API_URL + "category");
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      return res.json();
+    },
+  });
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSortBy("newest");
+    setCategory("");
+    setProductStatus("");
+    setMinPrice("");
+    setMaxPrice("");
+  };
+
+  // flatten to rows, apply filtering, and sorting
+  const rows: VariantRow[] = (() => {
+    let filteredRows: VariantRow[] = products.flatMap((pro) =>
+      pro.variants.map((v) => ({
+        id: v._id,
+        productName: pro.name,
+        thumbnail: BASE_URL + "images/" + v.thumbnail,
+        colorOption: v.colorOption || "-",
+        size: v.size || "-",
+        stock: v.stock,
+        originalPrice: v.originalPrice,
+        discountPrice: v.discountPrice ?? 0,
+        createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
+        productId: pro._id,
+        commission: pro.commission || 0,
+        sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
+        commissionHistory: pro.commissionHistory || [],
+        rawCreatedAt: new Date(pro.createdAt),
+        productCategories: pro.category || [], // Include product categories
+      })),
+    );
+
+    // Apply category filter
+    if (category) {
+      filteredRows = filteredRows.filter(row => {
+        const productCategories = row.productCategories || [];
+        return productCategories.includes(category);
+      });
+    }
+
+    // Apply status filter
+    if (productStatus) {
+      const isActive = productStatus === "Active";
+      filteredRows = filteredRows.filter(row => row.sellerVisibility === isActive);
+    }
+
+    // Apply price range filter
+    if (minPrice !== "") {
+      filteredRows = filteredRows.filter(row => row.originalPrice >= minPrice);
+    }
+    if (maxPrice !== "") {
+      filteredRows = filteredRows.filter(row => row.originalPrice <= maxPrice);
+    }
+
+    // Apply sorting
+    return [...filteredRows].sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
+        case "oldest":
+          return (a.rawCreatedAt?.getTime() || 0) - (b.rawCreatedAt?.getTime() || 0);
+        case "price-low":
+          return a.originalPrice - b.originalPrice;
+        case "price-high":
+          return b.originalPrice - a.originalPrice;
+        case "bestSelling":
+          return b.stock - a.stock;
+        default:
+          return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
+      }
+    });
+  })();
 
   const columns: ColumnDef<VariantRow>[] = [
     {
@@ -197,6 +269,80 @@ export default function SellerProductTable({
 
   return (
     <>
+      {/* Filter Criteria Row */}
+      <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
+          <select 
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="price-low">Price Low–High</option>
+            <option value="price-high">Price High–Low</option>
+            <option value="bestSelling">Best Selling</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
+          <select 
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">All</option>
+            {categoriesData?.map((cat: any) => (
+              <option key={cat._id} value={cat._id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
+          <select 
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            value={productStatus}
+            onChange={(e) => setProductStatus(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
+          <input
+            type="number"
+            placeholder="Min"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-24"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
+          <input
+            type="number"
+            placeholder="Max"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-24"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
+          />
+        </div>
+
+        <button 
+          className="ml-auto px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-md shadow-sm transition-all duration-200"
+          onClick={handleResetFilters}
+        >
+          Reset Filter
+        </button>
+      </div>
+
       <DataTable
         data={rows}
         columns={columns}

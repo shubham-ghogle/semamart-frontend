@@ -8,7 +8,7 @@ type SupportStore = {
   error: string | null;
 
   // Actions
-  fetchTickets: () => Promise<void>;
+  fetchTickets: (userType?: 'User' | 'Seller' | 'Admin') => Promise<void>;
   createTicket: (ticket: Omit<SupportTicket, '_id' | 'caseId' | 'createdAt' | 'updatedAt' | 'conversation' | 'status' | 'documents'> & { documents?: File[] }) => Promise<void>;
   updateTicketStatus: (ticketId: string, status: SupportTicket['status']) => Promise<void>;
   addMessage: (ticketId: string, message: Omit<SupportMessage, '_id'>) => Promise<void>;
@@ -73,146 +73,31 @@ const sendAdminReplyEmail = (ticket: SupportTicket, message: SupportMessage) => 
 
 // Create the support store
 export const useSupportStore = create<SupportStore>((set, get) => {
-  // Listen for changes to localStorage from other tabs/windows
-  const handleStorageChange = (e: StorageEvent) => {
-    if (e.key === 'supportTickets' && e.newValue) {
-      console.log('Support tickets changed in other tab, updating state...');
-      try {
-        let tickets = JSON.parse(e.newValue);
-        
-        // Ensure all tickets have required fields for compatibility
-        tickets = tickets.map((ticket: any) => ({
-          ...ticket,
-          userType: ticket.userType || 'Customer',
-          status: ticket.status || 'New',
-          createdAt: ticket.createdAt || new Date().toISOString(),
-          updatedAt: ticket.updatedAt || new Date().toISOString(),
-          conversation: ticket.conversation || [],
-          documents: ticket.documents || []
-        }));
-        
-        set({ tickets });
-      } catch (error) {
-        console.error('Error parsing tickets from storage event:', error);
-      }
-    }
-  };
-
-  // Add event listener for storage changes
-  if (typeof window !== 'undefined') {
-    window.addEventListener('storage', handleStorageChange);
-  }
-
   return {
     tickets: [],
     loading: false,
     error: null,
 
-    fetchTickets: async () => {
+    fetchTickets: async (userType?: 'User' | 'Seller' | 'Admin') => {
       set({ loading: true, error: null });
       try {
-        // TODO: Replace with actual API call
-        // const res = await fetch('/api/support/tickets');
-        // const tickets = await res.json();
-        // Load test tickets if no tickets are stored
-        let storedTickets = localStorage.getItem('supportTickets');
-        console.log('Stored tickets raw:', storedTickets);
-        let tickets = storedTickets ? JSON.parse(storedTickets) : [];
+        let url = 'http://localhost:8000/api/v2/support/all';
+        if (userType === 'User') {
+          url = 'http://localhost:8000/api/v2/support/user-tickets';
+        } else if (userType === 'Seller') {
+          url = 'http://localhost:8000/api/v2/support/seller-tickets';
+        }
+
+        const res = await fetch(url, {
+          credentials: 'include',
+        });
         
-        // Add test tickets if no tickets are found
-        if (tickets.length === 0) {
-          console.log('No tickets found, adding test tickets...');
-          tickets = [
-            {
-              _id: "1",
-              caseId: "U001",
-              userType: "Customer",
-              user: {
-                firstName: "Neelam",
-                lastName: "Verma",
-                email: "neelam@example.com"
-              },
-              topic: "abc",
-              status: "In Progress",
-              createdAt: new Date("2026-02-02").toISOString(),
-              updatedAt: new Date("2026-02-02").toISOString(),
-              conversation: [],
-              documents: []
-            },
-            {
-              _id: "2",
-              caseId: "U002",
-              userType: "Customer",
-              user: "cabak57087@amtile.com",
-              topic: "bhvh",
-              status: "New",
-              createdAt: new Date("2026-02-09").toISOString(),
-              updatedAt: new Date("2026-02-09").toISOString(),
-              conversation: [],
-              documents: []
-            },
-            {
-              _id: "3",
-              caseId: "U003",
-              userType: "Customer",
-              user: "cabak57087@amtile.com",
-              topic: "abcd",
-              status: "New",
-              createdAt: new Date("2026-02-09").toISOString(),
-              updatedAt: new Date("2026-02-09").toISOString(),
-              conversation: [],
-              documents: []
-            },
-            {
-              _id: "4",
-              caseId: "U004",
-              userType: "Customer",
-              user: "cabak57087@amtile.com",
-              topic: "Abc",
-              status: "New",
-              createdAt: new Date("2026-02-09").toISOString(),
-              updatedAt: new Date("2026-02-09").toISOString(),
-              conversation: [],
-              documents: []
-            },
-            {
-              _id: "5",
-              caseId: "U005",
-              userType: "Customer",
-              user: "cabak57087@amtile.com",
-              topic: "cxd",
-              status: "New",
-              createdAt: new Date("2026-02-10").toISOString(),
-              updatedAt: new Date("2026-02-10").toISOString(),
-              conversation: [],
-              documents: []
-            },
-            {
-              _id: "6",
-              caseId: "U006",
-              userType: "Customer",
-              user: "cabak57087@amtile.com",
-              topic: "product issue",
-              status: "New",
-              createdAt: new Date("2026-02-10").toISOString(),
-              updatedAt: new Date("2026-02-10").toISOString(),
-              conversation: [],
-              documents: []
-            }
-          ];
-          localStorage.setItem('supportTickets', JSON.stringify(tickets));
+        if (!res.ok) {
+          throw new Error('Failed to fetch tickets');
         }
         
-        // Ensure all tickets have required fields for compatibility
-        tickets = tickets.map((ticket: any) => ({
-          ...ticket,
-          userType: ticket.userType || 'Customer',
-          status: ticket.status || 'New',
-          createdAt: ticket.createdAt || new Date().toISOString(),
-          updatedAt: ticket.updatedAt || new Date().toISOString(),
-          conversation: ticket.conversation || [],
-          documents: ticket.documents || []
-        }));
+        const data = await res.json();
+        const tickets = data.tickets;
         
         console.log('Fetched tickets count:', tickets.length);
         console.log('Fetched tickets details:', tickets);
@@ -237,45 +122,29 @@ export const useSupportStore = create<SupportStore>((set, get) => {
           });
         }
 
-        // Generate unique case ID with proper sequential numbering
-        const prefix = ticketData.userType === 'Seller' ? 'S' : ticketData.userType === 'Institute' ? 'I' : 'U';
+        const res = await fetch('http://localhost:8000/api/v2/support/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            ...ticketData,
+            documents,
+          }),
+        });
         
-        // Find the highest existing case ID for this user type
-        const existingTickets = get().tickets.filter(ticket => 
-          ticket.caseId.startsWith(prefix)
-        );
-        
-        let nextNumber = 1;
-        if (existingTickets.length > 0) {
-          const highestNumber = Math.max(...existingTickets.map(ticket => {
-            const numericPart = ticket.caseId.slice(1);
-            return parseInt(numericPart, 10);
-          }));
-          nextNumber = highestNumber + 1;
+        if (!res.ok) {
+          throw new Error('Failed to create ticket');
         }
-
-        const caseId = prefix + nextNumber.toString().padStart(3, '0');
-
-        // Mock creation - ensure user is properly stringified
-        const newTicket: SupportTicket = {
-          ...ticketData,
-          _id: Date.now().toString(),
-          caseId: caseId,
-          status: 'New',
-          conversation: [],
-          documents: documents,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          // Store user as a string (email or id) to ensure consistency
-          user: typeof ticketData.user === 'string' ? ticketData.user : ticketData.user.email || ticketData.user._id,
-        };
+        
+        const data = await res.json();
+        const newTicket = data.ticket;
 
         console.log('New ticket created:', newTicket);
 
         set(state => {
           const updatedTickets = [...state.tickets, newTicket];
-          console.log('Updating localStorage with tickets:', updatedTickets);
-          localStorage.setItem('supportTickets', JSON.stringify(updatedTickets));
           return {
             tickets: updatedTickets,
             loading: false
@@ -293,20 +162,26 @@ export const useSupportStore = create<SupportStore>((set, get) => {
     updateTicketStatus: async (ticketId, status) => {
       set({ loading: true, error: null });
       try {
-        // TODO: Replace with actual API call
-        // await fetch(`/api/support/tickets/${ticketId}/status`, {
-        //   method: 'PATCH',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ status }),
-        // });
+        const res = await fetch(`http://localhost:8000/api/v2/support/${ticketId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status }),
+        });
+        
+        if (!res.ok) {
+          throw new Error('Failed to update ticket status');
+        }
+        
+        const data = await res.json();
+        const updatedTicket = data.ticket;
 
         set(state => {
           const updatedTickets = state.tickets.map(ticket =>
             ticket._id === ticketId
-              ? { ...ticket, status, updatedAt: new Date().toISOString() }
+              ? updatedTicket
               : ticket
           );
-          localStorage.setItem('supportTickets', JSON.stringify(updatedTickets));
           return {
             tickets: updatedTickets,
             loading: false
@@ -314,18 +189,15 @@ export const useSupportStore = create<SupportStore>((set, get) => {
         });
 
         // Send email notification for status update
-        const updatedTicket = get().tickets.find(t => t._id === ticketId);
-        if (updatedTicket) {
-          console.log('=== Status Update Email ===');
-          console.log(`To: ${typeof updatedTicket.user === 'string' ? updatedTicket.user : updatedTicket.user.email}`);
-          console.log(`Subject: Support Ticket Status Updated – ${updatedTicket.caseId}`);
-          console.log('Content:');
-          console.log(`Your support ticket status has been updated.`);
-          console.log(`Case ID: ${updatedTicket.caseId}`);
-          console.log(`New Status: ${status}`);
-          console.log(`Updated At: ${new Date().toLocaleString()}`);
-          console.log('===========================');
-        }
+        console.log('=== Status Update Email ===');
+        console.log(`To: ${typeof updatedTicket.user === 'string' ? updatedTicket.user : updatedTicket.user.email}`);
+        console.log(`Subject: Support Ticket Status Updated – ${updatedTicket.caseId}`);
+        console.log('Content:');
+        console.log(`Your support ticket status has been updated.`);
+        console.log(`Case ID: ${updatedTicket.caseId}`);
+        console.log(`New Status: ${status}`);
+        console.log(`Updated At: ${new Date().toLocaleString()}`);
+        console.log('===========================');
       } catch (error) {
         set({ error: 'Failed to update ticket status', loading: false });
       }
@@ -334,31 +206,26 @@ export const useSupportStore = create<SupportStore>((set, get) => {
     addMessage: async (ticketId, messageData) => {
       set({ loading: true, error: null });
       try {
-        // TODO: Replace with actual API call
-        // const res = await fetch(`/api/support/tickets/${ticketId}/messages`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(messageData),
-        // });
-        // const newMessage = await res.json();
-
-        // Mock adding message
-        const newMessage: SupportMessage = {
-          ...messageData,
-          _id: Date.now().toString(),
-        };
+        const res = await fetch(`http://localhost:8000/api/v2/support/${ticketId}/message`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(messageData),
+        });
+        
+        if (!res.ok) {
+          throw new Error('Failed to add message');
+        }
+        
+        const data = await res.json();
+        const updatedTicket = data.ticket;
 
         set(state => {
           const updatedTickets = state.tickets.map(ticket =>
             ticket._id === ticketId
-              ? {
-                  ...ticket,
-                  conversation: [...ticket.conversation, newMessage],
-                  updatedAt: new Date().toISOString()
-                }
+              ? updatedTicket
               : ticket
           );
-          localStorage.setItem('supportTickets', JSON.stringify(updatedTickets));
           return {
             tickets: updatedTickets,
             loading: false
@@ -369,8 +236,8 @@ export const useSupportStore = create<SupportStore>((set, get) => {
         const ticket = get().tickets.find(t => t._id === ticketId);
         if (ticket) {
           // If admin is replying, send admin reply email
-          if (newMessage.from === 'Admin') {
-            sendAdminReplyEmail(ticket, newMessage);
+          if (messageData.from === 'Admin') {
+            sendAdminReplyEmail(ticket, messageData);
           } else {
             // If user is sending a message, notify admin
             console.log('=== New Message Email (Admin Notification) ===');
@@ -378,8 +245,8 @@ export const useSupportStore = create<SupportStore>((set, get) => {
             console.log(`Subject: New Message on Support Ticket – ${ticket.caseId}`);
             console.log('Content:');
             console.log(`You have received a new message on support ticket ${ticket.caseId}.`);
-            console.log(`From: ${newMessage.from}`);
-            console.log(`Message: ${newMessage.message}`);
+            console.log(`From: ${messageData.from}`);
+            console.log(`Message: ${messageData.message}`);
             console.log(`Sent At: ${new Date().toLocaleString()}`);
             console.log('==============================================');
           }

@@ -283,10 +283,11 @@ export type CategoryDetailApiRes = {
 
 // SUPPORT TYPES /////
 export interface SupportMessage {
-  _id: string;
+  _id?: string;
   from: 'User' | 'Admin' | 'Seller';
   message: string;
-  date: string;
+  timestamp?: Date;
+  date?: string;
   attachments?: string[];
 }
 
@@ -297,7 +298,7 @@ export interface SupportTicket {
   user: string | User;
   topic: string;
   message: string;
-  status: 'New' | 'In Progress' | 'Closed';
+  status: 'New' | 'Open' | 'In Progress' | 'Closed';
   conversation: SupportMessage[];
   documents: string[];
   createdAt: string;
