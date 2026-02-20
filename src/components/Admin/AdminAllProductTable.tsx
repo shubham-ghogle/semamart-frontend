@@ -28,6 +28,7 @@ type VariantRow = {
   commissionHistoryAmount: number;
   sellerVisibility: boolean;
   adminVisibility: boolean;
+   badge: boolean;
   commissionHistory: { updatedAt: string; commission: number }[];
 };
 
@@ -79,11 +80,45 @@ export default function AdminAllProductTable({
         commissionHistoryAmount: lastCommission?.commission ?? 0,
         adminVisibility: pro.visibilityByAdmin,
         sellerVisibility: pro.visibilityBySeller,
+         badge: pro.badge ?? false,
         commissionHistory: pro.commissionHistory || [],
       };
     }),
   );
 
+  const { mutate: mutateBadge, status: badgeStatus } = useMutation({
+  mutationFn: async (productId: string) => {
+    const res = await fetch(
+      API_URL + `product/update-badge/${productId}`,
+      {
+        method: "PUT",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to update badge");
+    }
+
+    return data; // 👈 return full response
+  },
+
+  onSuccess: (data) => {
+    qc.invalidateQueries({ queryKey: ["seller-products"] });
+
+    // ✅ use backend message
+    toast.success(data?.message || "Badge updated");
+  },
+
+  onError: (err: any) => {
+    toast.error(err?.message || "Error updating badge");
+  },
+});
+
+
+   
   const columns: ColumnDef<VariantRow>[] = [
     {
       id: "select",
@@ -104,6 +139,18 @@ export default function AdminAllProductTable({
       enableSorting: false,
       enableHiding: false,
     },
+    {
+  accessorKey: "badge",
+  header: "Badge",
+  cell: ({ row }) => (
+    <Switch
+      checked={row.original.badge}
+      onCheckedChange={() => mutateBadge(row.original.productId)}
+      disabled={badgeStatus === "pending"}
+    />
+  ),
+},
+
     {
       accessorKey: "adminVisibility",
       header: "Admin Visibility",
