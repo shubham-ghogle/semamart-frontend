@@ -56,106 +56,108 @@ const AdminSupportScreen = () => {
 
   return (
     <div className="p-4 sm:p-6">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4">Support Management</h1>
-      <div className="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <input
-          type="text"
-          placeholder="Search by Case ID, Name, Topic"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 rounded w-full sm:flex-1 min-w-[250px]"
-        />
-        
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
-                !startDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "PPP") : <span>From Date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={setStartDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4">Support Management</h1>
+        <div className="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <input
+            type="text"
+            placeholder="Search by Case ID, Name, Topic"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border p-2 rounded w-full sm:flex-1 min-w-[250px]"
+          />
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
+                  !startDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {startDate ? format(startDate, "PPP") : <span>From Date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={setStartDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
-                !endDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endDate ? format(endDate, "PPP") : <span>To Date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={endDate}
-              onSelect={setEndDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-      
-      <div className="overflow-x-auto">
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">Case ID</th>
-              <th className="p-2 border">User Type</th>
-              <th className="p-2 border">Name</th>
-              <th className="p-2 border">Topic</th>
-              <th className="p-2 border">Status</th>
-              <th className="p-2 border">Submission Date</th>
-              <th className="p-2 border">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCases.map(c => {
-              const userDetails = typeof c.user === 'object' ? c.user : null;
-              const userDisplayName = userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : (typeof c.user === 'string' ? c.user : 'N/A');
-              return (
-                <tr key={c._id} className="border-t">
-                  <td className="p-2 border">{c.caseId}</td>
-                  <td className="p-2 border">{c.userType}</td>
-                  <td className="p-2 border">{userDisplayName}</td>
-                  <td className="p-2 border">{c.topic}</td>
-                  <td className="p-2 border">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(c.status)}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="p-2 border">{new Date(c.createdAt).toLocaleString()}</td>
-                  <td className="p-2 border">
-                    <button 
-                      onClick={() => navigate(`/admin/support/${c._id}`)} 
-                      className="text-blue-500 hover:text-blue-700 p-1 rounded"
-                      title="View Ticket Details"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
+                  !endDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {endDate ? format(endDate, "PPP") : <span>To Date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">Case ID</th>
+                <th className="p-2 border">User Type</th>
+                <th className="p-2 border">Name</th>
+                <th className="p-2 border">Topic</th>
+                <th className="p-2 border">Status</th>
+                <th className="p-2 border">Submission Date</th>
+                <th className="p-2 border">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCases.map(c => {
+                const userDetails = typeof c.user === 'object' ? c.user : null;
+                const userDisplayName = userDetails ? `${userDetails.firstName} ${userDetails.lastName}` : (typeof c.user === 'string' ? c.user : 'N/A');
+                return (
+                  <tr key={c._id} className="border-t">
+                    <td className="p-2 border">{c.caseId}</td>
+                    <td className="p-2 border">{c.userType}</td>
+                    <td className="p-2 border">{userDisplayName}</td>
+                    <td className="p-2 border">{c.topic}</td>
+                    <td className="p-2 border">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(c.status)}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                    <td className="p-2 border">{new Date(c.createdAt).toLocaleString()}</td>
+                    <td className="p-2 border">
+                      <button 
+                        onClick={() => navigate(`/admin/support/${c._id}`)} 
+                        className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                        title="View Ticket Details"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

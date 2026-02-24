@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, BASE_URL } from "@/data";
 import { DataTable } from "@/components/ui/data-table";
@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
 import UpdateCommissionDialog from "../UpdateCommissionDialog";
 import { Link } from "react-router-dom";
+import { IoIosArrowForward } from "react-icons/io";
 
 
 type VariantRow = {
@@ -31,6 +32,7 @@ type VariantRow = {
   seller: string;
   rawCreatedAt?: Date;
   productCategories: string[]; // Add product categories
+  totalOrderedQuantity?: number; // Add total ordered quantity
 };
 
 export default function AdminProduct() {
@@ -43,6 +45,14 @@ export default function AdminProduct() {
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
+  // Category dropdown states
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<any>(null);
+  const [subcategoryMap, setSubcategoryMap] = useState<
+    Record<string, any[]>
+  >({});
+  const categoryRef = useRef<HTMLDivElement | null>(null);
+
   // Fetch categories for filter dropdown
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
@@ -52,6 +62,37 @@ export default function AdminProduct() {
       return res.json();
     },
   });
+
+  // Fetch subcategories on hover
+  const handleMouseEnter = (category: any) => {
+    setHoveredCategory(category);
+    if (!subcategoryMap[category._id]) {
+      fetch(`${API_URL}category/${category._id}/subcategories`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch subcategories");
+          return res.json();
+        })
+        .then((data: any[]) => {
+          setSubcategoryMap((prev) => ({ ...prev, [category._id]: data || [] }));
+        })
+        .catch((err) => {
+          console.error("Failed to fetch subcategories:", err);
+          setSubcategoryMap((prev) => ({ ...prev, [category._id]: [] }));
+        });
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+        setHoveredCategory(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Reset filters
   const handleResetFilters = () => {
@@ -131,14 +172,29 @@ export default function AdminProduct() {
         adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
         rawCreatedAt: pro?.createdAt ? new Date(pro.createdAt) : null,
         productCategories: pro.category || [], // Include product categories
+        totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
       }))
     );
 
-    // Apply category filter
+    // Apply category filter (supports both categories and subcategories)
     if (category) {
       filteredRows = filteredRows.filter(row => {
         const productCategories = row.productCategories || [];
-        return productCategories.includes(category);
+        
+        // Check if product directly has the selected category/subcategory
+        if (productCategories.includes(category)) {
+          return true;
+        }
+        
+        // If selected is a main category, check if product has any of its subcategories
+        const selectedCategory = categoriesData?.find((cat: any) => cat._id === category);
+        if (selectedCategory?.subcategories) {
+          return productCategories.some((prodCat: string) => 
+            selectedCategory.subcategories.includes(prodCat)
+          );
+        }
+        
+        return false;
       });
     }
 
@@ -168,8 +224,8 @@ export default function AdminProduct() {
         case "price-high":
           return b.originalPrice - a.originalPrice;
         case "bestSelling":
-          // Assuming best selling is based on stock (can be modified if sales data is available)
-          return b.stock - a.stock;
+          // Best selling is based on total ordered quantity
+          return (b.totalOrderedQuantity || 0) - (a.totalOrderedQuantity || 0);
         default:
           return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
       }
@@ -260,14 +316,15 @@ export default function AdminProduct() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">All Products</h1>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+        <h1 className="text-xl font-semibold mb-4">All Products</h1>
 
       {/* Filter Criteria Row - Below Title, Above Search */}
-      <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
           <select 
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
@@ -281,22 +338,69 @@ export default function AdminProduct() {
 
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
-          <select 
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">All</option>
-            {categoriesData?.map((cat: any) => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
-            ))}
-          </select>
+          <div ref={categoryRef} className="relative">
+            <button
+              onClick={() => {
+                setIsCategoryOpen((p) => !p);
+                setHoveredCategory(null);
+              }}
+              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+            >
+              <span>{category ? categoriesData?.find((cat: any) => cat._id === category)?.name : "All"}</span>
+              <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
+            </button>
+
+            {isCategoryOpen && (
+              <div className="absolute left-0 top-full mt-2 z-50 flex">
+                <div className="bg-white shadow-lg border w-64 max-h-[70vh] overflow-auto text-sm">
+                  <ul className="text-sm font-medium text-gray-800">
+                    {categoriesData?.map((cat: any) => (
+                      <li
+                        key={cat._id}
+                        className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === cat._id ? "bg-gray-100" : ""}`}
+                        onMouseEnter={() => handleMouseEnter(cat)}
+                        onClick={() => {
+                          setCategory(cat._id);
+                          setIsCategoryOpen(false);
+                          setHoveredCategory(null);
+                        }}
+                      >
+                        <span>{cat.name}</span>
+                        <IoIosArrowForward size={18} className="text-gray-500" />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Subcategory panel */}
+                {hoveredCategory &&
+                  subcategoryMap[hoveredCategory._id] &&
+                  subcategoryMap[hoveredCategory._id].length > 0 && (
+                    <div className="bg-white shadow-lg border w-72 max-h-[70vh] overflow-auto p-3 text-sm">
+                      {subcategoryMap[hoveredCategory._id].map((sub: any) => (
+                        <div
+                          key={sub._id}
+                          className="text-gray-700 cursor-pointer py-2 px-2 hover:bg-gray-100"
+                          onClick={() => {
+                            setCategory(sub._id);
+                            setIsCategoryOpen(false);
+                            setHoveredCategory(null);
+                          }}
+                        >
+                          {sub.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
           <select 
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -311,7 +415,7 @@ export default function AdminProduct() {
           <input
             type="number"
             placeholder="Min"
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-24"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
           />
@@ -322,18 +426,21 @@ export default function AdminProduct() {
           <input
             type="number"
             placeholder="Max"
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-24"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
           />
         </div>
 
-        <button 
-          className="ml-auto px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-md shadow-sm transition-all duration-200"
-          onClick={handleResetFilters}
-        >
-          Reset Filter
-        </button>
+        <div className="flex flex-col ml-auto">
+          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
+          <button 
+            className="px-3 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-xl shadow-sm transition-all duration-200 h-10"
+            onClick={handleResetFilters}
+          >
+            Reset Filter
+          </button>
+        </div>
       </div>
 
       <DataTable
@@ -351,6 +458,7 @@ export default function AdminProduct() {
       />
 
       {adminMutStatus === "pending" && <ScreenOverlayLoaderUi />}
+      </div>
     </div>
   );
 }

@@ -111,6 +111,8 @@ export interface Product {
   ratings?: number;
   shopId: string | Seller;
   sold_out: number;
+  totalOrderedQuantity?: number;
+  totalOrders?: number;
   createdAt: Date;
   updatedAt: Date;
   commission?: number;
