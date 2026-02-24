@@ -172,10 +172,27 @@ export default function CheckoutScreen(): JSX.Element {
 
     for (const c of cart) {
       if (!c.product) return;
-      const minMaxRule = c.product.minmaxrule as unknown as string;
-      const { minQty } = JSON.parse(minMaxRule) as { minQty: string; maxQty: string };
-      const min = parseInt(minQty);
-      if (!isNaN(min) && c.qty < min) {
+
+      let min = NaN;
+      const ruleRaw = c.product.minmaxrule as unknown;
+
+      try {
+        const parsedRule =
+          typeof ruleRaw === "string"
+            ? JSON.parse(ruleRaw)
+            : ruleRaw && typeof ruleRaw === "object"
+              ? ruleRaw
+              : null;
+
+        if (parsedRule && typeof parsedRule === "object") {
+          const minQty = (parsedRule as { minQty?: string | number }).minQty;
+          min = Number.parseInt(String(minQty ?? ""), 10);
+        }
+      } catch {
+        min = NaN;
+      }
+
+      if (!Number.isNaN(min) && c.qty < min) {
         toast.error(`${c.product.name} has the minimum order quantity of ${min}`);
         return;
       }

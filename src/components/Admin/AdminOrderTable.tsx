@@ -28,7 +28,7 @@ type AdminOrderTableProps = {
 
 export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const navigate = useNavigate();
-  const GROUP_WINDOW_MS = 15 * 60 * 1000;
+  const GROUP_WINDOW_MS = 1 * 60 * 1000;
 
   const baseRows: Row[] = orders.map((el) => {
     // Defensive extraction of product name — handle null, string, nested object

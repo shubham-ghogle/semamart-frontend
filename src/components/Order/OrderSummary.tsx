@@ -108,8 +108,8 @@ const OrderSummary = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [, setReviews] = useState<Review[]>([]);
+  const [, setReviewsLoading] = useState(false);
   const canRateProduct = order?.status === "Delivered";
 
 const [reviewData, setReviewData] = useState<{

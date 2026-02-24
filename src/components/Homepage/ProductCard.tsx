@@ -1,6 +1,6 @@
 import React from "react";
 import { Product } from "@/Types/types";
-import { Star, ShoppingCart, Plus } from "lucide-react";
+import {  ShoppingCart, Plus } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { useCategoriesMap } from "./useCategoriesMap";
 import { BASE_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
-
+import StarIcons from "../ui/StarIcons";
 
 interface Props {
   product: Product;
@@ -16,9 +16,36 @@ interface Props {
 
 const PLACEHOLDER = "/placeholder.png";
 
+// SEMA Assured badge (SVG embedded as data URL)
+const SEMA_BADGE_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="36" viewBox="0 0 140 36" role="img" aria-label="SEMA Assured badge">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <rect rx="18" width="140" height="36" fill="url(#g)"></rect>
+
+  <!-- left circle with check -->
+  <g transform="translate(8,6)">
+    <circle cx="10" cy="10" r="10" fill="rgba(255,255,255,0.14)"/>
+    <path d="M6.2 10.5l2.3 2.3 5.3-5.8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- label -->
+  <text x="30" y="22" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial" font-size="12" font-weight="700" fill="#ffffff">
+    SEMA Assured
+  </text>
+</svg>
+`;
+
+const SEMA_BADGE = `data:image/svg+xml;utf8,${encodeURIComponent(SEMA_BADGE_SVG)}`;
+
 export default function ProductCard({ product }: Props) {
-  const {user} = useUserStore()
-  const n = useNavigate()
+  const { user } = useUserStore();
+  const n = useNavigate();
   const variant = product.variants?.[0] ?? null;
 
   // prices (use nullish to allow 0)
@@ -58,9 +85,9 @@ export default function ProductCard({ product }: Props) {
       e.stopPropagation();
     }
 
-    if(!user){
-      n("/login")
-      return
+    if (!user) {
+      n("/login");
+      return;
     }
 
     if (!variant || (variant.stock ?? 0) <= 0) {
@@ -68,7 +95,7 @@ export default function ProductCard({ product }: Props) {
       return;
     }
 
-    if(!product) return
+    if (!product) return;
 
     const perPiecePrice = discountPrice ?? originalPrice ?? 0;
 
@@ -82,7 +109,7 @@ export default function ProductCard({ product }: Props) {
       variantId: variant._id,
       product,
       variant,
-      qty: intMinQty ?? 1 ,
+      qty: intMinQty ?? 1,
       price: perPiecePrice,
       shopId: (product as any).shopId?._id || (product as any).shopId,
       taxClass: (product as any).taxClass ?? 0,
@@ -101,34 +128,33 @@ export default function ProductCard({ product }: Props) {
     });
   };
 
- const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault();
-  e.stopPropagation();
+  const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  if (!user) {
-    n("/login");
-    return;
-  }
+    if (!user) {
+      n("/login");
+      return;
+    }
 
-  if (inWishlist) {
-    removeFromWishlist(product._id, variant?._id ?? null);
-    toast.info("Removed from wishlist", {
-      position: "top-center",
-      autoClose: 1200,
-    });
-  } else {
-    addToWishlist(product, variant ?? null);
-    toast.success("Added to wishlist", {
-      position: "top-center",
-      autoClose: 1200,
-    });
-  }
-};
-
+    if (inWishlist) {
+      removeFromWishlist(product._id, variant?._id ?? null);
+      toast.info("Removed from wishlist", {
+        position: "top-center",
+        autoClose: 1200,
+      });
+    } else {
+      addToWishlist(product, variant ?? null);
+      toast.success("Added to wishlist", {
+        position: "top-center",
+        autoClose: 1200,
+      });
+    }
+  };
 
   // ratings (0..5)
-  const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
-  const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
+  // const ratingRaw = typeof product.ratings === "number" ? product.ratings : 0;
+  // const rating = Math.min(Math.max(Math.round(ratingRaw), 0), 5);
 
   // --- resolve category name using categoriesMap fetched from backend ---
   const categoriesMap = useCategoriesMap();
@@ -169,17 +195,46 @@ export default function ProductCard({ product }: Props) {
         group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden
         md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-44
       ">
-      {/* Discount Badge */}
-      {discountPercent >= 0 && (
-        <div className="absolute top-2 left-2 bg-green-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md z-10">
-          {discountPercent}% OFF
-        </div>
-      )}
+      {/* Compact stacked badges: discount + SEMA */}
+      <div
+        className="
+          absolute top-3 left-3 z-20 flex flex-col gap-1 items-start
+          pointer-events-none
+          md:top-3 md:left-3
+        "
+      >
+        {/* Discount badge (kept clickable-disabled via pointer-events-none from parent; it's just visual) */}
+        {discountPercent >= 0 && (
+          <div
+            className="text-white text-[11px] font-semibold px-2 py-0.5 rounded-full"
+            style={{
+              backgroundColor: "#16a34a",
+              boxShadow: "0 4px 10px rgba(2,6,23,0.08)",
+            }}
+          >
+            {discountPercent}% OFF
+          </div>
+        )}
 
-      {/* Wishlist Button */}
+        {/* SEMA Assured badge - smaller, aligned under discount */}
+       {/* SEMA Assured badge - show only if badge is true */}
+{product.badge && (
+  <img
+    src={SEMA_BADGE}
+    alt="SEMA Assured"
+    className="w-[92px] h-6 object-contain rounded-full"
+    style={{
+      filter: "drop-shadow(0 6px 10px rgba(2,6,23,0.08))",
+    }}
+  />
+)}
+
+      </div>
+
+      {/* Wishlist Button (kept top-right, pointer-events enabled) */}
       <button
         onClick={handleToggleWishlist}
-        className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200 hover:scale-105 transition-transform"
+        className="absolute top-3 right-3 z-30 w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200 hover:scale-105 transition-transform"
         title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
         aria-pressed={inWishlist}
       >
@@ -227,13 +282,10 @@ export default function ProductCard({ product }: Props) {
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
 
           <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`w-3.5 h-3.5 ${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`}
-              />
-            ))}
-            <span className="text-xs text-gray-500 ml-1">({ratingRaw ?? 0})</span>
+            <StarIcons
+            stars={product.avgRating ?? 0}
+            reviews={product.avgRating ?? 0}
+          />
           </div>
 
           <div className="flex items-center gap-2 mt-1">
@@ -283,21 +335,21 @@ export default function ProductCard({ product }: Props) {
 
       {/* Mobile: small circular Add-to-cart icon at bottom-right (visible only on mobile) */}
       {stock > 0 && (
-  <button
-    onClick={handleAddCart}
-    aria-label={`Add ${product.name} to cart`}
-    title={`Add ${product.name} to cart`}
-    className="md:hidden absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full bg-[#1C647C] shadow-lg flex items-center justify-center text-white border-2 border-white/20 hover:scale-105 transition-transform"
-  >
-    {/* slightly smaller centered cart icon */}
-    <ShoppingCart size={14} />
+        <button
+          onClick={handleAddCart}
+          aria-label={`Add ${product.name} to cart`}
+          title={`Add ${product.name} to cart`}
+          className="md:hidden absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full bg-[#1C647C] shadow-lg flex items-center justify-center text-white border-2 border-white/20 hover:scale-105 transition-transform"
+        >
+          {/* slightly smaller centered cart icon */}
+          <ShoppingCart size={14} />
 
-    {/* smaller white badge with green '+' */}
-    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#059669] text-[9px] font-semibold shadow-sm">
-      +
-    </span>
-  </button>
-)}
+          {/* smaller white badge with green '+' */}
+          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#059669] text-[9px] font-semibold shadow-sm">
+            +
+          </span>
+        </button>
+      )}
     </div>
   );
 }

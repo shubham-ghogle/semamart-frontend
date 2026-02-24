@@ -30,7 +30,7 @@ type SellerOrderTableProps = {
 
 export default function SellerOrderTable({ orders }: SellerOrderTableProps) {
   const navigate = useNavigate();
-  const GROUP_WINDOW_MS = 15 * 60 * 1000;
+  const GROUP_WINDOW_MS = 1 * 60 * 1000;
 
 const truncate = (text: string, max = 35) =>
   text.length > max ? text.slice(0, max) + "..." : text;
@@ -77,7 +77,7 @@ const truncate = (text: string, max = 35) =>
     };
   });
 
-  // Group rows by same customer + near order time (15 min window), then keep each group contiguous.
+  // Group rows by same customer + near order time (1 min window), then keep each group contiguous.
   const rows: Row[] = (() => {
     const groupStyles = [
       "border-l-4 border-l-sky-400 bg-sky-100",

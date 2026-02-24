@@ -38,6 +38,7 @@ export interface Variant {
 }
 
 export interface Product {
+  avgRating: number;
   _id: string;
   name: string;
   category: string[]; // fixed
@@ -120,6 +121,7 @@ export interface Product {
   visibilityBySeller: boolean;
   visibilityByAdmin: boolean;
   brand?: string;
+  badge?:boolean;
 }
 
 export type Address = {

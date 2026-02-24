@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, BASE_URL } from "@/data";
@@ -33,6 +32,8 @@ type VariantRow = {
   rawCreatedAt?: Date;
   productCategories: string[]; // Add product categories
   totalOrderedQuantity?: number; // Add total ordered quantity
+  badge: boolean; // Added badge field from remote
+  avgRating: number; // Added avgRating from remote
 };
 
 export default function AdminProduct() {
@@ -120,7 +121,6 @@ export default function AdminProduct() {
   // Mutation: Admin Visibility
   const { mutate: mutateAdminVisibility, status: adminMutStatus } = useMutation({
     mutationFn: async (payload: { productIds: string[]; isVisible: boolean }) => {
-      // server expects { productIds, isVisible }
       const res = await fetch(API_URL + "product/admin-visibility", {
         method: "PUT",
         credentials: "include",
@@ -132,7 +132,6 @@ export default function AdminProduct() {
       });
 
       if (!res.ok) {
-        // try to extract message from body
         let errMsg = "Failed to update admin visibility";
         try {
           const b = await res.json();
@@ -149,6 +148,42 @@ export default function AdminProduct() {
     },
     onError: (err: any) => {
       toast.error(err?.message || "Error updating admin visibility");
+    },
+  });
+
+  // Badge mutation (from remote)
+  const { mutate: mutateBadge, status: badgeMutStatus } = useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await fetch(
+        API_URL + `product/update-badge/${productId}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to update badge");
+      }
+
+      return data;
+    },
+
+    onSuccess: (data) => {
+      const { productId, badge } = data;
+      qc.setQueryData(["admin-products"], (old: any[] | undefined) => {
+        if (!old) return old;
+        return old.map((product) =>
+          product._id === productId ? { ...product, badge } : product
+        );
+      });
+      toast.success(data?.message || "Badge updated");
+    },
+
+    onError: (err: any) => {
+      toast.error(err?.message || "Error updating badge");
     },
   });
 
@@ -173,6 +208,8 @@ export default function AdminProduct() {
         rawCreatedAt: pro?.createdAt ? new Date(pro.createdAt) : null,
         productCategories: pro.category || [], // Include product categories
         totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
+        badge: typeof pro.badge === "boolean" ? pro.badge : false, // Added badge field
+        avgRating: pro.avgRating || 0, // Added avgRating field
       }))
     );
 
@@ -233,7 +270,19 @@ export default function AdminProduct() {
   })();
 
   const columns: ColumnDef<VariantRow>[] = [
-   
+    
+    {
+      id: "badge",
+      header: "Badge",
+      cell: ({ row }) => (
+        <Switch
+          checked={row.original.badge}
+          disabled={badgeMutStatus === "pending"}
+          onCheckedChange={() => mutateBadge(row.original.productId)}
+        />
+      ),
+    },
+
     {
       id: "adminVisibility",
       header: "Admin",
@@ -242,7 +291,6 @@ export default function AdminProduct() {
           checked={row.original.adminVisibility}
           disabled={adminMutStatus === "pending"}
           onCheckedChange={(e) => {
-            // call mutation with productIds (server expects productIds)
             mutateAdminVisibility({ productIds: [row.original.productId], isVisible: e });
           }}
         />
@@ -447,17 +495,15 @@ export default function AdminProduct() {
         data={rows}
         columns={columns}
         docName="admin-products"
-        // keep seller switch disabled in DataTable (your DataTable prop is `disabeSellerVisibilitySwitch` in earlier code)
         disabeSellerVisibilitySwitch
         onVisibilityChange={(ids: string[], visible: boolean) =>
-          // if DataTable triggers multi-change, we forward to admin mutate
           mutateAdminVisibility({ productIds: ids, isVisible: visible })
         }
         enableCalender={true}
         dateFieldId="createdAt"
       />
 
-      {adminMutStatus === "pending" && <ScreenOverlayLoaderUi />}
+      {(adminMutStatus === "pending" || badgeMutStatus === "pending") && <ScreenOverlayLoaderUi />}
       </div>
     </div>
   );

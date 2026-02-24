@@ -30,10 +30,11 @@ type VariantRow = {
   commissionHistoryAmount: number;
   sellerVisibility: boolean;
   adminVisibility: boolean;
+  badge: boolean; // Added badge field from remote
   commissionHistory: { updatedAt: string; commission: number }[];
-  rawCreatedAt: Date;
-  productCategories: string[]; // Add product categories
-  totalOrderedQuantity?: number; // Add total ordered quantity
+  rawCreatedAt: Date; // Kept your field
+  productCategories: string[]; // Kept your field
+  totalOrderedQuantity?: number; // Kept your field
 };
 
 type AdminAllProductTableProps = {
@@ -121,7 +122,37 @@ export default function AdminAllProductTable({
     setMaxPrice("");
   };
 
-  // flatten to rows, apply filtering, and sorting
+  // Badge mutation (from remote)
+  const { mutate: mutateBadge, status: badgeStatus } = useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await fetch(
+        API_URL + `product/update-badge/${productId}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to update badge");
+      }
+
+      return data; // 👈 return full response
+    },
+
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["seller-products"] });
+      toast.success(data?.message || "Badge updated");
+    },
+
+    onError: (err: any) => {
+      toast.error(err?.message || "Error updating badge");
+    },
+  });
+
+  // flatten to rows, apply filtering, and sorting (your code + badge field from remote)
   const rows: VariantRow[] = (() => {
     let filteredRows: VariantRow[] = products.flatMap((pro) =>
       pro.variants.map((v) => {
@@ -149,6 +180,7 @@ export default function AdminAllProductTable({
           commissionHistoryAmount: lastCommission?.commission ?? 0,
           adminVisibility: pro.visibilityByAdmin,
           sellerVisibility: pro.visibilityBySeller,
+          badge: pro.badge ?? false,
           commissionHistory: pro.commissionHistory || [],
           rawCreatedAt: new Date(pro.createdAt),
           productCategories: pro.category || [], // Include product categories
@@ -233,6 +265,18 @@ export default function AdminAllProductTable({
       enableSorting: false,
       enableHiding: false,
     },
+    // Badge column from remote
+    {
+      accessorKey: "badge",
+      header: "Badge",
+      cell: ({ row }) => (
+        <Switch
+          checked={row.original.badge}
+          onCheckedChange={() => mutateBadge(row.original.productId)}
+          disabled={badgeStatus === "pending"}
+        />
+      ),
+    },
     {
       accessorKey: "adminVisibility",
       header: "Admin Visibility",
@@ -288,16 +332,6 @@ export default function AdminAllProductTable({
     },
     { accessorKey: "createdAt", header: "Created On" },
     { accessorKey: "commission", header: "Commission" },
-    // {
-    //   accessorKey: "commissionHistory",
-    //   header: "Commission History",
-    //   cell: ({ row }) => (
-    //     <p>
-    //       Previous Amount: {row.original.commissionHistoryAmount} | Updated At:{" "}
-    //       {row.original.commissionHistoryDate}
-    //     </p>
-    //   ),
-    // },
     {
       id: "action",
       header: "Actions",
@@ -324,138 +358,138 @@ export default function AdminAllProductTable({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         {/* Filter Criteria Row */}
         <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
-          <select 
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="price-low">Price Low–High</option>
-            <option value="price-high">Price High–Low</option>
-            <option value="bestSelling">Best Selling</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
-          <div ref={categoryRef} className="relative">
-            <button
-              onClick={() => {
-                setIsCategoryOpen((p) => !p);
-                setHoveredCategory(null);
-              }}
-              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
+            <select 
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
             >
-              <span>{category ? categoriesData?.find((cat: any) => cat._id === category)?.name : "All"}</span>
-              <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
-            </button>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="price-low">Price Low–High</option>
+              <option value="price-high">Price High–Low</option>
+              <option value="bestSelling">Best Selling</option>
+            </select>
+          </div>
 
-            {isCategoryOpen && (
-              <div className="absolute left-0 top-full mt-2 z-50 flex">
-                <div className="bg-white shadow-lg border w-64 max-h-[70vh] overflow-auto text-sm">
-                  <ul className="text-sm font-medium text-gray-800">
-                    {categoriesData?.map((cat: any) => (
-                      <li
-                        key={cat._id}
-                        className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === cat._id ? "bg-gray-100" : ""}`}
-                        onMouseEnter={() => handleMouseEnter(cat)}
-                        onClick={() => {
-                          setCategory(cat._id);
-                          setIsCategoryOpen(false);
-                          setHoveredCategory(null);
-                        }}
-                      >
-                        <span>{cat.name}</span>
-                        <IoIosArrowForward size={18} className="text-gray-500" />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
+            <div ref={categoryRef} className="relative">
+              <button
+                onClick={() => {
+                  setIsCategoryOpen((p) => !p);
+                  setHoveredCategory(null);
+                }}
+                className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              >
+                <span>{category ? categoriesData?.find((cat: any) => cat._id === category)?.name : "All"}</span>
+                <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
+              </button>
 
-                {/* Subcategory panel */}
-                {hoveredCategory &&
-                  subcategoryMap[hoveredCategory._id] &&
-                  subcategoryMap[hoveredCategory._id].length > 0 && (
-                    <div className="bg-white shadow-lg border w-72 max-h-[70vh] overflow-auto p-3 text-sm">
-                      {subcategoryMap[hoveredCategory._id].map((sub: any) => (
-                        <div
-                          key={sub._id}
-                          className="text-gray-700 cursor-pointer py-2 px-2 hover:bg-gray-100"
+              {isCategoryOpen && (
+                <div className="absolute left-0 top-full mt-2 z-50 flex">
+                  <div className="bg-white shadow-lg border w-64 max-h-[70vh] overflow-auto text-sm">
+                    <ul className="text-sm font-medium text-gray-800">
+                      {categoriesData?.map((cat: any) => (
+                        <li
+                          key={cat._id}
+                          className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === cat._id ? "bg-gray-100" : ""}`}
+                          onMouseEnter={() => handleMouseEnter(cat)}
                           onClick={() => {
-                            setCategory(sub._id);
+                            setCategory(cat._id);
                             setIsCategoryOpen(false);
                             setHoveredCategory(null);
                           }}
                         >
-                          {sub.name}
-                        </div>
+                          <span>{cat.name}</span>
+                          <IoIosArrowForward size={18} className="text-gray-500" />
+                        </li>
                       ))}
-                    </div>
-                  )}
-              </div>
-            )}
+                    </ul>
+                  </div>
+
+                  {/* Subcategory panel */}
+                  {hoveredCategory &&
+                    subcategoryMap[hoveredCategory._id] &&
+                    subcategoryMap[hoveredCategory._id].length > 0 && (
+                      <div className="bg-white shadow-lg border w-72 max-h-[70vh] overflow-auto p-3 text-sm">
+                        {subcategoryMap[hoveredCategory._id].map((sub: any) => (
+                          <div
+                            key={sub._id}
+                            className="text-gray-700 cursor-pointer py-2 px-2 hover:bg-gray-100"
+                            onClick={() => {
+                              setCategory(sub._id);
+                              setIsCategoryOpen(false);
+                              setHoveredCategory(null);
+                            }}
+                          >
+                            {sub.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
+            <select 
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              value={productStatus}
+              onChange={(e) => setProductStatus(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
+            <input
+              type="number"
+              placeholder="Min"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
+            <input
+              type="number"
+              placeholder="Max"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col ml-auto">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
+            <button 
+              className="px-3 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-xl shadow-sm transition-all duration-200 h-10"
+              onClick={handleResetFilters}
+            >
+              Reset Filter
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
-          <select 
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
-            value={productStatus}
-            onChange={(e) => setProductStatus(e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
-          <input
-            type="number"
-            placeholder="Min"
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
-          <input
-            type="number"
-            placeholder="Max"
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
-
-        <div className="flex flex-col ml-auto">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
-          <button 
-            className="px-3 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-xl shadow-sm transition-all duration-200 h-10"
-            onClick={handleResetFilters}
-          >
-            Reset Filter
-          </button>
-        </div>
-      </div>
-
-      <DataTable
-        data={rows}
-        columns={columns}
-        docName="products"
-        disabeAdminVisibilitySwitch={false}
-        onVisibilityChange={(proIds: string[], isVisible: boolean) =>
-          mutateVisibility({ isVisible, proIds })
-        }
-      />
-      {status === "pending" && <ScreenOverlayLoaderUi />}
+        <DataTable
+          data={rows}
+          columns={columns}
+          docName="products"
+          disabeAdminVisibilitySwitch={false}
+          onVisibilityChange={(proIds: string[], isVisible: boolean) =>
+            mutateVisibility({ isVisible, proIds })
+          }
+        />
+        {status === "pending" || badgeStatus === "pending" && <ScreenOverlayLoaderUi />}
       </div>
     </div>
   );

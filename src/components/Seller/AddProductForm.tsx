@@ -732,6 +732,10 @@ return (
               new Set(errorFields.map((f) => fieldToAccordionMap[f]).filter(Boolean))
             );
 
+            if (errorFields.some((f) => f.startsWith("variants."))) {
+              accordionsToOpen.push("6");
+            }
+
             setOpenAccordions((prev) => Array.from(new Set([...prev, ...accordionsToOpen])));
           }
         )}

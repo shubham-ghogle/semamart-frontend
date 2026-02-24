@@ -13,7 +13,6 @@ import { useSellerStore } from "@/store/sellerStore";
 import DisplayCommission from "../Admin/DisplayCommission";
 import { IoIosArrowForward } from "react-icons/io";
 
-
 type VariantRow = {
   id: string;
   productName: string;
@@ -31,6 +30,7 @@ type VariantRow = {
   rawCreatedAt: Date;
   productCategories: string[]; // Add product categories
   totalOrderedQuantity?: number; // Add total ordered quantity
+  avgRating: number; // Added avgRating from remote
 };
 
 type SellerProductTableProps = {
@@ -126,6 +126,7 @@ export default function SellerProductTable({
         rawCreatedAt: new Date(pro.createdAt),
         productCategories: pro.category || [], // Include product categories
         totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
+        avgRating: pro.avgRating ?? "-", // Added avgRating from remote
       })),
     );
 
@@ -249,7 +250,7 @@ export default function SellerProductTable({
     { accessorKey: "colorOption", header: "Color" },
     { accessorKey: "size", header: "Size" },
     { accessorKey: "stock", header: "Stock" },
-   {
+    {
       accessorKey: "originalPrice",
       header: "Price",
       cell: ({ row }) =>
@@ -269,22 +270,20 @@ export default function SellerProductTable({
       accessorKey: "createdAt",
       header: "Created On",
     },
+    { accessorKey: "avgRating", header: "Rating" }, // Added avgRating column from remote
     {
       accessorKey: "commission",
       header: () => (
         <div className="flex items-center gap-1">
-
           Commission 
         </div>
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-
           {row.original.commission} 
         </div>
       ),
     },
-
         {
             id: "action",
             header: "Actions",

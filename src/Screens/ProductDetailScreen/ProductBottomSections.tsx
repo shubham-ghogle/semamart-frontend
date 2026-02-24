@@ -6,6 +6,8 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
   const STAR_COLOR = "#FFD700";
   const [activeTabIdx, setActiveTabIdx] = useState(0);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+
 
   const tabs = useMemo(
     () => [
@@ -210,7 +212,7 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
             <h3 className="text-lg font-semibold text-[#1C647C] mb-3">Customer Reviews</h3>
 
             {Array.isArray(reviews) && reviews.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                 {reviews.map((r: any, idx: number) => (
                   <article key={idx} className="border rounded-lg p-4">
                     <div className="flex items-start gap-3 min-w-0">
@@ -222,15 +224,19 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
                         </div>
                         <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap break-all">{r.comment ?? "No comment."}</p>
                         {r.images && r.images.length > 0 ? (
-                          r.images.map((img: string, idx: number) => (
-                            <img 
-                              key={idx}
-                              src={`${BASE_URL}images/${img}`} 
-                              alt={`Review Image ${idx + 1}`} 
-                              className="w-full max-w-xs mt-3 rounded-md object-cover" 
-                            />
-                          ))
+                          <div className="flex gap-2 flex-wrap">
+                            {r.images.map((img: string, idx: number) => (
+                              <img 
+                                key={idx}
+                                src={`${BASE_URL}images/${img}`} 
+                                alt={`Review Image ${idx + 1}`} 
+                                onClick={() => setSelectedImg(img)}
+                                className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition"
+                              />
+                            ))}
+                          </div>
                         ) : null}
+
 
                         <div className="text-xs text-gray-400 mt-2">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ""}</div>
                       </div>
@@ -242,6 +248,36 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
               <p className="text-gray-500">No reviews yet.</p>
             )}
           </div>
+         {selectedImg && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            
+            {/* Modal Content */}
+            <div className="relative max-w-4xl w-full mx-4">
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedImg(null)}
+                className="absolute top-2 right-2 text-white text-2xl font-bold"
+              >
+                ✕
+              </button>
+
+              {/* Full Image */}
+              <img
+                src={`${BASE_URL}images/${selectedImg}`}
+                className="w-full max-h-[90vh] object-contain rounded"
+              />
+            </div>
+
+            {/* Background Click Close */}
+            <div 
+              className="absolute inset-0 -z-10"
+              onClick={() => setSelectedImg(null)}
+            />
+          </div>
+        )}
+
+
         </div>
       </div>
     </section>
