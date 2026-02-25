@@ -795,7 +795,7 @@ export default function Header() {
                             setMobileProfileOpen(false);
                             setIsUserHovered(false);
                           }}
-                          to="/user/support"
+                          to="/account/support"
                           className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
                         >
                           <MdOutlineSupportAgent size={16} />

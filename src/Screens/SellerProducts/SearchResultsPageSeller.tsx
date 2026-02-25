@@ -239,16 +239,16 @@ export default function SearchResultsPageSeller() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-gray-800 font-medium">Filters</h3>
                 <button
-                  onClick={() => {
-                    setCategory("All");
-                    setMinPrice(0);
-                    setMaxPrice(100000);
-                    setSort("relevance");
-                  }}
-                  className="text-sm text-blue-600"
-                >
-                  Reset
-                </button>
+                    onClick={() => {
+                      setCategory("All");
+                      setMinPrice(0);
+                      setMaxPrice(100000);
+                      setSort("relevance");
+                    }}
+                    className="text-sm text-white bg-[#1C647C] border border-[#1C647C] rounded-md py-1 px-3 hover:bg-[#164d5f] transition font-medium"
+                  >
+                    Reset
+                  </button>
               </div>
 
               <div className="space-y-3">

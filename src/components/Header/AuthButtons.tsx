@@ -68,7 +68,7 @@ export function UserProfileButton({
             </li>
             <li>
               <Link
-                to="/support"
+                to="/login?redirect=/account/support"
                 className="flex items-center gap-4 px-5 py-3 hover:bg-gray-100"
               >
                 <MdOutlineSupportAgent size={20} />

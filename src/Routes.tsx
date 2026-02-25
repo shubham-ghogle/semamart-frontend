@@ -458,6 +458,8 @@ export const router = createBrowserRouter([
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "orders", element: <MyOrderPage /> },
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
+      { path: "support", element: <UserSupportScreen /> },
+      { path: "support/:id", element: <SupportDetail /> },
     ],
   },
 
