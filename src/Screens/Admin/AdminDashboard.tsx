@@ -8,6 +8,8 @@ import { IoPersonAdd } from "react-icons/io5";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
 import { API_URL } from "@/data";
+import { useUserStore } from "@/store/userStore";
+
 
 const OVERVIEW_ITEMS = [
   { label: "New Vendors", color: "from-blue-500 to-indigo-500", IconComponent: IoPersonAdd },
@@ -29,6 +31,7 @@ const AdminDashboard = () => {
     email: "",
     password: "",
   });
+  const user = useUserStore((state) => state.user);
 
   // Query for dashboard summary
   const {
@@ -106,7 +109,7 @@ const AdminDashboard = () => {
           {/* 1. Welcome Message */}
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-              Welcome back 👋
+              Welcome back {user?.firstName || "Admin"} 👋
             </h1>
           </div>
 

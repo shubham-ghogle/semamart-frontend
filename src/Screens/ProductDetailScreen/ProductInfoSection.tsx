@@ -73,7 +73,7 @@ export default function ProductInfoSection({
       <div className="flex items-center text-base text-gray-500 gap-3">
         <StarIcons
             stars={product.avgRating ?? 0}
-            reviews={product.avgRating ?? 0}
+            
           />
         {product?.reviews?.length > 0 && <span>({product.reviews.length} reviews)</span>}
       </div>

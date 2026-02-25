@@ -284,7 +284,8 @@ export default function ProductCard({ product }: Props) {
           <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
             <StarIcons
             stars={product.avgRating ?? 0}
-            reviews={product.avgRating ?? 0}
+            reviews={product.reviews?.length || 0}
+            
           />
           </div>
 

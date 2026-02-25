@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { API_URL } from "@/data";
 import { useUserStore } from "../../store/userStore";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
-import AdminMemberTable from "@/components/Admin/AdminMemberTable";
+import AdminMemberTable, { Member } from "@/components/Admin/AdminMemberTable";
+import { Check, X, ChevronDown, ShieldCheck } from "lucide-react";
+import { toast } from "react-toastify";
 
 type PermissionsType = {
   UploadImage: boolean;
@@ -26,20 +28,7 @@ const defaultPermissions: PermissionsType = {
   AllProducts: false,
 };
 
-type RoleType = {
-  _id: string;
-  name: string;
-};
-
-type Member = {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  role?: string;
-  createdAt?: string;
-  permissions?: PermissionsType;
-};
+type RoleType = { _id: string; name: string };
 
 const AdminMemberAccess = () => {
   const user = useUserStore((state) => state.user);
@@ -62,11 +51,12 @@ const AdminMemberAccess = () => {
   });
 
   const [permissions, setPermissions] = useState<PermissionsType>({ ...defaultPermissions });
+ 
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<Member | null>(null);
 
-  // =============================== FETCH MEMBERS ===============================
+  // ================= FETCH DATA =================
   const fetchMembers = async () => {
     try {
       setStatus("pending");
@@ -81,7 +71,6 @@ const AdminMemberAccess = () => {
     }
   };
 
-  // =============================== FETCH ROLES ===============================
   const fetchRoles = async () => {
     try {
       const res = await fetch(`${API_URL}user/get-roles`);
@@ -98,49 +87,72 @@ const AdminMemberAccess = () => {
     fetchRoles();
   }, []);
 
-  // =============================== CREATE ROLE ===============================
+  // ================= ROLE ACTIONS =================
   const handleAddRole = async () => {
-    if (!newRoleName.trim()) return;
-
+    if (!newRoleName.trim()) {
+      toast.warning("Please enter a role name");
+      return;
+    }
     try {
       const res = await fetch(`${API_URL}user/create-role`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newRoleName }),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-
+      
+      toast.success("New role added successfully");
       setNewRoleName("");
       setShowRoleInput(false);
-      fetchRoles(); // Refresh roles list
+      fetchRoles();
     } catch (err: any) {
-      alert(err.message || "Failed to create role");
+      toast.error(err.message || "Failed to create role");
     }
   };
 
-  // =============================== DELETE MEMBER ===============================
-  const handleDeleteUser = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+  // ================= PERMISSION CHANGE =================
+  const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setPermissions(prev => ({ ...prev, [name]: checked }));
+  };
+
+  // ================= ADD MEMBER =================
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const res = await fetch(`${API_URL}user/delete-user/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      setMembers((prev) => prev.filter((u) => u._id !== id));
-      alert("User deleted successfully");
-    } catch (err) {
-      alert("Failed to delete user");
+      const response = await fetch(`${API_URL}user/registerStaff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, role: selectedRole, permissions }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      
+      toast.success("Member registered successfully!");
+      
+      // Reset everything and REMOVE FORM
+      setFormData({ firstName: "", lastName: "", email: "", password: "" });
+      setPermissions({ ...defaultPermissions });
+      setSelectedRole(""); 
+      setShowRoleInput(false);
+      fetchMembers();
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // =============================== EDIT MEMBER ===============================
+  // ================= EDIT MEMBER =================
   const handleEditUser = (user: Member) => {
     setEditUser(user);
     setFormData({
       firstName: user.firstName || "",
       lastName: user.lastName || "",
       email: user.email || "",
-      password: "",
+      password: "", 
     });
     setSelectedRole(user.role || "");
     setPermissions({ ...defaultPermissions, ...(user.permissions || {}) });
@@ -150,297 +162,164 @@ const AdminMemberAccess = () => {
   const handleEditFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editUser) return;
-
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}user/updateStaff/${editUser._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          role: selectedRole,
-          permissions,
-        }),
+        body: JSON.stringify({ ...formData, role: selectedRole, permissions }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-
-      alert("User updated successfully!");
-      setEditModalOpen(false);
+      
+      toast.success("User updated successfully!");
+      closeEditModal();
       fetchMembers();
     } catch (err: any) {
-      alert(err.message || "Failed to update user");
+      toast.error(err.message || "Failed to update user");
     } finally {
       setLoading(false);
     }
   };
 
-  // =============================== PERMISSION CHANGE ===============================
-  const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setPermissions({ ...permissions, [name]: checked });
-  };
-
-  // =============================== ADD NEW MEMBER ===============================
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const handleDeleteUser = async (id: string) => {
+    if (!window.confirm("Delete this user permanently?")) return;
     try {
-      const response = await fetch(`${API_URL}user/registerStaff`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          role: selectedRole,
-          permissions,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-
-      alert(`Member added successfully!`);
-      setFormData({ firstName: "", lastName: "", email: "", password: "" });
-      setPermissions({ ...defaultPermissions });
-      fetchMembers();
-    } catch (err: any) {
-      alert(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+      const res = await fetch(`${API_URL}user/delete-user/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+      setMembers((prev) => prev.filter((u) => u._id !== id));
+      toast.success("User deleted");
+    } catch {
+      toast.error("Delete failed");
     }
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditUser(null);
+    setFormData({ firstName: "", lastName: "", email: "", password: "" });
+    setSelectedRole("");
+    setPermissions({ ...defaultPermissions });
   };
 
   if (user?.role !== "Admin") {
-    return <div className="p-10 text-center text-red-500">Access Denied</div>;
+    return <div className="p-10 text-center text-red-500 font-semibold">Access Denied</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 space-y-10">
-      {/* ================= ADD MEMBER FORM ================= */}
-      <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-8">
-        <h1 className="text-2xl font-bold mb-6">Member Access Management</h1>
+    <div className="min-h-screen bg-gray-50 p-6 space-y-8">
+      {/* ================= ADD MEMBER SECTION ================= */}
+      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800">Member Access Management</h1>
 
-        {/* ================= SELECT ROLE ================= */}
-        <div className="mb-6">
-          <label className="block mb-2 font-medium">Select Role</label>
-          <div className="flex gap-2">
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full p-3 border rounded-xl"
-            >
-              <option value="">Choose Role</option>
-              {roles.map((role) => (
-                <option key={role._id} value={role.name}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              onClick={() => setShowRoleInput(!showRoleInput)}
-              className="px-4 bg-gray-200 rounded-xl outline-green-400"
-            >
-              Add
-            </button>
-          </div>
-
-          {showRoleInput && (
-            <div className="flex gap-2 mt-3">
-              <input
-                type="text"
-                placeholder="New role name"
-                value={newRoleName}
-                onChange={(e) => setNewRoleName(e.target.value)}
-                className="w-full p-3 border rounded-xl"
-              />
-              <button
-                type="button"
-                onClick={handleAddRole}
-                className="px-4 bg-indigo-600 text-white rounded-xl"
+        <div className="mb-4">
+          <label className="block mb-2 font-medium text-gray-700">Select Role</label>
+          <div className="relative flex flex-col gap-3">
+            <div className="relative">
+              <select
+                value={selectedRole}
+                onChange={(e) => {
+                  if (e.target.value === "ADD_NEW") {
+                    setShowRoleInput(true);
+                    setSelectedRole("");
+                  } else {
+                    setSelectedRole(e.target.value);
+                    setShowRoleInput(false);
+                  }
+                }}
+                className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 appearance-none bg-white pr-10"
               >
-                Save
-              </button>
+                <option value="">Choose Role</option>
+                {roles.map((role) => (
+                  <option key={role._id} value={role.name}>{role.name}</option>
+                ))}
+                <option value="ADD_NEW" className="text-indigo-600 font-bold">+ Add New Role</option>
+              </select>
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
+                <ChevronDown size={18} />
+              </div>
             </div>
-          )}
+
+            {showRoleInput && (
+              <div className="flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Role Name"
+                  value={newRoleName}
+                  onChange={(e) => setNewRoleName(e.target.value)}
+                  className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+                />
+                <button onClick={handleAddRole} className="p-3 bg-green-500 text-white rounded-xl hover:bg-green-600 shadow-sm"><Check size={20} /></button>
+                <button onClick={() => { setShowRoleInput(false); setNewRoleName(""); }} className="p-3 bg-red-500 text-white rounded-xl hover:bg-red-600 shadow-sm"><X size={20} /></button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ================= CREATE MEMBER FORM ================= */}
         {selectedRole && !editModalOpen && (
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="First Name"
-                required
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
-                className="p-3 border rounded-xl"
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                required
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
-                className="p-3 border rounded-xl"
-              />
+          <form onSubmit={handleFormSubmit} className="space-y-4 border-t pt-6 animate-in fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" placeholder="First Name" required value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="p-3 border rounded-xl" />
+              <input type="text" placeholder="Last Name" required value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="p-3 border rounded-xl" />
             </div>
+            <input type="email" placeholder="Email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-3 border rounded-xl" />
+            <input type="password" placeholder="Password" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full p-3 border rounded-xl" />
 
-            <input
-              type="email"
-              placeholder="Email"
-              required
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              className="w-full p-3 border rounded-xl"
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              className="w-full p-3 border rounded-xl"
-            />
-
-          <div className="space-y-2 pt-4">
-  <h3 className="font-semibold text-gray-700">Permissions</h3>
-  <div className="grid grid-cols-3 gap-4">
-    {Object.keys(permissions)
-      .sort()
-      .map((perm) => (
-        <label key={perm} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name={perm}
-            checked={permissions[perm as keyof PermissionsType]}
-            onChange={handlePermissionChange}
-          />
-          {perm}
-        </label>
-      ))}
-  </div>
-</div>
-
-
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-[#1C647C] text-white rounded-xl mt-4"
-            >
-              {loading ? "Processing..." : `Add ${selectedRole}`}
-            </button>
+            <div className="bg-gray-50 p-4 rounded-xl">
+               <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><ShieldCheck size={16}/> Assign Permissions</h3>
+               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {Object.keys(permissions).map((perm) => (
+                    <label key={perm} className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                      <input type="checkbox" name={perm} checked={permissions[perm as keyof PermissionsType]} onChange={handlePermissionChange} className="w-4 h-4 rounded text-indigo-600" />
+                      {perm}
+                    </label>
+                  ))}
+               </div>
+            </div>
+            <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold">{loading ? "Submitting..." : `Add ${selectedRole}`}</button>
           </form>
         )}
       </div>
 
-      {/* ================= TABLE ================= */}
-      <AdminMainWrapper
-        status={status}
-        heading="All Members"
-        errorMeassage={errorMessage}
-      >
-        {status === "success" && (
-          <AdminMemberTable
-            users={members}
-            onDeleteUser={handleDeleteUser}
-            onEditUser={handleEditUser}
-          />
-        )}
+      {/* ================= MEMBERS TABLE ================= */}
+      <AdminMainWrapper status={status} heading="All Members" errorMeassage={errorMessage}>
+        {status === "success" && <AdminMemberTable users={members} onDeleteUser={handleDeleteUser} onEditUser={handleEditUser} />}
       </AdminMainWrapper>
 
       {/* ================= EDIT MODAL ================= */}
       {editModalOpen && editUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-2xl relative">
-            <button
-              className="absolute top-4 right-4 text-gray-500"
-              onClick={() => setEditModalOpen(false)}
-            >
-              ✕
-            </button>
-
-            <h2 className="text-xl font-bold mb-4">Edit Member</h2>
-
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onClick={closeEditModal}><X size={24} /></button>
+            <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Edit Member Details</h2>
             <form onSubmit={handleEditFormSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  className="p-3 border rounded-xl"
-                />
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  className="p-3 border rounded-xl"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="p-3 border rounded-xl" />
+                <input type="text" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="p-3 border rounded-xl" />
               </div>
-
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full p-3 border rounded-xl"
-              />
-
-              <div className="mb-4">
-                <label className="block mb-2 font-medium">Role</label>
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full p-3 border rounded-xl"
-                >
-                  {roles.map((role) => (
-                    <option key={role._id}>{role.name}</option>
-                  ))}
+              <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-3 border rounded-xl" />
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase px-1">Role</label>
+                <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="w-full p-3 border rounded-xl bg-white">
+                  {roles.map((role) => (<option key={role._id} value={role.name}>{role.name}</option>))}
                 </select>
               </div>
 
-              <div className="space-y-2 pt-4">
-                <h3 className="font-semibold text-gray-700">Permissions</h3>
-                {Object.keys(permissions).map((perm) => (
-                  <label key={perm} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      name={perm}
-                      checked={permissions[perm as keyof PermissionsType]}
-                      onChange={handlePermissionChange}
-                    />
-                    {perm}
-                  </label>
-                ))}
+              <div className="bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300">
+                <h3 className="text-sm font-bold text-gray-700 mb-3">Update Permissions</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {Object.keys(defaultPermissions).map((perm) => (
+                    <label key={perm} className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                      <input type="checkbox" name={perm} checked={permissions[perm as keyof PermissionsType]} onChange={handlePermissionChange} className="w-4 h-4 rounded text-indigo-600" />
+                      {perm}
+                    </label>
+                  ))}
+                </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl mt-4"
-              >
-                {loading ? "Saving..." : "Save Changes"}
-              </button>
+              <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg">{loading ? "Saving..." : "Save Changes"}</button>
             </form>
           </div>
         </div>

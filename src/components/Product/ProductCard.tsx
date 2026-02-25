@@ -140,7 +140,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
           <div className="flex items-center gap-2 text-[#FF9529] text-sm mb-2">
            <StarIcons
             stars={product.avgRating ?? 0}
-            reviews={product.avgRating ?? 0}
+            reviews={product.reviews?.length || 0}
           />
              
           </div>

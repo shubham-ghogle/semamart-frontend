@@ -168,6 +168,7 @@ const SectionBannerUploader: React.FC = () => {
       const res = await fetch(API_URL+"sectionbanner", {
         method: "POST",
         body: fd,
+        credentials: "include",
       });
 
       const data = await res.json();

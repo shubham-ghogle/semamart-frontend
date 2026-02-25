@@ -126,15 +126,15 @@ export default function AdminNavbar() {
     permissionKey: string | null;
   }[] = [
     { to: "/admin", label: "Dashboard", icon: <RxDashboard />, permissionKey: null },
-    { to: "/admin/orders", label: "All Orders", icon: <GrWorkshop />, permissionKey: "allOrders" },
-    { to: "/admin/orders/sales", label: "Total Sales", icon: <TbCoinRupee />, permissionKey: "allSales" },
-    { to: "/admin/requests", label: "Requests", icon: <LuMessageSquare />, permissionKey: "requests" },
-    { to: "/admin/sellers", label: "All Sellers", icon: <GrWorkshop />, permissionKey: "allSeller" },
-    { to: "/admin/users", label: "All Institutes", icon: <GrWorkshop />, permissionKey: "allInstitutes" },
-    { to: "/admin/products", label: "All Products", icon: <GrWorkshop />, permissionKey: "allProducts" },
-    { to: "/admin/img-upload", label: "Image Upload", icon: <GrWorkshop />, permissionKey: "uploadImage" },
-    { to: "/admin/bulk-order-request", label: "Stock Management", icon: <FaBoxOpen />, permissionKey: "stockmanagement" },
-    { to: "/admin/member-access", label: "Member Access", icon: <GrWorkshop />, permissionKey: "memberAccess" },
+    { to: "/admin/orders", label: "All Orders", icon: <GrWorkshop />, permissionKey: "AllOrders" },
+    { to: "/admin/orders/sales", label: "Total Sales", icon: <TbCoinRupee />, permissionKey: "AllSales" },
+    { to: "/admin/requests", label: "Requests", icon: <LuMessageSquare />, permissionKey: "Requests" },
+    { to: "/admin/sellers", label: "All Sellers", icon: <GrWorkshop />, permissionKey: "AllSeller" },
+    { to: "/admin/users", label: "All Institutes", icon: <GrWorkshop />, permissionKey: "AllInstitutes" },
+    { to: "/admin/products", label: "All Products", icon: <GrWorkshop />, permissionKey: "AllProducts" },
+    { to: "/admin/img-upload", label: "Image Upload", icon: <GrWorkshop />, permissionKey: "UploadImage" },
+    { to: "/admin/bulk-order-request", label: "Stock Management", icon: <FaBoxOpen />, permissionKey: "StockManagement" },
+    { to: "/admin/member-access", label: "Member Access", icon: <GrWorkshop />, permissionKey: "MemberAccess" },
     { to: "/admin/support", label: "Support", icon: <FaHeadset />, permissionKey: "SupportDetail" },
   ];
 
