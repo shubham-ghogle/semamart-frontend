@@ -89,6 +89,7 @@ import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
 import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
 import ReviewPage from "./components/Order/ReviewPage";
+import ContactUsScreen from "./Screens/Common/ContactUsScreen";
 
 /**
  * redirectToDashboard loader
@@ -426,6 +427,7 @@ export const router = createBrowserRouter([
       },
       { path: "support", element: <SellerSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
@@ -445,6 +447,7 @@ export const router = createBrowserRouter([
       },
       { path: "support", element: <UserSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
@@ -460,6 +463,7 @@ export const router = createBrowserRouter([
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
       { path: "support", element: <UserSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
