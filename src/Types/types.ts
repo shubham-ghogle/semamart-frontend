@@ -122,7 +122,7 @@ export interface Product {
   brand?: string;
   badge?:boolean;
   avgRating: number;
-  reviewCount: number;
+  reviewsCount: number;
 }
 
 export type Address = {

@@ -284,7 +284,7 @@ export default function ProductCard({ product }: Props) {
           <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
             <StarIcons
             stars={product.avgRating ?? 0}
-            reviews={product.reviews?.length || 0}
+            reviewsCount={product.reviewsCount || 0}
             
           />
           </div>
@@ -297,6 +297,7 @@ export default function ProductCard({ product }: Props) {
                 minimumFractionDigits: 2,
               })}
             </span>
+           
             {/* hide crossed original price on mobile */}
             {discountPrice != null && originalPrice != null && discountPrice < originalPrice && (
               <span className="text-sm text-gray-500 line-through hidden md:inline">₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>

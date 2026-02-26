@@ -2,8 +2,14 @@ import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import { AiOutlineStar } from "react-icons/ai";
 import styled from "styled-components";
 
-const StarIcons = ({ stars = 0, reviews = 0, size = "1.2rem" }) => {
-  const fullStars = Math.floor(stars); // 3.2 → 3
+interface StarIconsProps {
+  stars?: number;           // optional, defaults to 0
+  reviewsCount?: number;    // optional
+  size?: string;            // optional, defaults to "1.2rem"
+}
+
+const StarIcons: React.FC<StarIconsProps> = ({ stars = 0, reviewsCount, size = "1.2rem" }) => {
+  const fullStars = Math.floor(stars); // e.g., 3.2 → 3
   const hasHalfStar = stars - fullStars > 0; 
 
   const ratingStar = Array.from({ length: 5 }, (_, index) => {
@@ -20,7 +26,7 @@ const StarIcons = ({ stars = 0, reviews = 0, size = "1.2rem" }) => {
     <Wrapper>
       <div className="icon-style">
         {ratingStar}
-        <p>({reviews})</p>
+        {reviewsCount !== undefined && <span>({reviewsCount})</span>}
       </div>
     </Wrapper>
   );
@@ -40,9 +46,7 @@ const Wrapper = styled.section`
       color: #ccc;
     }
 
-    p {
-      margin: 0;
-      padding-left: 0.8rem;
+    span {
       font-size: 0.9rem;
       color: #555;
     }

@@ -89,6 +89,12 @@ import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
 import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
 import ReviewPage from "./components/Order/ReviewPage";
+import GetQuoteDashboard from "./components/GetQuote/GetQuoteDashboard";
+import GetQuoteLayout from "./components/Layouts/GetQuoteLayout";
+import ProductManager from "./components/GetQuote/ProductManager";
+import Salesman from "./components/GetQuote/SalesManTable";
+import ManagerTable from "./components/GetQuote/ManagerTable";
+
 
 /**
  * redirectToDashboard loader
@@ -536,4 +542,17 @@ export const router = createBrowserRouter([
       { path: "terms-and-conditions", element: <Term /> },
     ],
   },
+
+  {
+    path: "/getquote-admin",
+    element: <GetQuoteLayout />,
+    children: [
+      { index: true, element: <GetQuoteDashboard /> },
+      { path: "manager", element: <ManagerTable /> },
+      { path: "salesman", element: <Salesman /> },
+      { path: "product-manager", element: <ProductManager /> },
+    ],  
+    
+
+  }
 ]);
