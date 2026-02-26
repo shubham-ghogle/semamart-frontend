@@ -95,6 +95,7 @@ import ProductManager from "./components/GetQuote/ProductManager";
 import Salesman from "./components/GetQuote/SalesManTable";
 import ManagerTable from "./components/GetQuote/ManagerTable";
 
+import ContactUsScreen from "./Screens/Common/ContactUsScreen";
 
 /**
  * redirectToDashboard loader
@@ -432,6 +433,7 @@ export const router = createBrowserRouter([
       },
       { path: "support", element: <SellerSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
@@ -451,6 +453,7 @@ export const router = createBrowserRouter([
       },
       { path: "support", element: <UserSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
@@ -466,6 +469,7 @@ export const router = createBrowserRouter([
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
       { path: "support", element: <UserSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
 
