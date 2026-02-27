@@ -92,10 +92,11 @@ import ReviewPage from "./components/Order/ReviewPage";
 import GetQuoteDashboard from "./components/GetQuote/GetQuoteDashboard";
 import GetQuoteLayout from "./components/Layouts/GetQuoteLayout";
 import ProductManager from "./components/GetQuote/ProductManager";
-import Salesman from "./components/GetQuote/SalesManTable";
+import SalesmanTable from "./components/GetQuote/SalesManTable";
 import ManagerTable from "./components/GetQuote/ManagerTable";
-
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
+import Manager from "./components/GetQuote/Manager";
+import Salesman from "./components/GetQuote/Salesman";
 
 /**
  * redirectToDashboard loader
@@ -553,10 +554,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <GetQuoteDashboard /> },
       { path: "manager", element: <ManagerTable /> },
-      { path: "salesman", element: <Salesman /> },
+      { path: "salesman", element: <SalesmanTable /> },
       { path: "product-manager", element: <ProductManager /> },
     ],  
-    
-
-  }
+  },
+  { path: "getquote-manager", element: <Manager /> },
+  { path: "getquote-salesman", element: <Salesman /> },
 ]);

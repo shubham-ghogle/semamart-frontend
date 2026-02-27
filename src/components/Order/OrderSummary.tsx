@@ -191,12 +191,12 @@ if (oversized) {
   try {
     let res;
     if (reviewData._id) {
-      res = await fetch(`${API_URL}user/updateReview/${reviewData._id}`, {
+      res = await fetch(`${API_URL}review/updateReview/${reviewData._id}`, {
         method: "PUT",
         body: formData,
       });
     } else {
-      res = await fetch(`${API_URL}user/addReview`, {
+      res = await fetch(`${API_URL}review/addReview`, {
         method: "POST",
         body: formData,
       });
