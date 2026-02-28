@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../Screens/ProductDetailScreen/GetAllProduct.Hooks";
 import ProductCard from "../Homepage/ProductCard";
 import { useMemo } from "react";
-import { get } from "http";
+// import { get } from "http";
 
 type RelatedProductsProps = {
   productType: string;
