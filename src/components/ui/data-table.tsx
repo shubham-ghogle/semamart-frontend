@@ -72,6 +72,11 @@ interface DataTableProps<TData, TValue> {
   statusOptions?: string[];
   onVisibilityChange?: (proIds: string[], isVisible: boolean) => void;
   getRowClassName?: (row: TData) => string;
+  disableExport?: boolean;
+  disableColumnVisibility?: boolean;
+  enableSalesmanFilter?: boolean;
+  salesmanOptions?: string[];
+  salesmanColumnId?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -92,6 +97,11 @@ export function DataTable<TData, TValue>({
   statusColumnId,
   statusOptions = ["All", "Created", "Processing", "Shipped", "Delivered"],
   getRowClassName,
+  disableExport = false,
+  disableColumnVisibility = false,
+  enableSalesmanFilter = false,
+  salesmanOptions = [],
+  salesmanColumnId = "salesman",
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -503,40 +513,70 @@ doc.text(
                 />
               </div>
             )}
+            {/* salesman filter */}
+            {enableSalesmanFilter && salesmanOptions.length > 0 && (
+              <Select
+                value={
+                  (table.getColumn(salesmanColumnId)?.getFilterValue() as string) ??
+                  "All"
+                }
+                onValueChange={v =>
+                  table
+                    .getColumn(salesmanColumnId)
+                    ?.setFilterValue(v === "All" ? undefined : v)
+                }
+              >
+                <SelectTrigger className="w-35">
+                  <SelectValue placeholder="Salesman" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem key="All" value="All">All</SelectItem>
+                  {salesmanOptions.map(s => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             {/* export buttons */}
-            <div className="min-w-fit">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="ml-auto bg-background text-txt-drk-gray"
-                  >
-                    <DownloadIcon />
-                    <span>Export</span>
-                    <ChevronDown />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={exportPdf}>PDF</DropdownMenuItem>
-                  <DropdownMenuItem onClick={exportCsv}>CSV</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            {!disableExport && (
+              <div className="min-w-fit">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="ml-auto bg-background text-txt-drk-gray"
+                    >
+                      <DownloadIcon />
+                      <span>Export</span>
+                      <ChevronDown />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={exportPdf}>PDF</DropdownMenuItem>
+                    <DropdownMenuItem onClick={exportCsv}>CSV</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
 
             {/* column visibility */}
-            <div className="min-w-fit">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="ml-auto bg-background text-txt-drk-gray"
-                  >
-                    <FilterIcon />
-                    Columns
-                    <ChevronDown />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+            {!disableColumnVisibility && (
+              <div className="min-w-fit">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="ml-auto bg-background text-txt-drk-gray"
+                    >
+                      <FilterIcon />
+                      Columns
+                      <ChevronDown />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
                   {table
                     .getAllColumns()
                     .filter((column) => column.getCanHide())
@@ -557,6 +597,7 @@ doc.text(
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+          )}
           </article>
         )}
       </section>

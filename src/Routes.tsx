@@ -89,14 +89,11 @@ import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
 import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
 import ReviewPage from "./components/Order/ReviewPage";
-import GetQuoteDashboard from "./components/GetQuote/GetQuoteDashboard";
-import GetQuoteLayout from "./components/Layouts/GetQuoteLayout";
-import ProductManager from "./components/GetQuote/ProductManager";
-import SalesmanTable from "./components/GetQuote/SalesManTable";
-import ManagerTable from "./components/GetQuote/ManagerTable";
+import Manager from "./Screens/GetQuoteAdmin/Manager";
+import Salesman from "./Screens/GetQuoteAdmin/Salesman";
+import HospitalLeadForm from "./Screens/GetQuoteAdmin/HospitalLeadForm";
+import RequirementScreen from "./Screens/GetQuoteAdmin/RequirementScreen";
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
-import Manager from "./components/GetQuote/Manager";
-import Salesman from "./components/GetQuote/Salesman";
 
 /**
  * redirectToDashboard loader
@@ -280,10 +277,16 @@ export const router = createBrowserRouter([
         loader: requireUserAuth,
         element: <WishlistProduct />,
       },
-      { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
-      { path: "get-quote", element: <ComingSoon /> }, 
+        { path: "add-to-cart", loader: requireUserAuth, element: <AddToCart /> },
     ],
   },
+  
+   // Standalone routes for GetQuoteAdmin without RootLayout
+   { path: "get-quote-admin/manager", element: <Manager /> },
+   { path: "get-quote-admin/salesman", element: <Salesman /> },
+   { path: "get-quote-admin/lead-form", element: <HospitalLeadForm /> },
+   { path: "get-quote-admin/requirement-screen", element: <RequirementScreen /> },
+   { path: "get-quote", element: <ComingSoon /> },
 
   // All other routes remain the same (admin, seller, user, etc.)
   {
@@ -359,7 +362,8 @@ export const router = createBrowserRouter([
       { path: "requests", element: <AdminRequestScreen /> },
       { path: "img-upload", element: <AdminImageUploader /> },
       { path: "bulk-order-request", element: <BulkAndStock /> },
-      {path: "member-access", element: <AdminMemberAccess />},
+       {path: "member-access", element: <AdminMemberAccess />},
+
       {
         path: "sellers",
         children: [
@@ -548,16 +552,10 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: "/getquote-admin",
-    element: <GetQuoteLayout />,
-    children: [
-      { index: true, element: <GetQuoteDashboard /> },
-      { path: "manager", element: <ManagerTable /> },
-      { path: "salesman", element: <SalesmanTable /> },
-      { path: "product-manager", element: <ProductManager /> },
-    ],  
-  },
-  { path: "getquote-manager", element: <Manager /> },
-  { path: "getquote-salesman", element: <Salesman /> },
+  // Standalone routes for GetQuoteAdmin without RootLayout
+  { path: "get-quote-admin/manager", element: <Manager /> },
+  { path: "get-quote-admin/salesman", element: <Salesman /> },
+  { path: "get-quote-admin/lead-form", element: <HospitalLeadForm /> },
+  { path: "get-quote-admin/requirement-screen", element: <RequirementScreen /> },
+  { path: "get-quote", element: <ComingSoon /> },
 ]);
