@@ -214,11 +214,7 @@ const Manager = () => {
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Manager Dashboard</h1>
                     <p className="text-gray-600">Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={() => setShowRequirementModal(true)} className="bg-green-600 text-white hover:bg-green-700">
-                      Create Requirement
-                    </Button>
-                  </div>
+
                 </div>
 
                 {/* Overview Cards */}
