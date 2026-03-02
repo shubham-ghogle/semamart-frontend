@@ -1,5 +1,8 @@
 import React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { MdDashboard } from "react-icons/md";
+import { FaUserTie, FaUser } from "react-icons/fa";
+import { GrWorkshop } from "react-icons/gr";
 
 const GetQuoteLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -10,7 +13,7 @@ const GetQuoteLayout: React.FC = () => {
   };
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
-    `block px-4 py-2 rounded-lg transition ${
+    `flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium ${
       isActive
         ? "bg-blue-600 text-white"
         : "text-gray-700 hover:bg-gray-200"
@@ -24,18 +27,22 @@ const GetQuoteLayout: React.FC = () => {
 
         <nav className="flex flex-col gap-3 flex-grow">
           <NavLink to="/getquote-admin" end className={linkClasses}>
+            <MdDashboard className="text-lg" />
             Dashboard
           </NavLink>
 
           <NavLink to="manager" className={linkClasses}>
+            <FaUserTie className="text-lg" />
             Manager
           </NavLink>
 
           <NavLink to="salesman" className={linkClasses}>
+            <FaUser className="text-lg" />
             Salesman
           </NavLink>
 
           <NavLink to="product-manager" className={linkClasses}>
+            <GrWorkshop className="text-lg" />
             Product Manager
           </NavLink>
         </nav>
