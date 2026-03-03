@@ -4,6 +4,7 @@ import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight, FaShoppingBag, FaBox } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 // Sample data for demonstration
 const sampleCustomers = [
@@ -46,6 +47,7 @@ const sampleRecentActivity = [
 
 const Manager = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const navigate = useNavigate();
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
@@ -96,15 +98,18 @@ const Manager = () => {
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
-    { 
-      accessorKey: "action", 
-      header: "Action", 
-      cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => console.log("View requirement:", row.original.uid)}>
-          <FaEye size={16} />
-        </Button>
-      )
-    },
+     { 
+                 accessorKey: "action", 
+                 header: "Action", 
+                 cell: ({ row }: any) => (
+                   <Button
+                     variant="ghost"
+                     onClick={() => navigate("/requirement")}
+                   >
+                     <FaEye size={16} />
+                   </Button>
+                 )
+               },
   ];
 
   // Quotation table columns
@@ -122,14 +127,17 @@ const Manager = () => {
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
     { 
-      accessorKey: "action", 
-      header: "Action", 
-      cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => console.log("View quotation:", row.original.uid)}>
-          <FaEye size={16} />
-        </Button>
-      )
-    },
+             accessorKey: "action", 
+             header: "Action", 
+             cell: ({ row }: any) => (
+               <Button
+                 variant="ghost"
+                 onClick={() => navigate("/quotation")}
+               >
+                 <FaEye size={16} />
+               </Button>
+             )
+           },
   ];
 
   // PO table columns

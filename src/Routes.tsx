@@ -95,8 +95,6 @@ import Salesman from "./Screens/GetQuoteAdmin/Salesman";
 import HospitalLeadForm from "./Screens/GetQuoteAdmin/HospitalLeadForm";
 import RequirementScreen from "./Screens/GetQuoteAdmin/RequirementScreen";
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
-import Manager from "./components/GetQuote/Manager";
-import Salesman from "./components/GetQuote/Salesman";
 import Requirement from "./components/GetQuote/Requirement";
 import Quotation from "./components/GetQuote/Quotation";
 
@@ -558,18 +556,13 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: "/getquote-admin",
-    element: <GetQuoteLayout />,
-    children: [
-      { index: true, element: <GetQuoteDashboard /> },
-      { path: "manager", element: <ManagerTable /> },
-      { path: "salesman", element: <SalesmanTable /> },
-      { path: "product-manager", element: <ProductManager /> },
-    ],  
-  },
-  { path: "getquote-manager", element: <Manager /> },
-  { path: "getquote-salesman", element: <Salesman /> },
+  // Standalone routes for GetQuoteAdmin without RootLayout
+  { path: "get-quote-admin", element: <Admin /> },
+  { path: "get-quote-admin/manager", element: <Manager /> },
+    { path: "get-quote-admin/salesman", element: <Salesman /> },
+  { path: "get-quote-admin/lead-form", element: <HospitalLeadForm /> },
+  { path: "get-quote-admin/requirement-screen", element: <RequirementScreen /> },
+  { path: "get-quote", element: <ComingSoon /> },
   {path:"requirement", element:<Requirement/>},
-  {path:"quotation", element:<Quotation/>}
+  {path:"quotation", element:<Quotation/>},
 ]);

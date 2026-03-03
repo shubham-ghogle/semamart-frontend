@@ -8,6 +8,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import RequirementModal from "@/components/ui/RequirementModal";
 import ViewModal from "@/components/ui/ViewModal";
+import { useNavigate } from "react-router-dom";
 
 // Sample data for demonstration
 const sampleCustomers = [
@@ -55,7 +56,7 @@ const Manager = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
   const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
-
+  const navigate = useNavigate();
   // Filter requirements based on selected salesman and entity name
   const filteredRequirements = useMemo(() => {
     return sampleRequirements.filter(item => {
@@ -142,19 +143,18 @@ const Manager = () => {
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     { 
-      accessorKey: "action", 
-      header: "Action", 
-      cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => {
-          setViewModalData(row.original);
-          setViewModalType("requirement");
-          setShowViewModal(true);
-        }}>
-          <FaEye size={16} />
-        </Button>
-      )
-    },
+      { 
+             accessorKey: "action", 
+             header: "Action", 
+             cell: ({ row }: any) => (
+               <Button
+                 variant="ghost"
+                 onClick={() => navigate("/requirement")}
+               >
+                 <FaEye size={16} />
+               </Button>
+             )
+           },
   ];
 
   // Quotation table columns
@@ -166,18 +166,17 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
      { 
-      accessorKey: "action", 
-      header: "Action", 
-      cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => {
-          setViewModalData(row.original);
-          setViewModalType("quotation");
-          setShowViewModal(true);
-        }}>
-          <FaEye size={16} />
-        </Button>
-      )
-    },
+             accessorKey: "action", 
+             header: "Action", 
+             cell: ({ row }: any) => (
+               <Button
+                 variant="ghost"
+                 onClick={() => navigate("/quotation")}
+               >
+                 <FaEye size={16} />
+               </Button>
+             )
+           },
   ];
 
 
