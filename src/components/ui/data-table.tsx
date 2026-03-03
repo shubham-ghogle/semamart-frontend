@@ -598,11 +598,11 @@ doc.text(
               </DropdownMenu>
             </div>
           )}
-          </article>
-        )}
-      </section>
+        </article>
+      )}
+    </section>
 
-      <div className="rounded-md border">
+    <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

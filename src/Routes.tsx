@@ -89,6 +89,7 @@ import AllProducts from "./components/ui/AllProducts";
 import ComingSoon from "./components/ui/ComingSoon";
 import AdminMemberAccess from "./Screens/Admin/AdminMemberAccess";
 import ReviewPage from "./components/Order/ReviewPage";
+import Admin from "./Screens/GetQuoteAdmin/Admin";
 import Manager from "./Screens/GetQuoteAdmin/Manager";
 import Salesman from "./Screens/GetQuoteAdmin/Salesman";
 import HospitalLeadForm from "./Screens/GetQuoteAdmin/HospitalLeadForm";
@@ -281,9 +282,10 @@ export const router = createBrowserRouter([
     ],
   },
   
-   // Standalone routes for GetQuoteAdmin without RootLayout
-   { path: "get-quote-admin/manager", element: <Manager /> },
-   { path: "get-quote-admin/salesman", element: <Salesman /> },
+  // Standalone routes for GetQuoteAdmin without RootLayout
+  { path: "get-quote-admin", element: <Admin /> },
+  { path: "get-quote-admin/manager", element: <Manager /> },
+    { path: "get-quote-admin/salesman", element: <Salesman /> },
    { path: "get-quote-admin/lead-form", element: <HospitalLeadForm /> },
    { path: "get-quote-admin/requirement-screen", element: <RequirementScreen /> },
    { path: "get-quote", element: <ComingSoon /> },
@@ -553,8 +555,9 @@ export const router = createBrowserRouter([
   },
 
   // Standalone routes for GetQuoteAdmin without RootLayout
+  { path: "get-quote-admin", element: <Admin /> },
   { path: "get-quote-admin/manager", element: <Manager /> },
-  { path: "get-quote-admin/salesman", element: <Salesman /> },
+    { path: "get-quote-admin/salesman", element: <Salesman /> },
   { path: "get-quote-admin/lead-form", element: <HospitalLeadForm /> },
   { path: "get-quote-admin/requirement-screen", element: <RequirementScreen /> },
   { path: "get-quote", element: <ComingSoon /> },

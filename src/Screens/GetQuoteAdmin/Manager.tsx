@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import RequirementModal from "@/components/ui/RequirementModal";
+import ViewModal from "@/components/ui/ViewModal";
 
 // Sample data for demonstration
 const sampleCustomers = [
@@ -46,12 +49,42 @@ const sampleRecentActivity = [
 const Manager = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showRequirementModal, setShowRequirementModal] = useState(false);
+  const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
+  const [selectedSalesman, setSelectedSalesman] = useState<string>("");
+  const [selectedEntityName, setSelectedEntityName] = useState<string>("");
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewModalData, setViewModalData] = useState<any>(null);
+  const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
 
-  const handleRequirementSubmit = (data: { salesman: string; entityName: string }) => {
+  // Filter requirements based on selected salesman and entity name
+  const filteredRequirements = useMemo(() => {
+    return sampleRequirements.filter(item => {
+      const matchesSalesman = selectedSalesman === "all" || !selectedSalesman || item.salesman === selectedSalesman;
+      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
+      return matchesSalesman && matchesEntityName;
+    });
+  }, [selectedSalesman, selectedEntityName]);
+
+  // Filter quotations based on selected salesman and entity name
+  const filteredQuotations = useMemo(() => {
+    return sampleQuotations.filter(item => {
+      const matchesSalesman = selectedSalesman === "all" || !selectedSalesman || item.salesman === selectedSalesman;
+      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
+      return matchesSalesman && matchesEntityName;
+    });
+  }, [selectedSalesman, selectedEntityName]);
+
+  const handleSearch = () => {
+    console.log("Searching with:", { selectedSalesman, selectedEntityName });
+  };
+
+  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
     console.log("Requirement data submitted:", data);
     setShowRequirementModal(false);
-    // Navigate to requirement list page
-    setActiveTab("requirement");
+    setSelectedSalesman(data.salesman);
+    setSelectedEntityName(data.entityName);
+    // Navigate to the appropriate list page
+    setActiveTab(data.type);
   };
 
   const menuItems = [
@@ -64,7 +97,8 @@ const Manager = () => {
   ];
 
   const handleMenuClick = (itemId: string) => {
-    if (itemId === "requirement") {
+    if (itemId === "requirement" || itemId === "quotation") {
+      setModalType(itemId as "requirement" | "quotation");
       setShowRequirementModal(true);
     } else {
       setActiveTab(itemId);
@@ -85,11 +119,15 @@ const Manager = () => {
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
-    { 
+     { 
       accessorKey: "action", 
       header: "Action", 
       cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => console.log("View customer:", row.original.uid)}>
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("customer");
+          setShowViewModal(true);
+        }}>
           <FaEye size={16} />
         </Button>
       )
@@ -104,11 +142,15 @@ const Manager = () => {
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-    { 
+     { 
       accessorKey: "action", 
       header: "Action", 
       cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => console.log("View requirement:", row.original.uid)}>
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("requirement");
+          setShowViewModal(true);
+        }}>
           <FaEye size={16} />
         </Button>
       )
@@ -123,11 +165,15 @@ const Manager = () => {
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-    { 
+     { 
       accessorKey: "action", 
       header: "Action", 
       cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => console.log("View quotation:", row.original.uid)}>
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("quotation");
+          setShowViewModal(true);
+        }}>
           <FaEye size={16} />
         </Button>
       )
@@ -230,7 +276,13 @@ const Manager = () => {
                     return (
                       <div 
                         key={index}
-                        onClick={() => setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''))}
+                        onClick={() => {
+                          if (item.label === "Requirement" || item.label === "Quotation") {
+                            setShowRequirementModal(true);
+                          } else {
+                            setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
+                          }
+                        }}
                         className={`bg-gradient-to-r ${item.color} text-white rounded-xl p-5 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
                       >
                         <div className="flex items-center justify-between">
@@ -255,6 +307,8 @@ const Manager = () => {
                       searchPlaceholder="Search by salesman"
                       disableExport={true}
                       disableColumnVisibility={true}
+                      enableStatusFilter={false}
+                      enableSalesmanFilter={false}
                     />
                   </div>
                 </div>
@@ -273,6 +327,8 @@ const Manager = () => {
                     docName="customers"
                     searchColId="customerName"
                     searchPlaceholder="Search by customer name"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
                   />
                 </div>
               </div>
@@ -282,19 +338,45 @@ const Manager = () => {
           {activeTab === "requirement" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                {/* Salesman and Entity Name Search */}
+                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Salesman</label>
+                    <Select value={selectedSalesman} onValueChange={setSelectedSalesman}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Salesman" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="John Doe">John Doe</SelectItem>
+                        <SelectItem value="Jane Smith">Jane Smith</SelectItem>
+                        <SelectItem value="Mike Johnson">Mike Johnson</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
+                    <Input
+                      value={selectedEntityName}
+                      onChange={(e) => setSelectedEntityName(e.target.value)}
+                      placeholder="Search by entity name"
+                      className="w-full"
+                    />
+                  </div>
+                  <Button type="submit" className="bg-teal-600 text-white hover:bg-teal-700">
+                    Submit
+                  </Button>
+                </form>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Requirement List</h3>
                 <div className="overflow-x-auto">
-                  <DataTable
-                    data={sampleRequirements}
+                   <DataTable
+                    data={filteredRequirements}
                     columns={requirementColumns}
                     docName="requirements"
-                    searchColId="entityName"
-                    searchPlaceholder="Search by customer/entity name"
                     disableExport={true}
                     disableColumnVisibility={true}
-                    enableSalesmanFilter={true}
-                    salesmanOptions={["John Doe", "Jane Smith", "Mike Johnson"]}
-                    salesmanColumnId="salesman"
+                    disableSearch={true}
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
                   />
                 </div>
               </div>
@@ -304,19 +386,45 @@ const Manager = () => {
           {activeTab === "quotation" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                {/* Salesman and Entity Name Search */}
+                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Salesman</label>
+                    <Select value={selectedSalesman} onValueChange={setSelectedSalesman}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Salesman" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="John Doe">John Doe</SelectItem>
+                        <SelectItem value="Jane Smith">Jane Smith</SelectItem>
+                        <SelectItem value="Mike Johnson">Mike Johnson</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
+                    <Input
+                      value={selectedEntityName}
+                      onChange={(e) => setSelectedEntityName(e.target.value)}
+                      placeholder="Search by entity name"
+                      className="w-full"
+                    />
+                  </div>
+                  <Button type="submit" className="bg-teal-600 text-white hover:bg-teal-700">
+                    Submit
+                  </Button>
+                </form>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Quotation List</h3>
                 <div className="overflow-x-auto">
-                  <DataTable
-                    data={sampleQuotations}
+                   <DataTable
+                    data={filteredQuotations}
                     columns={quotationColumns}
                     docName="quotations"
-                    searchColId="entityName"
-                    searchPlaceholder="Search by customer/entity name"
                     disableExport={true}
                     disableColumnVisibility={true}
-                    enableSalesmanFilter={true}
-                    salesmanOptions={["John Doe", "Jane Smith", "Mike Johnson"]}
-                    salesmanColumnId="salesman"
+                    disableSearch={true}
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
                   />
                 </div>
               </div>
@@ -340,6 +448,16 @@ const Manager = () => {
           open={showRequirementModal}
           onOpenChange={setShowRequirementModal}
           onSubmit={handleRequirementSubmit}
+          type={modalType}
+        />
+        
+        {/* View Modal */}
+        <ViewModal
+          open={showViewModal}
+          onOpenChange={setShowViewModal}
+          title={`${viewModalType.charAt(0).toUpperCase() + viewModalType.slice(1)} Details`}
+          data={viewModalData}
+          type={viewModalType}
         />
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -42,7 +41,6 @@ const stateDistrictData: { [key: string]: string[] } = {
 };
 
 const HospitalLeadForm = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     entityType: "",
     entityName: "",
@@ -79,26 +77,8 @@ const HospitalLeadForm = () => {
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-gray-200 h-screen fixed">
-          <div className="p-6 h-full flex flex-col">
-            <div>
-              <h2 className="text-xl font-bold mb-6 text-gray-800">Menu</h2>
-              <nav className="space-y-1">
-                <button
-                  onClick={() => navigate("/get-quote-admin/manager")}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium transition-colors rounded-md text-gray-600 hover:bg-gray-100"
-                >
-                  <span className="text-lg">←</span>
-                  <span>Back to Dashboard</span>
-                </button>
-              </nav>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content */}
-        <div className="ml-64 flex-1 p-8 overflow-y-auto h-screen">
+        <div className="flex-1 p-8 overflow-y-auto h-screen">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
               <h1 className="text-3xl font-bold text-gray-800 mb-8">Lead Form</h1>
