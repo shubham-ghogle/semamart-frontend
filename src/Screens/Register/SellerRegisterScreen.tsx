@@ -714,7 +714,7 @@ export default function SellerRegistration(): JSX.Element {
   <strong>Sema Healthcare Private Limited</strong><br />
   (Registered under the Companies Act, 2013)<br />
   Having its registered office at:<br />
-  317, 2nd Floor, SS Plaza, Delhi-Palam Road,<br />
+  317, 3rd Floor, SS Plaza, Delhi-Palam Road,<br />
   Mahavir Enclave, Delhi 110045<br />
   (Hereinafter referred to as the “Company” or “Semamart”)
 </p>

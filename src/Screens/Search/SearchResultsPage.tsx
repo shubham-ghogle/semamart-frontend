@@ -198,7 +198,7 @@ export default function SearchResultsPage() {
                 setMaxPrice(100000);
                 setSort("relevance");
               }}
-              className="w-full text-sm text-blue-600 border border-blue-500 rounded-md py-1 hover:bg-blue-50 transition font-medium"
+              className="w-full text-sm text-white bg-[#1C647C] border border-[#1C647C] rounded-md py-1 hover:bg-[#164d5f] transition font-medium"
             >
               Reset filters
             </button>

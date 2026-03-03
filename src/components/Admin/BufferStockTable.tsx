@@ -30,7 +30,10 @@ export default function BufferStockTable() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const res = await fetch("/api/v2/product/get-low-stock-products");
+       const res = await fetch("/api/v2/product/get-low-stock-products", { 
+        credentials: "include" 
+      });
+        
         if (!res.ok) throw new Error("Failed to fetch stock");
 
         const data = await res.json();

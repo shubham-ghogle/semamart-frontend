@@ -1,10 +1,11 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useParams ,useNavigate} from "react-router-dom";
 import { Star, Camera, Loader2, X } from "lucide-react";
 import { BASE_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
 import Header from "../Header/Header";
 import { toast } from "react-toastify";
+import { ArrowLeft } from "lucide-react"
 
 
 // Interfaces
@@ -41,6 +42,7 @@ const ReviewPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const Userid = useUserStore((state) => state.user?._id);
+  const navigate = useNavigate();
 
   // Form state
   const [rating, setRating] = useState(0);
@@ -98,6 +100,13 @@ const ReviewPage: React.FC = () => {
       return;
     }
 
+     const maxSizeKB = 100;
+      const oversized = reviewImages.find(file => file.size / 1024 > maxSizeKB);
+      if (oversized) {
+        toast.error(`File "${oversized.name}" is too large. Max size is ${maxSizeKB} KB.`);
+        return; // Stop submission
+      }
+
     const formData = new FormData();
     formData.append("rating", String(rating));
     formData.append("comment", reviewDescription);
@@ -111,11 +120,11 @@ const ReviewPage: React.FC = () => {
 
       if (order?.review?._id) {
         // Updating existing review
-        url = `/api/v2/user/updateReview/${order.review._id}`;
+        url = `/api/v2/review/updateReview/${order.review._id}`;
         method = "PUT";
       } else {
         // Creating new review
-        url = `/api/v2/user/addReview`;
+        url = `/api/v2/review/addReview`;
         method = "POST";
 
         // Add identifiers
@@ -139,6 +148,7 @@ const ReviewPage: React.FC = () => {
       setHover(0);
 
       toast.success(order?.review?._id ? "Review updated!" : "Review submitted!");
+        navigate(-1);
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong!");
@@ -163,9 +173,12 @@ const ReviewPage: React.FC = () => {
     <div className=" mx-auto  p-4 bg-gray-50  font-sans">
       {/* Header */}
       <div className="flex justify-between items-center bg-white p-4 border-b border-gray-200 mb-4">
-        <h1 className="text-xl font-bold text-gray-800">
-          {order.review ? "Update Review" : "Write a Review"}
-        </h1>
+        <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate(-1)}>
+          <ArrowLeft size={24} className="text-gray-700 hover:text-gray-900" />
+          <span className="text-xl font-bold text-gray-800">
+            {order.review ? "Update Review" : "Write a Review"}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600 truncate max-w-[150px]">
             {order.variant.productId.name}
@@ -282,17 +295,25 @@ const ReviewPage: React.FC = () => {
                   className="hidden"
                 />
               </label>
+              <p className="text-red-500 text-sm mt-2">
+                Please upload only images smaller than 100KB (JPG, PNG).
+              </p>
             </div>
           </div>
 
           {/* Submit Button */}
           <div className="mt-auto p-6 border-t border-gray-100 flex justify-end">
-            <button
-              onClick={handleSubmit}
-              className="bg-[#1C647C] hover:bg-orange-700 cursor-pointer text-white font-bold py-3 px-16 rounded shadow transition-all uppercase"
-            >
-              {order.review ? "Update Review" : "Submit Review"}
-            </button>
+              <button
+                onClick={handleSubmit}
+                disabled={rating === 0}
+                className={`${
+                  rating === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#1C647C] hover:bg-orange-700 cursor-pointer"
+                } text-white font-bold py-3 px-16 rounded shadow transition-all uppercase`}
+              >
+                {order.review ? "Update Review" : "Submit Review"}
+              </button>
           </div>
         </div>
       </div>

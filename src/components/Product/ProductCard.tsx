@@ -8,6 +8,8 @@ import { useUserStore } from "@/store/userStore";
 import { Heart, ShoppingCart } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StarIcons from "../ui/StarIcons";
+
 
 type DefaultProductCardProps = {
   product: Product;
@@ -136,11 +138,11 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
           </h3>
 
           <div className="flex items-center gap-2 text-[#FF9529] text-sm mb-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} aria-hidden>
-                {i < Math.round(product.avgRating ?? 0) ? "★" : "☆"}
-              </span>
-            ))}
+           <StarIcons
+            stars={product.avgRating ?? 0}
+            reviewsCount={product.reviewsCount || 0}
+          />
+             
           </div>
 
           <div className="flex items-center justify-between mt-auto">

@@ -259,6 +259,7 @@ export default function HeroSectionUploader() {
     await fetch(API_URL+"heroslider", {
       method: "POST",
       body: fd,
+      credentials: "include",
     });
 
     deletedIds.current = [];

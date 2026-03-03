@@ -38,7 +38,6 @@ export interface Variant {
 }
 
 export interface Product {
-  avgRating: number;
   _id: string;
   name: string;
   category: string[]; // fixed
@@ -112,6 +111,8 @@ export interface Product {
   ratings?: number;
   shopId: string | Seller;
   sold_out: number;
+  totalOrderedQuantity?: number;
+  totalOrders?: number;
   createdAt: Date;
   updatedAt: Date;
   commission?: number;
@@ -120,6 +121,8 @@ export interface Product {
   visibilityByAdmin: boolean;
   brand?: string;
   badge?:boolean;
+  avgRating: number;
+  reviewsCount: number;
 }
 
 export type Address = {
@@ -285,10 +288,11 @@ export type CategoryDetailApiRes = {
 
 // SUPPORT TYPES /////
 export interface SupportMessage {
-  _id: string;
+  _id?: string;
   from: 'User' | 'Admin' | 'Seller';
   message: string;
-  date: string;
+  timestamp?: Date;
+  date?: string;
   attachments?: string[];
 }
 
@@ -299,7 +303,7 @@ export interface SupportTicket {
   user: string | User;
   topic: string;
   message: string;
-  status: 'New' | 'In Progress' | 'Closed';
+  status: 'New' | 'Open' | 'In Progress' | 'Closed';
   conversation: SupportMessage[];
   documents: string[];
   createdAt: string;

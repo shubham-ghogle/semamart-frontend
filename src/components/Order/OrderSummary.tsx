@@ -166,6 +166,16 @@ useEffect(() => {
   }
 
   if (!product?._id || !order?._id || !user?._id) return;
+   const maxSizeKB = 100;
+        const oversized = reviewData.images.find(
+  (file): file is File =>
+    file instanceof File && file.size / 1024 > maxSizeKB
+);
+
+if (oversized) {
+  toast.error(`File "${oversized.name}" is too large. Max size is ${maxSizeKB} KB.`);
+  return;
+}
 
   const formData = new FormData();
   formData.append("user", user._id);
@@ -181,12 +191,12 @@ useEffect(() => {
   try {
     let res;
     if (reviewData._id) {
-      res = await fetch(`${API_URL}user/updateReview/${reviewData._id}`, {
+      res = await fetch(`${API_URL}review/updateReview/${reviewData._id}`, {
         method: "PUT",
         body: formData,
       });
     } else {
-      res = await fetch(`${API_URL}user/addReview`, {
+      res = await fetch(`${API_URL}review/addReview`, {
         method: "POST",
         body: formData,
       });
@@ -496,6 +506,9 @@ useEffect(() => {
                       }
                       className="absolute w-full h-full top-0 left-0 opacity-0 cursor-pointer"
                     />
+                    <p className="text-red-500 text-sm mt-2">
+                      Please upload only images smaller than 100KB (JPG, PNG).
+                    </p>
                   </div>
 
                   {/* Preview Uploaded Images */}

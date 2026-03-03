@@ -10,6 +10,7 @@ import {
   FaTimes,
   FaLayerGroup,
   FaHeadset,
+  FaPhoneAlt,
 } from "react-icons/fa";
 import {  } from "react-icons/fa";
 
@@ -213,7 +214,8 @@ const AccountNavbar: React.FC = () => {
                   <NavItem to="/account/address" icon={<FaMapMarkerAlt />} label="Manage Addresses" active={isActive("/account/address")} />
                   <NavItem to="/account/wishlist" icon={<FaRegHeart />} label="My Wishlist" active={isActive("/account/wishlist")} />
                   <NavItem to="/account/mybulkorder-request" icon={<FaLayerGroup />} label="Bulkorder Request" active={isActive("/account/mybulkorder-request")} />
-                  <NavItem to="/user/support" icon={<FaHeadset />} label="Support" active={isActive("/user/support")} />
+                  <NavItem to="/account/support" icon={<FaHeadset />} label="Support" active={isActive("/account/support")} />
+                  <NavItem to="/account/contact-us" icon={<FaPhoneAlt />} label="Contact Us" active={isActive("/account/contact-us")} />
                 </>
               )}
             </div>
@@ -303,7 +305,9 @@ const AccountNavbar: React.FC = () => {
                 <>
                   <NavItem to="/account/address" icon={<FaMapMarkerAlt />} label="Manage Addresses" active={isActive("/account/address")} onClick={() => setOpen(false)} />
                   <NavItem to="/account/wishlist" icon={<FaRegHeart />} label="My Wishlist" active={isActive("/account/wishlist")} onClick={() => setOpen(false)} />
-                  <NavItem to="/user/support" icon={<FaHeadset />} label="Support" active={isActive("/user/support")} onClick={() => setOpen(false)} />
+                  <NavItem to="/account/mybulkorder-request" icon={<FaLayerGroup />} label="Bulkorder Request" active={isActive("/account/mybulkorder-request")} onClick={() => setOpen(false)} />
+                  <NavItem to="/account/support" icon={<FaHeadset />} label="Support" active={isActive("/account/support")} onClick={() => setOpen(false)} />
+                  <NavItem to="/account/contact-us" icon={<FaPhoneAlt />} label="Contact Us" active={isActive("/account/contact-us")} onClick={() => setOpen(false)} />
                 </>
               )}
             </div>

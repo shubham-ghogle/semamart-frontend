@@ -1578,64 +1578,6 @@ return (
                   )}
                 />
               </section>
-
-              {!product && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="productCompilance"
-                    render={({ field }) => (
-                      <FormItem>
-                       
-                        <div className="flex" >
-                          <SubFormLabel>
-                          Product Compilance Documents
-                        </SubFormLabel>
-                         <InfoTooltip description="Upload official certificates or documents related to product standards or approvals (e.g., ISO, CE, FDA certificates)"/>
-                      </div>
-                        <FormControl>
-                          <Input
-                            multiple
-                            type="file"
-                            onChange={(e) => {
-                              if (e.target.files) {
-                                field.onChange(Array.from(e.target.files));
-                              }
-                            }}
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* <FormField
-                    control={form.control}
-                    name="msds_ifu_leaflet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <SubFormLabel>
-                          Upload MSDS / IFU / Leaflet{" "}
-                        </SubFormLabel>
-                        <FormControl>
-                          <Input
-                            type="file"
-                            multiple
-                            onChange={(e) => {
-                              if (e.target.files) {
-                                field.onChange(Array.from(e.target.files));
-                              }
-                            }}
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
-                </>
-              )}
             </AccordionContent>
           </AccordionItem>
 
@@ -2086,6 +2028,63 @@ return (
                     </FormItem>
                   )}
                 />
+                {!product && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="productCompilance"
+                    render={({ field }) => (
+                      <FormItem>
+                       
+                        <div className="flex" >
+                          <SubFormLabel>
+                          Product Compilance Documents
+                        </SubFormLabel>
+                         <InfoTooltip description="Upload official certificates or documents related to product standards or approvals (e.g., ISO, CE, FDA certificates)"/>
+                      </div>
+                        <FormControl>
+                          <Input
+                            multiple
+                            type="file"
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* <FormField
+                    control={form.control}
+                    name="msds_ifu_leaflet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <SubFormLabel>
+                          Upload MSDS / IFU / Leaflet{" "}
+                        </SubFormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            multiple
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                field.onChange(Array.from(e.target.files));
+                              }
+                            }}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  /> */}
+                </>
+              )}
               </AccordionContent>
             </AccordionItem>
           )}

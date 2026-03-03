@@ -13,6 +13,7 @@ import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import { API_URL, BASE_URL } from "@/data";
 import { TbCoinRupee } from "react-icons/tb";
+import { LuContactRound, LuMessageSquare } from "react-icons/lu";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -126,7 +127,7 @@ function LinkItem({
 
 /* -------------------------------------------------------------------------- */
 /*                              SELLER NAVBAR                                 */
-/* -------------------------------------------------------------------------- */import { LuMessageSquare } from "react-icons/lu";
+/* -------------------------------------------------------------------------- */
 
 
 export default function SellerNavbar() {
@@ -295,16 +296,21 @@ export default function SellerNavbar() {
 
           {/* nav area */}
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
-            <div className="flex flex-col gap-1">
-              <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" pinned={pinned} />
-              <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" pinned={pinned} />
-              <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" pinned={pinned} />
-              <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
-              <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" pinned={pinned} />
-              <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" pinned={pinned} />
-               <LinkItem to="/seller/support" icon={<LuMessageSquare />} label="Support" pinned={pinned} />
-              <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" pinned={pinned} />
-              <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" target="_blank" pinned={pinned} />
+            <div className="h-full flex flex-col">
+              <div className="flex flex-col gap-1">
+                <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" pinned={pinned} />
+                <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" pinned={pinned} />
+                <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" pinned={pinned} />
+                <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
+                <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" pinned={pinned} />
+                <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" pinned={pinned} />
+                <LinkItem to="/seller/support" icon={<LuMessageSquare />} label="Support" pinned={pinned} />
+                <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" pinned={pinned} />
+                <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" target="_blank" pinned={pinned} />
+              </div>
+              <div className="mt-auto pt-3 border-t">
+                <LinkItem to="/seller/contact-us" icon={<LuContactRound />} label="Contact Us" pinned={pinned} />
+              </div>
             </div>
           </nav>
 
@@ -370,49 +376,50 @@ export default function SellerNavbar() {
           </div>
 
           <nav className="p-3 overflow-auto flex-1">
-            <div className="flex flex-col gap-2">
-              <NavLink
-                to="/seller"
-                end
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <RxDashboard />
-                <span>Dashboard</span>
-              </NavLink>
-              <NavLink
-                to="/seller/my-account"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <FaRegCircleUser />
-                <span>My Account</span>
-              </NavLink>
-              <NavLink
-                to="/seller/add-product"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <TiDocumentAdd />
-                <span>Add Product</span>
-              </NavLink>
-              <NavLink
-                to="/seller/products"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <AiOutlineProduct />
-                <span>All Products</span>
-              </NavLink>
-              <NavLink
-                to="/seller/orders"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-              >
-                <CiDeliveryTruck />
-                <span>All Orders</span>
-              </NavLink>
-               <NavLink
+            <div className="h-full flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
+                <NavLink
+                  to="/seller"
+                  end
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <RxDashboard />
+                  <span>Dashboard</span>
+                </NavLink>
+                <NavLink
+                  to="/seller/my-account"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <FaRegCircleUser />
+                  <span>My Account</span>
+                </NavLink>
+                <NavLink
+                  to="/seller/add-product"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <TiDocumentAdd />
+                  <span>Add Product</span>
+                </NavLink>
+                <NavLink
+                  to="/seller/products"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <AiOutlineProduct />
+                  <span>All Products</span>
+                </NavLink>
+                <NavLink
+                  to="/seller/orders"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <CiDeliveryTruck />
+                  <span>All Orders</span>
+                </NavLink>
+                <NavLink
                   to="/seller/stock-management"
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
@@ -437,8 +444,20 @@ export default function SellerNavbar() {
                   <MdStorefront />
                   <span>My Shop</span>
                 </a>
+              </div>
 
-              <div className="mt-6 pt-4">
+              <div className="mt-auto pt-4 border-t">
+                <NavLink
+                  to="/seller/contact-us"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                >
+                  <LuContactRound />
+                  <span>Contact Us</span>
+                </NavLink>
+              </div>
+
+              <div className="pt-2">
                 <button
                   onClick={() => {
                     setOpen(false);

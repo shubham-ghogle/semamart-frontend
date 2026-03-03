@@ -12,7 +12,7 @@ const SupportDetail = () => {
   const ticket = getTicketById(id || '');
 
   const [reply, setReply] = useState('');
-  const [status, setStatus] = useState(ticket?.status || 'New');
+  const [status, setStatus] = useState(ticket?.status || 'Open');
 
   useEffect(() => {
     if (ticket) {
@@ -25,7 +25,6 @@ const SupportDetail = () => {
     await addMessage(ticket._id, {
       from: isAdmin ? 'Admin' : (user?.role === 'Seller' ? 'Seller' : 'User'),
       message: reply,
-      date: new Date().toISOString().split('T')[0],
     });
     setReply('');
   };
@@ -54,7 +53,7 @@ const SupportDetail = () => {
           <p><strong>Topic:</strong> {ticket.topic}</p>
           <p><strong>Status:</strong> 
             <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-              ticket.status === 'New' ? 'bg-blue-100 text-blue-800' :
+              ticket.status === 'New' || ticket.status === 'Open' ? 'bg-blue-100 text-blue-800' :
               ticket.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
               'bg-green-100 text-green-800'
             }`}>
@@ -109,7 +108,9 @@ const SupportDetail = () => {
         {ticket.conversation.map((c, i) => (
           <div key={c._id || i} className="border p-2 mb-2 rounded">
             <p><strong>{c.from}:</strong> {c.message}</p>
-            <p className="text-sm text-gray-500">{c.date}</p>
+            <p className="text-sm text-gray-500">
+              {c.timestamp ? new Date(c.timestamp).toLocaleString() : c.date}
+            </p>
           </div>
         ))}
       </div>
