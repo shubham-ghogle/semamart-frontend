@@ -97,6 +97,8 @@ import ManagerTable from "./components/GetQuote/ManagerTable";
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
 import Manager from "./components/GetQuote/Manager";
 import Salesman from "./components/GetQuote/Salesman";
+import Requirement from "./components/GetQuote/Requirement";
+import Quotation from "./components/GetQuote/Quotation";
 
 /**
  * redirectToDashboard loader
@@ -560,4 +562,6 @@ export const router = createBrowserRouter([
   },
   { path: "getquote-manager", element: <Manager /> },
   { path: "getquote-salesman", element: <Salesman /> },
+  {path:"requirement", element:<Requirement/>},
+  {path:"quotation", element:<Quotation/>}
 ]);
