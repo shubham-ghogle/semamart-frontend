@@ -140,18 +140,19 @@ const navigate = useNavigate();
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     { 
-                 accessorKey: "action", 
-                 header: "Action", 
-                 cell: ({ row }: any) => (
-                   <Button
-                     variant="ghost"
-                     onClick={() => navigate("/requirement")}
-                   >
-                     <FaEye size={16} />
-                   </Button>
-                 )
-               },
+     {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/requirement")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // Quotation table columns
@@ -162,18 +163,19 @@ const navigate = useNavigate();
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     { 
-             accessorKey: "action", 
-             header: "Action", 
-             cell: ({ row }: any) => (
-               <Button
-                 variant="ghost"
-                 onClick={() => navigate("/quotation")}
-               >
-                 <FaEye size={16} />
-               </Button>
-             )
-           },
+    {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/quotation")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
 

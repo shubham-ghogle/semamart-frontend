@@ -98,18 +98,19 @@ const Manager = () => {
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
-     { 
-                 accessorKey: "action", 
-                 header: "Action", 
-                 cell: ({ row }: any) => (
-                   <Button
-                     variant="ghost"
-                     onClick={() => navigate("/requirement")}
-                   >
-                     <FaEye size={16} />
-                   </Button>
-                 )
-               },
+     {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/requirement")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // Quotation table columns
@@ -126,18 +127,19 @@ const Manager = () => {
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
-    { 
-             accessorKey: "action", 
-             header: "Action", 
-             cell: ({ row }: any) => (
-               <Button
-                 variant="ghost"
-                 onClick={() => navigate("/quotation")}
-               >
-                 <FaEye size={16} />
-               </Button>
-             )
-           },
+   {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/quotation")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // PO table columns
