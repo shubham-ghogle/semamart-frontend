@@ -1,6 +1,6 @@
 import React from "react";
 import { Product } from "@/Types/types";
-import { Star, ShoppingCart, Plus } from "lucide-react";
+import {  ShoppingCart, Plus } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useCategoriesMap } from "./useCategoriesMap";
 import { BASE_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
+import StarIcons from "../ui/StarIcons";
 
 interface Props {
   product: Product;
@@ -281,23 +282,11 @@ export default function ProductCard({ product }: Props) {
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
 
           <div className="flex items-center gap-1 mt-1 md:flex" aria-hidden>
-            {Array.from({ length: 5 }).map((_, i) => {
-              const fillPercent = Math.min(Math.max(product.avgRating - i, 0), 1) * 100;
-
-              return (
-                <div key={i} className="relative w-3.5 h-3.5">
-                  {/* Gray empty star */}
-                  <Star className="absolute w-3.5 h-3.5 text-gray-200" />
-
-                  {/* Yellow filled part */}
-                  <Star
-                    className="absolute w-3.5 h-3.5 text-yellow-400 overflow-hidden"
-                    style={{ width: `${fillPercent}%`, clipPath: `inset(0 ${100 - fillPercent}% 0 0)` }}
-                  />
-                </div>
-              );
-            })}
-            <span className="text-xs text-gray-500 ml-1">({product.avgRating?.toFixed(1) ?? 0})</span>
+            <StarIcons
+            stars={product.avgRating ?? 0}
+            reviewsCount={product.reviewsCount || 0}
+            
+          />
           </div>
 
           <div className="flex items-center gap-2 mt-1">
@@ -308,6 +297,7 @@ export default function ProductCard({ product }: Props) {
                 minimumFractionDigits: 2,
               })}
             </span>
+           
             {/* hide crossed original price on mobile */}
             {discountPrice != null && originalPrice != null && discountPrice < originalPrice && (
               <span className="text-sm text-gray-500 line-through hidden md:inline">₹{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
