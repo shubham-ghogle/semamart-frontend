@@ -67,15 +67,9 @@ const ViewModal = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-            <div className="p-2 bg-gray-50 rounded">{data.customerName}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
-            <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
-          </div>
+         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+          <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
@@ -136,15 +130,9 @@ const ViewModal = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-            <div className="p-2 bg-gray-50 rounded">{data.customerName}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
-            <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
-          </div>
+         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+          <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
@@ -205,15 +193,9 @@ const ViewModal = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-            <div className="p-2 bg-gray-50 rounded">{data.customerName}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
-            <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
-          </div>
+         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+          <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
         </div>
         
         <div className="grid grid-cols-2 gap-4">

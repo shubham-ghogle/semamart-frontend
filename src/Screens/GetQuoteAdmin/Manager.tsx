@@ -3,10 +3,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import RequirementModal from "@/components/ui/RequirementModal";
+
 import ViewModal from "@/components/ui/ViewModal";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +37,6 @@ const samplePOs = [
 ];
 
 const OVERVIEW_ITEMS = [
-  { label: "Customer", color: "from-blue-500 to-indigo-500", IconComponent: FaUsers },
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
   { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
@@ -75,10 +75,6 @@ const Manager = () => {
     });
   }, [selectedSalesman, selectedEntityName]);
 
-  const handleSearch = () => {
-    console.log("Searching with:", { selectedSalesman, selectedEntityName });
-  };
-
   const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
     console.log("Requirement data submitted:", data);
     setShowRequirementModal(false);
@@ -88,9 +84,14 @@ const Manager = () => {
     setActiveTab(data.type);
   };
 
+  const handleSearch = () => {
+    console.log("Searching with:", { selectedSalesman, selectedEntityName });
+  };
+
+
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
-    { id: "customer", label: "Customer", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "products", label: "Products", icon: <GrWorkshop /> },
@@ -116,7 +117,6 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
     { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
     { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "customerName", header: "Customer Name", cell: ({ row }: any) => <div>{row.original.customerName}</div> },
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
@@ -139,7 +139,6 @@ const Manager = () => {
   const requirementColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
@@ -162,7 +161,6 @@ const Manager = () => {
   const quotationColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
@@ -204,7 +202,6 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
   ];
 
   return (
@@ -279,6 +276,7 @@ const Manager = () => {
                         key={index}
                         onClick={() => {
                           if (item.label === "Requirement" || item.label === "Quotation") {
+                            setModalType(item.label.toLowerCase().replace(/\s+\(po\)/, '') as "requirement" | "quotation");
                             setShowRequirementModal(true);
                           } else {
                             setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
