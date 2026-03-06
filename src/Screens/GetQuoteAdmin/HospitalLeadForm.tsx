@@ -44,13 +44,14 @@ const HospitalLeadForm = () => {
   const [formData, setFormData] = useState({
     entityType: "",
     entityName: "",
-    contactPersonName: "",
-    contactPersonDesignation: "",
     contactNumber: "",
+    alternateMobileNumber: "",
     email: "",
     address: "",
     state: "",
     district: "",
+    contactPersonName: "",
+    contactPersonDesignation: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -87,14 +88,14 @@ const HospitalLeadForm = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="entityType" className="block text-sm font-medium text-gray-700 mb-2">
-                      Entity Type <span className="text-red-500">*</span>
+                      Organization Type <span className="text-red-500">*</span>
                     </label>
                     <Select
                       value={formData.entityType}
                       onValueChange={(value) => handleSelectChange("entityType", value)}
                     >
                       <SelectTrigger className="w-full h-10">
-                        <SelectValue placeholder="Select entity type" />
+                        <SelectValue placeholder="Select organization type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Hospital">Hospital</SelectItem>
@@ -106,7 +107,7 @@ const HospitalLeadForm = () => {
 
                   <div>
                     <label htmlFor="entityName" className="block text-sm font-medium text-gray-700 mb-2">
-                      Entity Name <span className="text-red-500">*</span>
+                      Organization Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -115,41 +116,7 @@ const HospitalLeadForm = () => {
                       value={formData.entityName}
                       onChange={handleInputChange}
                       className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter entity name"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="contactPersonName" className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Person Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="contactPersonName"
-                      name="contactPersonName"
-                      value={formData.contactPersonName}
-                      onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter contact person name"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="contactPersonDesignation" className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Person Designation <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="contactPersonDesignation"
-                      name="contactPersonDesignation"
-                      value={formData.contactPersonDesignation}
-                      onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter contact person designation"
+                      placeholder="Enter organization name"
                       required
                     />
                   </div>
@@ -158,7 +125,7 @@ const HospitalLeadForm = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Number <span className="text-red-500">*</span>
+                      Organization Contact Number <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -167,26 +134,41 @@ const HospitalLeadForm = () => {
                       value={formData.contactNumber}
                       onChange={handleInputChange}
                       className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter contact number"
+                      placeholder="Enter organization contact number"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email <span className="text-red-500">*</span>
+                    <label htmlFor="alternateMobileNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                      Organization Alternate Contact Number
                     </label>
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
+                      type="tel"
+                      id="alternateMobileNumber"
+                      name="alternateMobileNumber"
+                      value={formData.alternateMobileNumber}
                       onChange={handleInputChange}
                       className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter email address"
-                      required
+                      placeholder="Enter organization alternate contact number"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter email address"
+                    required
+                  />
                 </div>
 
                 <div>
@@ -250,6 +232,40 @@ const HospitalLeadForm = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="contactPersonName" className="block text-sm font-medium text-gray-700 mb-2">
+                      Contact Person Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="contactPersonName"
+                      name="contactPersonName"
+                      value={formData.contactPersonName}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter contact person name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="contactPersonDesignation" className="block text-sm font-medium text-gray-700 mb-2">
+                      Contact Person Designation <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="contactPersonDesignation"
+                      name="contactPersonDesignation"
+                      value={formData.contactPersonDesignation}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter contact person designation"
+                      required
+                    />
                   </div>
                 </div>
 

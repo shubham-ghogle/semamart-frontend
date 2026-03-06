@@ -59,7 +59,7 @@ const Manager = () => {
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
-  // Customer table columns
+   // Customer table columns
   const customerColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID", cell: ({ row }: any) => <div>{row.original.uid}</div> },
@@ -69,7 +69,6 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
     { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
     { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "customerName", header: "Customer Name", cell: ({ row }: any) => <div>{row.original.customerName}</div> },
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
@@ -94,22 +93,22 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
-     { 
-                 accessorKey: "action", 
-                 header: "Action", 
-                 cell: ({ row }: any) => (
-                   <Button
-                     variant="ghost"
-                     onClick={() => navigate("/requirement")}
-                   >
-                     <FaEye size={16} />
-                   </Button>
-                 )
-               },
+     {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/requirement")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // Quotation table columns
@@ -122,22 +121,22 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
-    { 
-             accessorKey: "action", 
-             header: "Action", 
-             cell: ({ row }: any) => (
-               <Button
-                 variant="ghost"
-                 onClick={() => navigate("/quotation")}
-               >
-                 <FaEye size={16} />
-               </Button>
-             )
-           },
+   {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/quotation")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // PO table columns
@@ -150,7 +149,6 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
@@ -189,7 +187,6 @@ const Manager = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
   ];
 
   return (

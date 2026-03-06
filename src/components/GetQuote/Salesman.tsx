@@ -62,7 +62,6 @@ const Salesman = () => {
     { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
     { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
     { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "customerName", header: "Customer Name", cell: ({ row }: any) => <div>{row.original.customerName}</div> },
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
@@ -87,7 +86,6 @@ const Salesman = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
@@ -112,7 +110,6 @@ const Salesman = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
@@ -137,7 +134,6 @@ const Salesman = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "phoneNumber", header: "Phone Number" },
     { accessorKey: "email", header: "Email" },
@@ -176,7 +172,6 @@ const Salesman = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
   ];
 
   return (

@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
+import RequirementModal from "@/components/ui/RequirementModal";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import RequirementModal from "@/components/ui/RequirementModal";
+
 import ViewModal from "@/components/ui/ViewModal";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +32,6 @@ const samplePOs = [
 ];
 
 const OVERVIEW_ITEMS = [
-  { label: "Customer", color: "from-blue-500 to-indigo-500", IconComponent: FaUsers },
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
   { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
@@ -46,7 +46,6 @@ const Salesman = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showRequirementModal, setShowRequirementModal] = useState(false);
   const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
-  const [selectedSalesman, setSelectedSalesman] = useState<string>("");
   const [selectedEntityName, setSelectedEntityName] = useState<string>("");
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
@@ -68,25 +67,21 @@ const navigate = useNavigate();
     });
   }, [selectedEntityName]);
 
-  const handleSearch = () => {
-    console.log("Searching with:", { selectedSalesman, selectedEntityName });
+  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
+    console.log("Requirement data submitted:", data);
+    setShowRequirementModal(false);
+    setSelectedEntityName(data.entityName);
+    setActiveTab(data.type);
   };
 
-  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
-    console.log("handleRequirementSubmit called with data:", data);
-    setShowRequirementModal(false);
-    setSelectedSalesman(data.salesman);
-    setSelectedEntityName(data.entityName);
-    // Navigate to the appropriate list page
-    console.log("Setting active tab to:", data.type);
-    setActiveTab(data.type);
-    // Force update to ensure the new tab is rendered
-    console.log("Active tab after setActiveTab:", activeTab);
+  const handleSearch = () => {
+    console.log("Searching with:", { selectedEntityName });
   };
+
+
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
-    { id: "customer", label: "Customer", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "products", label: "Products", icon: <GrWorkshop /> },
@@ -113,7 +108,6 @@ const navigate = useNavigate();
     { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
     { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
     { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "customerName", header: "Customer Name", cell: ({ row }: any) => <div>{row.original.customerName}</div> },
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
@@ -136,44 +130,44 @@ const navigate = useNavigate();
   const requirementColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     { 
-                 accessorKey: "action", 
-                 header: "Action", 
-                 cell: ({ row }: any) => (
-                   <Button
-                     variant="ghost"
-                     onClick={() => navigate("/requirement")}
-                   >
-                     <FaEye size={16} />
-                   </Button>
-                 )
-               },
+     {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/requirement")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
   // Quotation table columns
   const quotationColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     { 
-             accessorKey: "action", 
-             header: "Action", 
-             cell: ({ row }: any) => (
-               <Button
-                 variant="ghost"
-                 onClick={() => navigate("/quotation")}
-               >
-                 <FaEye size={16} />
-               </Button>
-             )
-           },
+    {
+      id: "action",
+      header: "Action",
+      cell: () => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/quotation")}
+        >
+          <FaEye size={16} />
+        </Button>
+      ),
+    },
   ];
 
 
@@ -199,7 +193,6 @@ const navigate = useNavigate();
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
   ];
 
   return (
@@ -271,13 +264,14 @@ const navigate = useNavigate();
                     return (
                       <div 
                         key={index}
-                        onClick={() => {
-                          if (item.label === "Requirement" || item.label === "Quotation") {
-                            setShowRequirementModal(true);
-                          } else {
-                            setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
-                          }
-                        }}
+                          onClick={() => {
+                            if (item.label === "Requirement" || item.label === "Quotation") {
+                              setModalType(item.label.toLowerCase().replace(/\s+\(po\)/, '') as "requirement" | "quotation");
+                              setShowRequirementModal(true);
+                            } else {
+                              setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
+                            }
+                          }}
                         className={`bg-gradient-to-r ${item.color} text-white rounded-xl p-5 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
                       >
                         <div className="flex items-center justify-between">

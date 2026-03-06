@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight } from "react-icons/fa";
+import RequirementModal from "@/components/ui/RequirementModal";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import RequirementModal from "@/components/ui/RequirementModal";
+
 import ViewModal from "@/components/ui/ViewModal";
 
 // Sample data for demonstration
@@ -48,7 +49,6 @@ const sampleSalesmen = [
 ];
 
 const OVERVIEW_ITEMS = [
-  { label: "Customer", color: "from-blue-500 to-indigo-500", IconComponent: FaUsers },
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
   { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Manager", color: "from-purple-500 to-violet-500", IconComponent: FaUsers },
@@ -88,10 +88,6 @@ const Admin = () => {
     });
   }, [selectedSalesman, selectedEntityName]);
 
-  const handleSearch = () => {
-    console.log("Searching with:", { selectedSalesman, selectedEntityName });
-  };
-
   const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
     console.log("Requirement data submitted:", data);
     setShowRequirementModal(false);
@@ -101,9 +97,14 @@ const Admin = () => {
     setActiveTab(data.type);
   };
 
+  const handleSearch = () => {
+    console.log("Searching with:", { selectedSalesman, selectedEntityName });
+  };
+
+
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
-    { id: "customer", label: "Customer", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "manager", label: "Manager", icon: <GrWorkshop /> },
@@ -115,6 +116,8 @@ const Admin = () => {
     if (itemId === "requirement" || itemId === "quotation") {
       setModalType(itemId as "requirement" | "quotation");
       setShowRequirementModal(true);
+    } else if (itemId === "dashboard") {
+      setActiveTab(itemId);
     } else {
       // Navigate to the appropriate subpage
       let path = itemId;
@@ -137,7 +140,6 @@ const Admin = () => {
     { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
     { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
     { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "customerName", header: "Customer Name", cell: ({ row }: any) => <div>{row.original.customerName}</div> },
     { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
     { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
@@ -160,7 +162,6 @@ const Admin = () => {
   const requirementColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
@@ -183,7 +184,6 @@ const Admin = () => {
   const quotationColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
     { accessorKey: "uid", header: "UID" },
-    { accessorKey: "customerName", header: "Customer Name" },
     { accessorKey: "salesman", header: "Salesman" },
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
@@ -268,7 +268,6 @@ const Admin = () => {
     { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
-    { accessorKey: "customerName", header: "Customer Name" },
   ];
 
   return (
