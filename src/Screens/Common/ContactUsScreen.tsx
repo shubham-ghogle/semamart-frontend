@@ -30,10 +30,10 @@ export default function ContactUsScreen({ title = "Contact Us" }: ContactUsScree
             <div>
               <p className="text-sm text-gray-500">Email</p>
               <a
-                href="mailto:amit.p@semamart.com"
+                href="mailto:info@semamart.com"
                 className="text-base sm:text-lg font-semibold text-gray-900 hover:text-emerald-700"
               >
-                amit.p@semamart.com
+                info@semamart.com
               </a>
             </div>
           </div>
