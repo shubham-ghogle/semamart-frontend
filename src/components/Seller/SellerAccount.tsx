@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { FaPen, FaTimes, FaCheck, FaSpinner, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSellerStore } from "@/store/sellerStore";
 import { API_URL } from "@/data";
+import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
 
 interface Profile {
   firstName: string;
@@ -84,6 +85,8 @@ const SellerAccount: React.FC = () => {
     type: "info",
     message: "",
   });
+  const [newEmail, setNewEmail] = useState("");
+  const [requestingEmailChange, setRequestingEmailChange] = useState(false);
 
   // Populate profile from seller store
   useEffect(() => {
@@ -292,6 +295,23 @@ const SellerAccount: React.FC = () => {
     );
   };
 
+  const handleRequestEmailChange = async () => {
+    if (!newEmail.trim()) {
+      showNotification("Please enter new email.", "error");
+      return;
+    }
+    try {
+      setRequestingEmailChange(true);
+      const data = await requestEmailChange("seller", newEmail.trim());
+      showNotification(data?.message || "Confirmation link sent to your current email.", "success");
+      setNewEmail("");
+    } catch (err: any) {
+      showNotification(err?.message || "Failed to request email change.", "error");
+    } finally {
+      setRequestingEmailChange(false);
+    }
+  };
+
   return (
     <div className="flex-1 px-4 sm:px-8 py-6 bg-gray-50 min-h-screen">
       <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px]">
@@ -320,6 +340,29 @@ const SellerAccount: React.FC = () => {
             {renderEditableField("Email Address", "email", "Enter your email", "Used for login and notifications")}
             {renderEditableField("Phone Number", "phoneNumber", "Enter your phone number", "Used for communication")}
           </div>
+          <section className="rounded-xl border bg-white p-5 shadow-sm hover:shadow transition-shadow">
+            <h3 className="font-semibold text-gray-800 mb-2">Request Email Change</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              We will send a confirmation link to your current email. Your email is updated only after link verification.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="Enter new email address"
+                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleRequestEmailChange}
+                disabled={requestingEmailChange}
+                className="px-4 py-2 rounded-md bg-sky-600 text-white text-sm disabled:opacity-70"
+              >
+                {requestingEmailChange ? "Sending..." : "Request Email Change"}
+              </button>
+            </div>
+          </section>
 
           <h2 className="text-lg font-semibold text-gray-700 mt-8 mb-3">Business Information</h2>
           <div className="grid sm:grid-cols-2 gap-6">

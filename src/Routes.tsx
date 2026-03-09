@@ -5,6 +5,7 @@ import ProductDetails from "./Screens/ProductDetailScreen/ProductDetails";
 import LoginScreen from "./Screens/LoginScreen/LoginScreen";
 import ForgotPasswordScreen from "./Screens/LoginScreen/ForgotPasswordScreen";
 import ResetPasswordScreen from "./Screens/LoginScreen/ResetPasswordScreen";
+import ConfirmEmailChangeScreen from "./Screens/LoginScreen/ConfirmEmailChangeScreen";
 import {
   getUserFromLocalLoader,
   protectSellerRoute,
@@ -357,6 +358,7 @@ export const router = createBrowserRouter([
   { path: "/login", loader: getUserFromLocalLoader, element: <LoginScreen /> },
   { path: "/auth/forgot-password", element: <ForgotPasswordScreen /> },
   { path: "/auth/reset-password/:role/:token", element: <ResetPasswordScreen /> },
+  { path: "/auth/confirm-email-change/:role/:token", element: <ConfirmEmailChangeScreen /> },
   { path: "/signup-seller", element: <SellerRegisterScreen /> },
   { path: "/signup", element: <UserRegistrationScreen /> },
 

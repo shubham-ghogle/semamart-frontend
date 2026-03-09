@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { useUserStore } from "@/store/userStore";
 import { toast } from "react-toastify";
+import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
 
 
 const inputBase =
@@ -34,6 +35,8 @@ const ProfileForm = () => {
     name: false,
     institute: false,
   });
+  const [newEmail, setNewEmail] = useState("");
+  const [requestingEmailChange, setRequestingEmailChange] = useState(false);
 
 
 
@@ -83,6 +86,23 @@ const ProfileForm = () => {
     } finally {
       setEditing((prev) => ({ ...prev, [field]: false }));
       setSaving((prev) => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const handleRequestEmailChange = async () => {
+    if (!newEmail.trim()) {
+      toast.error("Please enter new email.");
+      return;
+    }
+    try {
+      setRequestingEmailChange(true);
+      const data = await requestEmailChange("user", newEmail.trim());
+      toast.success(data?.message || "Confirmation link sent to your current email.");
+      setNewEmail("");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to request email change.");
+    } finally {
+      setRequestingEmailChange(false);
     }
   };
 
@@ -235,6 +255,26 @@ const ProfileForm = () => {
               readOnly
               className={`${inputBase} bg-gray-100 border-transparent`}
             />
+            <div className="mt-3 flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="Enter new email to request change"
+                className={`${inputBase} bg-white border-sky-200`}
+              />
+              <button
+                type="button"
+                onClick={handleRequestEmailChange}
+                disabled={requestingEmailChange}
+                className="px-4 py-2 rounded-md bg-sky-600 text-white text-sm disabled:opacity-70"
+              >
+                {requestingEmailChange ? "Sending..." : "Request Email Change"}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              A confirmation link will be sent to your current email. Change applies only after link verification.
+            </p>
           </section>
 
           {/* PHONE */}

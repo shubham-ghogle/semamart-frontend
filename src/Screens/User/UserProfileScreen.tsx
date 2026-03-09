@@ -8,6 +8,7 @@ import Input from "../../components/UIComponents/Inputs";
 import { ActionBtn } from "../../components/UIComponents/Buttons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_URL } from "@/data";
+import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
 
 export default function UserProfileScreen() {
   const { user, addUser } = useUserStore((state) => state);
@@ -16,6 +17,8 @@ export default function UserProfileScreen() {
   const location = useLocation();
 
   const [hydrated, setHydrated] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [requestingEmailChange, setRequestingEmailChange] = useState(false);
 
   // Wait for Zustand to hydrate from localStorage
   useEffect(() => {
@@ -58,6 +61,20 @@ export default function UserProfileScreen() {
     const formData = new FormData();
     formData.append("image", file);
     await mutateAvatarAsync(formData);
+  }
+
+  async function handleRequestEmailChange() {
+    if (!newEmail.trim()) return;
+    try {
+      setRequestingEmailChange(true);
+      await requestEmailChange("user", newEmail.trim());
+      setNewEmail("");
+      alert("Confirmation link sent to your current email.");
+    } catch (error: any) {
+      alert(error?.message || "Failed to request email change.");
+    } finally {
+      setRequestingEmailChange(false);
+    }
   }
 
   if (!hydrated) return null; // avoid flicker before hydration
@@ -124,6 +141,28 @@ export default function UserProfileScreen() {
               value={user?.phoneNumber || ""}
               onChange={() => { }}
             />
+          </section>
+          <section className="w-3/5 mx-auto mb-4">
+            <p className="text-sm text-gray-500 mb-2">
+              To change email, request confirmation link on your current email.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="Enter new email"
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={handleRequestEmailChange}
+                disabled={requestingEmailChange}
+                className="px-4 py-2 bg-[#1C647C] text-white rounded-md text-sm disabled:opacity-60"
+              >
+                {requestingEmailChange ? "Sending..." : "Request Email Change"}
+              </button>
+            </div>
           </section>
           <ActionBtn disabled>Update</ActionBtn>
         </form>
