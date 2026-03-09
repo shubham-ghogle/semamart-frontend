@@ -1,12 +1,20 @@
 // src/components/Product/ProductBottomSections.tsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, FileText, Eye, Download } from "lucide-react"; // Added Eye and Download
-import { BASE_URL } from "@/data"; // Ensure this import matches your project structure
+import { API_URL, BASE_URL } from "@/data"; // Ensure this import matches your project structure
 export default function ProductBottomSections({ product, selectedVariant }: any) {
   const STAR_COLOR = "#FFD700";
+  const REVIEWS_TAB_INDEX = 4;
+  const REVIEWS_PAGE_SIZE = 5;
   const [activeTabIdx, setActiveTabIdx] = useState(0);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsPage, setReviewsPage] = useState(0);
+  const [hasMoreReviews, setHasMoreReviews] = useState(false);
+  const [reviewsLoadedOnce, setReviewsLoadedOnce] = useState(false);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
 
   const tabs = useMemo(
@@ -56,8 +64,42 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
     ["Expiry", product?.expiry ? new Date(product.expiry).toLocaleDateString() : "N/A"],
   ];
 
-  const reviews = product?.reviews ?? [];
   const attributes = Array.isArray(product?.attributes) ? product.attributes : [];
+
+  useEffect(() => {
+    setReviews([]);
+    setReviewsPage(0);
+    setHasMoreReviews(false);
+    setReviewsLoadedOnce(false);
+    setIsReviewsLoading(false);
+    setReviewsError(null);
+  }, [product?._id]);
+
+  async function loadReviewPage(page: number) {
+    if (!product?._id || isReviewsLoading) return;
+    setIsReviewsLoading(true);
+    setReviewsError(null);
+
+    try {
+      const res = await fetch(
+        `${API_URL}product/get-product-reviews/${product._id}?limit=${REVIEWS_PAGE_SIZE}&page=${page}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch reviews");
+
+      const data = await res.json();
+      const nextReviews = Array.isArray(data?.reviews) ? data.reviews : [];
+      const hasMore = Boolean(data?.pagination?.hasMore);
+
+      setReviews((prev) => (page === 1 ? nextReviews : [...prev, ...nextReviews]));
+      setReviewsPage(page);
+      setHasMoreReviews(hasMore);
+      setReviewsLoadedOnce(true);
+    } catch (error: any) {
+      setReviewsError(error?.message || "Failed to fetch reviews");
+    } finally {
+      setIsReviewsLoading(false);
+    }
+  }
 
   return (
     <section className="w-full mt-8">
@@ -90,7 +132,12 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
               return (
                 <button
                   key={t.id}
-                  onClick={() => setActiveTabIdx(i)}
+                  onClick={() => {
+                    setActiveTabIdx(i);
+                    if (i === REVIEWS_TAB_INDEX && !reviewsLoadedOnce) {
+                      void loadReviewPage(1);
+                    }
+                  }}
                   className={`w-full px-3 py-2 rounded-md text-sm font-medium transition text-center
                     ${active ? "bg-[#1C647C] text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                 >
@@ -211,7 +258,9 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
           <div id="tabpanel-reviews" role="tabpanel" aria-labelledby="tab-reviews" aria-hidden={activeTabIdx !== 4} className={`${activeTabIdx === 4 ? "block" : "hidden"} transition`}>
             <h3 className="text-lg font-semibold text-[#1C647C] mb-3">Customer Reviews</h3>
 
-            {Array.isArray(reviews) && reviews.length > 0 ? (
+            {reviewsError ? (
+              <p className="text-red-500">{reviewsError}</p>
+            ) : Array.isArray(reviews) && reviews.length > 0 ? (
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                 {reviews.map((r: any, idx: number) => (
                   <article key={idx} className="border rounded-lg p-4">
@@ -243,9 +292,24 @@ export default function ProductBottomSections({ product, selectedVariant }: any)
                     </div>
                   </article>
                 ))}
+
+                {hasMoreReviews && (
+                  <div className="flex justify-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => void loadReviewPage(reviewsPage + 1)}
+                      disabled={isReviewsLoading}
+                      className="px-4 py-2 rounded-md bg-[#1C647C] text-white text-sm font-medium disabled:opacity-60"
+                    >
+                      {isReviewsLoading ? "Loading..." : "See more"}
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
-              <p className="text-gray-500">No reviews yet.</p>
+              <p className="text-gray-500">
+                {isReviewsLoading ? "Loading reviews..." : "No reviews yet."}
+              </p>
             )}
           </div>
          {selectedImg && (

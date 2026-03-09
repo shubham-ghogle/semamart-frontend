@@ -75,7 +75,9 @@ export default function ProductInfoSection({
             stars={product.avgRating ?? 0}
             
           />
-        {product?.reviews?.length > 0 && <span>({product.reviews.length} reviews)</span>}
+        {(product?.reviewsCount ?? 0) > 0 && (
+          <span>({product.reviewsCount} reviews)</span>
+        )}
       </div>
 
       <div className="mt-2">
