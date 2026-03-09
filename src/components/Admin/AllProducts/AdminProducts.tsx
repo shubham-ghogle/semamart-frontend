@@ -394,7 +394,17 @@ export default function AdminProduct() {
               }}
               className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
             >
-              <span>{category ? categoriesData?.find((cat: any) => cat._id === category)?.name : "All"}</span>
+              <span>
+                {category 
+                  ? (
+                      // First check if it's a subcategory
+                      Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name || 
+                      // Then check if it's a main category
+                      categoriesData?.find((cat: any) => cat._id === category)?.name 
+                    )
+                  : "All"
+                }
+              </span>
               <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
             </button>
 
