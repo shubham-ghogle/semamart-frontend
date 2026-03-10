@@ -3,12 +3,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MedicopPageShell from "@/medicop/MedicopPageShell";
 import { updateGeneratedRequirement } from "@/medicop/storage";
 
-const defaultItems = [
-  { sNo: 1, desc: "ICU Bed", qty: 1 },
-  { sNo: 2, desc: "Ventilator Machine", qty: 2 },
-  { sNo: 3, desc: "Patient Monitor", qty: 3 },
-  { sNo: 4, desc: "Syringe Pump", qty: 4 },
-  { sNo: 5, desc: "Hospital Mattress", qty: 5 },
+// Define the interface for each item
+interface Item {
+  sNo: number;
+  desc: string;
+  qty: number;
+  scope: string;
+  department: string;
+}
+
+// Default items with scope and department
+const defaultItems: Item[] = [
+  { sNo: 1, desc: "ICU Bed", qty: 1, scope: "Critical Care", department: "ICU" },
+  { sNo: 2, desc: "Ventilator Machine", qty: 2, scope: "Respiratory Support", department: "ICU" },
+  { sNo: 3, desc: "Patient Monitor", qty: 3, scope: "Monitoring", department: "General Ward" },
+  { sNo: 4, desc: "Syringe Pump", qty: 4, scope: "Medication Delivery", department: "ICU" },
+  { sNo: 5, desc: "Hospital Mattress", qty: 5, scope: "Patient Comfort", department: "General Ward" },
 ];
 
 const Requirement = () => {
@@ -16,33 +26,24 @@ const Requirement = () => {
   const navigate = useNavigate();
   const isMedicopMode = new URLSearchParams(location.search).get("mode") === "medicop";
 
-  const generated = (location.state as any)?.generatedRequirement as
-    | {
-        uid: string;
-        date: string;
-        entityName: string;
-        state: string;
-        email: string;
-        phoneNumber: string;
-        items?: Array<{ productName: string; quantity: number }>;
-      }
-    | undefined;
+  const generated = (location.state as any)?.generatedRequirement;
 
   const editable = Boolean((location.state as any)?.editable);
 
-  const [editableRows, setEditableRows] = useState(
-    (generated?.items || defaultItems.map((x) => ({ productName: x.desc, quantity: x.qty }))).map(
-      (item, idx) => ({
-        sNo: idx + 1,
-        desc: item.productName,
-        qty: item.quantity,
-      })
-    )
+  // Initialize state with either generated items or default items
+  const [editableRows, setEditableRows] = useState<Item[]>(
+    (generated?.items?.map((item: any, idx: number) => ({
+      sNo: idx + 1,
+      desc: item.productName || "",
+      qty: item.quantity || 1,
+      scope: item.scope || "",
+      department: item.department || "",
+    })) || defaultItems)
   );
 
   const items = useMemo(() => editableRows, [editableRows]);
-  const renumberRows = (rows: Array<{ sNo: number; desc: string; qty: number }>) =>
-    rows.map((row, idx) => ({ ...row, sNo: idx + 1 }));
+
+  const renumberRows = (rows: Item[]) => rows.map((row, idx) => ({ ...row, sNo: idx + 1 }));
 
   const data = {
     company: {
@@ -68,6 +69,7 @@ const Requirement = () => {
 
   const content = (
     <div className="max-w-4xl mx-auto p-8 bg-white border shadow-sm font-sans text-gray-800 print:shadow-none print:border-none print:p-0">
+      {/* Header */}
       <div className="flex justify-between items-start border-b pb-6">
         <div className="flex items-center gap-3">
           {isMedicopMode ? (
@@ -86,10 +88,9 @@ const Requirement = () => {
         </div>
       </div>
 
+      {/* Requirement Header */}
       <div className="flex justify-between py-6">
-        <div>
-          <h3 className="text-2xl font-black text-gray-900 tracking-tight">Requirement</h3>
-        </div>
+        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Requirement</h3>
         <div className="text-right text-sm">
           <p>
             <span className="font-semibold text-gray-500 uppercase">Requirement No:</span>{" "}
@@ -102,6 +103,7 @@ const Requirement = () => {
         </div>
       </div>
 
+      {/* Customer Info */}
       <div className="mb-8">
         <div className="border p-4 rounded bg-gray-50/30 w-1/2">
           <h4 className="font-bold border-b border-gray-200 mb-2 pb-1 text-teal-800 uppercase text-[10px] tracking-widest">
@@ -117,56 +119,99 @@ const Requirement = () => {
         </div>
       </div>
 
+      {/* Items Table */}
       <div className="overflow-hidden border rounded-lg mb-6 shadow-sm">
         <table className="w-full border-collapse table-fixed">
           <thead>
             <tr className="bg-teal-800 text-white text-[10px] uppercase tracking-wider">
               <th className="p-2 w-[8%] border-r border-teal-700 text-left">S.No</th>
+              <th className="p-2 w-[12%] border-r border-teal-700 text-left">Scope</th>
+              <th className="p-2 w-[12%] border-r border-teal-700 text-left">Department</th>
               <th className="p-2 w-[72%] border-r border-teal-700 text-left">Description of Goods</th>
               <th className="p-2 w-[12%] border-r border-teal-700 text-left">Qty</th>
               {editable && <th className="p-2 w-[8%] text-left">Action</th>}
             </tr>
           </thead>
-
           <tbody className="text-sm">
-            {items.map((item, idx) => (
-              <tr key={idx} className="border-t">
+            {items.map((item) => (
+              <tr key={item.sNo} className="border-t">
                 <td className="p-2 border-r text-left">{item.sNo}</td>
+
+                {/* Scope */}
+                <td className="p-2 border-r text-left">
+                  {editable ? (
+                    <input
+                      type="text"
+                      value={item.scope}
+                      onChange={(e) =>
+                        setEditableRows((prev) =>
+                          prev.map((row) => (row.sNo === item.sNo ? { ...row, scope: e.target.value } : row))
+                        )
+                      }
+                      className="w-full border rounded px-2 py-1"
+                    />
+                  ) : (
+                    item.scope
+                  )}
+                </td>
+
+                {/* Department */}
+                <td className="p-2 border-r text-left">
+                  {editable ? (
+                    <input
+                      type="text"
+                      value={item.department}
+                      onChange={(e) =>
+                        setEditableRows((prev) =>
+                          prev.map((row) => (row.sNo === item.sNo ? { ...row, department: e.target.value } : row))
+                        )
+                      }
+                      className="w-full border rounded px-2 py-1"
+                    />
+                  ) : (
+                    item.department
+                  )}
+                </td>
+
+                {/* Description */}
                 <td className="p-2 border-r text-left font-semibold">
                   {editable ? (
                     <input
                       type="text"
                       value={item.desc}
-                      onChange={(e) => {
-                        const value = e.target.value;
+                      onChange={(e) =>
                         setEditableRows((prev) =>
-                          prev.map((row) => (row.sNo === item.sNo ? { ...row, desc: value } : row))
-                        );
-                      }}
+                          prev.map((row) => (row.sNo === item.sNo ? { ...row, desc: e.target.value } : row))
+                        )
+                      }
                       className="w-full border rounded px-2 py-1"
                     />
                   ) : (
                     item.desc
                   )}
                 </td>
+
+                {/* Quantity */}
                 <td className="p-2 text-left">
                   {editable ? (
                     <input
                       type="number"
                       min={1}
                       value={item.qty}
-                      onChange={(e) => {
-                        const value = Math.max(1, Number(e.target.value || 1));
+                      onChange={(e) =>
                         setEditableRows((prev) =>
-                          prev.map((row) => (row.sNo === item.sNo ? { ...row, qty: value } : row))
-                        );
-                      }}
+                          prev.map((row) =>
+                            row.sNo === item.sNo ? { ...row, qty: Math.max(1, Number(e.target.value || 1)) } : row
+                          )
+                        )
+                      }
                       className="w-20 border rounded px-2 py-1"
                     />
                   ) : (
                     item.qty
                   )}
                 </td>
+
                 {editable && (
                   <td className="p-2 text-left">
                     <button
@@ -186,6 +231,7 @@ const Requirement = () => {
         </table>
       </div>
 
+      {/* Actions */}
       {isMedicopMode && (
         <div className="flex items-center justify-end gap-3">
           <button
@@ -199,10 +245,7 @@ const Requirement = () => {
               type="button"
               onClick={() =>
                 setEditableRows((prev) =>
-                  renumberRows([
-                    ...prev,
-                    { sNo: prev.length + 1, desc: "New Product", qty: 1 },
-                  ])
+                  renumberRows([...prev, { sNo: prev.length + 1, desc: "New Product", qty: 1, scope: "", department: "" }])
                 )
               }
               className="px-4 py-2 rounded-lg border border-[#1C647C] text-[#1C647C]"
@@ -219,6 +262,8 @@ const Requirement = () => {
                       productId: `custom-${row.sNo}`,
                       productName: row.desc,
                       quantity: row.qty,
+                      scope: row.scope,
+                      department: row.department,
                     })),
                   });
                 }

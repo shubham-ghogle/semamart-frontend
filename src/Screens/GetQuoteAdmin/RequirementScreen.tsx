@@ -118,6 +118,8 @@ const RequirementScreen = () => {
                     data={productRows}
                     columns={[
                       { accessorKey: "srNo", header: "Sr. No." },
+                      { accessorKey: "scope", header: "Scope" },
+                      { accessorKey: "department", header: "Department" },
                       { accessorKey: "productName", header: "Product Name" },
                       { accessorKey: "quantity", header: "Quantity" },
                     ]}
