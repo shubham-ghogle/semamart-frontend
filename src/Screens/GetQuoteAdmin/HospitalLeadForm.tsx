@@ -7,6 +7,9 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getMedicopListWithProducts } from "@/medicop/storage";
+import MedicopPageShell from "@/medicop/MedicopPageShell";
 
 // State and district data
 const stateDistrictData: { [key: string]: string[] } = {
@@ -41,12 +44,25 @@ const stateDistrictData: { [key: string]: string[] } = {
 };
 
 const HospitalLeadForm = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMedicopMode = new URLSearchParams(location.search).get("mode") === "medicop";
+  const stateProducts = (location.state as any)?.medicopProducts as
+    | Array<{ productId: string; qty: number }>
+    | undefined;
+  const fallbackProducts = getMedicopListWithProducts().map((item) => ({
+    productId: item.productId,
+    qty: item.qty,
+  }));
+  const selectedProducts = stateProducts && stateProducts.length > 0 ? stateProducts : fallbackProducts;
+
   const [formData, setFormData] = useState({
     entityType: "",
     entityName: "",
     contactNumber: "",
     alternateMobileNumber: "",
     email: "",
+    noOfBeds: "",
     address: "",
     state: "",
     district: "",
@@ -71,19 +87,27 @@ const HospitalLeadForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isMedicopMode) {
+      navigate("/get-quote-admin/requirement-screen?mode=medicop", {
+        state: {
+          leadData: formData,
+          medicopProducts: selectedProducts,
+        },
+      });
+      return;
+    }
     console.log("Hospital/Lead form submitted:", formData);
     alert("Hospital/Lead form submitted successfully!");
   };
 
-  return (
-    <div className="min-h-screen bg-white overflow-hidden">
+  const content = (
+    <div className={`${isMedicopMode ? "bg-white" : "min-h-screen bg-white"} overflow-hidden`}>
       <div className="flex">
         {/* Main Content */}
-        <div className="flex-1 p-8 overflow-y-auto h-screen">
+        <div className={`flex-1 p-8 overflow-y-auto ${isMedicopMode ? "" : "h-screen"}`}>
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
               <h1 className="text-3xl font-bold text-gray-800 mb-8">Lead Form</h1>
-              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -98,9 +122,12 @@ const HospitalLeadForm = () => {
                         <SelectValue placeholder="Select organization type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Hospital">Hospital</SelectItem>
-                        <SelectItem value="Clinic">Clinic</SelectItem>
+                        <SelectItem value="Superspeciality Hospital">Superspeciality Hospital</SelectItem>
+                        <SelectItem value="Multispeciality Hospital">Multispeciality Hospital</SelectItem>
+                        <SelectItem value="Diagnostic Center">Diagnostic Center</SelectItem>
+                        <SelectItem value="Trauma Center">Trauma Center</SelectItem>
                         <SelectItem value="Institute">Institute</SelectItem>
+                        <SelectItem value="Clinic">Clinic</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -155,6 +182,7 @@ const HospitalLeadForm = () => {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email <span className="text-red-500">*</span>
@@ -169,6 +197,23 @@ const HospitalLeadForm = () => {
                     placeholder="Enter email address"
                     required
                   />
+                </div>
+                <div>
+                  <label htmlFor="noOfBeds" className="block text-sm font-medium text-gray-700 mb-2">
+                    No of beds <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfBeds"
+                    name="noOfBeds"
+                    value={formData.noOfBeds}
+                    onChange={handleInputChange}
+                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter number of beds"
+                    min={0}
+                    required
+                  />
+                </div>
                 </div>
 
                 <div>
@@ -274,7 +319,7 @@ const HospitalLeadForm = () => {
                     type="submit"
                     className="w-full h-12 bg-teal-600 text-white hover:bg-teal-700 text-lg font-medium"
                   >
-                    Submit
+                    Generate Requirement
                   </Button>
                 </div>
               </form>
@@ -284,6 +329,12 @@ const HospitalLeadForm = () => {
       </div>
     </div>
   );
+
+  if (isMedicopMode) {
+    return <MedicopPageShell>{content}</MedicopPageShell>;
+  }
+
+  return content;
 };
 
 export default HospitalLeadForm;

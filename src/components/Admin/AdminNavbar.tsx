@@ -126,6 +126,7 @@ export default function AdminNavbar() {
     permissionKey: string | null;
   }[] = [
     { to: "/admin", label: "Dashboard", icon: <RxDashboard />, permissionKey: null },
+    { to: "/medicop", label: "Medical Manager", icon: <GrWorkshop />, permissionKey: null },
     { to: "/admin/orders", label: "All Orders", icon: <GrWorkshop />, permissionKey: "AllOrders" },
     { to: "/admin/orders/sales", label: "Total Sales", icon: <TbCoinRupee />, permissionKey: "AllSales" },
     { to: "/admin/requests", label: "Requests", icon: <LuMessageSquare />, permissionKey: "Requests" },

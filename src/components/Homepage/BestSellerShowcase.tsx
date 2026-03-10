@@ -9,6 +9,7 @@ type Status = "pending" | "error" | "success";
 type Props = {
   products: Product[];
   status: Status;
+  cardMode?: "default" | "medicop";
 
   title?: string;
   badgeText?: string;
@@ -28,6 +29,7 @@ type Props = {
 export default function BestSellerShowcase({
   products,
   status,
+  cardMode = "default",
   title = "Best Seller",
   badgeText = "Guaranteed discounts",
   subText = "Shop from our top-selling items.",
@@ -240,7 +242,7 @@ export default function BestSellerShowcase({
                 className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover">
-                  <ProductCard product={p} />
+                  <ProductCard product={p} mode={cardMode} />
                 </div>
               </div>
             ))}

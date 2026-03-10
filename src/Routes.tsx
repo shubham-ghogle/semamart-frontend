@@ -100,6 +100,9 @@ import RequirementScreen from "./Screens/GetQuoteAdmin/RequirementScreen";
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
 import Requirement from "./components/GetQuote/Requirement";
 import Quotation from "./components/GetQuote/Quotation";
+import MedicopHomepage from "./medicop/MedicopHomepage";
+import MedicopProductPage from "./medicop/MedicopProductPage";
+import AddProductForm from "./Screens/GetQuoteAdmin/AddProductForm";
 
 /**
  * redirectToDashboard loader
@@ -260,6 +263,9 @@ export const router = createBrowserRouter([
       { index: true, element: <Consumables /> },
 
       // public/product flows
+      { path: "medicop", element: <MedicopHomepage /> },
+      { path: "medicop/product/:id", element: <MedicopProductPage /> },
+      { path: "medicop/product-upload-form", element: <AddProductForm /> },
       { path: "product", element: <ProductsScreen /> },
       { path: "product/:id", element: <ProductDetails /> },
 

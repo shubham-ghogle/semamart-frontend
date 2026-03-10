@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
@@ -8,7 +8,8 @@ import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 
 import ViewModal from "@/components/ui/ViewModal";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getGeneratedRequirements } from "@/medicop/storage";
 
 // Sample data for demonstration
 const sampleCustomers = [
@@ -43,21 +44,39 @@ const sampleRecentActivity = [
 ];
 
 const Salesman = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(
+    (location.state as any)?.openRequirementTab ? "requirement" : "dashboard"
+  );
   const [showRequirementModal, setShowRequirementModal] = useState(false);
   const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
   const [selectedEntityName, setSelectedEntityName] = useState<string>("");
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
   const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
-const navigate = useNavigate();
+  const [generatedRequirements, setGeneratedRequirements] = useState<any[]>([]);
+
+  useEffect(() => {
+    setGeneratedRequirements(getGeneratedRequirements());
+    const syncGenerated = () => setGeneratedRequirements(getGeneratedRequirements());
+    window.addEventListener("storage", syncGenerated);
+    return () => window.removeEventListener("storage", syncGenerated);
+  }, []);
   // Filter requirements based on entity name only (salesman sees their own data)
   const filteredRequirements = useMemo(() => {
-    return sampleRequirements.filter(item => {
+    const allRequirements = [
+      ...sampleRequirements,
+      ...generatedRequirements.map((item, idx) => ({
+        srNo: sampleRequirements.length + idx + 1,
+        ...item,
+      })),
+    ];
+    return allRequirements.filter(item => {
       const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
       return matchesEntityName;
     });
-  }, [selectedEntityName]);
+  }, [selectedEntityName, generatedRequirements]);
 
   // Filter quotations based on entity name only (salesman sees their own data)
   const filteredQuotations = useMemo(() => {
@@ -84,7 +103,7 @@ const navigate = useNavigate();
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
-    { id: "products", label: "Products", icon: <GrWorkshop /> },
+    { id: "products", label: "Product Upload Form", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
@@ -136,15 +155,22 @@ const navigate = useNavigate();
      {
       id: "action",
       header: "Action",
-      cell: () => (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/requirement")}
-        >
-          <FaEye size={16} />
-        </Button>
-      ),
+      cell: ({ row }: any) => {
+        const rowData = row.original;
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              navigate("/requirement?mode=medicop", {
+                state: { generatedRequirement: rowData, editable: true },
+              })
+            }
+          >
+            <FaEye size={16} />
+          </Button>
+        );
+      },
     },
   ];
 
@@ -327,6 +353,12 @@ const navigate = useNavigate();
           {activeTab === "requirement" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="mb-6">
+                  <h1 className="text-2xl font-bold text-gray-800">Salesman Requirement List</h1>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Last updated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                  </p>
+                </div>
                 {/* Entity Name Search */}
                 <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
                   <div className="flex-1">
@@ -397,8 +429,14 @@ const navigate = useNavigate();
           {activeTab === "products" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Products</h3>
-                <p className="text-gray-600">Products management functionality will be implemented here.</p>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Product Upload Form</h3>
+                <p className="text-gray-600 mb-4">Dummy product upload screen for Medical Manager flow.</p>
+                <Button
+                  className="bg-teal-600 text-white hover:bg-teal-700"
+                  onClick={() => navigate("/medicop/product-upload-form")}
+                >
+                  Open Product Upload Form
+                </Button>
               </div>
             </div>
           )}
