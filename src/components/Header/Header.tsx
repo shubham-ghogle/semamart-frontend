@@ -15,6 +15,7 @@ import { IoIosArrowForward, IoMdMenu, IoMdClose } from "react-icons/io";
 import { Logo } from "../UIComponents/Logo";
 import Wishlist from "./Wishlist";
 import Cart from "./Cart";
+import MedicopCart from "./MedicopCart";
 import placeholderImg from "../../../public/image60.png";
 import { Product } from "@/Types/types";
 import { useCartStore } from "@/store/cartStore";
@@ -22,6 +23,10 @@ import { useWishlistStore } from "@/store/wishlistStore";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
 import { API_URL } from "@/data";
+import {
+  MEDICOP_LIST_EVENT_NAME,
+  getMedicopList,
+} from "@/medicop/storage";
 
 const PLACEHOLDER_IMG = placeholderImg;
 function toImageUrl(value?: string | null) {
@@ -46,6 +51,7 @@ export default function Header() {
   const { user, removeUser } = useUserStore((s: any) => s);
   const { seller, removeSeller } = useSellerStore((s: any) => s);
   const location = useLocation();
+  const isMedicopRoute = location.pathname.startsWith("/medicop");
 
   // derive roles
   const isSeller = Boolean(seller);
@@ -85,6 +91,7 @@ export default function Header() {
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [medicopListCount, setMedicopListCount] = useState(() => getMedicopList().length);
   // profile / user menu improvements
   const [isUserHovered, setIsUserHovered] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
@@ -100,6 +107,18 @@ export default function Header() {
     const q = queryParams.get("q") || "";
     setQuery(q);
   }, [location.search]);
+
+  useEffect(() => {
+    if (!isMedicopRoute) return;
+    const syncMedicopCount = () => setMedicopListCount(getMedicopList().length);
+    syncMedicopCount();
+    window.addEventListener("storage", syncMedicopCount);
+    window.addEventListener(MEDICOP_LIST_EVENT_NAME, syncMedicopCount);
+    return () => {
+      window.removeEventListener("storage", syncMedicopCount);
+      window.removeEventListener(MEDICOP_LIST_EVENT_NAME, syncMedicopCount);
+    };
+  }, [isMedicopRoute]);
 
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSug, setShowSug] = useState(false);
@@ -871,22 +890,24 @@ export default function Header() {
               )}
 
               {/* Wishlist & Cart (only for regular users) */}
-              {isRealUser && (
+              {(isRealUser || isMedicopRoute) && (
                 <>
-                  <button onClick={openWishlistHandler} aria-label="Open Wishlist" className="relative p-2 rounded-full hover:bg-gray-100">
-                    <AiOutlineHeart size={20} />
-                    {wishlist.length > 0 && (
-                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </button>
+                  {!isMedicopRoute && (
+                    <button onClick={openWishlistHandler} aria-label="Open Wishlist" className="relative p-2 rounded-full hover:bg-gray-100">
+                      <AiOutlineHeart size={20} />
+                      {wishlist.length > 0 && (
+                        <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">
+                          {wishlist.length}
+                        </span>
+                      )}
+                    </button>
+                  )}
 
                   <button onClick={openCartHandler} aria-label="Open Cart" className="relative p-2 rounded-full hover:bg-gray-100">
                     <AiOutlineShoppingCart size={20} />
-                    {cart.length > 0 && (
+                    {(isMedicopRoute ? medicopListCount : cart.length) > 0 && (
                       <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#3bc177] text-white text-xs font-bold flex items-center justify-center ring-2 ring-white">
-                        {cart.length}
+                        {isMedicopRoute ? medicopListCount : cart.length}
                       </span>
                     )}
                   </button>
@@ -1018,7 +1039,12 @@ export default function Header() {
         )}
 
         {/* Modals */}
-        {isCartOpen && <Cart cartOpenHandler={openCartHandler} />}
+        {isCartOpen &&
+          (isMedicopRoute ? (
+            <MedicopCart cartOpenHandler={openCartHandler} />
+          ) : (
+            <Cart cartOpenHandler={openCartHandler} />
+          ))}
         {isWishlistOpen && <Wishlist wishlistOpenHandler={openWishlistHandler} />}
 
         {/* Seller Confirmation Dialog */}

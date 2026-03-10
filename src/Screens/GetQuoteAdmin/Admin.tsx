@@ -114,6 +114,7 @@ const Admin = () => {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
+    { id: "medical-manager", label: "Medical Manager", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "manager", label: "Manager", icon: <GrWorkshop /> },
@@ -126,6 +127,10 @@ const Admin = () => {
   ];
 
   const handleMenuClick = (itemId: string) => {
+    if (itemId === "medical-manager") {
+      window.location.href = "/medicop";
+      return;
+    }
     if (itemId === "requirement" || itemId === "quotation") {
       setModalType(itemId as "requirement" | "quotation");
       setShowRequirementModal(true);

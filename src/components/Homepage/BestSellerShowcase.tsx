@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Product } from "@/Types/types";
 import ProductCard from "./ProductCard";
-import ProductCardMediqop from "./ProductCardMediqop";
 import React from "react";
 
 type Status = "pending" | "error" | "success";
@@ -10,6 +9,7 @@ type Status = "pending" | "error" | "success";
 type Props = {
   products: Product[];
   status: Status;
+  cardMode?: "default" | "medicop";
 
   title?: string;
   badgeText?: string;
@@ -24,12 +24,12 @@ type Props = {
 
   maxItems?: number;
   viewAllLink?: string;
-  cardVariant?: "default" | "mediqop";
 };
 
 export default function BestSellerShowcase({
   products,
   status,
+  cardMode = "default",
   title = "Best Seller",
   badgeText = "Guaranteed discounts",
   subText = "Shop from our top-selling items.",
@@ -41,7 +41,6 @@ export default function BestSellerShowcase({
   textColor = "#ffffff",
   maxItems = 12,
   viewAllLink = "/products",
-  cardVariant = "default",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -243,11 +242,7 @@ export default function BestSellerShowcase({
                 className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover">
-                  {cardVariant === "mediqop" ? (
-                    <ProductCardMediqop product={p} />
-                  ) : (
-                    <ProductCard product={p} />
-                  )}
+                  <ProductCard product={p} mode={cardMode} />
                 </div>
               </div>
             ))}

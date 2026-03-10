@@ -9,6 +9,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  getMedicopProductById,
+  saveGeneratedRequirement,
+} from "@/medicop/storage";
+import MedicopPageShell from "@/medicop/MedicopPageShell";
 
 // State and district data
 const stateDistrictData: { [key: string]: string[] } = {
@@ -43,6 +49,132 @@ const stateDistrictData: { [key: string]: string[] } = {
 };
 
 const RequirementScreen = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMedicopMode = new URLSearchParams(location.search).get("mode") === "medicop";
+  const leadData = (location.state as any)?.leadData as
+    | {
+        entityType?: string;
+        entityName?: string;
+        state?: string;
+        district?: string;
+        contactPersonName?: string;
+        contactPersonDesignation?: string;
+        contactNumber?: string;
+        email?: string;
+        noOfBeds?: string;
+      }
+    | undefined;
+  const selectedMedicopProducts = ((location.state as any)?.medicopProducts ?? []) as Array<{
+    productId: string;
+    qty: number;
+  }>;
+
+  if (isMedicopMode) {
+    const productRows = selectedMedicopProducts.map((item, index) => ({
+      srNo: index + 1,
+      productId: item.productId,
+      productName: getMedicopProductById(item.productId)?.name ?? item.productId,
+      quantity: item.qty,
+    }));
+
+    const medicopContent = (
+      <div className="bg-white overflow-hidden">
+        <div className="flex">
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/Mediqop-Logo.png"
+                      alt="Mediqop Logo"
+                      className="w-12 h-12 object-contain"
+                    />
+                    <div>
+                      <p className="text-xs uppercase text-gray-500 tracking-wide">Medical Requirement</p>
+                      <h1 className="text-3xl font-bold text-[#1C647C]">Mediqop</h1>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Lead Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <p>Organization: {leadData?.entityName || "Dummy Hospital"}</p>
+                    <p>Type: {leadData?.entityType || "Hospital"}</p>
+                    <p>State: {leadData?.state || "Maharashtra"}</p>
+                    <p>District: {leadData?.district || "Pune"}</p>
+                    <p>Contact Person: {leadData?.contactPersonName || "Demo User"}</p>
+                    <p>Designation: {leadData?.contactPersonDesignation || "Purchase Manager"}</p>
+                    <p>Phone: {leadData?.contactNumber || "9999999999"}</p>
+                    <p>Email: {leadData?.email || "demo@mediqop.com"}</p>
+                    <p>No of beds: {leadData?.noOfBeds || "0"}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto mb-8">
+                  <DataTable
+                    data={productRows}
+                    columns={[
+                      { accessorKey: "srNo", header: "Sr. No." },
+                      { accessorKey: "scope", header: "Scope" },
+                      { accessorKey: "department", header: "Department" },
+                      { accessorKey: "productName", header: "Product Name" },
+                      { accessorKey: "quantity", header: "Quantity" },
+                    ]}
+                    docName="medicop-products"
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                    disableSearch={true}
+                    enableStatusFilter={false}
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(-1)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const req = saveGeneratedRequirement({
+                        salesman: "Current User",
+                        entityType: leadData?.entityType || "Hospital",
+                        entityName: leadData?.entityName || "Dummy Hospital",
+                        state: leadData?.state || "Maharashtra",
+                        district: leadData?.district || "Pune",
+                        customerName: leadData?.contactPersonName || "Demo User",
+                        designation: leadData?.contactPersonDesignation || "Purchase Manager",
+                        phoneNumber: leadData?.contactNumber || "9999999999",
+                        email: leadData?.email || "demo@mediqop.com",
+                        items: productRows.map((row) => ({
+                          productId: row.productId,
+                          productName: row.productName,
+                          quantity: row.quantity,
+                        })),
+                      });
+                      navigate("/get-quote-admin/salesman", {
+                        state: { openRequirementTab: true, generatedRequirement: req },
+                      });
+                    }}
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                  >
+                    Generate Requirement
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    return <MedicopPageShell>{medicopContent}</MedicopPageShell>;
+  }
+
   const [products, setProducts] = useState([
     { srNo: 1, productName: "Medical Equipment 1", quantity: 2 },
     { srNo: 2, productName: "Medical Equipment 2", quantity: 5 },
