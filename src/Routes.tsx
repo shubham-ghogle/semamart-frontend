@@ -97,6 +97,7 @@ import Manager from "./Screens/GetQuoteAdmin/Manager";
 import Salesman from "./Screens/GetQuoteAdmin/Salesman";
 import HospitalLeadForm from "./Screens/GetQuoteAdmin/HospitalLeadForm";
 import RequirementScreen from "./Screens/GetQuoteAdmin/RequirementScreen";
+import MediqopHomepage from "./Screens/MediqopHomepage";
 import ContactUsScreen from "./Screens/Common/ContactUsScreen";
 import Requirement from "./components/GetQuote/Requirement";
 import Quotation from "./components/GetQuote/Quotation";
@@ -258,6 +259,7 @@ export const router = createBrowserRouter([
     children: [
       // index: do NOT auto-redirect — always show public user portal
       { index: true, element: <Consumables /> },
+      { path: "mediqop", element: <MediqopHomepage /> },
 
       // public/product flows
       { path: "product", element: <ProductsScreen /> },

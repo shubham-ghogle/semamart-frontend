@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Product } from "@/Types/types";
 import ProductCard from "./ProductCard";
+import ProductCardMediqop from "./ProductCardMediqop";
 import React from "react";
 
 type Status = "pending" | "error" | "success";
@@ -23,6 +24,7 @@ type Props = {
 
   maxItems?: number;
   viewAllLink?: string;
+  cardVariant?: "default" | "mediqop";
 };
 
 export default function BestSellerShowcase({
@@ -39,6 +41,7 @@ export default function BestSellerShowcase({
   textColor = "#ffffff",
   maxItems = 12,
   viewAllLink = "/products",
+  cardVariant = "default",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -240,7 +243,11 @@ export default function BestSellerShowcase({
                 className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover">
-                  <ProductCard product={p} />
+                  {cardVariant === "mediqop" ? (
+                    <ProductCardMediqop product={p} />
+                  ) : (
+                    <ProductCard product={p} />
+                  )}
                 </div>
               </div>
             ))}

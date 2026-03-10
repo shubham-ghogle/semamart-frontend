@@ -99,6 +99,8 @@ const HospitalLeadForm = () => {
                         <SelectValue placeholder="Select organization type" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="Hospital">Hospital</SelectItem>
+                        <SelectItem value="Institute">Institute</SelectItem>
                         <SelectItem value="Superspeciality Hospital">Superspeciality Hospital</SelectItem>
                         <SelectItem value="Multispeciality Hospital">Multispeciality Hospital</SelectItem>
                         <SelectItem value="Trauma Center">Trauma Center</SelectItem>
