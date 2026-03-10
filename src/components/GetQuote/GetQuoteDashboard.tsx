@@ -2,7 +2,7 @@ import React from "react";
 import {
   FaUsers,
   FaFileAlt,
-  FaQuoteRight,
+  // FaQuoteRight,
   FaShoppingBag,
   FaBox,
 } from "react-icons/fa";

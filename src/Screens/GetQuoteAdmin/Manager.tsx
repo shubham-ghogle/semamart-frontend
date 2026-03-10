@@ -57,7 +57,7 @@ const Manager = () => {
   const [viewModalData, setViewModalData] = useState<any>(null);
   const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
   const navigate = useNavigate();
-  const [showAddProductPanel, setShowAddProductPanel] = useState(false);
+
   // Filter requirements based on selected salesman and entity name
   const filteredRequirements = useMemo(() => {
     return sampleRequirements.filter(item => {

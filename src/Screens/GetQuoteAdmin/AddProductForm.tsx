@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useForm, Controller, useFieldArray, FormProvider } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import { X } from "lucide-react";
 import { FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import Subformlabel from "@/components/ui/Subformlabel";
-import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 
 type CategoryPair = { category: string; subcategory: string };
 type SpecialityPair = { speciality: string; subspeciality: string };
@@ -160,7 +160,7 @@ const AddProductForm = () => {
   <label className="font-semibold">Categories</label>
   {categoryPairs.fields.map((field, index) => {
     const selectedCat = watchCategoryPairs[index]?.category;
-    const selectedSubcat = watchCategoryPairs[index]?.subcategory;
+    // const selectedSubcat = watchCategoryPairs[index]?.subcategory;
     const subcats = selectedCat ? SUBCATEGORIES[selectedCat] : [];
     return (
       <div key={field.id} className="flex gap-2 items-center">
@@ -220,7 +220,7 @@ const AddProductForm = () => {
   <label className="font-semibold">Specialities</label>
   {specialities.fields.map((field, index) => {
     const selectedSpec = watchSpecialities[index]?.speciality;
-    const selectedSubspec = watchSpecialities[index]?.subspeciality;
+    // const selectedSubspec = watchSpecialities[index]?.subspeciality;
     const subspecOptions = selectedSpec ? SUBSPECIALITIES[selectedSpec] : [];
     return (
       <div key={field.id} className="flex gap-2 items-center">

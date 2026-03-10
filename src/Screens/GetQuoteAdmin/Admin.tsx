@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt,} from "react-icons/fa";
 import RequirementModal from "@/components/ui/RequirementModal";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
