@@ -44,6 +44,7 @@ const HospitalLeadForm = () => {
   const [formData, setFormData] = useState({
     entityType: "",
     entityName: "",
+    numberOfBeds: "",
     contactNumber: "",
     alternateMobileNumber: "",
     email: "",
@@ -98,9 +99,11 @@ const HospitalLeadForm = () => {
                         <SelectValue placeholder="Select organization type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Hospital">Hospital</SelectItem>
+                        <SelectItem value="Superspeciality Hospital">Superspeciality Hospital</SelectItem>
+                        <SelectItem value="Multispeciality Hospital">Multispeciality Hospital</SelectItem>
+                        <SelectItem value="Trauma Center">Trauma Center</SelectItem>
+                        <SelectItem value="Diagnostic Center">Diagnostic Center</SelectItem>
                         <SelectItem value="Clinic">Clinic</SelectItem>
-                        <SelectItem value="Institute">Institute</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -155,20 +158,38 @@ const HospitalLeadForm = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter email address"
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter email address"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="numberOfBeds" className="block text-sm font-medium text-gray-700 mb-2">
+                      No. of Beds
+                    </label>
+                    <input
+                      type="number"
+                      id="numberOfBeds"
+                      name="numberOfBeds"
+                      value={formData.numberOfBeds}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter number of beds"
+                      min="0"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -274,7 +295,7 @@ const HospitalLeadForm = () => {
                     type="submit"
                     className="w-full h-12 bg-teal-600 text-white hover:bg-teal-700 text-lg font-medium"
                   >
-                    Submit
+                    Generate Requirement
                   </Button>
                 </div>
               </form>
