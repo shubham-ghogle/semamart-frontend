@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
@@ -56,6 +57,14 @@ const Manager = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
   const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showAddSpecialityModal, setShowAddSpecialityModal] = useState(false);
+  const [showAddScopeModal, setShowAddScopeModal] = useState(false);
+  const [showAddDepartmentModal, setShowAddDepartmentModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [newSubCategory, setNewSubCategory] = useState("");
+  const [newScope, setNewScope] = useState("");
+  const [newDepartment, setNewDepartment] = useState("");
   const navigate = useNavigate();
 
   // Filter requirements based on selected salesman and entity name
@@ -96,6 +105,10 @@ const Manager = () => {
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     { id: "addproduct", label: "Add Product", icon: <GrWorkshop /> },
     { id: "products", label: "Products", icon: <GrWorkshop /> },
+    { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
+    { id: "category-master", label: "Category Master", icon: <GrWorkshop /> },
+    { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
+    { id: "scope-department-master", label: "Scope & Department Master", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
@@ -222,7 +235,7 @@ const Manager = () => {
                     onClick={() => handleMenuClick(item.id)}
                     className={`flex items-center gap-3 w-full px-4 py-2 text-sm font-medium transition-colors rounded-md ${
                         activeTab === item.id
-                        ? "bg-blue-100 text-blue-700"
+                        ? "bg-teal-100 text-teal-700"
                         : "text-gray-600 hover:bg-gray-100"
                     }`}
                     >
@@ -236,9 +249,9 @@ const Manager = () => {
               {menuItems.find(item => item.id === "logout") && (
                 <button
                   onClick={() => setActiveTab("logout")}
-                  className={`flex items-center gap-3 w-full px-4 py-2 text-sm font-medium transition-colors rounded-md ${
+                   className={`flex items-center gap-3 w-full px-4 py-2 text-sm font-medium transition-colors rounded-md ${
                     activeTab === "logout"
-                      ? "bg-blue-100 text-blue-700"
+                      ? "bg-teal-100 text-teal-700"
                       : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >
@@ -451,7 +464,530 @@ const Manager = () => {
               </div>
             </div>
           )}
+
+          {activeTab === "product-spec-master" && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Product Spec Master</h3>
+                <p className="text-gray-600">Product Spec Master functionality will be implemented here.</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "category-master" && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Category Master</h3>
+                  <Button 
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                    onClick={() => setShowAddCategoryModal(true)}
+                  >
+                    Add Category
+                  </Button>
+                </div>
+                <div className="overflow-x-auto">
+                  <DataTable
+                    data={[
+                      { 
+                        srNo: 1, 
+                        category: "Consumables", 
+                        subCategory: "Surgical & Examination Gloves, Masks & Personal Protective Equipment (PPE), Syringes & Needles, IV Sets & Infusion Supplies, Catheters & Tubes, Drapes, Sheets & Underpads, Wound Care & Dressings, Respiratory Consumables, Infection Control & Cleaning, Diagnostic Consumables, General Use Disposables" 
+                      },
+                      { 
+                        srNo: 2, 
+                        category: "Instruments", 
+                        subCategory: "General Surgical Instruments, ENT Instruments, Gynaecology & Obstetrics Instruments, Orthopaedic Instruments, Ophthalmic Instruments, Dental Instruments, Diagnostic Instruments, Minor OT / OPD Sets, Paediatric & Neonatal Instruments" 
+                      },
+                      { 
+                        srNo: 3, 
+                        category: "Medical Equipment", 
+                        subCategory: "Patient Monitoring Equipment, ICU & Emergency Equipment, Operation Theatre Equipment, Diagnostic Imaging Equipment, Anesthesia & Airway Equipment, Surgical Equipment, Rehabilitation & Physiotherapy Equipment, Respiratory & Oxygen Therapy Equipment, Sterilization & Disinfection Equipment" 
+                      },
+                      { 
+                        srNo: 4, 
+                        category: "Advanced & Robotic Systems", 
+                        subCategory: "Robotic Surgery Systems, Endoscopy & Image-Guided Systems, AI-Enabled Diagnostic Platforms, Navigation & Intra-Operative Systems, Robotic Rehabilitation & Assistive Devices, Smart ICU & Remote Monitoring Systems, Telemedicine & Virtual Care Platforms, Robotic Pharmacy & Laboratory Automation, Smart OT Integration Systems" 
+                      },
+                      { 
+                        srNo: 5, 
+                        category: "Diagnostics", 
+                        subCategory: "Laboratory Equipment, Hematology & Blood Analyzers, Biochemistry & Immunoassay, Microbiology Equipment, Molecular Diagnostics, Diagnostic Kits & Strips, Point-of-Care Testing Devices, Sample Collection & Processing" 
+                      },
+                      { 
+                        srNo: 6, 
+                        category: "Hospital Furniture", 
+                        subCategory: "Hospital Beds, Examination & OPD Furniture, ICU & Patient Room Furniture, OT & Procedure Room Furniture, Ward Furniture, Stretchers & Trolleys, Pediatric & Neonatal Furniture, Reception & Administrative Furniture, Cafeteria & Utility Furniture" 
+                      },
+                      { 
+                        srNo: 7, 
+                        category: "Pharmaceuticals & Therapeutics", 
+                        subCategory: "Prescription Drugs, Over-the-Counter, Generic Drugs, Brand Name Drugs, Biologics" 
+                      },
+                      { 
+                        srNo: 8, 
+                        category: "Hospital IT & Software", 
+                        subCategory: "Hospital Information Systems (HIS), Laboratory Information Systems (LIS), Radiology & Imaging Software (PACS & RIS), Electronic Medical Records (EMR) Systems, Telemedicine & Virtual Care Platforms, Queue & Token Management Systems, Billing, Inventory & Pharmacy Software, HR, Payroll & Roster Systems, Nursing & Clinical Workflow Tools, Hospital Analytics & Dashboard Systems, Security, Access & Backup Systems" 
+                      },
+                      { 
+                        srNo: 9, 
+                        category: "Kits & Bundles", 
+                        subCategory: "Surgical Procedure Kits, Dressing & Wound Care Kits, Catheterization Kits, Delivery & Obstetric Kits, Sampling & Collection Kits, IV Infusion & Injection Kits, Anesthesia & Airway Management Kits, Emergency & Trauma Kits, Isolation & Infection Control Kits, Diagnostic Bundles" 
+                      },
+                      { 
+                        srNo: 10, 
+                        category: "Facility & Utilities", 
+                        subCategory: "Housekeeping & Cleaning Equipment, Biomedical Waste (BMW) Management, Laundry & Linen Management, Water Supply & Plumbing, Electrical & Power Backup Systems, Fire Safety & Disaster Management, Maintenance Tools & Engineering Services, Signage & Wayfinding, Air Conditioning, Ventilation & HVAC, Stationery & Patient Band" 
+                      },
+                    ]}
+                    columns={[
+                      { accessorKey: "srNo", header: "Sr. No." },
+                      { accessorKey: "category", header: "Category" },
+                      { 
+                        accessorKey: "subCategory", 
+                        header: "Sub-category", 
+                        cell: ({ row }: any) => (
+                          <div className="flex flex-col space-y-1">
+                            {row.original.subCategory.split(', ').map((sub: string, index: number) => (
+                              <div key={index} className="flex items-center">
+                                <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                                {sub}
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      },
+                    ]}
+                    docName="category-master"
+                    searchColId="category"
+                    searchPlaceholder="Search by category"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                    disableSearch={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "speciality-master" && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Speciality Master</h3>
+                  <Button 
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                    onClick={() => setShowAddSpecialityModal(true)}
+                  >
+                    Add Speciality
+                  </Button>
+                </div>
+                <div className="overflow-x-auto">
+                  <DataTable
+                    data={[
+                      { 
+                        srNo: 1, 
+                        speciality: "ICU Setup Packages", 
+                        subSpeciality: "5-Bed ICU Starter Kit, 10-Bed Modular ICU Package, Pediatric ICU (PICU) Bundle, Neonatal ICU (NICU) Package, Isolation ICU Setup (with Negative Pressure), ICU Monitoring Bundle (monitors, syringe pumps, beds), Ventilator + ABG + Infusion Kit Bundle, ICU Crash Cart with Emergency Drugs" 
+                      },
+                      { 
+                        srNo: 2, 
+                        speciality: "Operation Theatre Setup Packages", 
+                        subSpeciality: "Basic OT Package (general surgery), Advanced Modular OT Package (orthopedics, neuro), Gynae OT Package (for LSCS and D&C), OT Instrument Sets (major, minor, laparotomy, delivery), OT Lights & Tables Combo, Cautery + Suction + Anesthesia Cart Combo, Disposable OT Consumables Pack, OT Sterilization Zone Setup (CSSD + Autoclave), Laminar Flow OT HVAC Package" 
+                      },
+                      { 
+                        srNo: 3, 
+                        speciality: "OPD & Consultation Room Packages", 
+                        subSpeciality: "General Medicine OPD Kit, Pediatric OPD Package, ENT OPD Setup (chair, diagnostic set, light), Gynecology OPD Setup (couch, instruments), Dental OPD Package (dental chair, light, handpieces), Dermatology OPD Starter Kit, Ophthalmology OPD Basic Setup, OPD EMR + Queue Token System" 
+                      },
+                      { 
+                        srNo: 4, 
+                        speciality: "Diagnostic Lab Packages", 
+                        subSpeciality: "Basic Path Lab Setup (biochem + hematology), Microbiology Lab Setup, Molecular Lab Package (PCR, extraction, biosafety), NABL-Compliant Lab Starter Kit, Sample Collection Room Package, Blood Collection + Vacutainer Bundle, Lab Furniture + Storage Cabinets, LIS Software + Barcode Scanner Pack" 
+                      },
+                      { 
+                        srNo: 5, 
+                        speciality: "Radiology & Imaging Packages", 
+                        subSpeciality: "Basic X-Ray Room Setup (machine + lead shield + PACS), Ultrasound Room Setup (portable/standard unit + couch), CT Room Setup (with lead protection + consoles), Mobile Imaging Van Kit, CR/DR Conversion Package, PACS + RIS Software Bundle, Radiation Safety Compliance Kit (TLDs, aprons), Patient Privacy & Comfort Accessories" 
+                      },
+                      { 
+                        srNo: 6, 
+                        speciality: "Labour Room & Maternity Ward Packages", 
+                        subSpeciality: "Labour Room Equipment Package, Delivery Instrument Set, CTG + Fetal Doppler Combo, Obstetric OT Kit (for LSCS), Baby Resuscitation Corner Setup, Postnatal Ward Furniture Bundle, Maternity Care Consumables Kit, Kangaroo Mother Care Accessories" 
+                      },
+                      { 
+                        srNo: 7, 
+                        speciality: "Dental Clinic Setup Packages", 
+                        subSpeciality: "Single Chair Dental Setup, Digital X-Ray + IOPA Kit, Dental Instruments Kit (general, scaling, extraction), Compressor + Suction Machine Bundle, Dental Chair Accessories (scaler, curing light, airotor), Sterilization Zone Setup for Clinic, Dental OPD Software (billing + case records)" 
+                      },
+                      { 
+                        srNo: 8, 
+                        speciality: "Dialysis Centre Packages", 
+                        subSpeciality: "2-Bed Dialysis Starter Kit, RO Water System for Dialysis, Dialysis Machine + Chair Combo, Dialysis Consumables Bundle (AVF needles, lines, fluids), Patient Monitoring Kit, Dialysis Waste Disposal System, Dialysis Billing Software & Logbooks" 
+                      },
+                      { 
+                        srNo: 9, 
+                        speciality: "Emergency & Trauma Room Packages", 
+                        subSpeciality: "ER Triage Setup (beds + vitals + signage), Emergency Equipment Pack (defibrillator, monitor, suction), Crash Cart + Emergency Drug Pack, Primary Trauma Care (splints, spine board, head blocks), Disaster & Mass Casualty Kit, Emergency Room Furniture Pack, First Responder Backpack Kit" 
+                      },
+                      { 
+                        srNo: 10, 
+                        speciality: "Mobile Clinic & PHC/CHC Kits", 
+                        subSpeciality: "Ayushman Bharat HWC Kit, Mobile Clinic Vehicle Kit, PHC Diagnostic Kit (BP, ECG, RBS, urine, Hb), NCD Screening Kit (diabetes, HTN, cancer), Portable Lab + X-Ray + Tablet Based EMR, Rural Telemedicine Kit, Solar Power Kit for PHC/CHC, Maternal & Child Health Combo Kit" 
+                      },
+                    ]}
+                    columns={[
+                      { accessorKey: "srNo", header: "Sr. No." },
+                      { accessorKey: "speciality", header: "Speciality" },
+                      { 
+                        accessorKey: "subSpeciality", 
+                        header: "Sub-Speciality", 
+                        cell: ({ row }: any) => (
+                          <div className="flex flex-col space-y-1">
+                            {row.original.subSpeciality.split(', ').map((sub: string, index: number) => (
+                              <div key={index} className="flex items-center">
+                                <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                                {sub}
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      },
+                    ]}
+                    docName="speciality-master"
+                    searchColId="speciality"
+                    searchPlaceholder="Search by speciality"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                    disableSearch={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "scope-department-master" && (
+            <div className="max-w-7xl mx-auto space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Scope</h3>
+                    <Button 
+                      className="bg-teal-600 text-white hover:bg-teal-700"
+                      onClick={() => setShowAddScopeModal(true)}
+                    >
+                      Add Scope
+                    </Button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <DataTable
+                      data={[
+                        { srNo: 1, scope: "ICU" },
+                        { srNo: 2, scope: "CCU" },
+                        { srNo: 3, scope: "OPD" },
+                        { srNo: 4, scope: "HDU" },
+                        { srNo: 5, scope: "PICU" },
+                        { srNo: 6, scope: "NICU" },
+                        { srNo: 7, scope: "CSSD" },
+                        { srNo: 8, scope: "Admin" },
+                        { srNo: 9, scope: "Kitchen" },
+                        { srNo: 10, scope: "Nursery" },
+                        { srNo: 11, scope: "Pharmacy" },
+                        { srNo: 12, scope: "Radiology" },
+                        { srNo: 13, scope: "Laboratory" },
+                        { srNo: 14, scope: "Ambulance" },
+                        { srNo: 15, scope: "Front Office" },
+                        { srNo: 16, scope: "Private Ward" },
+                        { srNo: 17, scope: "General Ward" },
+                        { srNo: 18, scope: "Paediatric Ward" },
+                        { srNo: 19, scope: "Labour Room" },
+                        { srNo: 20, scope: "Housekeeping" },
+                        { srNo: 21, scope: "Operation Theatre" },
+                        { srNo: 22, scope: "Semi-private Ward" },
+                        { srNo: 23, scope: "Pre-operative Room" },
+                        { srNo: 24, scope: "Post-operative Room" },
+                        { srNo: 25, scope: "Emergency Department" },
+                      ]}
+                      columns={[
+                        { accessorKey: "srNo", header: "Sr. No." },
+                        { accessorKey: "scope", header: "Scope" },
+                      ]}
+                    docName="scope-master"
+                    searchColId="scope"
+                    searchPlaceholder="Search by scope"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                    disableSearch={true}
+                    />
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Department</h3>
+                    <Button 
+                      className="bg-teal-600 text-white hover:bg-teal-700"
+                      onClick={() => setShowAddDepartmentModal(true)}
+                    >
+                      Add Department
+                    </Button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <DataTable
+                      data={[
+                        { srNo: 1, department: "EMERGENCY MEDICINE" },
+                        { srNo: 2, department: "ORTHOPEDICS" },
+                        { srNo: 3, department: "NEUROLOGY" },
+                        { srNo: 4, department: "DENTAL" },
+                        { srNo: 5, department: "CARDIOLOGY" },
+                        { srNo: 6, department: "EAR NOSE AND THROAT" },
+                        { srNo: 7, department: "PATHOLOGY" },
+                        { srNo: 8, department: "GASTROENTEROLOGY" },
+                        { srNo: 9, department: "RESPIRATORY MEDICINE" },
+                        { srNo: 10, department: "MICROBIOLOGY" },
+                        { srNo: 11, department: "RADIOLOGY" },
+                        { srNo: 12, department: "OB/GYN" },
+                        { srNo: 13, department: "ONCOLOGY" },
+                        { srNo: 14, department: "NEPHROLOGY" },
+                        { srNo: 15, department: "PULMONOLOGY" },
+                        { srNo: 16, department: "DERMATOLOGY" },
+                        { srNo: 17, department: "ENDOCRINOLOGY" },
+                        { srNo: 18, department: "OPHTHALMOLOGY" },
+                        { srNo: 19, department: "OTOLARYNGOLOGY" },
+                        { srNo: 20, department: "UROLOGY" },
+                        { srNo: 21, department: "PSYCHIATRY" },
+                        { srNo: 22, department: "ANESTHESIOLOGY" },
+                        { srNo: 23, department: "GENERAL SURGERY" },
+                        { srNo: 24, department: "PLASTIC AND RECONSTRUCTIVE SURGERY" },
+                        { srNo: 25, department: "PHYSICAL MEDICINE AND REHABILITATION" },
+                        { srNo: 26, department: "NEONATOLOGY" },
+                      ]}
+                      columns={[
+                        { accessorKey: "srNo", header: "Sr. No." },
+                        { accessorKey: "department", header: "Department" },
+                      ]}
+                    docName="department-master"
+                    searchColId="department"
+                    searchPlaceholder="Search by department"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                    disableSearch={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Add Category Modal */}
+        <Dialog open={showAddCategoryModal} onOpenChange={setShowAddCategoryModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Category</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
+                </label>
+                <Input
+                  id="category"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter category name"
+                />
+              </div>
+              <div>
+                <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700 mb-1">
+                  Sub-Category
+                </label>
+                <Input
+                  id="subCategory"
+                  value={newSubCategory}
+                  onChange={(e) => setNewSubCategory(e.target.value)}
+                  placeholder="Enter sub-category name"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddCategoryModal(false);
+                  setNewCategory("");
+                  setNewSubCategory("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving category:", newCategory, newSubCategory);
+                  setShowAddCategoryModal(false);
+                  setNewCategory("");
+                  setNewSubCategory("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Speciality Modal */}
+        <Dialog open={showAddSpecialityModal} onOpenChange={setShowAddSpecialityModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Speciality</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="speciality" className="block text-sm font-medium text-gray-700 mb-1">
+                  Speciality
+                </label>
+                <Input
+                  id="speciality"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter speciality name"
+                />
+              </div>
+              <div>
+                <label htmlFor="subSpeciality" className="block text-sm font-medium text-gray-700 mb-1">
+                  Sub-Speciality
+                </label>
+                <Input
+                  id="subSpeciality"
+                  value={newSubCategory}
+                  onChange={(e) => setNewSubCategory(e.target.value)}
+                  placeholder="Enter sub-speciality name"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddSpecialityModal(false);
+                  setNewCategory("");
+                  setNewSubCategory("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving speciality:", newCategory, newSubCategory);
+                  setShowAddSpecialityModal(false);
+                  setNewCategory("");
+                  setNewSubCategory("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Scope Modal */}
+        <Dialog open={showAddScopeModal} onOpenChange={setShowAddScopeModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Scope</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="scope" className="block text-sm font-medium text-gray-700 mb-1">
+                  Scope
+                </label>
+                <Input
+                  id="scope"
+                  value={newScope}
+                  onChange={(e) => setNewScope(e.target.value)}
+                  placeholder="Enter scope name"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddScopeModal(false);
+                  setNewScope("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving scope:", newScope);
+                  setShowAddScopeModal(false);
+                  setNewScope("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Department Modal */}
+        <Dialog open={showAddDepartmentModal} onOpenChange={setShowAddDepartmentModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Department</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                  Department
+                </label>
+                <Input
+                  id="department"
+                  value={newDepartment}
+                  onChange={(e) => setNewDepartment(e.target.value)}
+                  placeholder="Enter department name"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddDepartmentModal(false);
+                  setNewDepartment("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving department:", newDepartment);
+                  setShowAddDepartmentModal(false);
+                  setNewDepartment("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Requirement Modal */}
         <RequirementModal

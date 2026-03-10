@@ -99,13 +99,12 @@ const HospitalLeadForm = () => {
                         <SelectValue placeholder="Select organization type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Hospital">Hospital</SelectItem>
-                        <SelectItem value="Institute">Institute</SelectItem>
-                        <SelectItem value="Superspeciality Hospital">Superspeciality Hospital</SelectItem>
-                        <SelectItem value="Multispeciality Hospital">Multispeciality Hospital</SelectItem>
-                        <SelectItem value="Trauma Center">Trauma Center</SelectItem>
-                        <SelectItem value="Diagnostic Center">Diagnostic Center</SelectItem>
                         <SelectItem value="Clinic">Clinic</SelectItem>
+                        <SelectItem value="Diagnostic Center">Diagnostic Center</SelectItem>
+                        <SelectItem value="Institute">Institute</SelectItem>
+                        <SelectItem value="Multispeciality Hospital">Multispeciality Hospital</SelectItem>
+                        <SelectItem value="Superspeciality Hospital">Superspeciality Hospital</SelectItem>
+                        <SelectItem value="Trauma Center">Trauma Center</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -187,6 +186,7 @@ const HospitalLeadForm = () => {
                       name="numberOfBeds"
                       value={formData.numberOfBeds}
                       onChange={handleInputChange}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter number of beds"
                       min="0"
