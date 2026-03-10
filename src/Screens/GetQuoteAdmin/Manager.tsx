@@ -7,7 +7,7 @@ import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import RequirementModal from "@/components/ui/RequirementModal";
-
+import AddProductForm from "./AddProductForm";
 import ViewModal from "@/components/ui/ViewModal";
 import { useNavigate } from "react-router-dom";
 
@@ -38,13 +38,13 @@ const samplePOs = [
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
+  { label: "Add Product", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
 ];
 
 const sampleRecentActivity = [
   { date: "2024-01-15", uid: "REQ001", status: "Requirement", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh" },
-  { date: "2024-01-16", uid: "QUOT002", status: "Quotation", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya" },
+  { date: "2024-01-16", uid: "QUOT002", status: "Requirement", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya" },
 ];
 
 const Manager = () => {
@@ -57,6 +57,7 @@ const Manager = () => {
   const [viewModalData, setViewModalData] = useState<any>(null);
   const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
   const navigate = useNavigate();
+
   // Filter requirements based on selected salesman and entity name
   const filteredRequirements = useMemo(() => {
     return sampleRequirements.filter(item => {
@@ -93,12 +94,14 @@ const Manager = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
+    { id: "addproduct", label: "Add Product", icon: <GrWorkshop /> },
     { id: "products", label: "Products", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
   const handleMenuClick = (itemId: string) => {
+   
+
     if (itemId === "requirement" || itemId === "quotation") {
       setModalType(itemId as "requirement" | "quotation");
       setShowRequirementModal(true);
@@ -437,6 +440,14 @@ const Manager = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Products</h3>
                 <p className="text-gray-600">Products management functionality will be implemented here.</p>
+              </div>
+            </div>
+          )}
+          {activeTab === "addproduct" && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                
+                <AddProductForm />
               </div>
             </div>
           )}

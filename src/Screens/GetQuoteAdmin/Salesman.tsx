@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaFileAlt, FaBox } from "react-icons/fa";
 import RequirementModal from "@/components/ui/RequirementModal";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -33,13 +33,13 @@ const samplePOs = [
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
+  // { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
 ];
 
 const sampleRecentActivity = [
   { date: "2024-01-15", uid: "REQ001", status: "Requirement", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh" },
-  { date: "2024-01-17", uid: "QUOT003", status: "Quotation", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil" },
+  { date: "2024-01-17", uid: "QUOT003", status: "Requirement", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil" },
 ];
 
 const Salesman = () => {
@@ -83,7 +83,7 @@ const navigate = useNavigate();
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
+    // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "products", label: "Products", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];

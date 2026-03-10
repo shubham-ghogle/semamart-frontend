@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt, FaQuoteRight } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt,} from "react-icons/fa";
 import RequirementModal from "@/components/ui/RequirementModal";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -50,14 +50,14 @@ const sampleSalesmen = [
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
+  // { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
   { label: "Manager", color: "from-purple-500 to-violet-500", IconComponent: FaUsers },
   { label: "Salesman", color: "from-pink-500 to-rose-500", IconComponent: FaUsers },
 ];
 
 const sampleRecentActivity = [
   { date: "2024-01-15", uid: "REQ001", status: "Requirement", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh" },
-  { date: "2024-01-16", uid: "QUOT002", status: "Quotation", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya" },
+  { date: "2024-01-16", uid: "QUOT002", status: "Requirement", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya" },
 ];
 
 const Admin = () => {
@@ -106,7 +106,7 @@ const Admin = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
+    // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
     { id: "manager", label: "Manager", icon: <GrWorkshop /> },
     { id: "salesman", label: "Salesman", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },

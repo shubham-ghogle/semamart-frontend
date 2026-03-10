@@ -2,7 +2,7 @@ import React from "react";
 import {
   FaUsers,
   FaFileAlt,
-  FaQuoteRight,
+  // FaQuoteRight,
   FaShoppingBag,
   FaBox,
 } from "react-icons/fa";
@@ -54,12 +54,12 @@ const GetQuoteDashboard: React.FC = () => {
       color: "from-green-500 to-emerald-500",
       IconComponent: FaFileAlt,
     },
-    {
-      label: "Quotation",
-      value: "1,230",
-      color: "from-yellow-500 to-orange-500",
-      IconComponent: FaQuoteRight,
-    },
+    // {
+    //   label: "Quotation",
+    //   value: "1,230",
+    //   color: "from-yellow-500 to-orange-500",
+    //   IconComponent: FaQuoteRight,
+    // },
     {
       label: "Purchase Order (PO)",
       value: "320",
