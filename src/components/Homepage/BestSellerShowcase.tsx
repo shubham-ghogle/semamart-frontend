@@ -10,6 +10,7 @@ type Props = {
   products: Product[];
   status: Status;
   cardMode?: "default" | "medicop";
+  cardVariant?: "default" | "medicop" | "mediqop";
 
   title?: string;
   badgeText?: string;
@@ -30,6 +31,7 @@ export default function BestSellerShowcase({
   products,
   status,
   cardMode = "default",
+  cardVariant,
   title = "Best Seller",
   badgeText = "Guaranteed discounts",
   subText = "Shop from our top-selling items.",
@@ -42,6 +44,13 @@ export default function BestSellerShowcase({
   maxItems = 12,
   viewAllLink = "/products",
 }: Props) {
+  const resolvedCardMode =
+    cardVariant === "mediqop" || cardVariant === "medicop"
+      ? "medicop"
+      : cardVariant === "default"
+      ? "default"
+      : cardMode;
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
@@ -242,7 +251,7 @@ export default function BestSellerShowcase({
                 className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
               >
                 <div className="bs-hover">
-                  <ProductCard product={p} mode={cardMode} />
+                  <ProductCard product={p} mode={resolvedCardMode} />
                 </div>
               </div>
             ))}
