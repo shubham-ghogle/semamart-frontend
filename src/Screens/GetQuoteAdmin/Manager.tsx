@@ -11,6 +11,7 @@ import RequirementModal from "@/components/ui/RequirementModal";
 import AddProductForm from "./AddProductForm";
 import ViewModal from "@/components/ui/ViewModal";
 import { useNavigate } from "react-router-dom";
+import ProductSpecMaster from "./ProductSpecTable";
 
 // Sample data for demonstration
 const sampleCustomers = [
@@ -39,8 +40,7 @@ const samplePOs = [
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
-  { label: "Add Product", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
+  { label: "Product Spec Master", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
 ];
 
 const sampleRecentActivity = [
@@ -104,7 +104,6 @@ const Manager = () => {
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
     { id: "addproduct", label: "Add Product", icon: <GrWorkshop /> },
-    { id: "products", label: "Products", icon: <GrWorkshop /> },
     { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
     { id: "category-master", label: "Category Master", icon: <GrWorkshop /> },
     { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
@@ -469,7 +468,7 @@ const Manager = () => {
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Product Spec Master</h3>
-                <p className="text-gray-600">Product Spec Master functionality will be implemented here.</p>
+               <ProductSpecMaster/>
               </div>
             </div>
           )}
