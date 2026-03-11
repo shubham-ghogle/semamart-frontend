@@ -12,6 +12,36 @@ import { getMedicopListWithProducts } from "@/medicop/storage";
 import MedicopPageShell from "@/medicop/MedicopPageShell";
 
 // State and district data
+// Medical departments data
+const departments = [
+  "EMERGENCY MEDICINE",
+  "ORTHOPEDICS",
+  "NEUROLOGY",
+  "DENTAL",
+  "CARDIOLOGY",
+  "EAR NOSE AND THROAT",
+  "PATHOLOGY",
+  "GASTROENTEROLOGY",
+  "RESPIRATORY MEDICINE",
+  "MICROBIOLOGY",
+  "RADIOLOGY",
+  "OB/GYN",
+  "ONCOLOGY",
+  "NEPHROLOGY",
+  "PULMONOLOGY",
+  "DERMATOLOGY",
+  "ENDOCRINOLOGY",
+  "OPHTHALMOLOGY",
+  "OTOLARYNGOLOGY",
+  "UROLOGY",
+  "PSYCHIATRY",
+  "ANESTHESIOLOGY",
+  "GENERAL SURGERY",
+  "PLASTIC AND RECONSTRUCTIVE SURGERY",
+  "PHYSICAL MEDICINE AND REHABILITATION",
+  "NEONATOLOGY"
+];
+
 const stateDistrictData: { [key: string]: string[] } = {
   "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Nellore", "Prakasam", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari"],
   "Arunachal Pradesh": ["Tawang", "West Kameng", "East Kameng", "Papum Pare", "Kurung Kumey", "Kra Daadi", "Lower Subansiri", "Upper Subansiri", "West Siang", "East Siang", "Siang", "Upper Siang", "Lower Siang", "Lower Dibang Valley", "Dibang Valley", "Anjaw", "Lohit", "Namsai", "Changlang", "Tirap", "Longding"],
@@ -220,18 +250,23 @@ const HospitalLeadForm = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
-                      Department <span className="text-red-500">*</span>
+                      Department
                     </label>
-                    <input
-                      type="text"
-                      id="department"
-                      name="department"
+                    <Select
                       value={formData.department}
-                      onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter department name"
-                      required
-                    />
+                      onValueChange={(value) => handleSelectChange("department", value)}
+                    >
+                      <SelectTrigger className="w-full h-10">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((department) => (
+                          <SelectItem key={department} value={department}>
+                            {department}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
