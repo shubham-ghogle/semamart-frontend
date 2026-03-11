@@ -22,7 +22,6 @@ import { X } from "lucide-react";
 import {
   FormItem,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 
 import Subformlabel from "@/components/ui/Subformlabel";
@@ -77,24 +76,7 @@ type FormValues = {
 
 const MAX_IMAGES = 4;
 
-const CATEGORIES = ["Consumables", "Instruments", "Medical Equipment"];
 
-const SUBCATEGORIES: Record<string, string[]> = {
-  Consumables: ["Gloves", "Masks", "Syringes"],
-  Instruments: ["Surgical Instruments", "ENT Instruments"],
-  "Medical Equipment": ["ICU Equipment", "Patient Monitoring"],
-};
-
-const SPECIALITIES = ["Cardiology", "Neurology", "Orthopedics"];
-
-const SUBSPECIALITIES: Record<string, string[]> = {
-  Cardiology: ["Interventional", "Non-invasive"],
-  Neurology: ["Stroke", "Epilepsy"],
-  Orthopedics: ["Spine", "Joint Replacement"],
-};
-
-const SCOPES = ["ICU", "OPD", "HDU", "PICU"];
-const DEPARTMENTS = ["Emergency", "Cardiology", "Orthopedics"];
 
 const WEIGHT_UNITS = ["kg", "g", "lb", "oz"];
 
@@ -129,20 +111,7 @@ const AddProductForm = () => {
 
   /* ---------------- FIELD ARRAYS ---------------- */
 
-  const categoryPairs = useFieldArray({
-    control,
-    name: "categoryPairs",
-  });
 
-  const specialities = useFieldArray({
-    control,
-    name: "specialities",
-  });
-
-  const scopeDepartments = useFieldArray({
-    control,
-    name: "scopeDepartments",
-  });
 
   const customAttributes = useFieldArray({
     control,
@@ -151,8 +120,7 @@ const AddProductForm = () => {
 
   /* ---------------- WATCH ---------------- */
 
-  const watchCategoryPairs = watch("categoryPairs");
-  const watchSpecialities = watch("specialities");
+
   const watchImages = watch("images");
   const watchThumbnail = watch("thumbnail");
 
@@ -202,42 +170,7 @@ const AddProductForm = () => {
 
   /* ---------------- FILE FIELD COMPONENT ---------------- */
 
-  const FileField = ({
-    name,
-    label,
-    multiple = false,
-  }: {
-    name: keyof FormValues;
-    label: string;
-    multiple?: boolean;
-  }) => (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <div className="flex justify-between items-center mb-1">
-            <Subformlabel>{label}</Subformlabel>
-          </div>
-          <FormControl>
-            <Input
-              type="file"
-              multiple={multiple}
-              onChange={(e) => {
-                if (!e.target.files) return;
-                field.onChange(
-                  multiple
-                    ? Array.from(e.target.files)
-                    : e.target.files[0]
-                );
-              }}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
+
 
   /* ---------------- SUBMIT ---------------- */
 
@@ -253,13 +186,13 @@ const AddProductForm = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-6 max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg"
       >
-        {/* PRODUCT NAME */}
+        {/* PRODUCT SPEC NAME */}
         <FormItem>
-          <Subformlabel>Product Name</Subformlabel>
+          <Subformlabel>Product Spec Name</Subformlabel>
           <FormControl>
             <Input
-              {...register("productName", { required: "Product Name is required" })}
-              placeholder="Enter Product Name"
+              {...register("productName", { required: "Product Spec Name is required" })}
+              placeholder="Enter Product Spec Name"
             />
           </FormControl>
           {errors.productName && (
@@ -269,10 +202,10 @@ const AddProductForm = () => {
 
         {/* SHORT DESCRIPTION */}
         <FormItem>
-          <Subformlabel>Short Description *</Subformlabel>
+          <Subformlabel>Short Description</Subformlabel>
           <FormControl>
             <textarea
-              {...register("shortDescription", { required: "Short Description is required" })}
+              {...register("shortDescription")}
               className="w-full border rounded-md p-2 min-h-[80px]"
               placeholder="Enter short description"
             />
@@ -284,10 +217,10 @@ const AddProductForm = () => {
 
         {/* DETAILED SPECIFICATION */}
         <FormItem>
-          <Subformlabel>Detailed Specification *</Subformlabel>
+          <Subformlabel>Detailed Specification</Subformlabel>
           <FormControl>
             <textarea
-              {...register("detailedSpecification", { required: "Detailed Specification is required" })}
+              {...register("detailedSpecification")}
               className="w-full border rounded-md p-2 min-h-[80px]"
               placeholder="Enter detailed specification"
             />
@@ -435,244 +368,6 @@ const AddProductForm = () => {
           </FormItem>
         </div>
 
-        {/* CATEGORY */}
-        <div className="space-y-2 mt-6">
-          <label className="font-semibold">Categories</label>
-          {categoryPairs.fields.map((field, index) => {
-            const selectedCat = watchCategoryPairs[index]?.category;
-            const subcats = selectedCat ? SUBCATEGORIES[selectedCat] : [];
-            return (
-              <div key={field.id} className="flex gap-2 items-center">
-                <Controller
-                  name={`categoryPairs.${index}.category`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) => {
-                        field.onChange(val);
-                        setValue(`categoryPairs.${index}.subcategory`, "");
-                      }}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Controller
-                  name={`categoryPairs.${index}.subcategory`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={!selectedCat}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Subcategory" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subcats.map((sub) => (
-                          <SelectItem key={sub} value={sub}>
-                            {sub}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    categoryPairs.append({ category: "", subcategory: "" })
-                  }
-                  title="Add category"
-                >
-                  <AiOutlinePlusCircle />
-                </Button>
-                {categoryPairs.fields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => categoryPairs.remove(index)}
-                    title="Remove category"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* SPECIALITIES */}
-        <div className="space-y-2 mt-6">
-          <label className="font-semibold">Specialities</label>
-          {specialities.fields.map((field, index) => {
-            const selected = watchSpecialities[index]?.speciality;
-            const subs = selected ? SUBSPECIALITIES[selected] : [];
-            return (
-              <div key={field.id} className="flex gap-2 items-center">
-                <Controller
-                  name={`specialities.${index}.speciality`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) => {
-                        field.onChange(val);
-                        setValue(`specialities.${index}.subspeciality`, "");
-                      }}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Speciality" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SPECIALITIES.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Controller
-                  name={`specialities.${index}.subspeciality`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={!selected}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Subspeciality" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subs.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    specialities.append({ speciality: "", subspeciality: "" })
-                  }
-                  title="Add speciality"
-                >
-                  <AiOutlinePlusCircle />
-                </Button>
-                {specialities.fields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => specialities.remove(index)}
-                    title="Remove speciality"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* SCOPE + DEPARTMENT */}
-        <div className="space-y-2 mt-6">
-          <label className="font-semibold">Scope & Department</label>
-          {scopeDepartments.fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-center">
-              <Controller
-                name={`scopeDepartments.${index}.scope`}
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Scope" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SCOPES.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <Controller
-                name={`scopeDepartments.${index}.department`}
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DEPARTMENTS.map((d) => (
-                        <SelectItem key={d} value={d}>
-                          {d}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <Button
-                type="button"
-                onClick={() =>
-                  scopeDepartments.append({ scope: "", department: "" })
-                }
-                title="Add Scope & Department"
-              >
-                <AiOutlinePlusCircle />
-              </Button>
-              {scopeDepartments.fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => scopeDepartments.remove(index)}
-                  title="Remove Scope & Department"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* MINIMUM ORDER QUANTITY */}
-        <FormItem>
-          <Subformlabel>Minimum Order Quantity</Subformlabel>
-          <FormControl>
-            <Input
-              type="number"
-              {...register("minimumOrderQuantity", {
-                valueAsNumber: true,
-                min: { value: 1, message: "Minimum order quantity must be at least 1" },
-              })}
-              placeholder="Enter minimum order quantity"
-            />
-          </FormControl>
-          {errors.minimumOrderQuantity && (
-            <p className="text-red-600 text-sm mt-1">{errors.minimumOrderQuantity.message}</p>
-          )}
-        </FormItem>
-
         {/* THUMBNAIL IMAGE */}
        {/* THUMBNAIL IMAGE - same style as product images */}
 <div className="mt-6">
@@ -717,7 +412,7 @@ const AddProductForm = () => {
 
         {/* MULTIPLE IMAGES */}
         <div>
-          <label className="font-semibold mb-2 block">Product Images</label>
+          <label className="font-semibold mb-2 block">Image</label>
           <div className="flex gap-4">
             {imagePreviews.map((src, i) => (
               <div key={i} className="relative">
@@ -754,12 +449,6 @@ const AddProductForm = () => {
             ))}
           </div>
         </div>
-
-        {/* OTHER FILE FIELDS */}
-        <FileField name="amc_cms" label="AMC/CMS Document" />
-        <FileField name="certificate" label="Certificates" multiple />
-        <FileField name="oemLetter" label="OEM Letter" />
-        <FileField name="productCompliance" label="Product Compliance" multiple />
 
         {/* SUBMIT */}
         <Button type="submit" className="w-full mt-8">

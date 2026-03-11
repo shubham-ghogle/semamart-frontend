@@ -63,6 +63,7 @@ const RequirementScreen = () => {
         contactNumber?: string;
         email?: string;
         noOfBeds?: string;
+        department?: string;
       }
     | undefined;
   const selectedMedicopProducts = ((location.state as any)?.medicopProducts ?? []) as Array<{
@@ -118,8 +119,6 @@ const RequirementScreen = () => {
                     data={productRows}
                     columns={[
                       { accessorKey: "srNo", header: "Sr. No." },
-                      { accessorKey: "scope", header: "Scope" },
-                      { accessorKey: "department", header: "Department" },
                       { accessorKey: "productName", header: "Product Name" },
                       { accessorKey: "quantity", header: "Quantity" },
                     ]}
@@ -140,6 +139,7 @@ const RequirementScreen = () => {
                   </Button>
                   <Button
                     onClick={() => {
+                      console.log("leadData", leadData); // Debug log
                       const req = saveGeneratedRequirement({
                         salesman: "Current User",
                         entityType: leadData?.entityType || "Hospital",
@@ -150,6 +150,7 @@ const RequirementScreen = () => {
                         designation: leadData?.contactPersonDesignation || "Purchase Manager",
                         phoneNumber: leadData?.contactNumber || "9999999999",
                         email: leadData?.email || "demo@mediqop.com",
+                        department: leadData?.department || "",
                         items: productRows.map((row) => ({
                           productId: row.productId,
                           productName: row.productName,
