@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select"
 import { DataTable } from "@/components/ui/data-table"
 
-// --- Types ---
 type ProductSpec = {
   srNo: number
   thumbnail: string
@@ -20,11 +19,31 @@ type ProductSpec = {
   department: string
 }
 
-// --- Mock Data ---
 const productRows: ProductSpec[] = [
-  { srNo: 1, thumbnail: "/products/monitor.jpg", specName: "ICU Patient Monitor", speciality: "ICU Setup Packages", subSpeciality: "ICU Monitoring Bundle", department: "CARDIOLOGY" },
-  { srNo: 2, thumbnail: "/products/ventilator.jpg", specName: "Ventilator Machine", speciality: "ICU Setup Packages", subSpeciality: "Ventilator + ABG + Infusion Kit Bundle", department: "RESPIRATORY MEDICINE" },
-  { srNo: 3, thumbnail: "/products/lab.jpg", specName: "Biochemistry Analyzer", speciality: "Diagnostic Lab Packages", subSpeciality: "Pathology Lab Setup", department: "PATHOLOGY" },
+  {
+    srNo: 1,
+    thumbnail: "/logo.png",
+    specName: "ICU Patient Monitor",
+    speciality: "ICU Setup Packages",
+    subSpeciality: "ICU Monitoring Bundle",
+    department: "CARDIOLOGY",
+  },
+  {
+    srNo: 2,
+    thumbnail: "/logo.png",
+    specName: "Ventilator Machine",
+    speciality: "ICU Setup Packages",
+    subSpeciality: "Ventilator + ABG + Infusion Kit Bundle",
+    department: "RESPIRATORY MEDICINE",
+  },
+  {
+    srNo: 3,
+    thumbnail: "/logo.png",
+    specName: "Biochemistry Analyzer",
+    speciality: "Diagnostic Lab Packages",
+    subSpeciality: "Pathology Lab Setup",
+    department: "PATHOLOGY",
+  },
 ]
 
 export default function ProductSpecMaster() {
@@ -33,16 +52,54 @@ export default function ProductSpecMaster() {
   const [selectedSubSpeciality, setSelectedSubSpeciality] = useState("all")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
 
-  // Filter Logic
+  // Dynamic filter options
+  const specialities = [...new Set(productRows.map((p) => p.speciality))]
+  const departments = [...new Set(productRows.map((p) => p.department))]
+
+  const subSpecialityOptions = useMemo(() => {
+    if (selectedSpeciality === "all") return []
+
+    return [
+      ...new Set(
+        productRows
+          .filter((item) => item.speciality === selectedSpeciality)
+          .map((item) => item.subSpeciality)
+      ),
+    ]
+  }, [selectedSpeciality])
+
+  // Filter logic
   const filteredData = useMemo(() => {
     return productRows.filter((item) => {
-      const matchesSearch = !searchText || item.specName.toLowerCase().includes(searchText.toLowerCase())
-      const matchesSpec = selectedSpeciality === "all" || item.speciality === selectedSpeciality
-      const matchesSub = selectedSubSpeciality === "all" || item.subSpeciality === selectedSubSpeciality
-      const matchesDept = selectedDepartment === "all" || item.department === selectedDepartment
+      const search = searchText.toLowerCase()
+
+      const matchesSearch =
+        !searchText ||
+        item.specName.toLowerCase().includes(search) ||
+        item.speciality.toLowerCase().includes(search) ||
+        item.subSpeciality.toLowerCase().includes(search) ||
+        item.department.toLowerCase().includes(search)
+
+      const matchesSpec =
+        selectedSpeciality === "all" ||
+        item.speciality === selectedSpeciality
+
+      const matchesSub =
+        selectedSubSpeciality === "all" ||
+        item.subSpeciality === selectedSubSpeciality
+
+      const matchesDept =
+        selectedDepartment === "all" ||
+        item.department === selectedDepartment
+
       return matchesSearch && matchesSpec && matchesSub && matchesDept
     })
-  }, [searchText, selectedSpeciality, selectedSubSpeciality, selectedDepartment])
+  }, [
+    searchText,
+    selectedSpeciality,
+    selectedSubSpeciality,
+    selectedDepartment,
+  ])
 
   const resetFilters = () => {
     setSearchText("")
@@ -53,67 +110,106 @@ export default function ProductSpecMaster() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      
-
-      {/* UNIFIED CONTAINER: This removes the gap */}
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-        
-        {/* HEADER & FILTER BAR */}
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+
+        {/* Header + Filters */}
+        <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold text-gray-800 mb-5">
             Product Filter
           </h2>
 
+          {/* Equal spacing filter grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
             {/* Search */}
             <Input
               placeholder="Search Spec Name..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="bg-gray-50/50"
+              className="bg-gray-50"
             />
 
             {/* Speciality */}
-            <Select value={selectedSpeciality} onValueChange={setSelectedSpeciality}>
-              <SelectTrigger><SelectValue placeholder="All Specialities" /></SelectTrigger>
+            <Select
+              value={selectedSpeciality}
+              onValueChange={(value) => {
+                setSelectedSpeciality(value)
+                setSelectedSubSpeciality("all")
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Specialities" />
+              </SelectTrigger>
+
               <SelectContent>
-                <SelectItem value="all">All Specialities</SelectItem>
-                <SelectItem value="ICU Setup Packages">ICU Setup Packages</SelectItem>
-                <SelectItem value="Diagnostic Lab Packages">Diagnostic Lab Packages</SelectItem>
+                <SelectItem value="all">Specialities</SelectItem>
+
+                {specialities.map((spec) => (
+                  <SelectItem key={spec} value={spec}>
+                    {spec}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
-            {/* Sub-speciality */}
-            <Select value={selectedSubSpeciality} onValueChange={setSelectedSubSpeciality}>
-              <SelectTrigger><SelectValue placeholder="All Sub-specialities" /></SelectTrigger>
+            {/* Sub Speciality */}
+            <Select
+              value={selectedSubSpeciality}
+              onValueChange={setSelectedSubSpeciality}
+              disabled={selectedSpeciality === "all"}
+            >
+              <SelectTrigger className="w-full disabled:opacity-50">
+                <SelectValue
+                  placeholder={
+                    selectedSpeciality === "all"
+                      ? "Select Speciality First"
+                      : "All Sub-specialities"
+                  }
+                />
+              </SelectTrigger>
+
               <SelectContent>
-                <SelectItem value="all">All Sub-specialities</SelectItem>
-                <SelectItem value="ICU Monitoring Bundle">ICU Monitoring Bundle</SelectItem>
-                <SelectItem value="Pathology Lab Setup">Pathology Lab Setup</SelectItem>
+                <SelectItem value="all">Sub-specialities</SelectItem>
+
+                {subSpecialityOptions.map((sub) => (
+                  <SelectItem key={sub} value={sub}>
+                    {sub}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
             {/* Department */}
-            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-              <SelectTrigger><SelectValue placeholder="All Departments" /></SelectTrigger>
+            <Select
+              value={selectedDepartment}
+              onValueChange={setSelectedDepartment}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Departments" />
+              </SelectTrigger>
+
               <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                <SelectItem value="CARDIOLOGY">Cardiology</SelectItem>
-                <SelectItem value="PATHOLOGY">Pathology</SelectItem>
+                <SelectItem value="all">Departments</SelectItem>
+
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
-            {/* Reset Button */}
+            {/* Reset */}
             <Button
-              className="bg-[#1C647C] hover:bg-[#164d5f] text-white transition-colors"
               onClick={resetFilters}
+              className="bg-[#1C647C] hover:bg-[#164d5f] text-white w-full"
             >
               Reset Filters
             </Button>
           </div>
         </div>
 
-        {/* TABLE SECTION: Direct child of the unified container */}
+        {/* Table */}
         <div className="w-full">
           <DataTable
             data={filteredData}
@@ -121,7 +217,7 @@ export default function ProductSpecMaster() {
             docName="product-spec-master"
             disableExport
             disableColumnVisibility
-            disableSearch // We are using our custom search above
+            disableSearch
           />
         </div>
       </div>
@@ -129,23 +225,28 @@ export default function ProductSpecMaster() {
   )
 }
 
-// --- Column Definitions ---
 const columns = [
   {
     accessorKey: "srNo",
     header: "Sr. No.",
-    cell: ({ row }: any) => <span className="text-gray-600 font-medium">{row.index + 1}</span>,
+    cell: ({ row }: any) => (
+      <span className="text-gray-600 font-medium">
+        {row.index + 1}
+      </span>
+    ),
   },
   {
     accessorKey: "thumbnail",
-    header: "Image",
+    header: "Thumbnail",
     cell: ({ row }: any) => (
       <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
         <img
           src={row.original.thumbnail || "/placeholder.png"}
           alt="spec"
           className="w-full h-full object-cover"
-          onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/40")}
+          onError={(e) =>
+            (e.currentTarget.src = "https://via.placeholder.com/40")
+          }
         />
       </div>
     ),
@@ -153,7 +254,11 @@ const columns = [
   {
     accessorKey: "specName",
     header: "Spec Name",
-    cell: ({ row }: any) => <span className="font-medium text-gray-900">{row.original.specName}</span>,
+    cell: ({ row }: any) => (
+      <span className="font-medium text-gray-900">
+        {row.original.specName}
+      </span>
+    ),
   },
   {
     accessorKey: "speciality",
@@ -167,11 +272,19 @@ const columns = [
   {
     accessorKey: "subSpeciality",
     header: "Sub-speciality",
-    cell: ({ row }: any) => <span className="text-gray-700">{row.original.subSpeciality}</span>,
+    cell: ({ row }: any) => (
+      <span className="text-gray-700">
+        {row.original.subSpeciality}
+      </span>
+    ),
   },
   {
     accessorKey: "department",
     header: "Department",
-    cell: ({ row }: any) => <span className="text-gray-700 tracking-tight">{row.original.department}</span>,
+    cell: ({ row }: any) => (
+      <span className="text-gray-700 tracking-tight">
+        {row.original.department}
+      </span>
+    ),
   },
 ]
