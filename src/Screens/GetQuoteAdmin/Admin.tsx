@@ -128,7 +128,7 @@ const Admin = () => {
 
   const handleMenuClick = (itemId: string) => {
     if (itemId === "medical-manager") {
-      window.location.href = "/medicop";
+      window.location.href = "/medicop/medicophomepage";
       return;
     }
     if (itemId === "requirement" || itemId === "quotation") {
