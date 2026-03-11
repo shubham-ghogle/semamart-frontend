@@ -8,17 +8,16 @@ interface Item {
   sNo: number;
   desc: string;
   qty: number;
-  scope: string;
   department: string;
 }
 
-// Default items with scope and department
+// Default items with department
 const defaultItems: Item[] = [
-  { sNo: 1, desc: "ICU Bed", qty: 1, scope: "Critical Care", department: "ICU" },
-  { sNo: 2, desc: "Ventilator Machine", qty: 2, scope: "Respiratory Support", department: "ICU" },
-  { sNo: 3, desc: "Patient Monitor", qty: 3, scope: "Monitoring", department: "General Ward" },
-  { sNo: 4, desc: "Syringe Pump", qty: 4, scope: "Medication Delivery", department: "ICU" },
-  { sNo: 5, desc: "Hospital Mattress", qty: 5, scope: "Patient Comfort", department: "General Ward" },
+  { sNo: 1, desc: "ICU Bed", qty: 1, department: "ICU" },
+  { sNo: 2, desc: "Ventilator Machine", qty: 2, department: "ICU" },
+  { sNo: 3, desc: "Patient Monitor", qty: 3, department: "General Ward" },
+  { sNo: 4, desc: "Syringe Pump", qty: 4, department: "ICU" },
+  { sNo: 5, desc: "Hospital Mattress", qty: 5, department: "General Ward" },
 ];
 
 const Requirement = () => {
@@ -27,6 +26,7 @@ const Requirement = () => {
   const isMedicopMode = new URLSearchParams(location.search).get("mode") === "medicop";
 
   const generated = (location.state as any)?.generatedRequirement;
+  console.log("generated requirement", generated); // Debug log
 
   const editable = Boolean((location.state as any)?.editable);
 
@@ -36,7 +36,6 @@ const Requirement = () => {
       sNo: idx + 1,
       desc: item.productName || "",
       qty: item.quantity || 1,
-      scope: item.scope || "",
       department: item.department || "",
     })) || defaultItems)
   );
@@ -64,6 +63,7 @@ const Requirement = () => {
       pin: "110045",
       email: generated?.email || "rajneelam528@gmail.com",
       phone: generated?.phoneNumber || "8076410997",
+      department: generated?.department || "",
     },
   };
 
@@ -103,7 +103,7 @@ const Requirement = () => {
         </div>
       </div>
 
-      {/* Customer Info */}
+       {/* Customer Info */}
       <div className="mb-8">
         <div className="border p-4 rounded bg-gray-50/30 w-1/2">
           <h4 className="font-bold border-b border-gray-200 mb-2 pb-1 text-teal-800 uppercase text-[10px] tracking-widest">
@@ -115,6 +115,7 @@ const Requirement = () => {
             <p>PIN: {data.billing.pin}</p>
             <p>Email: {data.billing.email}</p>
             <p>Phone: {data.billing.phone}</p>
+            <p>Department: {data.billing.department || "ENT"}</p>
           </div>
         </div>
       </div>
@@ -125,9 +126,7 @@ const Requirement = () => {
           <thead>
             <tr className="bg-teal-800 text-white text-[10px] uppercase tracking-wider">
               <th className="p-2 w-[8%] border-r border-teal-700 text-left">S.No</th>
-              <th className="p-2 w-[12%] border-r border-teal-700 text-left">Scope</th>
-              <th className="p-2 w-[12%] border-r border-teal-700 text-left">Department</th>
-              <th className="p-2 w-[72%] border-r border-teal-700 text-left">Description of Goods</th>
+              <th className="p-2 w-[84%] border-r border-teal-700 text-left">Description of Goods</th>
               <th className="p-2 w-[12%] border-r border-teal-700 text-left">Qty</th>
               {editable && <th className="p-2 w-[8%] text-left">Action</th>}
             </tr>
@@ -136,42 +135,6 @@ const Requirement = () => {
             {items.map((item) => (
               <tr key={item.sNo} className="border-t">
                 <td className="p-2 border-r text-left">{item.sNo}</td>
-
-                {/* Scope */}
-                <td className="p-2 border-r text-left">
-                  {editable ? (
-                    <input
-                      type="text"
-                      value={item.scope}
-                      onChange={(e) =>
-                        setEditableRows((prev) =>
-                          prev.map((row) => (row.sNo === item.sNo ? { ...row, scope: e.target.value } : row))
-                        )
-                      }
-                      className="w-full border rounded px-2 py-1"
-                    />
-                  ) : (
-                    item.scope
-                  )}
-                </td>
-
-                {/* Department */}
-                <td className="p-2 border-r text-left">
-                  {editable ? (
-                    <input
-                      type="text"
-                      value={item.department}
-                      onChange={(e) =>
-                        setEditableRows((prev) =>
-                          prev.map((row) => (row.sNo === item.sNo ? { ...row, department: e.target.value } : row))
-                        )
-                      }
-                      className="w-full border rounded px-2 py-1"
-                    />
-                  ) : (
-                    item.department
-                  )}
-                </td>
 
                 {/* Description */}
                 <td className="p-2 border-r text-left font-semibold">
@@ -245,7 +208,7 @@ const Requirement = () => {
               type="button"
               onClick={() =>
                 setEditableRows((prev) =>
-                  renumberRows([...prev, { sNo: prev.length + 1, desc: "New Product", qty: 1, scope: "", department: "" }])
+                  renumberRows([...prev, { sNo: prev.length + 1, desc: "New Product", qty: 1, department: "" }])
                 )
               }
               className="px-4 py-2 rounded-lg border border-[#1C647C] text-[#1C647C]"
@@ -262,7 +225,6 @@ const Requirement = () => {
                       productId: `custom-${row.sNo}`,
                       productName: row.desc,
                       quantity: row.qty,
-                      scope: row.scope,
                       department: row.department,
                     })),
                   });

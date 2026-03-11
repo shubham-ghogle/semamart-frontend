@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaFileAlt, FaQuoteRight, FaBox } from "react-icons/fa";
+import { FaSignOutAlt, FaEye, FaFileAlt } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import RequirementModal from "@/components/ui/RequirementModal";
@@ -40,7 +40,6 @@ const samplePOs = [
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  { label: "Product Spec Master", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
 ];
 
 const sampleRecentActivity = [
@@ -103,11 +102,11 @@ const Manager = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    { id: "addproduct", label: "Add Product", icon: <GrWorkshop /> },
+    { id: "addproduct", label: "Add Product Spec", icon: <GrWorkshop /> },
     { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
     { id: "category-master", label: "Category Master", icon: <GrWorkshop /> },
     { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
-    { id: "scope-department-master", label: "Scope & Department Master", icon: <GrWorkshop /> },
+    { id: "scope-department-master", label: "Department Master", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
@@ -669,63 +668,9 @@ const Manager = () => {
             </div>
           )}
 
-          {activeTab === "scope-department-master" && (
+           {activeTab === "scope-department-master" && (
             <div className="max-w-7xl mx-auto space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Scope</h3>
-                    <Button 
-                      className="bg-teal-600 text-white hover:bg-teal-700"
-                      onClick={() => setShowAddScopeModal(true)}
-                    >
-                      Add Scope
-                    </Button>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <DataTable
-                      data={[
-                        { srNo: 1, scope: "ICU" },
-                        { srNo: 2, scope: "CCU" },
-                        { srNo: 3, scope: "OPD" },
-                        { srNo: 4, scope: "HDU" },
-                        { srNo: 5, scope: "PICU" },
-                        { srNo: 6, scope: "NICU" },
-                        { srNo: 7, scope: "CSSD" },
-                        { srNo: 8, scope: "Admin" },
-                        { srNo: 9, scope: "Kitchen" },
-                        { srNo: 10, scope: "Nursery" },
-                        { srNo: 11, scope: "Pharmacy" },
-                        { srNo: 12, scope: "Radiology" },
-                        { srNo: 13, scope: "Laboratory" },
-                        { srNo: 14, scope: "Ambulance" },
-                        { srNo: 15, scope: "Front Office" },
-                        { srNo: 16, scope: "Private Ward" },
-                        { srNo: 17, scope: "General Ward" },
-                        { srNo: 18, scope: "Paediatric Ward" },
-                        { srNo: 19, scope: "Labour Room" },
-                        { srNo: 20, scope: "Housekeeping" },
-                        { srNo: 21, scope: "Operation Theatre" },
-                        { srNo: 22, scope: "Semi-private Ward" },
-                        { srNo: 23, scope: "Pre-operative Room" },
-                        { srNo: 24, scope: "Post-operative Room" },
-                        { srNo: 25, scope: "Emergency Department" },
-                      ]}
-                      columns={[
-                        { accessorKey: "srNo", header: "Sr. No." },
-                        { accessorKey: "scope", header: "Scope" },
-                      ]}
-                    docName="scope-master"
-                    searchColId="scope"
-                    searchPlaceholder="Search by scope"
-                    enableStatusFilter={false}
-                    enableSalesmanFilter={false}
-                    disableExport={true}
-                    disableColumnVisibility={true}
-                    disableSearch={true}
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 gap-6">
                 <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-gray-800">Department</h3>

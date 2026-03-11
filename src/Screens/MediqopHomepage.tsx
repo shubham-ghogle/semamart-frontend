@@ -143,7 +143,7 @@ export default function MediqopHomepage() {
           accentBg="#06b6d4"
           textColor="#04263a"
           maxItems={8}
-          cardVariant="mediqop"
+          cardMode="medicop"
         />
 
         <BannerSection bannerIndex={0} />

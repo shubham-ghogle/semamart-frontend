@@ -68,6 +68,7 @@ const HospitalLeadForm = () => {
     district: "",
     contactPersonName: "",
     contactPersonDesignation: "",
+    department: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -87,6 +88,7 @@ const HospitalLeadForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form data to send:", formData); // Debug log
     if (isMedicopMode) {
       navigate("/get-quote-admin/requirement-screen?mode=medicop", {
         state: {
@@ -107,7 +109,7 @@ const HospitalLeadForm = () => {
         <div className={`flex-1 p-8 overflow-y-auto ${isMedicopMode ? "" : "h-screen"}`}>
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
-              <h1 className="text-3xl font-bold text-gray-800 mb-8">Lead Form</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-8">Add RFQ</h1>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -183,42 +185,59 @@ const HospitalLeadForm = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter email address"
-                    required
-                  />
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter email address"
+                      required
+                    />
+                  </div>
+                   <div>
+                    <label htmlFor="noOfBeds" className="block text-sm font-medium text-gray-700 mb-2">
+                      No of beds
+                    </label>
+                    <input
+                      type="number"
+                      id="noOfBeds"
+                      name="noOfBeds"
+                      value={formData.noOfBeds}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter number of beds"
+                      min={0}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="noOfBeds" className="block text-sm font-medium text-gray-700 mb-2">
-                    No of beds <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    id="noOfBeds"
-                    name="noOfBeds"
-                    value={formData.noOfBeds}
-                    onChange={handleInputChange}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter number of beds"
-                    min={0}
-                    required
-                  />
-                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                      Department <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="department"
+                      name="department"
+                      value={formData.department}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter department name"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                    Address <span className="text-red-500">*</span>
+                    Address
                   </label>
                   <textarea
                     id="address"
@@ -228,7 +247,6 @@ const HospitalLeadForm = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter address"
                     rows={3}
-                    required
                   />
                 </div>
 
