@@ -175,6 +175,16 @@ const AddProductForm = () => {
   /* ---------------- SUBMIT ---------------- */
 
   const onSubmit = (data: FormValues) => {
+    // Validate images
+    const hasImages = data.images.some(img => img !== null);
+    if (!hasImages) {
+      form.setError("images", {
+        type: "manual",
+        message: "At least one image is required"
+      });
+      return;
+    }
+    
     console.log("FORM DATA", data);
   };
 
@@ -267,47 +277,46 @@ const AddProductForm = () => {
           </Button>
         </div>
 
-        {/* PRODUCT WEIGHT */}
-        <div className="flex gap-4 items-center mt-4">
-          <FormItem className="flex-1">
-            <Subformlabel>Product Weight *</Subformlabel>
-            <FormControl>
-              <Input
-                type="text"
-                {...register("productWeight", { required: "Product Weight is required" })}
-                placeholder="Weight"
-              />
-            </FormControl>
-            {errors.productWeight && (
-              <p className="text-red-600 text-sm mt-1">{errors.productWeight.message}</p>
-            )}
-          </FormItem>
-          <FormItem className="flex-1">
-            <Subformlabel>Weight Unit *</Subformlabel>
-            <Controller
-              name="productWeightUnit"
-              control={control}
-              rules={{ required: "Weight Unit is required" }}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select weight unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {WEIGHT_UNITS.map((unit) => (
-                      <SelectItem key={unit} value={unit}>
-                        {unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.productWeightUnit && (
-              <p className="text-red-600 text-sm mt-1">{errors.productWeightUnit.message}</p>
-            )}
-          </FormItem>
-        </div>
+         {/* PRODUCT WEIGHT */}
+         <div className="flex gap-4 items-center mt-4">
+           <FormItem className="flex-1">
+             <Subformlabel>Product Weight</Subformlabel>
+             <FormControl>
+               <Input
+                 type="text"
+                 {...register("productWeight")}
+                 placeholder="Weight"
+               />
+             </FormControl>
+             {errors.productWeight && (
+               <p className="text-red-600 text-sm mt-1">{errors.productWeight.message}</p>
+             )}
+           </FormItem>
+           <FormItem className="flex-1">
+             <Subformlabel>Weight Unit</Subformlabel>
+             <Controller
+               name="productWeightUnit"
+               control={control}
+               render={({ field }) => (
+                 <Select value={field.value} onValueChange={field.onChange}>
+                   <SelectTrigger>
+                     <SelectValue placeholder="Select weight unit" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {WEIGHT_UNITS.map((unit) => (
+                       <SelectItem key={unit} value={unit}>
+                         {unit}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               )}
+             />
+             {errors.productWeightUnit && (
+               <p className="text-red-600 text-sm mt-1">{errors.productWeightUnit.message}</p>
+             )}
+           </FormItem>
+         </div>
 
         {/* DIMENSIONS */}
         <div className="grid grid-cols-4 gap-4 mt-4">
@@ -342,11 +351,10 @@ const AddProductForm = () => {
             </FormControl>
           </FormItem>
           <FormItem>
-            <Subformlabel>Dimension Unit *</Subformlabel>
+            <Subformlabel>Dimension Unit</Subformlabel>
             <Controller
               name="dimensionUnit"
               control={control}
-              rules={{ required: "Dimension Unit is required" }}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
@@ -368,10 +376,10 @@ const AddProductForm = () => {
           </FormItem>
         </div>
 
-        {/* THUMBNAIL IMAGE */}
-       {/* THUMBNAIL IMAGE - same style as product images */}
+         {/* THUMBNAIL IMAGE */}
+        {/* THUMBNAIL IMAGE - same style as product images */}
 <div className="mt-6">
-  <Subformlabel>Thumbnail</Subformlabel>
+  <Subformlabel>Thumbnail *</Subformlabel>
   <div className="relative w-32 h-32 border rounded-md overflow-hidden mt-2 flex items-center justify-center cursor-pointer hover:shadow-lg transition">
     {thumbnailPreview ? (
       <>
@@ -405,14 +413,18 @@ const AddProductForm = () => {
       type="file"
       accept="image/*"
       className="hidden"
+      {...register("thumbnail", { required: "Thumbnail is required" })}
       onChange={(e) => e.target.files && setValue("thumbnail", e.target.files[0])}
     />
   </div>
+  {errors.thumbnail && (
+    <p className="text-red-600 text-sm mt-1">{errors.thumbnail.message}</p>
+  )}
 </div>
 
-        {/* MULTIPLE IMAGES */}
+         {/* MULTIPLE IMAGES */}
         <div>
-          <label className="font-semibold mb-2 block">Image</label>
+          <label className="font-semibold mb-2 block">Image *</label>
           <div className="flex gap-4">
             {imagePreviews.map((src, i) => (
               <div key={i} className="relative">
@@ -438,6 +450,7 @@ const AddProductForm = () => {
                   <Input
                     type="file"
                     accept="image/*"
+                    {...register(`images.${i}`)}
                     onChange={(e) => {
                       if (!e.target.files) return;
                       handleImageChange(i, e.target.files[0]);
@@ -448,6 +461,9 @@ const AddProductForm = () => {
               </div>
             ))}
           </div>
+          {errors.images && (
+            <p className="text-red-600 text-sm mt-1">At least one image is required</p>
+          )}
         </div>
 
         {/* SUBMIT */}
