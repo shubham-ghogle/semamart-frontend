@@ -17,6 +17,7 @@ export type GeneratedRequirement = {
   designation: string;
   phoneNumber: string;
   email: string;
+  department: string;
   items: Array<{ productId: string; productName: string; quantity: number }>;
 };
 
