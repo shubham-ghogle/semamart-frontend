@@ -22,7 +22,7 @@ type ProductSpec = {
 const productRows: ProductSpec[] = [
   {
     srNo: 1,
-    thumbnail: "/logo.png",
+    thumbnail: "/image60.png",
     specName: "ICU Patient Monitor",
     speciality: "ICU Setup Packages",
     subSpeciality: "ICU Monitoring Bundle",
@@ -30,7 +30,7 @@ const productRows: ProductSpec[] = [
   },
   {
     srNo: 2,
-    thumbnail: "/logo.png",
+    thumbnail: "/image60.png",
     specName: "Ventilator Machine",
     speciality: "ICU Setup Packages",
     subSpeciality: "Ventilator + ABG + Infusion Kit Bundle",
@@ -38,7 +38,7 @@ const productRows: ProductSpec[] = [
   },
   {
     srNo: 3,
-    thumbnail: "/logo.png",
+    thumbnail: "/image60.png",
     specName: "Biochemistry Analyzer",
     speciality: "Diagnostic Lab Packages",
     subSpeciality: "Pathology Lab Setup",
