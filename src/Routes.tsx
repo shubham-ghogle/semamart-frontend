@@ -103,6 +103,7 @@ import Requirement from "./components/GetQuote/Requirement";
 import Quotation from "./components/GetQuote/Quotation";
 import MedicopHomepage from "./medicop/MedicopHomepage";
 import MedicopProductPage from "./medicop/MedicopProductPage";
+import MediqopProductsPage from "./medicop/MediqopProductsPage";
 import AddProductForm from "./Screens/GetQuoteAdmin/AddProductForm";
 
 /**
@@ -266,6 +267,7 @@ export const router = createBrowserRouter([
 
       // public/product flows
       { path: "medicop", element: <MedicopHomepage /> },
+      { path: "medicop/medicophomepage", element: <MedicopHomepage /> },
       { path: "medicop/product/:id", element: <MedicopProductPage /> },
       { path: "medicop/product-upload-form", element: <AddProductForm /> },
       { path: "product", element: <ProductsScreen /> },
@@ -503,6 +505,7 @@ export const router = createBrowserRouter([
   },
   { path: "/account", element: <AccountNavbar /> },
   { path: "/products", element: <AllProducts /> },
+  { path: "/medicop/products", element: <MediqopProductsPage /> },
   {
     path: "account/orders/:productId",
     loader: requireUserAuth,

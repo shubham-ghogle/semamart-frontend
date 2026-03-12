@@ -11,14 +11,17 @@ export type GeneratedRequirement = {
   salesman: string;
   entityType: string;
   entityName: string;
+  address: string;
   state: string;
   district: string;
   customerName: string;
   designation: string;
   phoneNumber: string;
+  alternateMobileNumber: string;
   email: string;
   department: string;
-  items: Array<{ productId: string; productName: string; quantity: number }>;
+  noOfBeds: string;
+  items: Array<{ productId: string; productName: string; quantity: number; department?: string }>;
 };
 
 const MEDICOP_LIST_KEY = "medicop-list";
@@ -119,7 +122,24 @@ export const saveGeneratedRequirement = (payload: Omit<GeneratedRequirement, "ui
 
 export const updateGeneratedRequirement = (
   uid: string,
-  updates: Partial<Pick<GeneratedRequirement, "items" | "entityName" | "customerName" | "designation" | "phoneNumber" | "email" | "state" | "district" | "entityType">>
+  updates: Partial<
+    Pick<
+      GeneratedRequirement,
+      | "items"
+      | "entityName"
+      | "customerName"
+      | "designation"
+      | "phoneNumber"
+      | "alternateMobileNumber"
+      | "email"
+      | "address"
+      | "state"
+      | "district"
+      | "entityType"
+      | "department"
+      | "noOfBeds"
+    >
+  >
 ) => {
   const existing = getGeneratedRequirements();
   const next = existing.map((item) =>

@@ -589,7 +589,15 @@ export default function Header() {
                                     setHoveredSpecialtyId(s._id);
                                     if (!specialtyPackageTypes[s._id]) fetchPackageTypes(s._id);
                                   }}
-                                  onClick={() => navigate(`/get-products-by-speciality-package/${String(s._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`)}
+                                  onClick={() =>
+                                    navigate(
+                                      isMedicopRoute
+                                        ? `/medicop/products?speciality=${encodeURIComponent(s.name)}`
+                                        : `/get-products-by-speciality-package/${String(s._id)
+                                            .toLowerCase()
+                                            .replace(/[^a-z0-9]+/g, "-")}`
+                                    )
+                                  }
                                 >
                                   <div className="flex items-center justify-between text-black">
                                     <span>{s.name}</span>
@@ -612,7 +620,19 @@ export default function Header() {
                                     key={pkg._id}
                                     className="py-1 text-black hover:text-blue-600 cursor-pointer text-sm"
                                     onClick={() =>
-                                      navigate(`/get-products-by-speciality-package-type/${String(pkg._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`)
+                                      navigate(
+                                        isMedicopRoute
+                                          ? `/medicop/products?speciality=${encodeURIComponent(
+                                              specialties.find(
+                                                (item) => item._id === hoveredSpecialtyId
+                                              )?.name || "Speciality"
+                                            )}&packageType=${encodeURIComponent(pkg.name)}`
+                                          : `/get-products-by-speciality-package-type/${String(
+                                              pkg._id
+                                            )
+                                              .toLowerCase()
+                                              .replace(/[^a-z0-9]+/g, "-")}`
+                                      )
                                     }
                                   >
                                     {pkg.name}

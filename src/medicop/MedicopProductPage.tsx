@@ -24,7 +24,7 @@ export default function MedicopProductPage() {
     <section className="w-full bg-white min-h-screen py-8">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <button
-          onClick={() => navigate("/medicop")}
+          onClick={() => navigate("/medicop/medicophomepage")}
           className="text-sm text-[#1C647C] font-semibold mb-4"
         >
           Back to Medical Manager

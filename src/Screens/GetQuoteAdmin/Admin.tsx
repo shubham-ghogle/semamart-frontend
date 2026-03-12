@@ -120,15 +120,14 @@ const Admin = () => {
     { id: "manager", label: "Manager", icon: <GrWorkshop /> },
     { id: "salesman", label: "Salesman", icon: <GrWorkshop /> },
     { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
-    { id: "category-master", label: "Category Master", icon: <GrWorkshop /> },
     { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
-    { id: "scope-department-master", label: "Scope & Department Master", icon: <GrWorkshop /> },
+    { id: "scope-department-master", label: "Department Master", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
   const handleMenuClick = (itemId: string) => {
     if (itemId === "medical-manager") {
-      window.location.href = "/medicop";
+      window.location.href = "/medicop/medicophomepage";
       return;
     }
     if (itemId === "requirement" || itemId === "quotation") {

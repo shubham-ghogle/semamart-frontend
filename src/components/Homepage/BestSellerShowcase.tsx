@@ -1,8 +1,7 @@
-// src/components/Homepage/BestSellerShowcase.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import { Product } from "@/Types/types";
 import ProductCard from "./ProductCard";
-import React from "react";
 
 type Status = "pending" | "error" | "success";
 
@@ -11,20 +10,18 @@ type Props = {
   status: Status;
   cardMode?: "default" | "medicop";
   cardVariant?: "default" | "medicop" | "mediqop";
-
   title?: string;
   badgeText?: string;
   subText?: string;
   icon?: React.ReactNode;
-
   bgFrom?: string;
   bgTo?: string;
   iconBg?: string;
   accentBg?: string;
   textColor?: string;
-
   maxItems?: number;
   viewAllLink?: string;
+  minimalHeader?: boolean;
 };
 
 export default function BestSellerShowcase({
@@ -43,13 +40,14 @@ export default function BestSellerShowcase({
   textColor = "#ffffff",
   maxItems = 12,
   viewAllLink = "/products",
+  minimalHeader = false,
 }: Props) {
   const resolvedCardMode =
     cardVariant === "mediqop" || cardVariant === "medicop"
       ? "medicop"
       : cardVariant === "default"
-      ? "default"
-      : cardMode;
+        ? "default"
+        : cardMode;
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -58,22 +56,20 @@ export default function BestSellerShowcase({
   const [showRight, setShowRight] = useState(false);
   const [leftArrowLeft, setLeftArrowLeft] = useState<number>(20);
 
-  // --- Helpers to determine minimum order and stock availability ---
   const getMinOrder = (product: Product): number => {
     try {
-      // 1) check product.minmaxrule.minOrder
       if (product.minmaxrule && typeof product.minmaxrule.minOrder === "number") {
         return product.minmaxrule.minOrder;
       }
 
-      // 2) otherwise, look for smallest bulkOrders qty across variants
       const bulkQtys: number[] =
-        product.variants
-          ?.flatMap((v: any) => (Array.isArray(v.bulkOrders) ? v.bulkOrders.map((b: any) => Number(b.qty || 0)).filter(Boolean) : [])) ?? [];
+        product.variants?.flatMap((variant: any) =>
+          Array.isArray(variant.bulkOrders)
+            ? variant.bulkOrders.map((bulk: any) => Number(bulk.qty || 0)).filter(Boolean)
+            : []
+        ) ?? [];
 
       if (bulkQtys.length > 0) return Math.min(...bulkQtys);
-
-      // 3) fallback minimum order = 1
       return 1;
     } catch {
       return 1;
@@ -81,39 +77,40 @@ export default function BestSellerShowcase({
   };
 
   const hasSufficientStock = (product: Product): boolean => {
-    if (!product || !Array.isArray(product.variants) || product.variants.length === 0) return false;
+    if (!product || !Array.isArray(product.variants) || product.variants.length === 0) {
+      return false;
+    }
 
     const minOrder = getMinOrder(product);
+    const anyPositive = product.variants.some(
+      (variant: any) => typeof variant.stock === "number" && variant.stock > 0
+    );
 
-    // any positive stock?
-    const anyPositive = product.variants.some((v: any) => typeof v.stock === "number" && v.stock > 0);
     if (!anyPositive) return false;
 
-    // require at least one variant with stock >= minOrder
-    const meetsMin = product.variants.some((v: any) => typeof v.stock === "number" && v.stock >= minOrder);
-    return meetsMin;
+    return product.variants.some(
+      (variant: any) => typeof variant.stock === "number" && variant.stock >= minOrder
+    );
   };
 
-  // build list and filter out products that don't meet stock/min-order criteria
   const filteredItems = useMemo(() => {
-    const arr = Array.isArray(products) ? products : [];
-    const pass = arr.filter((p) => hasSufficientStock(p));
-    return pass.slice(0, maxItems);
+    const list = Array.isArray(products) ? products : [];
+    return list.filter((product) => hasSufficientStock(product)).slice(0, maxItems);
   }, [products, maxItems]);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    const section = sectionRef.current;
-    if (!el || !section) return;
+    const scrollElement = scrollRef.current;
+    const sectionElement = sectionRef.current;
+    if (!scrollElement || !sectionElement) return;
 
     const check = () => {
-      const maxScroll = Math.max(el.scrollWidth - el.clientWidth, 0);
-      setShowLeft(el.scrollLeft > 5);
-      setShowRight(el.scrollLeft < maxScroll - 5);
+      const maxScroll = Math.max(scrollElement.scrollWidth - scrollElement.clientWidth, 0);
+      setShowLeft(scrollElement.scrollLeft > 5);
+      setShowRight(scrollElement.scrollLeft < maxScroll - 5);
 
       try {
-        const sectionRect = section.getBoundingClientRect();
-        const scrollRect = el.getBoundingClientRect();
+        const sectionRect = sectionElement.getBoundingClientRect();
+        const scrollRect = scrollElement.getBoundingClientRect();
         const left = Math.max(8, Math.round(scrollRect.left - sectionRect.left + 8));
         setLeftArrowLeft(left);
       } catch {
@@ -122,75 +119,85 @@ export default function BestSellerShowcase({
     };
 
     check();
-    el.addEventListener("scroll", check, { passive: true });
-    const ro = new ResizeObserver(check);
-    ro.observe(el);
-    ro.observe(section);
+    scrollElement.addEventListener("scroll", check, { passive: true });
+    const resizeObserver = new ResizeObserver(check);
+    resizeObserver.observe(scrollElement);
+    resizeObserver.observe(sectionElement);
     window.addEventListener("resize", check);
 
     return () => {
-      el.removeEventListener("scroll", check);
-      ro.disconnect();
+      scrollElement.removeEventListener("scroll", check);
+      resizeObserver.disconnect();
       window.removeEventListener("resize", check);
     };
   }, [filteredItems.length]);
 
-  const scroll = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const amount = Math.max(Math.round(el.clientWidth * 0.72), 300);
-    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  const scroll = (direction: "left" | "right") => {
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+    const amount = Math.max(Math.round(scrollElement.clientWidth * 0.72), 300);
+    scrollElement.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
-  if (status === "pending")
+  if (status === "pending") {
     return (
-      <section className="w-full mb-12">
-        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
-          <div className="text-lg font-semibold">Loading Best Sellers…</div>
+      <section className="mb-12 w-full">
+        <div
+          className="rounded-2xl p-8 text-white"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
+          <div className="text-lg font-semibold">Loading products...</div>
         </div>
       </section>
     );
+  }
 
-  if (status === "error")
+  if (status === "error") {
     return (
-      <section className="w-full mb-12">
-        <div className="rounded-2xl p-8 text-red-200" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
-          <div className="text-lg font-semibold">Failed to load best sellers.</div>
+      <section className="mb-12 w-full">
+        <div
+          className="rounded-2xl p-8 text-red-200"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
+          <div className="text-lg font-semibold">Failed to load products.</div>
         </div>
       </section>
     );
+  }
 
-  if (filteredItems.length === 0)
+  if (filteredItems.length === 0) {
     return (
-      <section className="w-full mb-12">
-        <div className="rounded-2xl p-8 text-white" style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}>
-          <div className="text-lg">No best sellers found.</div>
+      <section className="mb-12 w-full">
+        <div
+          className="rounded-2xl p-8 text-white"
+          style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
+        >
+          <div className="text-lg">No products found.</div>
         </div>
       </section>
     );
+  }
 
   return (
-    <section ref={sectionRef} className="w-full max-w-[1400px] mx-auto mb-16 relative overflow-visible">
-      {/* Rounded content box */}
+    <section ref={sectionRef} className="relative mb-16 w-full overflow-visible">
       <div
-        className="
-          rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row 
-          gap-4 md:gap-5 items-start overflow-hidden
-        "
+        className="flex flex-col items-start gap-4 overflow-hidden rounded-2xl p-4 sm:p-6 md:flex-row md:gap-5 lg:p-8"
         style={{ background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})` }}
       >
-        {/* LEFT BLOCK
-            - MOBILE: a compact single row with icon + title (left) and small View All (right)
-            - MD+: original stacked hero (icon, title, badge, subtext, CTA) remains
-        */}
         <div
-          className="flex-shrink-0 w-full md:w-56 text-center md:text-left flex flex-col items-center md:items-start gap-3"
+          className="flex w-full flex-shrink-0 flex-col items-center gap-3 text-center md:w-56 md:items-start md:text-left"
           style={{ color: textColor }}
         >
-          {/* MOBILE header row */}
-          <div className="w-full flex items-center justify-between md:hidden">
+          <div className="flex w-full items-center justify-between md:hidden">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shadow" style={{ background: iconBg }} aria-hidden>
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-lg shadow"
+                style={{ background: iconBg }}
+                aria-hidden
+              >
                 {icon}
               </div>
               <h3 className="text-base font-extrabold leading-tight">{title}</h3>
@@ -198,60 +205,66 @@ export default function BestSellerShowcase({
 
             <a
               href={viewAllLink}
-              className="inline-flex items-center justify-center px-3 py-2 rounded-lg font-semibold text-sm bg-white/10"
+              className="inline-flex items-center justify-center rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold"
               style={{ color: textColor }}
             >
               View All →
             </a>
           </div>
 
-          {/* MD+ full block (unchanged) */}
           <div className="hidden md:flex md:flex-col md:items-start md:gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow" style={{ background: iconBg }} aria-hidden>
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-lg shadow"
+                style={{ background: iconBg }}
+                aria-hidden
+              >
                 {icon}
               </div>
               <h3 className="text-2xl font-extrabold leading-tight">{title}</h3>
             </div>
 
-            <div
-              className="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm font-semibold"
-              style={{ background: accentBg }}
-            >
-              <span className="text-xs">₹</span>
-              {badgeText}
-            </div>
-
-            <p className="mt-1 text-sm opacity-90">{subText}</p>
-
             <a
               href={viewAllLink}
-              className="mt-3 inline-flex items-center justify-center px-5 py-3 rounded-xl font-semibold text-sm shadow-md transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
+              className={`inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold shadow-md transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] ${
+                minimalHeader ? "" : "mt-3"
+              }`}
               style={{ background: accentBg, color: textColor }}
             >
               View All →
             </a>
 
-            <p className="text-xs mt-1 opacity-80">Swipe → to explore products</p>
+            {!minimalHeader ? (
+              <>
+                <div
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-white"
+                  style={{ background: accentBg }}
+                >
+                  <span className="text-xs">₹</span>
+                  {badgeText}
+                </div>
+                <p className="mt-1 text-sm opacity-90">{subText}</p>
+                <p className="mt-1 text-xs opacity-80">Swipe → to explore products</p>
+              </>
+            ) : null}
           </div>
         </div>
 
-        {/* RIGHT SWIPER */}
-        <div className="relative flex-1 w-full">
+        <div className="relative w-full flex-1">
           <div
             ref={scrollRef}
-            className="flex gap-3 py-3 px-1 md:px-6 overflow-x-auto scroll-smooth items-start snap-x snap-mandatory md:snap-none"
+            className="flex snap-x snap-mandatory items-start gap-3 overflow-x-auto scroll-smooth px-1 py-3 md:snap-none md:px-6"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             <style>{`div::-webkit-scrollbar { display: none !important; }`}</style>
 
-            {filteredItems.map((p) => (
+            {filteredItems.map((product) => (
               <div
-                key={p._id}
-                className="flex-shrink-0 snap-center md:snap-start w-[62vw] max-w-[220px] md:w-[220px] md:max-w-[220px] min-w-0"
+                key={product._id}
+                className="min-w-0 max-w-[220px] flex-shrink-0 snap-center md:w-[220px] md:max-w-[220px] md:snap-start w-[62vw]"
               >
                 <div className="bs-hover">
-                  <ProductCard product={p} mode={resolvedCardMode} />
+                  <ProductCard product={product} mode={resolvedCardMode} />
                 </div>
               </div>
             ))}
@@ -260,11 +273,10 @@ export default function BestSellerShowcase({
         </div>
       </div>
 
-      {/* ARROWS (desktop only) */}
       <button
         onClick={() => scroll("left")}
         aria-label="scroll left"
-        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow hover:scale-105 transition-opacity"
+        className="absolute top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow transition-opacity hover:scale-105 md:flex"
         style={{
           left: leftArrowLeft,
           zIndex: 60,
@@ -273,14 +285,20 @@ export default function BestSellerShowcase({
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18L9 12L15 6" stroke="#2a0450" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="#2a0450"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
 
       <button
         onClick={() => scroll("right")}
         aria-label="scroll right"
-        className="hidden md:flex items-center justify-center absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow hover:scale-105 transition-opacity"
+        className="absolute top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow transition-opacity hover:scale-105 md:flex"
         style={{
           right: 20,
           zIndex: 60,
@@ -289,11 +307,16 @@ export default function BestSellerShowcase({
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M9 18L15 12L9 6" stroke="#2a0450" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M9 18L15 12L9 6"
+            stroke="#2a0450"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
 
-      {/* Hover style */}
       <style>{`
         .bs-hover {
           transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms;

@@ -56,11 +56,13 @@ const RequirementScreen = () => {
     | {
         entityType?: string;
         entityName?: string;
+        address?: string;
         state?: string;
         district?: string;
         contactPersonName?: string;
         contactPersonDesignation?: string;
         contactNumber?: string;
+        alternateMobileNumber?: string;
         email?: string;
         noOfBeds?: string;
         department?: string;
@@ -106,10 +108,13 @@ const RequirementScreen = () => {
                     <p>Type: {leadData?.entityType || "Hospital"}</p>
                     <p>State: {leadData?.state || "Maharashtra"}</p>
                     <p>District: {leadData?.district || "Pune"}</p>
+                    <p>Address: {leadData?.address || "NA"}</p>
                     <p>Contact Person: {leadData?.contactPersonName || "Demo User"}</p>
                     <p>Designation: {leadData?.contactPersonDesignation || "Purchase Manager"}</p>
                     <p>Phone: {leadData?.contactNumber || "9999999999"}</p>
+                    <p>Alternate Phone: {leadData?.alternateMobileNumber || "NA"}</p>
                     <p>Email: {leadData?.email || "demo@mediqop.com"}</p>
+                    <p>Department: {leadData?.department || "NA"}</p>
                     <p>No of beds: {leadData?.noOfBeds || "0"}</p>
                   </div>
                 </div>
@@ -144,17 +149,21 @@ const RequirementScreen = () => {
                         salesman: "Current User",
                         entityType: leadData?.entityType || "Hospital",
                         entityName: leadData?.entityName || "Dummy Hospital",
+                        address: leadData?.address || "",
                         state: leadData?.state || "Maharashtra",
                         district: leadData?.district || "Pune",
                         customerName: leadData?.contactPersonName || "Demo User",
                         designation: leadData?.contactPersonDesignation || "Purchase Manager",
                         phoneNumber: leadData?.contactNumber || "9999999999",
+                        alternateMobileNumber: leadData?.alternateMobileNumber || "",
                         email: leadData?.email || "demo@mediqop.com",
                         department: leadData?.department || "",
+                        noOfBeds: leadData?.noOfBeds || "",
                         items: productRows.map((row) => ({
                           productId: row.productId,
                           productName: row.productName,
                           quantity: row.quantity,
+                          department: leadData?.department || "",
                         })),
                       });
                       navigate("/get-quote-admin/salesman", {
