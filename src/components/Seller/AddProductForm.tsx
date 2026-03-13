@@ -1031,10 +1031,15 @@ return (
                   {upsellFields.map((_field, index) => (
                     <div key={index} className="flex gap-2">
                       <Input
-                        {...form.register(`upsells.${index}`)}
-                        placeholder="Enter product URL"
-                        className="w-full"
-                      />
+                      {...form.register(`upsells.${index}`, {
+                        pattern: {
+                          value: /^https:\/\/semamart\.com\/.+/,
+                          message: "Only Semamart product URLs are allowed",
+                        },
+                      })}
+                      placeholder="Enter Semamart product URL"
+                      className="w-full"
+                    />
                       <Button
                         type="button"
                         variant="ghost"
@@ -1066,10 +1071,15 @@ return (
                   {crossFields.map((_field, index) => (
                     <div key={index} className="flex gap-2">
                       <Input
-                        {...form.register(`crosssells.${index}`)}
-                        placeholder="Enter product URL"
-                        className="w-full"
-                      />
+                          {...form.register(`crosssells.${index}`, {
+                            pattern: {
+                              value: /^https:\/\/semamart\.com\/.+/,
+                              message: "Only Semamart product URLs are allowed",
+                            },
+                          })}
+                          placeholder="Enter Semamart product URL"
+                          className="w-full"
+                        />
                       <Button
                         type="button"
                         variant="ghost"
