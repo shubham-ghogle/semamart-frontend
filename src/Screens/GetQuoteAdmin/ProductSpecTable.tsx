@@ -175,20 +175,19 @@ export default function ProductSpecMaster() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-
         {/* Header + Filters */}
         <div className="p-6 border-b">
           <h2 className="text-lg font-semibold text-gray-800 mb-5">
             Product Filter
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+            {/* Search */}
             <Input
               placeholder="Search Spec Name..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="bg-gray-50"
+              className="bg-gray-50 w-full"
             />
 
             {/* Speciality */}
@@ -199,7 +198,7 @@ export default function ProductSpecMaster() {
                 setSelectedSubSpeciality("all")
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="All Specialities" />
               </SelectTrigger>
               <SelectContent>
@@ -218,7 +217,7 @@ export default function ProductSpecMaster() {
               onValueChange={setSelectedSubSpeciality}
               disabled={selectedSpeciality === "all"}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sub-specialities" />
               </SelectTrigger>
               <SelectContent>
@@ -236,7 +235,7 @@ export default function ProductSpecMaster() {
               value={selectedDepartment}
               onValueChange={setSelectedDepartment}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Departments" />
               </SelectTrigger>
               <SelectContent>
@@ -249,15 +248,17 @@ export default function ProductSpecMaster() {
               </SelectContent>
             </Select>
 
+            {/* Reset Button */}
             <Button
               onClick={resetFilters}
-              className="bg-[#1C647C] hover:bg-[#164d5f] text-white"
+              className="bg-[#1C647C] hover:bg-[#164d5f] text-white w-full"
             >
               Reset Filters
             </Button>
           </div>
         </div>
 
+        {/* Data Table */}
         <div className="w-full px-6 pb-6 cursor-pointer">
           <DataTable
             data={filteredData}
@@ -288,8 +289,7 @@ const columns = [
         alt="spec"
         className="w-10 h-10 rounded-lg object-cover border"
         onError={(e) =>
-          (e.currentTarget.src =
-            "https://via.placeholder.com/40")
+          (e.currentTarget.src = "https://via.placeholder.com/40")
         }
       />
     ),
