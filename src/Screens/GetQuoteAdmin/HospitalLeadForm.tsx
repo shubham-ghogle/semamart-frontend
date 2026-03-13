@@ -143,8 +143,24 @@ const HospitalLeadForm = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
+                    <label htmlFor="entityName" className="block text-sm font-medium text-gray-700 mb-2">
+                      Organization Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="entityName"
+                      name="entityName"
+                      value={formData.entityName}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter organization name"
+                      required
+                    />
+                  </div>
+
+                  <div>
                     <label htmlFor="entityType" className="block text-sm font-medium text-gray-700 mb-2">
-                      Organization Type <span className="text-red-500">*</span>
+                      Organization Type
                     </label>
                     <Select
                       value={formData.entityType}
@@ -162,22 +178,6 @@ const HospitalLeadForm = () => {
                         <SelectItem value="Clinic">Clinic</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="entityName" className="block text-sm font-medium text-gray-700 mb-2">
-                      Organization Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="entityName"
-                      name="entityName"
-                      value={formData.entityName}
-                      onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter organization name"
-                      required
-                    />
                   </div>
                 </div>
 
@@ -247,27 +247,25 @@ const HospitalLeadForm = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
-                      Department
-                    </label>
-                    <Select
-                      value={formData.department}
-                      onValueChange={(value) => handleSelectChange("department", value)}
-                    >
-                      <SelectTrigger className="w-full h-10">
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((department) => (
-                          <SelectItem key={department} value={department}>
-                            {department}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                    Department
+                  </label>
+                  <Select
+                    value={formData.department}
+                    onValueChange={(value) => handleSelectChange("department", value)}
+                  >
+                    <SelectTrigger className="w-full h-10">
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent className="min-w-[20rem]">
+                      {departments.map((department) => (
+                        <SelectItem key={department} value={department}>
+                          {department}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>

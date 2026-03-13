@@ -100,7 +100,7 @@ const RequirementScreen = () => {
                 </div>
 
                 <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Lead Details</h3>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">RFQ Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                     <p>Organization: {leadData?.entityName || "Dummy Hospital"}</p>
                     <p>Type: {leadData?.entityType || "Hospital"}</p>

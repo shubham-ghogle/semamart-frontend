@@ -757,61 +757,7 @@ const Admin = () => {
 
           {activeTab === "scope-department-master" && (
             <div className="max-w-7xl mx-auto space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Scope</h3>
-                    <Button 
-                      className="bg-teal-600 text-white hover:bg-teal-700"
-                      onClick={() => setShowAddScopeModal(true)}
-                    >
-                      Add Scope
-                    </Button>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <DataTable
-                      data={[
-                        { srNo: 1, scope: "ICU" },
-                        { srNo: 2, scope: "CCU" },
-                        { srNo: 3, scope: "OPD" },
-                        { srNo: 4, scope: "HDU" },
-                        { srNo: 5, scope: "PICU" },
-                        { srNo: 6, scope: "NICU" },
-                        { srNo: 7, scope: "CSSD" },
-                        { srNo: 8, scope: "Admin" },
-                        { srNo: 9, scope: "Kitchen" },
-                        { srNo: 10, scope: "Nursery" },
-                        { srNo: 11, scope: "Pharmacy" },
-                        { srNo: 12, scope: "Radiology" },
-                        { srNo: 13, scope: "Laboratory" },
-                        { srNo: 14, scope: "Ambulance" },
-                        { srNo: 15, scope: "Front Office" },
-                        { srNo: 16, scope: "Private Ward" },
-                        { srNo: 17, scope: "General Ward" },
-                        { srNo: 18, scope: "Paediatric Ward" },
-                        { srNo: 19, scope: "Labour Room" },
-                        { srNo: 20, scope: "Housekeeping" },
-                        { srNo: 21, scope: "Operation Theatre" },
-                        { srNo: 22, scope: "Semi-private Ward" },
-                        { srNo: 23, scope: "Pre-operative Room" },
-                        { srNo: 24, scope: "Post-operative Room" },
-                        { srNo: 25, scope: "Emergency Department" },
-                      ]}
-                      columns={[
-                        { accessorKey: "srNo", header: "Sr. No." },
-                        { accessorKey: "scope", header: "Scope" },
-                      ]}
-                    docName="scope-master"
-                    searchColId="scope"
-                    searchPlaceholder="Search by scope"
-                    enableStatusFilter={false}
-                    enableSalesmanFilter={false}
-                    disableExport={true}
-                    disableColumnVisibility={true}
-                    disableSearch={true}
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 gap-6">
                 <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-gray-800">Department</h3>
