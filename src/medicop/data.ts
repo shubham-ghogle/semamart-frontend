@@ -1,3 +1,14 @@
+import multiparaPatientMonitor from "./Mediqop_img/Multipara Patient Monitor.png";
+import dualChannelSyringePump from "./Mediqop_img/Dual Channel Syringe Pump.png";
+import twelveChannelECG from "./Mediqop_img/12 Channel ECG Machine.jpg";
+import hospitalGradeNebulizer from "./Mediqop_img/Hospital Grade Nebulizer.png";
+import portableOxygenConcentrator from "./Mediqop_img/Portable Oxygen Concentrator.jpg";
+import biphasicDefibrillator from "./Mediqop_img/Biphasic Defibrillator.jpg";
+import verticalSteamSterilizer from "./Mediqop_img/Vertical Steam Sterilizer (Autoclave).jpg";
+import volumetricInfusionPump from "./Mediqop_img/Volumetric Infusion Pump.jpg";
+import portableUltrasoundScanner from "./Mediqop_img/Portable Ultrasound Scanner.jpg";
+import electroHydraulicOTTable from "./Mediqop_img/Electro Hydraulic OT Table.webp";
+
 export type MedicopProduct = {
   id: string;
   name: string;
@@ -13,7 +24,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-icu-monitor",
     name: "Multipara Patient Monitor",
-    image: "/MedicalImages/imagea.png",
+    image: multiparaPatientMonitor,
     category: "Monitoring",
     departments: ["CARDIOLOGY", "INTENSIVE CARE UNIT (ICU)"],
     moq: 2,
@@ -28,7 +39,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-syringe-pump",
     name: "Dual Channel Syringe Pump",
-    image: "/MedicalImages/imageb.png",
+    image: dualChannelSyringePump,
     category: "Infusion",
     departments: ["ANESTHESIOLOGY", "INTENSIVE CARE UNIT (ICU)"],
     moq: 3,
@@ -43,7 +54,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-ecg",
     name: "12 Channel ECG Machine",
-    image: "/MedicalImages/imagec.png",
+    image: twelveChannelECG,
     category: "Diagnostics",
     departments: ["CARDIOLOGY", "EMERGENCY MEDICINE"],
     moq: 1,
@@ -58,7 +69,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-nebulizer",
     name: "Hospital Grade Nebulizer",
-    image: "/MedicalImages/imaged.png",
+    image: hospitalGradeNebulizer,
     category: "Respiratory",
     departments: ["PULMONOLOGY", "RESPIRATORY MEDICINE"],
     moq: 5,
@@ -73,7 +84,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-oxygen-concentrator",
     name: "Portable Oxygen Concentrator",
-    image: "/MedicalImages/imagea.png",
+    image: portableOxygenConcentrator,
     category: "Respiratory",
     departments: ["PULMONOLOGY", "RESPIRATORY MEDICINE"],
     moq: 2,
@@ -88,7 +99,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-defibrillator",
     name: "Biphasic Defibrillator",
-    image: "/MedicalImages/imageb.png",
+    image: biphasicDefibrillator,
     category: "Critical Care",
     departments: ["CARDIOLOGY", "EMERGENCY MEDICINE"],
     moq: 1,
@@ -103,7 +114,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-autoclave",
     name: "Vertical Steam Sterilizer",
-    image: "/MedicalImages/imagec.png",
+    image: verticalSteamSterilizer,
     category: "Sterilization",
     departments: ["GENERAL SURGERY", "PATHOLOGY"],
     moq: 1,
@@ -118,7 +129,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-infusion-pump",
     name: "Volumetric Infusion Pump",
-    image: "/MedicalImages/imaged.png",
+    image: volumetricInfusionPump,
     category: "Infusion",
     departments: ["ANESTHESIOLOGY", "ONCOLOGY"],
     moq: 4,
@@ -133,7 +144,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-ultrasound",
     name: "Portable Ultrasound Scanner",
-    image: "/MedicalImages/imagea.png",
+    image: portableUltrasoundScanner,
     category: "Imaging",
     departments: ["OB/GYN", "RADIOLOGY"],
     moq: 1,
@@ -148,7 +159,7 @@ export const MEDICOP_PRODUCTS: MedicopProduct[] = [
   {
     id: "med-op-table",
     name: "Electro Hydraulic OT Table",
-    image: "/MedicalImages/imageb.png",
+    image: electroHydraulicOTTable,
     category: "Operation Theatre",
     departments: ["GENERAL SURGERY", "ORTHOPEDICS"],
     moq: 1,
