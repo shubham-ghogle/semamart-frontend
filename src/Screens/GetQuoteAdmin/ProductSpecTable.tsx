@@ -22,27 +22,93 @@ type ProductSpec = {
 const productRows: ProductSpec[] = [
   {
     srNo: 1,
-    thumbnail: "/logo.png",
-    specName: "ICU Patient Monitor",
-    speciality: "ICU Setup Packages",
-    subSpeciality: "ICU Monitoring Bundle",
-    department: "CARDIOLOGY",
+    thumbnail:
+      "https://images.unsplash.com/photo-1584634731339-252c581abfc5?auto=format&fit=crop&w=200&q=80",
+    specName: "Examination Gloves",
+    speciality: "Surgical & Examination Gloves",
+    subSpeciality: "Nitrile / Latex Disposable Gloves",
+    department: "GENERAL MEDICINE",
   },
   {
     srNo: 2,
-    thumbnail: "/logo.png",
-    specName: "Ventilator Machine",
-    speciality: "ICU Setup Packages",
-    subSpeciality: "Ventilator + ABG + Infusion Kit Bundle",
-    department: "RESPIRATORY MEDICINE",
+    thumbnail:
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=200&q=80",
+    specName: "Surgical Face Mask",
+    speciality: "Masks & Personal Protective Equipment (PPE)",
+    subSpeciality: "3-Ply Disposable Face Mask",
+    department: "INFECTION CONTROL",
   },
   {
     srNo: 3,
-    thumbnail: "/logo.png",
-    specName: "Biochemistry Analyzer",
-    speciality: "Diagnostic Lab Packages",
-    subSpeciality: "Pathology Lab Setup",
-    department: "PATHOLOGY",
+    thumbnail:
+      "https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&w=200&q=80",
+    specName: "Disposable Syringe",
+    speciality: "Syringes & Needles",
+    subSpeciality: "5ml / 10ml Syringe",
+    department: "GENERAL MEDICINE",
+  },
+  {
+    srNo: 4,
+    thumbnail:
+      "https://images.unsplash.com/photo-1581595219315-a187dd40c322?auto=format&fit=crop&w=200&q=80",
+    specName: "Hypodermic Needle",
+    speciality: "Syringes & Needles",
+    subSpeciality: "Sterile Injection Needles",
+    department: "GENERAL MEDICINE",
+  },
+  {
+    srNo: 5,
+    thumbnail:
+      "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=200&q=80",
+    specName: "IV Cannula",
+    speciality: "IV Sets & Infusion Supplies",
+    subSpeciality: "Peripheral IV Cannula",
+    department: "EMERGENCY",
+  },
+  {
+    srNo: 6,
+    thumbnail:
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=200&q=80",
+    specName: "IV Infusion Set",
+    speciality: "IV Sets & Infusion Supplies",
+    subSpeciality: "Sterile Disposable IV Set",
+    department: "GENERAL MEDICINE",
+  },
+  {
+    srNo: 7,
+    thumbnail:
+      "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&w=200&q=80",
+    specName: "Foley Catheter",
+    speciality: "Catheters & Tubes",
+    subSpeciality: "2-Way Latex Foley Catheter",
+    department: "UROLOGY",
+  },
+  {
+    srNo: 8,
+    thumbnail:
+      "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=200&q=80",
+    specName: "Surgical Drapes",
+    speciality: "Drapes, Sheets & Underpads",
+    subSpeciality: "Disposable Surgical Drapes",
+    department: "SURGERY",
+  },
+  {
+    srNo: 9,
+    thumbnail:
+      "https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&w=200&q=80",
+    specName: "Gauze Swabs",
+    speciality: "Wound Care & Dressings",
+    subSpeciality: "Sterile Gauze Pads",
+    department: "SURGERY",
+  },
+  {
+    srNo: 10,
+    thumbnail:
+      "https://images.unsplash.com/photo-1581594549595-35f6edc7b762?auto=format&fit=crop&w=200&q=80",
+    specName: "Alcohol Prep Pads",
+    speciality: "Infection Control & Cleaning",
+    subSpeciality: "70% Isopropyl Alcohol Pads",
+    department: "INFECTION CONTROL",
   },
 ]
 
@@ -52,7 +118,6 @@ export default function ProductSpecMaster() {
   const [selectedSubSpeciality, setSelectedSubSpeciality] = useState("all")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
 
-  // Dynamic filter options
   const specialities = [...new Set(productRows.map((p) => p.speciality))]
   const departments = [...new Set(productRows.map((p) => p.department))]
 
@@ -68,7 +133,6 @@ export default function ProductSpecMaster() {
     ]
   }, [selectedSpeciality])
 
-  // Filter logic
   const filteredData = useMemo(() => {
     return productRows.filter((item) => {
       const search = searchText.toLowerCase()
@@ -111,22 +175,19 @@ export default function ProductSpecMaster() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-
         {/* Header + Filters */}
         <div className="p-6 border-b">
           <h2 className="text-lg font-semibold text-gray-800 mb-5">
             Product Filter
           </h2>
 
-          {/* Equal spacing filter grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
             {/* Search */}
             <Input
               placeholder="Search Spec Name..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="bg-gray-50"
+              className="bg-gray-50 w-full"
             />
 
             {/* Speciality */}
@@ -140,10 +201,8 @@ export default function ProductSpecMaster() {
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="All Specialities" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="all">Specialities</SelectItem>
-
                 {specialities.map((spec) => (
                   <SelectItem key={spec} value={spec}>
                     {spec}
@@ -158,19 +217,11 @@ export default function ProductSpecMaster() {
               onValueChange={setSelectedSubSpeciality}
               disabled={selectedSpeciality === "all"}
             >
-              <SelectTrigger className="w-full disabled:opacity-50">
-                <SelectValue
-                  placeholder={
-                    selectedSpeciality === "all"
-                      ? "Select Speciality First"
-                      : "All Sub-specialities"
-                  }
-                />
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sub-specialities" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="all">Sub-specialities</SelectItem>
-
                 {subSpecialityOptions.map((sub) => (
                   <SelectItem key={sub} value={sub}>
                     {sub}
@@ -185,12 +236,10 @@ export default function ProductSpecMaster() {
               onValueChange={setSelectedDepartment}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All Departments" />
+                <SelectValue placeholder="Departments" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="all">Departments</SelectItem>
-
                 {departments.map((dept) => (
                   <SelectItem key={dept} value={dept}>
                     {dept}
@@ -199,7 +248,7 @@ export default function ProductSpecMaster() {
               </SelectContent>
             </Select>
 
-            {/* Reset */}
+            {/* Reset Button */}
             <Button
               onClick={resetFilters}
               className="bg-[#1C647C] hover:bg-[#164d5f] text-white w-full"
@@ -209,8 +258,8 @@ export default function ProductSpecMaster() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="w-full">
+        {/* Data Table */}
+        <div className="w-full px-6 pb-6 cursor-pointer">
           <DataTable
             data={filteredData}
             columns={columns}
@@ -229,62 +278,36 @@ const columns = [
   {
     accessorKey: "srNo",
     header: "Sr. No.",
-    cell: ({ row }: any) => (
-      <span className="text-gray-600 font-medium">
-        {row.index + 1}
-      </span>
-    ),
+    cell: ({ row }: any) => row.index + 1,
   },
   {
     accessorKey: "thumbnail",
     header: "Thumbnail",
     cell: ({ row }: any) => (
-      <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
-        <img
-          src={row.original.thumbnail || "/placeholder.png"}
-          alt="spec"
-          className="w-full h-full object-cover"
-          onError={(e) =>
-            (e.currentTarget.src = "https://via.placeholder.com/40")
-          }
-        />
-      </div>
+      <img
+        src={row.original.thumbnail}
+        alt="spec"
+        className="w-10 h-10 rounded-lg object-cover border"
+        onError={(e) =>
+          (e.currentTarget.src = "https://via.placeholder.com/40")
+        }
+      />
     ),
   },
   {
     accessorKey: "specName",
     header: "Spec Name",
-    cell: ({ row }: any) => (
-      <span className="font-medium text-gray-900">
-        {row.original.specName}
-      </span>
-    ),
   },
   {
     accessorKey: "speciality",
     header: "Speciality",
-    cell: ({ row }: any) => (
-      <span className="text-[11px] px-2.5 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-full font-semibold">
-        {row.original.speciality}
-      </span>
-    ),
   },
   {
     accessorKey: "subSpeciality",
     header: "Sub-speciality",
-    cell: ({ row }: any) => (
-      <span className="text-gray-700">
-        {row.original.subSpeciality}
-      </span>
-    ),
   },
   {
     accessorKey: "department",
     header: "Department",
-    cell: ({ row }: any) => (
-      <span className="text-gray-700 tracking-tight">
-        {row.original.department}
-      </span>
-    ),
   },
 ]
