@@ -55,7 +55,6 @@ export default function MedicopHome() {
                 <p className="text-xs uppercase tracking-wide text-gray-500">{product.category}</p>
                 <h3 className="text-base font-semibold text-gray-900 mt-1 line-clamp-2">{product.name}</h3>
                 <p className="text-sm text-gray-600 mt-2 line-clamp-2">{product.description}</p>
-                <p className="text-sm text-[#1C647C] font-medium mt-2">MOQ: {product.moq}</p>
 
                 <label
                   className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#1C647C]"

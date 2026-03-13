@@ -261,7 +261,7 @@ export default function BestSellerShowcase({
             {filteredItems.map((product) => (
               <div
                 key={product._id}
-                className="min-w-0 max-w-[220px] flex-shrink-0 snap-center md:w-[220px] md:max-w-[220px] md:snap-start w-[62vw]"
+                 className="min-w-0 max-w-[250px] flex-shrink-0 snap-center md:w-[250px] md:max-w-[250px] md:snap-start w-[70vw]"
               >
                 <div className="bs-hover">
                   <ProductCard product={product} mode={resolvedCardMode} />

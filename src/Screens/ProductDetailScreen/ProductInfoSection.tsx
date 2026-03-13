@@ -1,6 +1,5 @@
 import { useState } from "react";
 import offer from "../../../public/offer.png";
-import { AiOutlineCheckCircle } from "react-icons/ai";
 import StarIcons from "@/components/ui/StarIcons";
 
 export default function ProductInfoSection({
@@ -26,14 +25,9 @@ export default function ProductInfoSection({
   const stock = Number(selectedVariant?.stock ?? 0);
   const isOutOfStock = moq > 0 && stock < moq;
 
-  const perPiecePrice = safeNumber(
-    selectedVariant?.discountPrice ??
-      selectedVariant?.originalPrice ??
-      product?.discountPrice ??
-      product?.originalPrice
-  );
 
-  const moqTotal = safeNumber(perPiecePrice * moq);
+
+
 
   let topDiscount = 0;
   if (displayOriginalPrice && displayDiscountPrice) {
@@ -123,35 +117,13 @@ export default function ProductInfoSection({
         </div>
       </div>
 
-      {isOutOfStock ? (
-        <div className="mt-4 p-4 rounded-2xl border border-red-200 bg-red-50 text-center">
-          <div className="text-lg font-bold text-red-600">Out of Stock</div>
-          <div className="text-sm text-red-500 mt-1">Minimum order: {moq} pcs</div>
-        </div>
-      ) : (
-        moq > 0 && (
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[#E6F6F8] bg-[#F7FFFE] shadow-sm mt-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#E8F5F8] flex items-center justify-center">
-                <AiOutlineCheckCircle className="text-[#0F666D] text-2xl" />
-              </div>
-              <span className="text-sm text-slate-700 font-medium">
-                Minimum Order Quantity
-              </span>
-            </div>
-
-            <div className="text-right">
-              <div className="text-lg font-bold text-slate-900">{moq} pcs</div>
-              <div className="text-xs text-slate-600 mt-1">
-                ₹{perPiecePrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })} each ·{" "}
-                <span className="font-semibold">
-                  ₹{moqTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                </span>
-              </div>
-            </div>
-          </div>
-        )
-      )}
+       {isOutOfStock ? (
+         <div className="mt-4 p-4 rounded-2xl border border-red-200 bg-red-50 text-center">
+           <div className="text-lg font-bold text-red-600">Out of Stock</div>
+         </div>
+       ) : (
+         <></>
+       )}
 
       <div>
         <div className="flex items-center gap-3 mt-4">

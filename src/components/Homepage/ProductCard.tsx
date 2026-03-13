@@ -152,21 +152,8 @@ export default function ProductCard({ product, mode = "default" }: Props) {
     return "General";
   };
 
-  const parseMinQty = (raw: any) => {
-    if (!raw) return 1;
-    if (typeof raw === "object" && raw.minQty) return Number(raw.minQty) || 1;
-    if (typeof raw === "string") {
-      try {
-        const parsed = JSON.parse(raw);
-        return Number(parsed?.minQty) || 1;
-      } catch {
-        return 1;
-      }
-    }
-    return 1;
-  };
 
-  const moq = Number((product as any).moq) || parseMinQty((product as any).minmaxrule);
+
   const categoryLabel = getCategoryLabel();
 
   const [isTicked, setIsTicked] = React.useState(false);
@@ -184,7 +171,7 @@ export default function ProductCard({ product, mode = "default" }: Props) {
   }, [isMedicopMode, productId]);
 
   return (
-    <div className="group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-44">
+    <div className="group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden md:w-[250px] w-[70vw] max-w-[250px] md:h-[340px] h-auto">
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-1 items-start pointer-events-none md:top-3 md:left-3">
         {!isMedicopMode && discountPercent >= 0 && (
           <div
@@ -241,14 +228,14 @@ export default function ProductCard({ product, mode = "default" }: Props) {
           />
         </div>
 
-        <div
-          className={
-            "w-full bg-white px-3 pb-3 pt-2 transition-all duration-300 transform " +
-            "md:absolute md:bottom-[10px] md:left-0 md:w-full md:bg-white " +
-            "md:translate-y-0 md:group-hover:-translate-y-10"
-          }
-        >
-          <h3 className="text-sm font-medium text-gray-800 truncate">{product.name}</h3>
+         <div
+           className={
+             "w-full bg-white px-3 pb-10 pt-2 transition-all duration-300 transform " +
+             "md:absolute md:bottom-[10px] md:left-0 md:w-full md:bg-white " +
+             "md:translate-y-0 md:group-hover:-translate-y-10"
+           }
+         >
+           <h3 className="text-sm font-medium text-gray-800 truncate">{product.name}</h3>
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
 
           {!isMedicopMode && (
@@ -258,7 +245,7 @@ export default function ProductCard({ product, mode = "default" }: Props) {
           )}
 
           {isMedicopMode ? (
-            <p className="text-sm text-[#1C647C] font-semibold mt-1">MOQ: {moq}</p>
+            <></>
           ) : (
             <div className="flex items-center gap-2 mt-1">
               <span className="text-base md:text-lg font-semibold text-gray-900">

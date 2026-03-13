@@ -128,7 +128,7 @@ export default function ProductCardMediqop({ product }: Props) {
     <div
       className="
         group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden
-        md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-44
+        md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-auto
       "
     >
       {/* Checkbox at top-right */}
@@ -164,7 +164,7 @@ export default function ProductCardMediqop({ product }: Props) {
             "md:translate-y-0 md:group-hover:-translate-y-10"
           }
         >
-          <h3 className="text-sm font-medium text-gray-500 truncate">{product.name}</h3>
+           <h3 className="text-sm font-medium text-gray-900 line-clamp-2">{product.name}</h3>
 
           {/* hide category & rating on mobile to reduce clutter */}
           <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>

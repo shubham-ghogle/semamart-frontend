@@ -44,10 +44,7 @@ export default function MedicopProductPage() {
             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
             <p className="text-gray-700 leading-relaxed">{product.description}</p>
 
-            <div className="rounded-xl border border-[#E6F6F8] bg-[#F7FFFE] p-4">
-              <p className="text-sm text-gray-700">Minimum Order Quantity</p>
-              <p className="text-xl font-bold text-[#1C647C] mt-1">{minimum} units</p>
-            </div>
+
 
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-2">Technical Details</h3>

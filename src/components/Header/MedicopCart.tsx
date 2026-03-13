@@ -94,7 +94,6 @@ export default function MedicopCart({ cartOpenHandler }: MedicopCartProps) {
                   </div>
                   <div className="flex-1">
                     <h4 className="text-sm font-semibold text-gray-900">{item.product?.name}</h4>
-                    <p className="text-xs text-gray-500 mt-1">MOQ: {item.product?.moq}</p>
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center border rounded-md overflow-hidden">
                         <button

@@ -399,7 +399,6 @@ const Requirement = () => {
                     </div>
                     <div className="p-4">
                       <h4 className="text-sm font-semibold text-[#173f4b]">{product.name}</h4>
-                      <p className="mt-1 text-sm font-semibold text-[#1C647C]">MOQ: {product.moq}</p>
                       <p className="mt-2 text-xs text-[#5b7179]">{product.departments.join(", ")}</p>
                       <button
                         type="button"
