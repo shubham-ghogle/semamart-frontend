@@ -62,7 +62,24 @@ export default function MedicopProductPage() {
               >
                 -
               </button>
-              <span className="min-w-10 text-center font-semibold">{qty}</span>
+              <input
+                type="number"
+                value={qty}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value)) {
+                    setQty(Math.max(minimum, value));
+                  }
+                }}
+                onBlur={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (isNaN(value) || value < minimum) {
+                    setQty(minimum);
+                  }
+                }}
+                className="w-20 px-2 py-1 text-center font-semibold border border-gray-300 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                min={minimum}
+              />
               <button
                 onClick={() => setQty((prev) => prev + 1)}
                 className="w-9 h-9 rounded border border-gray-300"

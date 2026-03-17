@@ -83,6 +83,14 @@ export const updateMedicopQty = (productId: string, delta: 1 | -1) => {
   setMedicopList(list);
 };
 
+export const setMedicopQty = (productId: string, qty: number) => {
+  const validatedQty = Math.max(1, Math.floor(qty));
+  const list = getMedicopList().map((x) =>
+    x.productId === productId ? { ...x, qty: validatedQty } : x
+  );
+  setMedicopList(list);
+};
+
 export const removeMedicopItem = (productId: string) => {
   setMedicopList(getMedicopList().filter((x) => x.productId !== productId));
 };
@@ -105,15 +113,40 @@ export const getMedicopListWithProducts = () => {
 };
 
 export const getGeneratedRequirements = (): GeneratedRequirement[] => {
-  return parseJSON<GeneratedRequirement[]>(localStorage.getItem(MEDICOP_REQ_KEY), []);
+  const requirements = parseJSON<GeneratedRequirement[]>(localStorage.getItem(MEDICOP_REQ_KEY), []);
+  
+  // Sort by date (newest first)
+  const sortedRequirements = requirements.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime(); // Newest date first
+  });
+  
+  // Assign sequential RIDs starting from highest number
+  const normalizedRequirements = sortedRequirements.map((req, index) => {
+    const newId = sortedRequirements.length - index;
+    return {
+      ...req,
+      uid: `REQ${String(newId).padStart(4, "0")}`,
+    };
+  });
+  
+  // Save the normalized requirements back to localStorage
+  localStorage.setItem(MEDICOP_REQ_KEY, JSON.stringify(normalizedRequirements));
+  
+  return normalizedRequirements;
 };
 
 export const saveGeneratedRequirement = (payload: Omit<GeneratedRequirement, "uid" | "date">) => {
   const existing = getGeneratedRequirements();
-  const nextId = existing.length + 1;
+  const maxId = existing.reduce((max, req) => {
+    const idNum = parseInt(req.uid.replace("REQ", ""));
+    return idNum > max ? idNum : max;
+  }, 0);
+  const nextId = maxId + 1;
   const record: GeneratedRequirement = {
     ...payload,
-    uid: `MREQ${String(nextId).padStart(3, "0")}`,
+    uid: `REQ${String(nextId).padStart(4, "0")}`,
     date: new Date().toISOString().slice(0, 10),
   };
   localStorage.setItem(MEDICOP_REQ_KEY, JSON.stringify([record, ...existing]));

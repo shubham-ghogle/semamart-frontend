@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaUsers, FaFileAlt,} from "react-icons/fa";
-import RequirementModal from "@/components/ui/RequirementModal";
+
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 
@@ -18,22 +18,15 @@ const sampleCustomers = [
   { srNo: 3, uid: "CUST003", date: "2024-01-17", salesman: "Mike Johnson", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
 ];
 
-const sampleRequirements = [
-  { srNo: 1, uid: "REQ001", date: "2024-01-15", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "REQ002", date: "2024-01-16", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya", designation: "Director", phoneNumber: "9876543211", email: "priya@abchospital.com" },
-  { srNo: 3, uid: "REQ003", date: "2024-01-17", salesman: "Mike Johnson", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
-];
 
-const sampleQuotations = [
-  { srNo: 1, uid: "QUOT001", date: "2024-01-15", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "QUOT002", date: "2024-01-16", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya", designation: "Director", phoneNumber: "9876543211", email: "priya@abchospital.com" },
-  { srNo: 3, uid: "QUOT003", date: "2024-01-17", salesman: "Mike Johnson", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
-];
 
-const samplePOs = [
-  { srNo: 1, uid: "PO001", date: "2024-01-15", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "PO002", date: "2024-01-16", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya", designation: "Director", phoneNumber: "9876543211", email: "priya@abchospital.com" },
-  { srNo: 3, uid: "PO003", date: "2024-01-17", salesman: "Mike Johnson", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
+
+
+const sampleSalesmen = [
+  { srNo: 1, uid: "SLS001", name: "Tom Brown", email: "tom.brown@example.com", phoneNumber: "9876543213", joined: "2024-01-15" },
+  { srNo: 2, uid: "SLS002", name: "Sarah Wilson", email: "sarah.wilson@example.com", phoneNumber: "9876543214", joined: "2024-02-20" },
+  { srNo: 3, uid: "SLS003", name: "David Lee", email: "david.lee@example.com", phoneNumber: "9876543215", joined: "2024-03-10" },
+  { srNo: 4, uid: "SLS004", name: "Emma Davis", email: "emma.davis@example.com", phoneNumber: "9876543216", joined: "2024-04-05" },
 ];
 
 const sampleManagers = [
@@ -42,69 +35,74 @@ const sampleManagers = [
   { srNo: 3, uid: "MGR003", name: "Mike Johnson", email: "mike.johnson@example.com", phoneNumber: "9876543212" },
 ];
 
-const sampleSalesmen = [
-  { srNo: 1, uid: "SLS001", name: "Tom Brown", email: "tom.brown@example.com", phoneNumber: "9876543213" },
-  { srNo: 2, uid: "SLS002", name: "Sarah Wilson", email: "sarah.wilson@example.com", phoneNumber: "9876543214" },
-  { srNo: 3, uid: "SLS003", name: "David Lee", email: "david.lee@example.com", phoneNumber: "9876543215" },
-  { srNo: 4, uid: "SLS004", name: "Emma Davis", email: "emma.davis@example.com", phoneNumber: "9876543216" },
+const sampleOrganizations = [
+  { srNo: 1, uid: "ORG001", name: "XYZ Institute", type: "Institute", salesman: "John Doe" },
+  { srNo: 2, uid: "ORG002", name: "ABC Hospital", type: "Hospital", salesman: "Jane Smith" },
+  { srNo: 3, uid: "ORG003", name: "Health Care Clinic", type: "Clinic", salesman: "Mike Johnson" },
+  { srNo: 4, uid: "ORG004", name: "Medicare Center", type: "Hospital", salesman: "Tom Brown" },
+];
+
+const sampleProductManagers = [
+  { srNo: 1, uid: "PM001", name: "Alex Johnson", email: "alex.johnson@example.com", phoneNumber: "9876543217" },
+  { srNo: 2, uid: "PM002", name: "Maria Garcia", email: "maria.garcia@example.com", phoneNumber: "9876543218" },
+  { srNo: 3, uid: "PM003", name: "Robert Chen", email: "robert.chen@example.com", phoneNumber: "9876543219" },
+];
+
+const sampleRequirements = [
+  { srNo: 1, rid: "REQ001", date: "2024-01-15", salesman: "John Doe", organizationName: "XYZ Institute", organizationType: "Institute" },
+  { srNo: 2, rid: "REQ002", date: "2024-01-16", salesman: "Jane Smith", organizationName: "ABC Hospital", organizationType: "Hospital" },
+  { srNo: 3, rid: "REQ003", date: "2024-01-17", salesman: "Mike Johnson", organizationName: "Health Care Clinic", organizationType: "Clinic" },
 ];
 
 const OVERVIEW_ITEMS = [
+  { label: "Products", color: "from-blue-500 to-indigo-500", IconComponent: GrWorkshop },
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  // { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
-  { label: "Manager", color: "from-purple-500 to-violet-500", IconComponent: FaUsers },
-  { label: "Salesman", color: "from-pink-500 to-rose-500", IconComponent: FaUsers },
+  { label: "Salesman", color: "from-purple-500 to-violet-500", IconComponent: FaUsers },
+  { label: "Organization", color: "from-pink-500 to-rose-500", IconComponent: FaUsers },
 ];
 
 const sampleRecentActivity = [
-  { date: "2024-01-15", uid: "REQ001", status: "Requirement", salesman: "John Doe", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh" },
-  { date: "2024-01-16", uid: "QUOT002", status: "Requirement", salesman: "Jane Smith", entityType: "Hospital", entityName: "ABC Hospital", state: "Delhi", district: "New Delhi", customerName: "Dr. Priya" },
+  { date: "2024-01-15", salesman: "John Doe", organizationName: "XYZ Institute", organizationType: "Institute", state: "Maharashtra", district: "Mumbai", rid: "REQ001" },
+  { date: "2024-01-16", salesman: "Jane Smith", organizationName: "ABC Hospital", organizationType: "Hospital", state: "Delhi", district: "New Delhi", rid: "REQ002" },
 ];
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [showRequirementModal, setShowRequirementModal] = useState(false);
-  const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
+
   const [selectedSalesman, setSelectedSalesman] = useState<string>("");
   const [selectedEntityName, setSelectedEntityName] = useState<string>("");
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
-  const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation" | "manager" | "salesman">("customer");
+  const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation" | "manager" | "salesman" | "organization" | "product-manager">("customer");
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddSpecialityModal, setShowAddSpecialityModal] = useState(false);
   const [showAddScopeModal, setShowAddScopeModal] = useState(false);
   const [showAddDepartmentModal, setShowAddDepartmentModal] = useState(false);
+  const [showAddSalesmanModal, setShowAddSalesmanModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [newSubCategory, setNewSubCategory] = useState("");
   const [newScope, setNewScope] = useState("");
   const [newDepartment, setNewDepartment] = useState("");
+  const [newSalesmanName, setNewSalesmanName] = useState("");
+  const [newSalesmanPhone, setNewSalesmanPhone] = useState("");
+  const [newSalesmanEmail, setNewSalesmanEmail] = useState("");
+  const [showAddProductManagerModal, setShowAddProductManagerModal] = useState(false);
+  const [newProductManagerName, setNewProductManagerName] = useState("");
+  const [newProductManagerPhone, setNewProductManagerPhone] = useState("");
+  const [newProductManagerEmail, setNewProductManagerEmail] = useState("");
 
   // Filter requirements based on selected salesman and entity name
   const filteredRequirements = useMemo(() => {
     return sampleRequirements.filter(item => {
       const matchesSalesman = selectedSalesman === "all" || !selectedSalesman || item.salesman === selectedSalesman;
-      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
+      const matchesEntityName = !selectedEntityName || item.organizationName.toLowerCase().includes(selectedEntityName.toLowerCase());
       return matchesSalesman && matchesEntityName;
     });
   }, [selectedSalesman, selectedEntityName]);
 
-  // Filter quotations based on selected salesman and entity name
-  const filteredQuotations = useMemo(() => {
-    return sampleQuotations.filter(item => {
-      const matchesSalesman = selectedSalesman === "all" || !selectedSalesman || item.salesman === selectedSalesman;
-      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
-      return matchesSalesman && matchesEntityName;
-    });
-  }, [selectedSalesman, selectedEntityName]);
 
-  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
-    console.log("Requirement data submitted:", data);
-    setShowRequirementModal(false);
-    setSelectedSalesman(data.salesman);
-    setSelectedEntityName(data.entityName);
-    // Navigate to the appropriate list page
-    setActiveTab(data.type);
-  };
+
+
 
   const handleSearch = () => {
     console.log("Searching with:", { selectedSalesman, selectedEntityName });
@@ -114,32 +112,23 @@ const Admin = () => {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
-    { id: "medical-manager", label: "Medical Manager", icon: <GrWorkshop /> },
+    { id: "products", label: "Products", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
-    { id: "manager", label: "Manager", icon: <GrWorkshop /> },
     { id: "salesman", label: "Salesman", icon: <GrWorkshop /> },
-    { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
+    { id: "organization", label: "Organization", icon: <GrWorkshop /> },
     { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
-    { id: "scope-department-master", label: "Department Master", icon: <GrWorkshop /> },
+    { id: "department-master", label: "Department Master", icon: <GrWorkshop /> },
+    { id: "product-manager", label: "Product Manager", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
   const handleMenuClick = (itemId: string) => {
-    if (itemId === "medical-manager") {
-      window.location.href = "/medicop/medicophomepage";
+    if (itemId === "products") {
+      window.open("/medicop/medicophomepage", "_blank");
       return;
     }
-    if (itemId === "requirement" || itemId === "quotation") {
-      setModalType(itemId as "requirement" | "quotation");
-      setShowRequirementModal(true);
-    } else if (itemId === "manager" || itemId === "salesman") {
-      // Navigate to the appropriate subpage for manager and salesman
-      window.location.href = `/get-quote-admin/${itemId}`;
-    } else {
-      // For other items, stay within the same dashboard and switch tabs
-      setActiveTab(itemId);
-    }
+    // For all other items, stay within the same dashboard and switch tabs
+    setActiveTab(itemId);
   };
 
   // Customer table columns
@@ -172,11 +161,11 @@ const Admin = () => {
 
   // Requirement table columns
   const requirementColumns = [
-    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID" },
-    { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
+    { accessorKey: "rid", header: "RID (Requirement ID)" },
+    { accessorKey: "organizationName", header: "Organization Name" },
+    { accessorKey: "organizationType", header: "Organization Type" },
+    { accessorKey: "salesman", header: "Salesman" },
      { 
       accessorKey: "action", 
       header: "Action", 
@@ -192,27 +181,7 @@ const Admin = () => {
     },
   ];
 
-  // Quotation table columns
-  const quotationColumns = [
-    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID" },
-    { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityName", header: "Entity Name" },
-    { accessorKey: "date", header: "Date" },
-     { 
-      accessorKey: "action", 
-      header: "Action", 
-      cell: ({ row }: any) => (
-        <Button variant="ghost" onClick={() => {
-          setViewModalData(row.original);
-          setViewModalType("quotation");
-          setShowViewModal(true);
-        }}>
-          <FaEye size={16} />
-        </Button>
-      )
-    },
-  ];
+
 
   // Manager table columns
   const managerColumns = [
@@ -239,13 +208,13 @@ const Admin = () => {
   // Salesman table columns
   const salesmanColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID" },
     { accessorKey: "name", header: "Name" },
+    { accessorKey: "phoneNumber", header: "Contact No." },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "phoneNumber", header: "Phone Number" },
+    { accessorKey: "joined", header: "Joined" },
      { 
       accessorKey: "action", 
-      header: "Action", 
+      header: "Requirement", 
       cell: ({ row }: any) => (
         <Button variant="ghost" onClick={() => {
           setViewModalData(row.original);
@@ -258,28 +227,57 @@ const Admin = () => {
     },
   ];
 
+  // Organization table columns
+  const organizationColumns = [
+    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "type", header: "Type" },
+    { accessorKey: "salesman", header: "Salesman" },
+     { 
+      accessorKey: "action", 
+      header: "Requirement", 
+      cell: ({ row }: any) => (
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("organization");
+          setShowViewModal(true);
+        }}>
+          <FaEye size={16} />
+        </Button>
+      )
+    },
+  ];
+
+  // Product Manager table columns
+  const productManagerColumns = [
+    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "phoneNumber", header: "Phone Number" },
+    { accessorKey: "email", header: "Email" },
+  ];
+
 
   // Recent Activity columns
   const recentActivityColumns = [
     { accessorKey: "date", header: "Date" },
-    { accessorKey: "uid", header: "UID" },
-    { 
-      accessorKey: "status", 
-      header: "Status", 
-      cell: ({ row }: any) => {
-        const status = row.original.status;
-        const statusClasses = {
-          "Requirement": "px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium",
-          "Quotation": "px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium"
-        };
-        return <span className={statusClasses[status as keyof typeof statusClasses] || "px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"}>{status}</span>;
-      }
-    },
     { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityType", header: "Entity Type" },
-    { accessorKey: "entityName", header: "Entity Name" },
+    { accessorKey: "organizationName", header: "Organization Name" },
+    { accessorKey: "organizationType", header: "Organization Type" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
+     { 
+      accessorKey: "action", 
+      header: "Requirement", 
+      cell: ({ row }: any) => (
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("requirement");
+          setShowViewModal(true);
+        }}>
+          <FaEye size={16} />
+        </Button>
+      )
+    },
   ];
 
   return (
@@ -343,23 +341,19 @@ const Admin = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-12">
                   {OVERVIEW_ITEMS.map((item, index) => {
                     let count = 0;
-                    if (item.label === "Customer") count = sampleCustomers.length;
+                    if (item.label === "Products") count = 0; // Products are on homepage, not in dashboard
                     if (item.label === "Requirement") count = sampleRequirements.length;
-                    if (item.label === "Quotation") count = sampleQuotations.length;
-                    if (item.label === "Purchase Order (PO)") count = samplePOs.length;
-                    if (item.label === "Manager") count = sampleManagers.length;
                     if (item.label === "Salesman") count = sampleSalesmen.length;
+                    if (item.label === "Organization") count = sampleOrganizations.length;
                     
                     return (
                       <div 
                         key={index}
                         onClick={() => {
-                          if (item.label === "Requirement") {
-                            setModalType("requirement");
-                            setShowRequirementModal(true);
-                          } else if (item.label === "Quotation") {
-                            setModalType("quotation");
-                            setShowRequirementModal(true);
+                          if (item.label === "Products") {
+                            window.open("/medicop/medicophomepage", "_blank");
+                          } else if (item.label === "Requirement") {
+                            setActiveTab("requirement");
                           } else {
                             setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
                           }
@@ -376,14 +370,14 @@ const Admin = () => {
                   })}
                 </div>
 
-                {/* Recent Activity */}
+                {/* Recent RFQ */}
                 <div className="bg-white rounded-xl shadow-sm p-6 mt-12 border border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Recent RFQ</h3>
                   <div className="overflow-x-auto">
                     <DataTable
                       data={sampleRecentActivity}
                       columns={recentActivityColumns}
-                      docName="recent-activity"
+                      docName="recent-rfq"
                       searchColId="salesman"
                       searchPlaceholder="Search by salesman"
                       disableExport={true}
@@ -435,11 +429,11 @@ const Admin = () => {
                     </Select>
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
                     <Input
                       value={selectedEntityName}
                       onChange={(e) => setSelectedEntityName(e.target.value)}
-                      placeholder="Search by entity name"
+                      placeholder="Search by organization name"
                       className="w-full"
                     />
                   </div>
@@ -464,49 +458,113 @@ const Admin = () => {
             </div>
           )}
 
-          {activeTab === "quotation" && (
+          {activeTab === "organization" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                {/* Salesman and Entity Name Search */}
-                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Salesman</label>
-                    <Select value={selectedSalesman} onValueChange={setSelectedSalesman}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Salesman" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="John Doe">John Doe</SelectItem>
-                        <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-                        <SelectItem value="Mike Johnson">Mike Johnson</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
-                    <Input
-                      value={selectedEntityName}
-                      onChange={(e) => setSelectedEntityName(e.target.value)}
-                      placeholder="Search by entity name"
-                      className="w-full"
-                    />
-                  </div>
-                  <Button type="submit" className="bg-teal-600 text-white hover:bg-teal-700">
-                    Submit
-                  </Button>
-                </form>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Quotation List</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Organization List</h3>
                 <div className="overflow-x-auto">
                    <DataTable
-                    data={filteredQuotations}
-                    columns={quotationColumns}
-                    docName="quotations"
+                    data={sampleOrganizations}
+                    columns={organizationColumns}
+                    docName="organizations"
+                    searchColId="name"
+                    searchPlaceholder="Search by organization name"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "product-manager" && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Product Manager List</h3>
+                  <Button 
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                    onClick={() => setShowAddProductManagerModal(true)}
+                  >
+                    Add Product Manager
+                  </Button>
+                </div>
+                <div className="overflow-x-auto">
+                   <DataTable
+                    data={sampleProductManagers}
+                    columns={productManagerColumns}
+                    docName="product-managers"
+                    searchColId="name"
+                    searchPlaceholder="Search by product manager name"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "department-master" && (
+            <div className="max-w-7xl mx-auto space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Department</h3>
+                    <Button 
+                      className="bg-teal-600 text-white hover:bg-teal-700"
+                      onClick={() => setShowAddDepartmentModal(true)}
+                    >
+                      Add Department
+                    </Button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <DataTable
+                      data={[
+                        { srNo: 1, department: "EMERGENCY MEDICINE" },
+                        { srNo: 2, department: "ORTHOPEDICS" },
+                        { srNo: 3, department: "NEUROLOGY" },
+                        { srNo: 4, department: "DENTAL" },
+                        { srNo: 5, department: "CARDIOLOGY" },
+                        { srNo: 6, department: "EAR NOSE AND THROAT" },
+                        { srNo: 7, department: "PATHOLOGY" },
+                        { srNo: 8, department: "GASTROENTEROLOGY" },
+                        { srNo: 9, department: "RESPIRATORY MEDICINE" },
+                        { srNo: 10, department: "MICROBIOLOGY" },
+                        { srNo: 11, department: "RADIOLOGY" },
+                        { srNo: 12, department: "OB/GYN" },
+                        { srNo: 13, department: "ONCOLOGY" },
+                        { srNo: 14, department: "NEPHROLOGY" },
+                        { srNo: 15, department: "PULMONOLOGY" },
+                        { srNo: 16, department: "DERMATOLOGY" },
+                        { srNo: 17, department: "ENDOCRINOLOGY" },
+                        { srNo: 18, department: "OPHTHALMOLOGY" },
+                        { srNo: 19, department: "OTOLARYNGOLOGY" },
+                        { srNo: 20, department: "UROLOGY" },
+                        { srNo: 21, department: "PSYCHIATRY" },
+                        { srNo: 22, department: "ANESTHESIOLOGY" },
+                        { srNo: 23, department: "GENERAL SURGERY" },
+                        { srNo: 24, department: "PLASTIC AND RECONSTRUCTIVE SURGERY" },
+                        { srNo: 25, department: "PHYSICAL MEDICINE AND REHABILITATION" },
+                        { srNo: 26, department: "NEONATOLOGY" },
+                      ]}
+                      columns={[
+                        { accessorKey: "srNo", header: "Sr. No." },
+                        { accessorKey: "department", header: "Department" },
+                      ]}
+                    docName="department-master"
+                    searchColId="department"
+                    searchPlaceholder="Search by department"
+                    enableStatusFilter={false}
+                    enableSalesmanFilter={false}
                     disableExport={true}
                     disableColumnVisibility={true}
                     disableSearch={true}
-                    enableStatusFilter={false}
-                    enableSalesmanFilter={false}
-                  />
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -531,12 +589,20 @@ const Admin = () => {
             </div>
           )}
 
-          {activeTab === "salesmen" && (
+          {activeTab === "salesman" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Salesman List</h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Salesman List</h3>
+                  <Button 
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                    onClick={() => setShowAddSalesmanModal(true)}
+                  >
+                    Add Salesman
+                  </Button>
+                </div>
                 <div className="overflow-x-auto">
-                  <DataTable
+                   <DataTable
                     data={sampleSalesmen}
                     columns={salesmanColumns}
                     docName="salesmen"
@@ -544,6 +610,8 @@ const Admin = () => {
                     searchPlaceholder="Search by name"
                     enableStatusFilter={false}
                     enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
                   />
                 </div>
               </div>
@@ -979,6 +1047,146 @@ const Admin = () => {
           </DialogContent>
         </Dialog>
 
+         {/* Add Salesman Modal */}
+        <Dialog open={showAddSalesmanModal} onOpenChange={setShowAddSalesmanModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Salesman</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  value={newSalesmanName}
+                  onChange={(e) => setNewSalesmanName(e.target.value)}
+                  placeholder="Enter salesman name"
+                />
+              </div>
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <Input
+                  id="phoneNumber"
+                  value={newSalesmanPhone}
+                  onChange={(e) => setNewSalesmanPhone(e.target.value)}
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  value={newSalesmanEmail}
+                  onChange={(e) => setNewSalesmanEmail(e.target.value)}
+                  placeholder="Enter email"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddSalesmanModal(false);
+                  setNewSalesmanName("");
+                  setNewSalesmanPhone("");
+                  setNewSalesmanEmail("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving salesman:", newSalesmanName, newSalesmanPhone, newSalesmanEmail);
+                  setShowAddSalesmanModal(false);
+                  setNewSalesmanName("");
+                  setNewSalesmanPhone("");
+                  setNewSalesmanEmail("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Product Manager Modal */}
+        <Dialog open={showAddProductManagerModal} onOpenChange={setShowAddProductManagerModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Product Manager</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  value={newProductManagerName}
+                  onChange={(e) => setNewProductManagerName(e.target.value)}
+                  placeholder="Enter product manager name"
+                />
+              </div>
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <Input
+                  id="phoneNumber"
+                  value={newProductManagerPhone}
+                  onChange={(e) => setNewProductManagerPhone(e.target.value)}
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  value={newProductManagerEmail}
+                  onChange={(e) => setNewProductManagerEmail(e.target.value)}
+                  placeholder="Enter email"
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddProductManagerModal(false);
+                  setNewProductManagerName("");
+                  setNewProductManagerPhone("");
+                  setNewProductManagerEmail("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-teal-600 text-white hover:bg-teal-700"
+                onClick={() => {
+                  // Handle save functionality here
+                  console.log("Saving product manager:", newProductManagerName, newProductManagerPhone, newProductManagerEmail);
+                  setShowAddProductManagerModal(false);
+                  setNewProductManagerName("");
+                  setNewProductManagerPhone("");
+                  setNewProductManagerEmail("");
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Add Department Modal */}
         <Dialog open={showAddDepartmentModal} onOpenChange={setShowAddDepartmentModal}>
           <DialogContent className="sm:max-w-md">
@@ -1023,13 +1231,7 @@ const Admin = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Requirement Modal */}
-        <RequirementModal
-          open={showRequirementModal}
-          onOpenChange={setShowRequirementModal}
-          onSubmit={handleRequirementSubmit}
-          type={modalType}
-        />
+
         
         {/* View Modal */}
         <ViewModal

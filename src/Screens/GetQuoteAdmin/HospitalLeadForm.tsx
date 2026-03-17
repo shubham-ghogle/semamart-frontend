@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -8,7 +8,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getMedicopListWithProducts } from "@/medicop/storage";
+import { getMedicopListWithProducts, getGeneratedRequirements } from "@/medicop/storage";
 import MedicopPageShell from "@/medicop/MedicopPageShell";
 
 // State and district data
@@ -86,6 +86,51 @@ const HospitalLeadForm = () => {
   }));
   const selectedProducts = stateProducts && stateProducts.length > 0 ? stateProducts : fallbackProducts;
 
+  // Get unique organizations from generated requirements
+  const [organizations, setOrganizations] = useState<Array<{
+    entityName: string;
+    entityType: string;
+    contactNumber: string;
+    alternateMobileNumber: string;
+    email: string;
+    noOfBeds: string;
+    address: string;
+    state: string;
+    district: string;
+    contactPersonName: string;
+    contactPersonDesignation: string;
+    department: string;
+  }>>([]);
+
+  useEffect(() => {
+    const requirements = getGeneratedRequirements();
+    const uniqueOrgs: any[] = [];
+    const orgNames = new Set<string>();
+
+    requirements.forEach(req => {
+      if (!orgNames.has(req.entityName)) {
+        orgNames.add(req.entityName);
+        uniqueOrgs.push({
+          entityName: req.entityName,
+          entityType: req.entityType,
+          contactNumber: req.phoneNumber,
+          alternateMobileNumber: req.alternateMobileNumber,
+          email: req.email,
+          noOfBeds: req.noOfBeds,
+          address: req.address,
+          state: req.state,
+          district: req.district,
+          contactPersonName: req.customerName,
+          contactPersonDesignation: req.designation,
+          department: req.department,
+        });
+      }
+    });
+
+    setOrganizations(uniqueOrgs);
+  }, []);
+
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
   const [formData, setFormData] = useState({
     entityType: "",
     entityName: "",
@@ -118,6 +163,18 @@ const HospitalLeadForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate mandatory fields
+    if (!formData.state) {
+      alert("Please select a State");
+      return;
+    }
+    
+    if (!formData.district) {
+      alert("Please select a District");
+      return;
+    }
+    
     console.log("Form data to send:", formData); // Debug log
     if (isMedicopMode) {
       navigate("/get-quote-admin/requirement-screen?mode=medicop", {
@@ -146,16 +203,72 @@ const HospitalLeadForm = () => {
                     <label htmlFor="entityName" className="block text-sm font-medium text-gray-700 mb-2">
                       Organization Name <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      id="entityName"
-                      name="entityName"
-                      value={formData.entityName}
-                      onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter organization name"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="entityName"
+                        name="entityName"
+                        value={formData.entityName}
+                        onChange={(e) => {
+                          handleInputChange(e);
+                          // If user is typing a new organization name, clear any pre-filled data
+                          if (!organizations.find(org => org.entityName.toLowerCase().includes(e.target.value.toLowerCase()))) {
+                            setFormData(prev => ({
+                              ...prev,
+                              entityType: "",
+                              contactNumber: "",
+                              alternateMobileNumber: "",
+                              email: "",
+                              noOfBeds: "",
+                              address: "",
+                              state: "",
+                              district: "",
+                              contactPersonName: "",
+                              contactPersonDesignation: "",
+                              department: "",
+                            }));
+                          }
+                        }}
+                        onFocus={() => setShowOrgDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowOrgDropdown(false), 200)}
+                        className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Search organization name..."
+                        required
+                      />
+                      {showOrgDropdown && formData.entityName && organizations.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                          {organizations
+                            .filter(org => org.entityName.toLowerCase().includes(formData.entityName.toLowerCase()))
+                            .map((org, index) => (
+                              <div
+                                key={index}
+                                onClick={() => {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    entityName: org.entityName,
+                                    entityType: org.entityType,
+                                    contactNumber: org.contactNumber,
+                                    alternateMobileNumber: org.alternateMobileNumber,
+                                    email: org.email,
+                                    noOfBeds: org.noOfBeds,
+                                    address: org.address,
+                                    state: org.state,
+                                    district: org.district,
+                                    contactPersonName: org.contactPersonName,
+                                    contactPersonDesignation: org.contactPersonDesignation,
+                                    department: org.department,
+                                  }));
+                                  setShowOrgDropdown(false);
+                                }}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                              >
+                                <div className="font-medium">{org.entityName}</div>
+                                <div className="text-sm text-gray-500">{org.entityType}</div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
@@ -232,15 +345,15 @@ const HospitalLeadForm = () => {
                   </div>
                    <div>
                     <label htmlFor="noOfBeds" className="block text-sm font-medium text-gray-700 mb-2">
-                      No of beds
+                      No. of Beds
                     </label>
-                    <input
+                     <input
                       type="number"
                       id="noOfBeds"
                       name="noOfBeds"
                       value={formData.noOfBeds}
                       onChange={handleInputChange}
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Enter number of beds"
                       min={0}
                     />
@@ -294,6 +407,7 @@ const HospitalLeadForm = () => {
                         handleSelectChange("state", value);
                         handleSelectChange("district", "");
                       }}
+                      required
                     >
                       <SelectTrigger className="w-full h-10">
                         <SelectValue placeholder="Select state" />
@@ -316,6 +430,7 @@ const HospitalLeadForm = () => {
                       value={formData.district}
                       onValueChange={(value) => handleSelectChange("district", value)}
                       disabled={!formData.state}
+                      required
                     >
                       <SelectTrigger className="w-full h-10">
                         <SelectValue placeholder={formData.state ? "Search or select a District" : "Select state first"} />
