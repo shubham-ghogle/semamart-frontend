@@ -1743,7 +1743,11 @@ return (
                         Delivery Leading Time (in days)
                       </Subformlabel>
                       <FormControl>
-                        <Input {...field} className="w-full" />
+                        <Input
+                          {...field}
+                          className="w-full"
+                          placeholder="Example: 6 or 6-8"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1757,7 +1761,11 @@ return (
                     <FormItem>
                       <Subformlabel required>Warranty (in year)</Subformlabel>
                       <FormControl>
-                        <Input {...field} className="w-full" />
+                        <Input
+                          {...field}
+                          className="w-full"
+                          placeholder="0, 1, 2..."
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

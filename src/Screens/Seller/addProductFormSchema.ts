@@ -172,14 +172,23 @@ brand: z.string().min(2, "Brand is required"),
 
     deliveryLeadTime: z
       .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-        message: "Delivery lead time must grater then zero",
+      .trim()
+      .refine((val) => {
+        if (!val) return false;
+        return /^\d+(-\d+)?$/.test(val) || /[A-Za-z]/.test(val);
+      }, {
+        message: "Delivery lead time must be a number, range like 6-8, or an existing text value",
       }),
 
     warranty: z
       .string()
-      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-        message: "Warranty must be greater then zero",
+      .trim()
+      .refine((val) => {
+        if (!val) return false;
+        if (!isNaN(Number(val))) return Number(val) >= 0;
+        return true;
+      }, {
+        message: "Warranty must be zero or greater, or keep an existing text value",
       }),
 
     amc_cms: z.instanceof(File).optional().nullable(),
