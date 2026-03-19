@@ -13,7 +13,7 @@ interface ViewModalProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   data: any;
-  type: "customer" | "requirement" | "quotation" | "manager" | "salesman";
+  type: "customer" | "requirement" | "quotation" | "manager" | "salesman" | "organization" | "product-manager";
 }
 
 const ViewModal = ({
@@ -94,8 +94,8 @@ const ViewModal = ({
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">UID</label>
-            <div className="p-2 bg-gray-50 rounded">{data.uid}</div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">RID</label>
+            <div className="p-2 bg-gray-50 rounded">{data.rid}</div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
@@ -103,46 +103,14 @@ const ViewModal = ({
           </div>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Salesman</label>
-          <div className="p-2 bg-gray-50 rounded">{data.salesman}</div>
-        </div>
-        
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Entity Type</label>
-            <div className="p-2 bg-gray-50 rounded">{data.entityType}</div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
+            <div className="p-2 bg-gray-50 rounded">{data.organizationName}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
-            <div className="p-2 bg-gray-50 rounded">{data.entityName}</div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-            <div className="p-2 bg-gray-50 rounded">{data.state}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
-            <div className="p-2 bg-gray-50 rounded">{data.district}</div>
-          </div>
-        </div>
-        
-         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
-          <div className="p-2 bg-gray-50 rounded">{data.designation}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-            <div className="p-2 bg-gray-50 rounded">{data.phoneNumber}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <div className="p-2 bg-gray-50 rounded">{data.email}</div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Organization Type</label>
+            <div className="p-2 bg-gray-50 rounded">{data.organizationType}</div>
           </div>
         </div>
       </div>
@@ -274,7 +242,61 @@ const ViewModal = ({
     );
   };
 
+  // Render organization details
+  const renderOrganizationDetails = () => {
+    if (!data) return null;
+    
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sr. No.</label>
+            <div className="p-2 bg-gray-50 rounded">{data.srNo}</div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <div className="p-2 bg-gray-50 rounded">{data.name}</div>
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+          <div className="p-2 bg-gray-50 rounded">{data.type}</div>
+        </div>
+      </div>
+    );
+  };
 
+  // Render product manager details
+  const renderProductManagerDetails = () => {
+    if (!data) return null;
+    
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">UID</label>
+            <div className="p-2 bg-gray-50 rounded">{data.uid}</div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <div className="p-2 bg-gray-50 rounded">{data.name}</div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <div className="p-2 bg-gray-50 rounded">{data.email}</div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <div className="p-2 bg-gray-50 rounded">{data.phoneNumber}</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Render appropriate details based on type
   const renderDetails = () => {
@@ -289,6 +311,10 @@ const ViewModal = ({
         return renderManagerDetails();
       case "salesman":
         return renderSalesmanDetails();
+      case "organization":
+        return renderOrganizationDetails();
+      case "product-manager":
+        return renderProductManagerDetails();
       default:
         return null;
     }

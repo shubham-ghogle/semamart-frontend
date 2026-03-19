@@ -77,6 +77,7 @@ interface DataTableProps<TData, TValue> {
   enableSalesmanFilter?: boolean;
   salesmanOptions?: string[];
   salesmanColumnId?: string;
+  disablePagination?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -102,6 +103,7 @@ export function DataTable<TData, TValue>({
   enableSalesmanFilter = false,
   salesmanOptions = [],
   salesmanColumnId = "salesman",
+  disablePagination = false,
 }: DataTableProps<TData, TValue>) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -164,7 +166,7 @@ export function DataTable<TData, TValue>({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: !disablePagination ? getPaginationRowModel() : getCoreRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
@@ -667,48 +669,50 @@ doc.text(
         </Table>
       </div>
       {/* Pagination Control */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm">Rows per page:</span>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => table.setPageSize(Number(value))}
+      {!disablePagination && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">Rows per page:</span>
+            <Select
+              value={table.getState().pagination.pageSize.toString()}
+              onValueChange={(value) => table.setPageSize(Number(value))}
+            >
+              <SelectTrigger className="w-17.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 20, 50, 100].map((pageSize) => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="text-sm text-muted-foreground">
+            {`${start}–${end} of ${total} results`}
+          </div>
+
+          {/* Prev / Next Buttons */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
           >
-            <SelectTrigger className="w-17.5">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[5, 10, 20, 50, 100].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <ChevronLeft />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight />
+          </Button>
         </div>
-
-        <div className="text-sm text-muted-foreground">
-          {`${start}–${end} of ${total} results`}
-        </div>
-
-        {/* Prev / Next Buttons */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronLeft />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronRight />
-        </Button>
-      </div>
+      )}
     </div>
   );
 }

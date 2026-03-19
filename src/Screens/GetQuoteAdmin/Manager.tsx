@@ -7,7 +7,7 @@ import { GrWorkshop } from "react-icons/gr";
 import { FaSignOutAlt, FaEye, FaFileAlt } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import RequirementModal from "@/components/ui/RequirementModal";
+
 import AddProductForm from "./AddProductForm";
 import ViewModal from "@/components/ui/ViewModal";
 import { useNavigate } from "react-router-dom";
@@ -49,8 +49,6 @@ const sampleRecentActivity = [
 
 const Manager = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [showRequirementModal, setShowRequirementModal] = useState(false);
-  const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
   const [selectedSalesman, setSelectedSalesman] = useState<string>("");
   const [selectedEntityName, setSelectedEntityName] = useState<string>("");
   const [showViewModal, setShowViewModal] = useState(false);
@@ -84,14 +82,7 @@ const Manager = () => {
     });
   }, [selectedSalesman, selectedEntityName]);
 
-  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
-    console.log("Requirement data submitted:", data);
-    setShowRequirementModal(false);
-    setSelectedSalesman(data.salesman);
-    setSelectedEntityName(data.entityName);
-    // Navigate to the appropriate list page
-    setActiveTab(data.type);
-  };
+
 
   const handleSearch = () => {
     console.log("Searching with:", { selectedSalesman, selectedEntityName });
@@ -102,7 +93,7 @@ const Manager = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    { id: "addproduct", label: "Add Product Spec", icon: <GrWorkshop /> },
+    { id: "addproduct", label: "Add Product", icon: <GrWorkshop /> },
     { id: "product-spec-master", label: "Product Spec Master", icon: <GrWorkshop /> },
     { id: "speciality-master", label: "Speciality Master", icon: <GrWorkshop /> },
     { id: "scope-department-master", label: "Department Master", icon: <GrWorkshop /> },
@@ -110,14 +101,7 @@ const Manager = () => {
   ];
 
   const handleMenuClick = (itemId: string) => {
-   
-
-    if (itemId === "requirement" || itemId === "quotation") {
-      setModalType(itemId as "requirement" | "quotation");
-      setShowRequirementModal(true);
-    } else {
-      setActiveTab(itemId);
-    }
+    setActiveTab(itemId);
   };
 
   // Customer table columns
@@ -288,12 +272,7 @@ const Manager = () => {
                       <div 
                         key={index}
                         onClick={() => {
-                          if (item.label === "Requirement" || item.label === "Quotation") {
-                            setModalType(item.label.toLowerCase().replace(/\s+\(po\)/, '') as "requirement" | "quotation");
-                            setShowRequirementModal(true);
-                          } else {
-                            setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
-                          }
+                          setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
                         }}
                         className={`bg-gradient-to-r ${item.color} text-white rounded-xl p-5 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
                       >
@@ -932,14 +911,6 @@ const Manager = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Requirement Modal */}
-        <RequirementModal
-          open={showRequirementModal}
-          onOpenChange={setShowRequirementModal}
-          onSubmit={handleRequirementSubmit}
-          type={modalType}
-        />
-        
         {/* View Modal */}
         <ViewModal
           open={showViewModal}

@@ -13,6 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   getMedicopProductById,
   saveGeneratedRequirement,
+  getGeneratedRequirements,
 } from "@/medicop/storage";
 import MedicopPageShell from "@/medicop/MedicopPageShell";
 
@@ -48,6 +49,12 @@ const stateDistrictData: { [key: string]: string[] } = {
   "West Bengal": ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"]
 };
 
+const generateNewRID = () => {
+  const existing = getGeneratedRequirements();
+  const nextId = existing.length + 1;
+  return `REQ${String(nextId).padStart(4, "0")}`;
+};
+
 const RequirementScreen = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -72,14 +79,33 @@ const RequirementScreen = () => {
     productId: string;
     qty: number;
   }>;
+  const generatedRequirement = (location.state as any)?.generatedRequirement as any;
 
   if (isMedicopMode) {
-    const productRows = selectedMedicopProducts.map((item, index) => ({
-      srNo: index + 1,
-      productId: item.productId,
-      productName: getMedicopProductById(item.productId)?.name ?? item.productId,
-      quantity: item.qty,
-    }));
+    let productRows;
+    let reqData;
+
+    if (generatedRequirement) {
+      // If we have a generated requirement, use its data
+      reqData = generatedRequirement;
+      productRows = generatedRequirement.items.map((item: any, index: number) => ({
+        srNo: index + 1,
+        productId: item.productId,
+        productName: item.productName,
+        productImage: getMedicopProductById(item.productId)?.image ?? "",
+        quantity: item.quantity,
+      }));
+    } else {
+      // Otherwise, use the default data
+      reqData = leadData;
+      productRows = selectedMedicopProducts.map((item, index) => ({
+        srNo: index + 1,
+        productId: item.productId,
+        productName: getMedicopProductById(item.productId)?.name ?? item.productId,
+        productImage: getMedicopProductById(item.productId)?.image ?? "",
+        quantity: item.qty,
+      }));
+    }
 
     const medicopContent = (
       <div className="bg-white overflow-hidden">
@@ -87,35 +113,54 @@ const RequirementScreen = () => {
           <div className="flex-1 p-8 overflow-y-auto">
             <div className="max-w-6xl mx-auto">
               <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
-                <div className="flex items-center justify-between mb-8">
+                {/* Company Letterhead */}
+                <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-3">
                     <img
                       src="/Mediqop-Logo.png"
                       alt="Mediqop Logo"
-                      className="w-12 h-12 object-contain"
+                      className="w-16 h-16 object-contain"
                     />
                     <div>
-                      <p className="text-xs uppercase text-gray-500 tracking-wide">Medical Requirement</p>
-                      <h1 className="text-3xl font-bold text-[#1C647C]">Mediqop</h1>
+                      <h2 className="text-lg font-bold text-gray-800">MediQop</h2>
+                      <p className="text-sm text-gray-500">Empowering You</p>
                     </div>
+                  </div>
+                  <div className="text-right">
+                    <h2 className="text-lg font-bold text-[#1C647C]">MEDIQOP HEALTHCARE PVT. LTD.</h2>
+                    <p className="text-sm text-gray-600">317, 3rd Floor, SS Plaza, Mahavir</p>
+                    <p className="text-sm text-gray-600">Enclave, Dwarka Sec-11, Delhi</p>
+                    <p className="text-sm text-gray-600">Pin Code: 110075</p>
+                    <p className="text-sm text-gray-600 mt-1">Phone No: 01149982773 / 9967747555</p>
+                    <p className="text-sm text-gray-600">support@mediqop.com</p>
+                    <p className="text-sm font-semibold text-gray-800 mt-1">GSTIN: 07ABKCS8538F1ZX</p>
+                  </div>
+                </div>
+
+                 {/* Requirement Header */}
+                <div className="flex justify-between items-center mb-8">
+                  <h1 className="text-2xl font-bold text-gray-800">Requirement</h1>
+                  <div className="text-right">
+                    <h2 className="text-xl font-bold text-gray-800">{generatedRequirement?.uid || generateNewRID()}</h2>
+                    <p className="text-sm text-gray-500">{generatedRequirement?.date || new Date().toISOString().split('T')[0]}</p>
                   </div>
                 </div>
 
                 <div className="mb-8 p-6 bg-gray-50 rounded-lg">
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">RFQ Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                    <p>Organization: {leadData?.entityName || "Dummy Hospital"}</p>
-                    <p>Type: {leadData?.entityType || "Hospital"}</p>
-                    <p>State: {leadData?.state || "Maharashtra"}</p>
-                    <p>District: {leadData?.district || "Pune"}</p>
-                    <p>Address: {leadData?.address || "NA"}</p>
-                    <p>Contact Person: {leadData?.contactPersonName || "Demo User"}</p>
-                    <p>Designation: {leadData?.contactPersonDesignation || "Purchase Manager"}</p>
-                    <p>Phone: {leadData?.contactNumber || "9999999999"}</p>
-                    <p>Alternate Phone: {leadData?.alternateMobileNumber || "NA"}</p>
-                    <p>Email: {leadData?.email || "demo@mediqop.com"}</p>
-                    <p>Department: {leadData?.department || "NA"}</p>
-                    <p>No of beds: {leadData?.noOfBeds || "0"}</p>
+                    <p>Organization: {reqData?.entityName || "Dummy Hospital"}</p>
+                    <p>Type: {reqData?.entityType || "Hospital"}</p>
+                    <p>State: {reqData?.state || "Maharashtra"}</p>
+                    <p>District: {reqData?.district || "Pune"}</p>
+                    <p>Address: {reqData?.address || "NA"}</p>
+                    <p>Contact Person: {reqData?.customerName || reqData?.contactPersonName || "Demo User"}</p>
+                    <p>Designation: {reqData?.designation || "Purchase Manager"}</p>
+                    <p>Phone: {reqData?.phoneNumber || "9999999999"}</p>
+                    <p>Alternate Phone: {reqData?.alternateMobileNumber || "NA"}</p>
+                    <p>Email: {reqData?.email || "demo@mediqop.com"}</p>
+                    <p>Department: {reqData?.department || "NA"}</p>
+                    <p>No of beds: {reqData?.noOfBeds || "0"}</p>
                   </div>
                 </div>
 
@@ -124,6 +169,25 @@ const RequirementScreen = () => {
                     data={productRows}
                     columns={[
                       { accessorKey: "srNo", header: "Sr. No." },
+                      { 
+                        accessorKey: "productImage", 
+                        header: "Product Thumbnail", 
+                        cell: ({ row }: any) => (
+                          <div className="w-12 h-12">
+                            {row.original.productImage ? (
+                              <img 
+                                src={row.original.productImage} 
+                                alt={row.original.productName} 
+                                className="w-full h-full object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                                No Image
+                              </div>
+                            )}
+                          </div>
+                        )
+                      },
                       { accessorKey: "productName", header: "Product Name" },
                       { accessorKey: "quantity", header: "Quantity" },
                     ]}
@@ -132,6 +196,7 @@ const RequirementScreen = () => {
                     disableColumnVisibility={true}
                     disableSearch={true}
                     enableStatusFilter={false}
+                    disablePagination={true}
                   />
                 </div>
 
@@ -159,7 +224,7 @@ const RequirementScreen = () => {
                         email: leadData?.email || "demo@mediqop.com",
                         department: leadData?.department || "",
                         noOfBeds: leadData?.noOfBeds || "",
-                        items: productRows.map((row) => ({
+                        items: productRows.map((row: any) => ({
                           productId: row.productId,
                           productName: row.productName,
                           quantity: row.quantity,

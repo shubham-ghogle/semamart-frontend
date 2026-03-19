@@ -1,46 +1,46 @@
-import { useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 import { RxDashboard } from "react-icons/rx";
 import { GrWorkshop } from "react-icons/gr";
-import { FaSignOutAlt, FaEye, FaFileAlt, FaBox } from "react-icons/fa";
-import RequirementModal from "@/components/ui/RequirementModal";
+import { FaSignOutAlt, FaEye, FaFileAlt, FaBox, FaEdit } from "react-icons/fa";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 
 import ViewModal from "@/components/ui/ViewModal";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getGeneratedRequirements } from "@/medicop/storage";
+import { getGeneratedRequirements, type GeneratedRequirement } from "@/medicop/storage";
 
 // Sample data for demonstration
-const sampleCustomers = [
-  { srNo: 1, uid: "CUST001", date: "2024-01-15", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "CUST003", date: "2024-01-17", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
+const sampleOrganizations = [
+  { srNo: 1, name: "XYZ Institute", type: "Institute" },
+  { srNo: 2, name: "ABC Hospital", type: "Hospital" },
+  { srNo: 3, name: "Health Care Clinic", type: "Clinic" },
 ];
 
-const sampleRequirements = [
-  { srNo: 1, uid: "REQ001", date: "2024-01-15", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "REQ003", date: "2024-01-17", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
-];
+// Function to map generated requirements to table format
+const mapRequirementsToTableFormat = (requirements: GeneratedRequirement[]) => {
+  return requirements.map(req => ({
+    date: req.date,
+    rid: req.uid,
+    organizationName: req.entityName,
+    organizationType: req.entityType,
+  }));
+};
 
-const sampleQuotations = [
-  { srNo: 1, uid: "QUOT001", date: "2024-01-15", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "QUOT003", date: "2024-01-17", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
-];
-
-const samplePOs = [
-  { srNo: 1, uid: "PO001", date: "2024-01-15", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh", designation: "Principal", phoneNumber: "9876543210", email: "rajesh@xyz.edu" },
-  { srNo: 2, uid: "PO003", date: "2024-01-17", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil", designation: "Medical Practitioner", phoneNumber: "9876543212", email: "anil@healthcareclinic.com" },
-];
+// Function to map generated requirements to recent activity format
+const mapRequirementsToRecentActivityFormat = (requirements: GeneratedRequirement[]) => {
+  return requirements.map(req => ({
+    date: req.date,
+    organizationName: req.entityName,
+    organizationType: req.entityType,
+    state: req.state,
+    district: req.district,
+    rid: req.uid,
+  }));
+};
 
 const OVERVIEW_ITEMS = [
   { label: "Requirement", color: "from-green-500 to-emerald-500", IconComponent: FaFileAlt },
-  // { label: "Quotation", color: "from-yellow-500 to-orange-500", IconComponent: FaQuoteRight },
-  { label: "Product", color: "from-purple-500 to-violet-500", IconComponent: FaBox },
-];
-
-const sampleRecentActivity = [
-  { date: "2024-01-15", uid: "REQ001", status: "Requirement", salesman: "Current User", entityType: "Institute", entityName: "XYZ Institute", state: "Maharashtra", district: "Mumbai", customerName: "Dr. Rajesh" },
-  { date: "2024-01-17", uid: "QUOT003", status: "Requirement", salesman: "Current User", entityType: "Clinic", entityName: "Health Care Clinic", state: "Pune", district: "Pune", customerName: "Dr. Anil" },
+  { label: "Organization", color: "from-blue-500 to-indigo-500", IconComponent: FaBox },
 ];
 
 const Salesman = () => {
@@ -49,176 +49,127 @@ const Salesman = () => {
   const [activeTab, setActiveTab] = useState(
     (location.state as any)?.openRequirementTab ? "requirement" : "dashboard"
   );
-  const [showRequirementModal, setShowRequirementModal] = useState(false);
-  const [modalType, setModalType] = useState<"requirement" | "quotation">("requirement");
-  const [selectedEntityName, setSelectedEntityName] = useState<string>("");
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<any>(null);
-  const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation">("customer");
-  const [generatedRequirements, setGeneratedRequirements] = useState<any[]>([]);
+  const [viewModalType, setViewModalType] = useState<"customer" | "requirement" | "quotation" | "organization" | "product-manager">("customer");
+  const [requirements, setRequirements] = useState<GeneratedRequirement[]>([]);
 
+  // Load requirements on component mount
   useEffect(() => {
-    setGeneratedRequirements(getGeneratedRequirements());
-    const syncGenerated = () => setGeneratedRequirements(getGeneratedRequirements());
-    window.addEventListener("storage", syncGenerated);
-    return () => window.removeEventListener("storage", syncGenerated);
+    const storedRequirements = getGeneratedRequirements();
+    setRequirements(storedRequirements);
   }, []);
-  // Filter requirements based on entity name only (salesman sees their own data)
-  const filteredRequirements = useMemo(() => {
-    const allRequirements = [
-      ...sampleRequirements,
-      ...generatedRequirements.map((item, idx) => ({
-        srNo: sampleRequirements.length + idx + 1,
-        ...item,
-      })),
-    ];
-    return allRequirements.filter(item => {
-      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
-      return matchesEntityName;
-    });
-  }, [selectedEntityName, generatedRequirements]);
 
-  // Filter quotations based on entity name only (salesman sees their own data)
-  const filteredQuotations = useMemo(() => {
-    return sampleQuotations.filter(item => {
-      const matchesEntityName = !selectedEntityName || item.entityName.toLowerCase().includes(selectedEntityName.toLowerCase());
-      return matchesEntityName;
-    });
-  }, [selectedEntityName]);
 
-  const handleRequirementSubmit = (data: { salesman: string; entityName: string; type: "requirement" | "quotation" }) => {
-    console.log("Requirement data submitted:", data);
-    setShowRequirementModal(false);
-    setSelectedEntityName(data.entityName);
-    setActiveTab(data.type);
-  };
 
-  const handleSearch = () => {
-    console.log("Searching with:", { selectedEntityName });
-  };
 
 
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <RxDashboard /> },
+    { id: "organization", label: "Organization", icon: <GrWorkshop /> },
     { id: "requirement", label: "Requirement", icon: <GrWorkshop /> },
-    // { id: "quotation", label: "Quotation", icon: <GrWorkshop /> },
-    { id: "products", label: "Product Upload Form", icon: <GrWorkshop /> },
     { id: "logout", label: "Logout", icon: <FaSignOutAlt /> },
   ];
 
   const handleMenuClick = (itemId: string) => {
     console.log("handleMenuClick called with itemId:", itemId); // Add this line for debugging
-    if (itemId === "requirement" || itemId === "quotation") {
-      setModalType(itemId as "requirement" | "quotation");
-      setShowRequirementModal(true);
+    if (itemId === "logout") {
+      // Handle logout
     } else {
       setActiveTab(itemId);
     }
   };
 
-  // Customer table columns
-  const customerColumns = [
+  // Organization table columns
+  const organizationColumns = [
     { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID", cell: ({ row }: any) => <div>{row.original.uid}</div> },
-    { accessorKey: "date", header: "Date", cell: ({ row }: any) => <div>{row.original.date}</div> },
-    { accessorKey: "salesman", header: "Salesman", cell: ({ row }: any) => <div>{row.original.salesman}</div> },
-    { accessorKey: "entityType", header: "Entity Type", cell: ({ row }: any) => <div>{row.original.entityType}</div> },
-    { accessorKey: "entityName", header: "Entity Name", cell: ({ row }: any) => <div>{row.original.entityName}</div> },
-    { accessorKey: "state", header: "State", cell: ({ row }: any) => <div>{row.original.state}</div> },
-    { accessorKey: "district", header: "District", cell: ({ row }: any) => <div>{row.original.district}</div> },
-    { accessorKey: "designation", header: "Designation", cell: ({ row }: any) => <div>{row.original.designation}</div> },
-    { accessorKey: "phoneNumber", header: "Phone Number", cell: ({ row }: any) => <div>{row.original.phoneNumber}</div> },
-    { accessorKey: "email", header: "Email", cell: ({ row }: any) => <div>{row.original.email}</div> },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "type", header: "Type" },
      { 
       accessorKey: "action", 
-      header: "Action", 
+      header: "Requirement", 
       cell: ({ row }: any) => (
         <Button variant="ghost" onClick={() => {
           setViewModalData(row.original);
-          setViewModalType("customer");
+          setViewModalType("organization");
           setShowViewModal(true);
         }}>
           <FaEye size={16} />
         </Button>
       )
     },
+     { 
+      accessorKey: "profile", 
+      header: "Action", 
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => {
+            // Handle profile action
+          //   console.log("Profile action for:", row.original.name);
+          // }}>
+          //   <FaEye size={14} />
+          // </Button>
+          // <Button variant="ghost" size="sm" onClick={() => {
+            // Handle edit action
+            console.log("Edit action for:", row.original.name);
+          }}>
+            <FaEdit size={14} />
+          </Button>
+        </div>
+      )
+    },
   ];
 
   // Requirement table columns
   const requirementColumns = [
-    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID" },
-    { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityName", header: "Entity Name" },
     { accessorKey: "date", header: "Date" },
-     {
-      id: "action",
-      header: "Action",
-      cell: ({ row }: any) => {
-        const rowData = row.original;
-        return (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
+    { accessorKey: "rid", header: "RID (Requirement ID)" },
+    { accessorKey: "organizationName", header: "Organization Name" },
+    { accessorKey: "organizationType", header: "Organization Type" },
+      { 
+        accessorKey: "action", 
+        header: "Requirement", 
+        cell: ({ row }: any) => (
+          <Button variant="ghost" onClick={() => {
+            // Find the complete requirement data by RID
+            const completeRequirement = requirements.find(req => req.uid === row.original.rid);
+            if (completeRequirement) {
               navigate("/requirement?mode=medicop", {
-                state: { generatedRequirement: rowData, editable: true },
-              })
+                state: { generatedRequirement: completeRequirement, editable: true },
+              });
             }
-          >
+          }}>
             <FaEye size={16} />
           </Button>
-        );
+        )
       },
-    },
-  ];
-
-  // Quotation table columns
-  const quotationColumns = [
-    { accessorKey: "srNo", header: "Sr. No.", cell: ({ row }: any) => <div>{row.index + 1}</div> },
-    { accessorKey: "uid", header: "UID" },
-    { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityName", header: "Entity Name" },
-    { accessorKey: "date", header: "Date" },
-    {
-      id: "action",
-      header: "Action",
-      cell: () => (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/quotation")}
-        >
-          <FaEye size={16} />
-        </Button>
-      ),
-    },
   ];
 
 
 
-  // Recent Activity columns
+
+
+  // Recent RFQ columns
   const recentActivityColumns = [
     { accessorKey: "date", header: "Date" },
-    { accessorKey: "uid", header: "UID" },
-    { 
-      accessorKey: "status", 
-      header: "Status", 
-      cell: ({ row }: any) => {
-        const status = row.original.status;
-        const statusClasses = {
-          "Requirement": "px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium",
-          "Quotation": "px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium"
-        };
-        return <span className={statusClasses[status as keyof typeof statusClasses] || "px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"}>{status}</span>;
-      }
-    },
-    { accessorKey: "salesman", header: "Salesman" },
-    { accessorKey: "entityType", header: "Entity Type" },
-    { accessorKey: "entityName", header: "Entity Name" },
+    { accessorKey: "organizationName", header: "Organization Name" },
+    { accessorKey: "organizationType", header: "Organization Type" },
     { accessorKey: "state", header: "State" },
     { accessorKey: "district", header: "District" },
+     { 
+      accessorKey: "action", 
+      header: "Requirement", 
+      cell: ({ row }: any) => (
+        <Button variant="ghost" onClick={() => {
+          setViewModalData(row.original);
+          setViewModalType("requirement");
+          setShowViewModal(true);
+        }}>
+          <FaEye size={16} />
+        </Button>
+      )
+    },
   ];
 
   return (
@@ -281,22 +232,14 @@ const Salesman = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-12">
                   {OVERVIEW_ITEMS.map((item, index) => {
                     let count = 0;
-                    if (item.label === "Customer") count = sampleCustomers.length;
-                    if (item.label === "Requirement") count = sampleRequirements.length;
-                    if (item.label === "Quotation") count = sampleQuotations.length;
-                    if (item.label === "Purchase Order (PO)") count = samplePOs.length;
-                    if (item.label === "Product") count = 0;
+                    if (item.label === "Requirement") count = requirements.length;
+                    if (item.label === "Organization") count = sampleOrganizations.length;
                     
                     return (
                       <div 
                         key={index}
                           onClick={() => {
-                            if (item.label === "Requirement" || item.label === "Quotation") {
-                              setModalType(item.label.toLowerCase().replace(/\s+\(po\)/, '') as "requirement" | "quotation");
-                              setShowRequirementModal(true);
-                            } else {
-                              setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
-                            }
+                            setActiveTab(item.label.toLowerCase().replace(/\s+\(po\)/, ''));
                           }}
                         className={`bg-gradient-to-r ${item.color} text-white rounded-xl p-5 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
                       >
@@ -310,16 +253,16 @@ const Salesman = () => {
                   })}
                 </div>
 
-                {/* Recent Activity */}
+                {/* Recent RFQ */}
                 <div className="bg-white rounded-xl shadow-sm p-6 mt-12 border border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Recent RFQ</h3>
                   <div className="overflow-x-auto">
                     <DataTable
-                      data={sampleRecentActivity}
+                      data={mapRequirementsToRecentActivityFormat(requirements.slice(0, 5))}
                       columns={recentActivityColumns}
-                      docName="recent-activity"
-                      searchColId="salesman"
-                      searchPlaceholder="Search by salesman"
+                      docName="recent-rfq"
+                      searchColId="organizationName"
+                      searchPlaceholder="Search by organization name"
                       disableExport={true}
                       disableColumnVisibility={true}
                       enableStatusFilter={false}
@@ -331,19 +274,21 @@ const Salesman = () => {
             </div>
           )}
 
-          {activeTab === "customer" && (
+          {activeTab === "organization" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Customer List</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Organization List</h3>
                 <div className="overflow-x-auto">
                   <DataTable
-                    data={sampleCustomers}
-                    columns={customerColumns}
-                    docName="customers"
-                    searchColId="customerName"
-                    searchPlaceholder="Search by customer name"
+                    data={sampleOrganizations}
+                    columns={organizationColumns}
+                    docName="organizations"
+                    searchColId="name"
+                    searchPlaceholder="Search by organization name"
                     enableStatusFilter={false}
                     enableSalesmanFilter={false}
+                    disableExport={true}
+                    disableColumnVisibility={true}
                   />
                 </div>
               </div>
@@ -353,31 +298,10 @@ const Salesman = () => {
           {activeTab === "requirement" && (
             <div className="max-w-7xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div className="mb-6">
-                  <h1 className="text-2xl font-bold text-gray-800">Salesman Requirement List</h1>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Last updated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
-                  </p>
-                </div>
-                {/* Entity Name Search */}
-                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
-                    <Input
-                      value={selectedEntityName}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedEntityName(e.target.value)}
-                      placeholder="Search by entity name"
-                      className="w-full"
-                    />
-                  </div>
-                  <Button type="submit" className="bg-teal-600 text-white hover:bg-teal-700">
-                    Submit
-                  </Button>
-                </form>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Requirement List</h3>
                 <div className="overflow-x-auto">
                   <DataTable
-                    data={filteredRequirements}
+                    data={mapRequirementsToTableFormat(requirements)}
                     columns={requirementColumns}
                     docName="requirements"
                     disableExport={true}
@@ -390,39 +314,7 @@ const Salesman = () => {
             </div>
           )}
 
-          {activeTab === "quotation" && (
-            <div className="max-w-7xl mx-auto">
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                {/* Entity Name Search */}
-                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex gap-4 items-center mb-6">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entity Name</label>
-                    <Input
-                      value={selectedEntityName}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedEntityName(e.target.value)}
-                      placeholder="Search by entity name"
-                      className="w-full"
-                    />
-                  </div>
-                  <Button type="submit" className="bg-teal-600 text-white hover:bg-teal-700">
-                    Submit
-                  </Button>
-                </form>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Quotation List</h3>
-                <div className="overflow-x-auto">
-                  <DataTable
-                    data={filteredQuotations}
-                    columns={quotationColumns}
-                    docName="quotations"
-                    disableExport={true}
-                    disableColumnVisibility={true}
-                    disableSearch={true}
-                    enableStatusFilter={false}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+
 
 
 
@@ -442,15 +334,6 @@ const Salesman = () => {
           )}
         </div>
 
-        {/* Requirement Modal */}
-        <RequirementModal
-          open={showRequirementModal}
-          onOpenChange={setShowRequirementModal}
-          onSubmit={handleRequirementSubmit}
-          type={modalType}
-          showSalesmanDropdown={false}
-        />
-        
         {/* View Modal */}
         <ViewModal
           open={showViewModal}

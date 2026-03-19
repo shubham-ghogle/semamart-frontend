@@ -8,6 +8,7 @@ import {
   getMedicopListWithProducts,
   removeMedicopItem,
   updateMedicopQty,
+  setMedicopQty,
 } from "@/medicop/storage";
 
 type MedicopCartProps = {
@@ -96,31 +97,51 @@ export default function MedicopCart({ cartOpenHandler }: MedicopCartProps) {
                     <h4 className="text-sm font-semibold text-gray-900">{item.product?.name}</h4>
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center border rounded-md overflow-hidden">
-                        <button
-                          onClick={() => {
-                            updateMedicopQty(item.productId, -1);
-                            refresh();
-                          }}
-                          disabled={item.qty === 1}
-                          className={`w-8 h-8 text-lg font-bold ${
-                            item.qty === 1
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-white hover:bg-gray-100"
-                          }`}
-                        >
-                          -
-                        </button>
-                        <div className="px-3 text-sm font-medium">{item.qty}</div>
-                        <button
-                          onClick={() => {
-                            updateMedicopQty(item.productId, 1);
-                            refresh();
-                          }}
-                          className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
-                        >
-                          +
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => {
+                              updateMedicopQty(item.productId, -1);
+                              refresh();
+                            }}
+                            disabled={item.qty === 1}
+                            className={`w-8 h-8 text-lg font-bold ${
+                              item.qty === 1
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white hover:bg-gray-100"
+                            }`}
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            value={item.qty}
+                            onChange={(e) => {
+                              const qty = parseInt(e.target.value);
+                              if (!isNaN(qty)) {
+                                setMedicopQty(item.productId, qty);
+                                refresh();
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const qty = parseInt(e.target.value);
+                              if (isNaN(qty) || qty < 1) {
+                                setMedicopQty(item.productId, 1);
+                                refresh();
+                              }
+                            }}
+                            className="px-2 py-1 text-sm font-medium text-center border-x border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            style={{ width: `${Math.max(3, item.qty.toString().length) + 1.5}ch` }}
+                            min="1"
+                          />
+                          <button
+                            onClick={() => {
+                              updateMedicopQty(item.productId, 1);
+                              refresh();
+                            }}
+                            className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
+                          >
+                            +
+                          </button>
+                        </div>
 
                       <button
                         onClick={() => {
