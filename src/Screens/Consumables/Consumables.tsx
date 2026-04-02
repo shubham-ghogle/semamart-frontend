@@ -111,7 +111,7 @@ export default function Consumables() {
 
       <div className="w-full px-6 pt-8 space-y-12 mx-auto">
         {/* Popular categories */}
-        <div className="hidden md:block">
+        <div>
           <PopularCategories />
         </div>
 

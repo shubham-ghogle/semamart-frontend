@@ -21,7 +21,7 @@ export default function PopularCategories() {
   const startXRef = useRef<number | null>(null);
   const startLeftRef = useRef(0);
 
-  const CARD_WIDTH = 320;
+  const CARD_WIDTH = 280;
   const CARD_GAP = 16;
   const CARD_HEIGHT = 260;
 

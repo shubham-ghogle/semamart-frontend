@@ -127,6 +127,10 @@ export default function Header() {
   // mobile UI
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [,setMobileSearchOpen] = useState(false);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [mobileSpecialties, setMobileSpecialties] = useState<Subcategory[]>([]);
+  const [mobileSpecialtiesLoaded, setMobileSpecialtiesLoaded] = useState(false);
+  const [expandedSpecialtyId, setExpandedSpecialtyId] = useState<string | null>(null);
 
   // refs + navigate
   const categoryRef = useRef<HTMLDivElement | null>(null);
@@ -390,7 +394,21 @@ export default function Header() {
               <button
                 className="md:hidden p-2 rounded-md hover:bg-gray-100"
                 aria-label="Open menu"
-                onClick={() => setMobileMenuOpen(true)}
+                onClick={() => {
+                  setMobileMenuOpen(true);
+                  if (!mobileSpecialtiesLoaded) {
+                    fetch(API_URL + "special-package")
+                      .then((res) => res.json())
+                      .then((data: Subcategory[]) => {
+                        setMobileSpecialties(data || []);
+                        setMobileSpecialtiesLoaded(true);
+                      })
+                      .catch(() => {
+                        setMobileSpecialties([]);
+                        setMobileSpecialtiesLoaded(true);
+                      });
+                  }
+                }}
               >
                 <IoMdMenu size={22} />
               </button>
@@ -1018,10 +1036,120 @@ export default function Header() {
                     <ul className="space-y-1">
                       {categories.map((c) => (
                         <li key={c._id}>
-                          <button className="w-full text-left px-2 py-2 rounded hover:bg-gray-50" onClick={() => { navigate(`/category/${c._id}`); setMobileMenuOpen(false); }}>{c.name}</button>
+                          <div className="flex items-center justify-between">
+                            <button
+                              className="flex-1 text-left px-2 py-2 rounded hover:bg-gray-50"
+                              onClick={() => {
+                                navigate(`/get-products-by-category/${c._id}`);
+                                setMobileMenuOpen(false);
+                              }}
+                            >
+                              {c.name}
+                            </button>
+                            <button
+                              className="px-2 py-2 text-gray-400"
+                              onClick={() => {
+                                if (expandedCategoryId === c._id) {
+                                  setExpandedCategoryId(null);
+                                } else {
+                                  setExpandedCategoryId(c._id);
+                                  if (!subcategoryMap[c._id]) {
+                                    fetch(`${API_URL}category/${c._id}/subcategories`)
+                                      .then((res) => res.json())
+                                      .then((data: Subcategory[]) => {
+                                        setSubcategoryMap((prev) => ({ ...prev, [c._id]: data || [] }));
+                                      })
+                                      .catch(() => {
+                                        setSubcategoryMap((prev) => ({ ...prev, [c._id]: [] }));
+                                      });
+                                  }
+                                }
+                              }}
+                            >
+                              <IoIosArrowForward className={`transition-transform duration-200 ${expandedCategoryId === c._id ? "rotate-90" : ""}`} size={14} />
+                            </button>
+                          </div>
+                          {expandedCategoryId === c._id && subcategoryMap[c._id] && subcategoryMap[c._id].length > 0 && (
+                            <ul className="ml-4 border-l border-gray-200 space-y-1 py-1">
+                              {subcategoryMap[c._id].map((sub) => (
+                                <li key={sub._id}>
+                                  <button
+                                    className="w-full text-left px-2 py-1.5 text-sm text-gray-600 rounded hover:bg-gray-50 hover:text-[#16A34A]"
+                                    onClick={() => {
+                                      navigate(`/get-products-by-subcategory/${sub._id}`);
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    {sub.name}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </li>
                       ))}
                     </ul>
+                  )}
+                </div>
+
+                <div className="border-b pb-3">
+                  <div className="font-semibold mb-2">By Specialty</div>
+                  {mobileSpecialtiesLoaded ? (
+                    mobileSpecialties.length === 0 ? (
+                      <div className="text-sm text-gray-500 px-2 py-2">No specialties</div>
+                    ) : (
+                      <ul className="space-y-1">
+                        {mobileSpecialties.map((s) => (
+                          <li key={s._id}>
+                            <div className="flex items-center justify-between">
+                              <button
+                                className="flex-1 text-left px-2 py-2 rounded hover:bg-gray-50"
+                                onClick={() => {
+                                  navigate(`/get-products-by-speciality-package/${String(s._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+                                  setMobileMenuOpen(false);
+                                }}
+                              >
+                                {s.name}
+                              </button>
+                              <button
+                                className="px-2 py-2 text-gray-400"
+                                onClick={() => {
+                                  if (expandedSpecialtyId === s._id) {
+                                    setExpandedSpecialtyId(null);
+                                  } else {
+                                    setExpandedSpecialtyId(s._id);
+                                    if (!specialtyPackageTypes[s._id]) {
+                                      fetchPackageTypes(s._id);
+                                    }
+                                  }
+                                }}
+                              >
+                                <IoIosArrowForward className={`transition-transform duration-200 ${expandedSpecialtyId === s._id ? "rotate-90" : ""}`} size={14} />
+                              </button>
+                            </div>
+                            {expandedSpecialtyId === s._id && specialtyPackageTypes[s._id] && specialtyPackageTypes[s._id].length > 0 && (
+                              <ul className="ml-4 border-l border-gray-200 space-y-1 py-1">
+                                {specialtyPackageTypes[s._id].map((pkg) => (
+                                  <li key={pkg._id}>
+                                    <button
+                                      className="w-full text-left px-2 py-1.5 text-sm text-gray-600 rounded hover:bg-gray-50 hover:text-blue-600"
+                                      onClick={() => {
+                                        navigate(`/get-products-by-speciality-package-type/${String(pkg._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+                                        setMobileMenuOpen(false);
+                                      }}
+                                    >
+                                      {pkg.name}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )
+                  ) : (
+                    <div className="text-sm text-gray-400 px-2 py-2">Loading specialties...</div>
                   )}
                 </div>
 
