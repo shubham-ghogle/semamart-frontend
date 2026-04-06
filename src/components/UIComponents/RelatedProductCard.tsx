@@ -40,11 +40,11 @@ export default function RelatedProductCard({ productType, productId }: RelatedPr
   return (
     <div className="w-full mt-4">
       <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-        <div className="flex gap-3 snap-x snap-mandatory" style={{ paddingBottom: 6 }}>
+        <div className="flex flex-row gap-3 snap-x snap-mandatory justify-start" style={{ paddingBottom: 6 }}>
           {selectedProducts.map((product: any, idx: number) => (
             <div
               key={product._id}
-              className="flex-shrink-0 snap-start"
+              className="flex-shrink-0 snap-start flex flex-row"
               style={{
                 width: MOBILE_CARD_WIDTH,
                 marginRight: idx === selectedProducts.length - 1 ? 0 : 6,
