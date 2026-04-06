@@ -128,7 +128,7 @@ export default function ImageSliderHome() {
   const rightPct = "19.231%"; // 450 / total
 
   return (
-    <section className="w-full px-6 py-6">
+    <section className="w-full px-12 py-12">
       <div className="max-w-[1400px] mx-auto">
         <div className="flex gap-4 items-stretch">
           {/* LEFT: large slider */}
