@@ -22,17 +22,16 @@ export default function SellerMainWrapper({
   const showGoBackButton = heading === "Order Details" || heading === "Product Detail";
 
   return (
-    <div className="flex-1 px-4 sm:px-6 py-4">
-      <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] pb-6">
-        <div className="px-5 py-4 border-b flex items-center justify-between">
+    <div className="flex-1 px-4 sm:px-6 py-4 w-full">
+      <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible w-full pb-6">
+        <div className="px-5 py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
               {heading || "Seller"}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-  {subHeading || "Manage your seller account"}
-</p>
-
+              {subHeading || "Manage your seller account"}
+            </p>
           </div>
 
           {showGoBackButton && (

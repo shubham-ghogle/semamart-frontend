@@ -11,7 +11,7 @@ export default function AdminLayout() {
       <AdminNavbar />
 
       <main className="transition-all duration-200 overflow-y-auto" style={{ minHeight: "calc(100vh - var(--admin-header-height, 80px))" }}>
-        <section className="container mx-auto px-4 md:px-6 py-8">
+        <section className="px-4 md:px-6 py-8 w-full">
           <Outlet />
         </section>
 

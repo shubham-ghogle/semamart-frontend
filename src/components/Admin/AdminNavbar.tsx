@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
-import { LuMessageSquare } from "react-icons/lu";
-import { GrWorkshop } from "react-icons/gr";
-import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
-import { FaHeadset } from "react-icons/fa";
-import { TbCoinRupee } from "react-icons/tb";
+import { LuInbox, LuMail } from "react-icons/lu";
+import { FaBars, FaTimes, FaSignOutAlt, FaBuilding, FaUsers, FaFileImage, FaHeadset } from "react-icons/fa";
+import { MdLocalHospital, MdWarehouse, MdStorefront } from "react-icons/md";
+import { AiOutlineProduct } from "react-icons/ai";
+import { PiCurrencyInrBold } from "react-icons/pi";
 import { useUserStore } from "@/store/userStore";
 import { API_URL } from "@/data";
 
@@ -126,16 +126,16 @@ export default function AdminNavbar() {
     permissionKey: string | null;
   }[] = [
     { to: "/admin", label: "Dashboard", icon: <RxDashboard />, permissionKey: null },
-    { to: "/medicop/medicophomepage", label: "Medical Manager", icon: <GrWorkshop />, permissionKey: null },
-    { to: "/admin/orders", label: "All Orders", icon: <GrWorkshop />, permissionKey: "AllOrders" },
-    { to: "/admin/orders/sales", label: "Total Sales", icon: <TbCoinRupee />, permissionKey: "AllSales" },
-    { to: "/admin/requests", label: "Requests", icon: <LuMessageSquare />, permissionKey: "Requests" },
-    { to: "/admin/sellers", label: "All Sellers", icon: <GrWorkshop />, permissionKey: "AllSeller" },
-    { to: "/admin/users", label: "All Institutes", icon: <GrWorkshop />, permissionKey: "AllInstitutes" },
-    { to: "/admin/products", label: "All Products", icon: <GrWorkshop />, permissionKey: "AllProducts" },
-    { to: "/admin/img-upload", label: "Image Upload", icon: <GrWorkshop />, permissionKey: "UploadImage" },
-    { to: "/admin/bulk-order-request", label: "Stock Management", icon: <FaBoxOpen />, permissionKey: "StockManagement" },
-    { to: "/admin/member-access", label: "Member Access", icon: <GrWorkshop />, permissionKey: "MemberAccess" },
+    { to: "/medicop/medicophomepage", label: "Medical Manager", icon: <MdLocalHospital />, permissionKey: null },
+    { to: "/admin/orders", label: "All Orders", icon: <LuInbox />, permissionKey: "AllOrders" },
+    { to: "/admin/orders/sales", label: "Total Sales", icon: <PiCurrencyInrBold />, permissionKey: "AllSales" },
+    { to: "/admin/requests", label: "Requests", icon: <LuMail />, permissionKey: "Requests" },
+    { to: "/admin/sellers", label: "All Sellers", icon: <MdStorefront />, permissionKey: "AllSeller" },
+    { to: "/admin/users", label: "All Institutes", icon: <FaBuilding />, permissionKey: "AllInstitutes" },
+    { to: "/admin/products", label: "All Products", icon: <AiOutlineProduct />, permissionKey: "AllProducts" },
+    { to: "/admin/img-upload", label: "Image Upload", icon: <FaFileImage />, permissionKey: "UploadImage" },
+    { to: "/admin/bulk-order-request", label: "Stock Management", icon: <MdWarehouse />, permissionKey: "StockManagement" },
+    { to: "/admin/member-access", label: "Member Access", icon: <FaUsers />, permissionKey: "MemberAccess" },
     { to: "/admin/support", label: "Support", icon: <FaHeadset />, permissionKey: "SupportDetail" },
   ];
 
@@ -193,13 +193,16 @@ export default function AdminNavbar() {
         }}
       >
         <div className="bg-white border-r h-full flex flex-col overflow-hidden rounded-none">
-          <div className="flex items-center gap-4 p-4 border-b">
-            <div className={`transition-all ${isExpanded ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
-              <p className="text-xs text-gray-400">Hello,</p>
-              <p className="font-semibold text-gray-800 leading-5">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+          {isExpanded && (
+            <div className="flex items-center gap-4 p-4 border-b">
+              <div>
+                <p className="text-xs text-gray-400">Hello,</p>
+                <p className="font-semibold text-gray-800 leading-5">{`${user?.firstName || ""} ${user?.lastName || ""}`}</p>
+                <p className="text-xs text-gray-500">{user?.email}</p>
+              </div>
             </div>
-          </div>
+          )}
+ 
 
           <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="flex flex-col gap-1">

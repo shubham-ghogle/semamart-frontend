@@ -5,15 +5,13 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
-import { CiDeliveryTruck } from "react-icons/ci";
-import { FaBars, FaTimes, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
-import { FaRegCircleUser } from "react-icons/fa6";
-import { MdStorefront } from "react-icons/md";
+import { FaBars, FaTimes, FaSignOutAlt, FaRegCircle, FaShip } from "react-icons/fa";
+import { MdStorefront, MdWarehouse, MdContactPage } from "react-icons/md";
 import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
 import { API_URL, BASE_URL } from "@/data";
-import { TbCoinRupee } from "react-icons/tb";
-import { LuContactRound, LuMessageSquare } from "react-icons/lu";
+import { PiCurrencyInrBold } from "react-icons/pi";
+import { LuContactRound, LuMessageSquare, LuInbox } from "react-icons/lu";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -295,21 +293,21 @@ export default function SellerNavbar() {
           </div>
 
           {/* nav area */}
-          <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
+<nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="h-full flex flex-col">
               <div className="flex flex-col gap-1">
                 <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" pinned={pinned} />
-                <LinkItem to="/seller/my-account" icon={<FaRegCircleUser />} label="My Account" pinned={pinned} />
+                <LinkItem to="/seller/my-account" icon={<FaRegCircle />} label="My Account" pinned={pinned} />
                 <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" pinned={pinned} />
                 <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
-                <LinkItem to="/seller/orders" end icon={<CiDeliveryTruck />} label="All Orders" pinned={pinned} />
-                <LinkItem to="/seller/orders/delivered" icon={<TbCoinRupee />} label="Total Sales" pinned={pinned} />
+                <LinkItem to="/seller/orders" end icon={<LuInbox />} label="All Orders" pinned={pinned} />
+                <LinkItem to="/seller/orders/delivered" icon={<PiCurrencyInrBold />} label="Total Sales" pinned={pinned} />
                 <LinkItem to="/seller/support" icon={<LuMessageSquare />} label="Support" pinned={pinned} />
-                <LinkItem to="/seller/stock-management" icon={<FaBoxOpen />} label="Stock Management" pinned={pinned} />
-                <LinkItem to={`/shop/${seller?._id}`} icon={<MdStorefront />} label="My Shop" target="_blank" pinned={pinned} />
+                <LinkItem to="/seller/stock-management" icon={<MdWarehouse />} label="Stock Management" pinned={pinned} />
+                <LinkItem to={`/shop/${seller?._id}`} icon={<FaShip />} label="My Shop" target="_blank" pinned={pinned} />
               </div>
               <div className="mt-auto pt-3 border-t">
-                <LinkItem to="/seller/contact-us" icon={<LuContactRound />} label="Contact Us" pinned={pinned} />
+                <LinkItem to="/seller/contact-us" icon={<MdContactPage />} label="Contact Us" pinned={pinned} />
               </div>
             </div>
           </nav>
@@ -392,7 +390,7 @@ export default function SellerNavbar() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
                 >
-                  <FaRegCircleUser />
+                  <FaRegCircle />
                   <span>My Account</span>
                 </NavLink>
                 <NavLink
@@ -411,12 +409,12 @@ export default function SellerNavbar() {
                   <AiOutlineProduct />
                   <span>All Products</span>
                 </NavLink>
-                <NavLink
+<NavLink
                   to="/seller/orders"
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
                 >
-                  <CiDeliveryTruck />
+                  <LuInbox />
                   <span>All Orders</span>
                 </NavLink>
                 <NavLink
@@ -424,7 +422,7 @@ export default function SellerNavbar() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
                 >
-                  <FaBoxOpen />
+                  <MdWarehouse />
                   <span>Stock Management</span>
                 </NavLink>
                 <NavLink

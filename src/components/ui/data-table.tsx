@@ -417,7 +417,7 @@ doc.text(
   return (
     <div className="w-full">
       <section
-        className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+        className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full"
       >
         {/* serach input */}
         {!disableSearch && (
@@ -430,7 +430,7 @@ doc.text(
             onChange={(event) =>
               table.getColumn(searchColId)?.setFilterValue(event.target.value)
             }
-            className="max-w-sm p-2 border rounded w-full sm:w-auto"
+            className="min-w-[180px] max-w-sm p-2 border rounded w-full sm:w-auto"
           />
         )}
         
@@ -440,7 +440,7 @@ doc.text(
          
 
         {!disableBtns && (
-          <article className="flex items-center gap-3 overflow-x-auto w-full justify-end flex-wrap sm:flex-nowrap">
+          <article className="flex items-center gap-2 sm:gap-3 overflow-x-auto w-full justify-end flex-wrap">
             {!disabeAdminVisibilitySwitch && selectedRows.rows.length > 0 && (
               <article className="justify-self-end flex items-center gap-1">
                 <Switch
@@ -604,7 +604,7 @@ doc.text(
       )}
     </section>
 
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -670,14 +670,14 @@ doc.text(
       </div>
       {/* Pagination Control */}
       {!disablePagination && (
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm">Rows per page:</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-4">
+          <div className="flex items-center space-x-2 order-2 sm:order-1">
+            <span className="text-sm whitespace-nowrap">Rows per page:</span>
             <Select
               value={table.getState().pagination.pageSize.toString()}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >
-              <SelectTrigger className="w-17.5">
+              <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -690,27 +690,29 @@ doc.text(
             </Select>
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            {`${start}–${end} of ${total} results`}
+          <div className="text-sm text-muted-foreground order-1 sm:order-2">
+            {`${start}–${end} of ${total}`}
           </div>
 
           {/* Prev / Next Buttons */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight />
-          </Button>
+          <div className="flex items-center space-x-2 order-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
