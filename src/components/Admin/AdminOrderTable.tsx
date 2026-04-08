@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { EyeIcon } from "lucide-react";
+import { getVariantCommission } from "@/lib/utils";
 
 type Row = {
   id: string;
@@ -33,7 +34,6 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
   const baseRows: Row[] = orders.map((el) => {
     // Defensive extraction of product name — handle null, string, nested object
     let productName = "-";
-    let commission=0;
 
     if (!el.variant) {
       productName = "-";
@@ -50,8 +50,8 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         // pid is object
         productName = pid?.name ?? "-";
       }
-      if (pid && typeof pid === "object") commission = pid.commission ?? 0;
     }
+    const commission = getVariantCommission(el);
     
 
     const paymentMethod = (el.paymentInfo?.method || "").toLowerCase();

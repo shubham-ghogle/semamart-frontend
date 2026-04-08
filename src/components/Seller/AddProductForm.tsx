@@ -60,6 +60,7 @@ import { useDebounce } from "@/hooks";
 import { InfoTooltip } from "../ui/InfoTooltip";
 import Subformlabel from "../ui/Subformlabel";
 import indiaStates, { getDistricts } from "india-state-district";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 
 type AddProductFormProps =
@@ -88,12 +89,17 @@ export default function AddProductForm({
   const [subCatList, setSubCatList] = useState<SubCategory[]>([]);
   const [currentAttri, setCurrentAttri] = useState({ key: "", val: "" });
   const seller = useSellerStore((state) => state.seller);
+  const { shopId, canAccess } = useSellerSession();
   const [currCategory, setCurrCategory] = useState({ name: "", val: "" });
   const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" });
   const [isMultiVariant, setIsMultiVariant] = useState(multiVariant);
 
   const qc = useQueryClient();
   const navigate = useNavigate();
+
+  if (!canAccess("AddProduct")) {
+    return <div className="rounded-xl border bg-white p-4 text-gray-600">You do not have access to add products.</div>;
+  }
 
   // --- NORMALIZE incoming product so form always has attributes & brand ---
   // --- NORMALIZE incoming product so form always has attributes & brand ---
@@ -164,6 +170,7 @@ export default function AddProductForm({
       size: null,
       colorOption: null,
       discountPrice: "",
+      commission: "",
       bulkOrders: [],
     });
   }
@@ -452,12 +459,13 @@ export default function AddProductForm({
           originalPrice: el.originalPrice,
           discountPrice: el.discountPrice,
           stock: el.stocks,
+          commission: el.commission,
           bulkOrders: el.bulkOrders ?? [],
         })),
       ),
     );
 
-    newForm.append("shopId", seller?._id || "");
+    newForm.append("shopId", shopId || seller?._id || "");
     newForm.append("name", values.name);
     // append brand if present
     if (values.brand) {
@@ -621,6 +629,7 @@ function switchMultiVarianMode() {
       colorOption: null,
       originalPrice: "",
       discountPrice: "",
+      commission: "",
       stocks: "",
     },
   ]);

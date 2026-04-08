@@ -7,9 +7,8 @@ import { TiDocumentAdd } from "react-icons/ti";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FaBars, FaTimes, FaSignOutAlt, FaRegCircle, FaShip } from "react-icons/fa";
 import { MdStorefront, MdWarehouse, MdContactPage } from "react-icons/md";
-import { useSellerStore } from "@/store/sellerStore";
 import { toast } from "react-toastify";
-import { API_URL, BASE_URL } from "@/data";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 import { PiCurrencyInrBold } from "react-icons/pi";
 import { LuContactRound, LuMessageSquare, LuInbox } from "react-icons/lu";
 
@@ -129,8 +128,7 @@ function LinkItem({
 
 
 export default function SellerNavbar() {
-  const seller = useSellerStore((s) => s.seller);
-  const removeSeller = useSellerStore((s) => s.removeSeller);
+  const { displayName, email, avatar, shopId, canAccess, logout, memberMode } = useSellerSession();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -191,26 +189,11 @@ export default function SellerNavbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const fallbackAvatar = seller?.profilePic
-    ? `${BASE_URL}images/${seller.profilePic}`
-    : "/image60.png";
-
   const logoutHandler = async () => {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      // Attempt API logout, but don't fail if it fails
-      try {
-        await fetch(API_URL + "shop/logout", {
-          method: "POST",
-          credentials: "include",
-        });
-      } catch (apiErr) {
-        console.error("API logout failed:", apiErr);
-        // Continue with local logout even if API fails
-      }
-
-      removeSeller();
+      await logout();
       toast.success("Logged out", { position: "top-center" });
       navigate("/", { replace: true });
     } catch (err) {
@@ -221,6 +204,18 @@ export default function SellerNavbar() {
     }
   };
 
+  const navItems = [
+    { to: "/seller", end: true, icon: <RxDashboard />, label: "Dashboard", permission: "Dashboard" as const },
+    { to: "/seller/my-account", icon: <FaRegCircle />, label: "My Account", permission: "MyAccount" as const },
+    { to: "/seller/add-product", icon: <TiDocumentAdd />, label: "Add Product", permission: "AddProduct" as const },
+    { to: "/seller/products", icon: <AiOutlineProduct />, label: "All Products", permission: "AllProducts" as const },
+    { to: "/seller/orders", end: true, icon: <LuInbox />, label: "All Orders", permission: "AllOrders" as const },
+    { to: "/seller/orders/delivered", icon: <PiCurrencyInrBold />, label: "Total Sales", permission: "AllSales" as const },
+    { to: "/seller/support", icon: <LuMessageSquare />, label: "Support", permission: "Support" as const },
+    { to: "/seller/stock-management", icon: <MdWarehouse />, label: "Stock Management", permission: "StockManagement" as const },
+    { to: "/seller/members", icon: <MdStorefront />, label: "Team Members", permission: "ManageMembers" as const },
+  ].filter((item) => canAccess(item.permission));
+
   return (
     <>
       {/* ----------------------------- MOBILE HEADER ----------------------------- */}
@@ -229,14 +224,14 @@ export default function SellerNavbar() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 overflow-hidden flex items-center justify-center">
               <img
-                src={fallbackAvatar}
+                src={avatar}
                 alt="seller avatar"
                 className=" rounded-full object-cover "
               />
             </div>
             <div>
               <p className="text-xs text-gray-400">Welcome</p>
-              <p className="text-sm font-medium text-gray-800">{seller?.firstName || "Seller"}</p>
+              <p className="text-sm font-medium text-gray-800">{displayName}</p>
             </div>
           </div>
 
@@ -275,7 +270,7 @@ export default function SellerNavbar() {
               style={{ width: pinned ? 56 : 40, height: pinned ? 56 : 40 }}
             >
               <img
-                src={fallbackAvatar}
+                src={avatar}
                 alt="seller avatar"
                 className={`rounded-full object-cover ${pinned ? "" : "w-8 h-8"}`}
               />
@@ -286,9 +281,9 @@ export default function SellerNavbar() {
             >
               <p className="text-xs text-gray-400">Hello,</p>
               <p className="font-semibold text-gray-800 leading-5">
-                {`${seller?.firstName || ""} ${seller?.lastName || ""}`}
+                {displayName}
               </p>
-              <p className="text-xs text-gray-500">{seller?.email}</p>
+              <p className="text-xs text-gray-500">{email}</p>
             </div>
           </div>
 
@@ -296,15 +291,19 @@ export default function SellerNavbar() {
 <nav className="p-3 flex-1 overflow-y-auto nav-scrollarea">
             <div className="h-full flex flex-col">
               <div className="flex flex-col gap-1">
-                <LinkItem to="/seller" end icon={<RxDashboard />} label="Dashboard" pinned={pinned} />
-                <LinkItem to="/seller/my-account" icon={<FaRegCircle />} label="My Account" pinned={pinned} />
-                <LinkItem to="/seller/add-product" icon={<TiDocumentAdd />} label="Add Product" pinned={pinned} />
-                <LinkItem to="/seller/products" icon={<AiOutlineProduct />} label="All Products" pinned={pinned} />
-                <LinkItem to="/seller/orders" end icon={<LuInbox />} label="All Orders" pinned={pinned} />
-                <LinkItem to="/seller/orders/delivered" icon={<PiCurrencyInrBold />} label="Total Sales" pinned={pinned} />
-                <LinkItem to="/seller/support" icon={<LuMessageSquare />} label="Support" pinned={pinned} />
-                <LinkItem to="/seller/stock-management" icon={<MdWarehouse />} label="Stock Management" pinned={pinned} />
-                <LinkItem to={`/shop/${seller?._id}`} icon={<FaShip />} label="My Shop" target="_blank" pinned={pinned} />
+                {navItems.map((item) => (
+                  <LinkItem
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    icon={item.icon}
+                    label={item.label}
+                    pinned={pinned}
+                  />
+                ))}
+                {(canAccess("MyShop") || !memberMode) && (
+                  <LinkItem to={`/shop/${shopId}`} icon={<FaShip />} label="My Shop" target="_blank" pinned={pinned} />
+                )}
               </div>
               <div className="mt-auto pt-3 border-t">
                 <LinkItem to="/seller/contact-us" icon={<MdContactPage />} label="Contact Us" pinned={pinned} />
@@ -351,16 +350,16 @@ export default function SellerNavbar() {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center">
                 <img
-                  src={fallbackAvatar}
+                  src={avatar}
                   alt="seller avatar"
                   className="w-10 h-10 rounded-full object-cover border-2 "
                 />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-800">
-                  {`${seller?.firstName || ""} ${seller?.lastName || ""}`}
+                  {displayName}
                 </p>
-                <p className="text-xs text-gray-500">{seller?.email}</p>
+                <p className="text-xs text-gray-500">{email}</p>
               </div>
             </div>
 
@@ -376,72 +375,29 @@ export default function SellerNavbar() {
           <nav className="p-3 overflow-auto flex-1">
             <div className="h-full flex flex-col gap-2">
               <div className="flex flex-col gap-2">
-                <NavLink
-                  to="/seller"
-                  end
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <RxDashboard />
-                  <span>Dashboard</span>
-                </NavLink>
-                <NavLink
-                  to="/seller/my-account"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <FaRegCircle />
-                  <span>My Account</span>
-                </NavLink>
-                <NavLink
-                  to="/seller/add-product"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <TiDocumentAdd />
-                  <span>Add Product</span>
-                </NavLink>
-                <NavLink
-                  to="/seller/products"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <AiOutlineProduct />
-                  <span>All Products</span>
-                </NavLink>
-<NavLink
-                  to="/seller/orders"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <LuInbox />
-                  <span>All Orders</span>
-                </NavLink>
-                <NavLink
-                  to="/seller/stock-management"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <MdWarehouse />
-                  <span>Stock Management</span>
-                </NavLink>
-                <NavLink
-                  to="/seller/support"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <LuMessageSquare />
-                  <span>Support</span>
-                </NavLink>
-                <a
-                  href={`/shop/${seller?._id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
-                >
-                  <MdStorefront />
-                  <span>My Shop</span>
-                </a>
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </NavLink>
+                ))}
+                {(canAccess("MyShop") || !memberMode) && (
+                  <a
+                    href={`/shop/${shopId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-sky-50"
+                  >
+                    <MdStorefront />
+                    <span>My Shop</span>
+                  </a>
+                )}
               </div>
 
               <div className="mt-auto pt-4 border-t">

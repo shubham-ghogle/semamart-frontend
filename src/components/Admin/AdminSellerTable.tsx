@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { EyeIcon, UserIcon, Clipboard } from "lucide-react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "@/data";
+import { getVariantCommission } from "@/lib/utils";
 
 /* ================= TYPES ================= */
 
@@ -81,10 +82,7 @@ export default function AdminSellerTable({
 
     // 2. Calculate Net Revenue (Sales - Platform Fees)
     const sellerNetRevenue = sellerOrders.reduce((acc, o) => {
-      const variant = o.variant as Variant;
-      const pid = variant?.productId as Product;
-      
-      const commissionPerUnit = pid?.commission ?? 0;
+      const commissionPerUnit = getVariantCommission(o);
       const totalCommission = commissionPerUnit * (o.qty ?? 0);
       
       const orderNet = (o.totalPrice || 0) - totalCommission;

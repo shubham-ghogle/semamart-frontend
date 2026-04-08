@@ -139,8 +139,12 @@ export default function ViewProductScreen() {
         colorOption: el?.colorOption || null,
         originalPrice: el?.originalPrice?.toString() ?? "",
         discountPrice: el?.discountPrice?.toString() ?? "",
+        commission:
+          el?.commission?.toString() ??
+          product?.commission?.toString() ??
+          "",
         stocks: el?.stock?.toString() ?? "0",
-        bulkOrders: el?.bulkOrders || [],
+        bulkOrders: Array.isArray(el?.bulkOrders) ? el.bulkOrders : [],
       })) || [],
     specialityPackageType: product?.specialityPackageType || "",
   };

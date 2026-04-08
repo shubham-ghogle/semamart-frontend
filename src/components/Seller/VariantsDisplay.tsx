@@ -49,6 +49,10 @@ export default function VariantsDisplay({ minQty }: VariantsDisplayProps) {
               <ReadOnlyField label="Available Stock" value={el.stock} />
               <ReadOnlyField label="Size" value={el.size ?? "-"} />
               <ReadOnlyField label="Color" value={el.colorOption ?? "-"} />
+              <ReadOnlyField
+                label="Commission"
+                value={el.commission ?? 0}
+              />
             </section>
             <section className="space-y-2 w-72 grid grid-rows-[70px_1fr]">
               <ReadOnlyField

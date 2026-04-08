@@ -4,12 +4,22 @@ import { Link, useNavigate } from "react-router";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useMutation } from "@tanstack/react-query";
 
+import { API_URL } from "@/data";
 import { useUserStore } from "../../store/userStore";
 import { useSellerStore } from "../../store/sellerStore";
 import { postSeller, postUser } from "../../Screens/LoginScreen/Login.Hooks";
 import { loginFailureToast } from "../UIComponents/Toasts";
 import { Logo } from "../UIComponents/Logo";
 import type { Seller, User } from "../../Types/types";
+
+function isSellerMember(user?: User | null) {
+  return (
+    !!user &&
+    (user.accountType === "seller-member" ||
+      user.role === "SellerMember" ||
+      user.role === "seller-member")
+  );
+}
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -20,19 +30,27 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const addUser = useUserStore((state) => state.addUser);
+  const removeSeller = useSellerStore((state) => state.removeSeller);
   const addSeller = useSellerStore((state) => state.addSeller);
 
   const userMutation = useMutation({
     mutationFn: postUser,
-    onSuccess: (data: any) => {
+    onSuccess: async (data: any) => {
       const maybeUser = data?.user as User | undefined;
       if (!maybeUser) {
         console.error("postUser returned unexpected shape:", data);
         loginFailureToast("Login failed (unexpected response)");
         return;
       }
+      await fetch(API_URL + "shop/logout", {
+        method: "GET",
+        credentials: "include",
+      }).catch(() => null);
+      if (isSellerMember(maybeUser)) {
+        removeSeller();
+      }
       addUser(maybeUser);
-      navigate("/");
+      navigate(isSellerMember(maybeUser) ? "/seller" : "/");
     },
     onError: (err: any) => {
       console.error("User login error:", err);
@@ -42,13 +60,18 @@ export default function LoginForm() {
 
   const sellerMutation = useMutation({
      mutationFn: postSeller,
-     onSuccess: (data) => {
+     onSuccess: async (data) => {
        const maybeSeller = data?.user as Seller | undefined;
        if (!maybeSeller) {
          console.error("postSeller returned unexpected shape:", data);
          loginFailureToast("Seller login failed (unexpected response)");
          return;
        }
+       await fetch(API_URL + "user/logout", {
+         method: "GET",
+         credentials: "include",
+       }).catch(() => null);
+       useUserStore.getState().removeUser();
        addSeller(maybeSeller);
        navigate("/seller");
      },

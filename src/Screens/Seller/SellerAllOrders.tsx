@@ -1,20 +1,23 @@
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
-import { useSellerStore } from "../../store/sellerStore";
 import { Order } from "../../Types/types";
 import { getOrdersForSeller, useCustomEnsureQuerty } from "./Seller.Hooks";
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
+import { useSellerSession } from "./sellerSession";
 
 
 export default function SellerAllOrders() {
-  const seller = useSellerStore(state => state.seller)
-  const { data: orders, status } = useCustomEnsureQuerty<Order[]>(["seller-orders", seller?._id],
-    () => getOrdersForSeller(seller?._id || ""), seller?._id)
+  const { shopId, canAccess } = useSellerSession();
+  const { data: orders, status } = useCustomEnsureQuerty<Order[]>(["seller-orders", shopId],
+    () => getOrdersForSeller(shopId || ""), shopId)
+  const displayStatus = canAccess("AllOrders") ? status : "success";
 
   const errMess = "Something went wrong"
 
 
-  return <SellerMainWrapper status={status} errorMessage={errMess} heading="Orders">
-    {orders && (
+  return <SellerMainWrapper status={displayStatus} errorMessage={errMess} heading="Orders">
+    {!canAccess("AllOrders") ? (
+      <div className="rounded-xl border bg-white p-4 text-gray-600">You do not have access to view orders.</div>
+    ) : orders && (
       <SellerOrderTable orders={orders} />
     )}
   </SellerMainWrapper>

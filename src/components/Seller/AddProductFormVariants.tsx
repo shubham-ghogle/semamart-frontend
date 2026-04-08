@@ -85,6 +85,27 @@ export default function AddProductFormVariants({
           )}
         />
       </div>
+      <FormField
+        control={form.control}
+        name={`variants.${index}.commission`}
+        render={() => (
+          <FormItem>
+            <FormLabel>
+              Commission (%)
+              <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                {...form.register(`variants.${index}.commission`)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <div className="flex items-start gap-8">
         <article className="space-y-2 w-1/2">
           <FormField

@@ -42,6 +42,9 @@ export default function EditVariantDialog({
   const [discountPrice, setDiscountPrice] = useState(
     variant?.discountPrice?.toString() ?? ""
   );
+  const [commission, setCommission] = useState(
+    variant?.commission?.toString() ?? ""
+  );
   const [stock, setStock] = useState(variant?.stock.toString() || "");
   const [size, setSize] = useState(variant?.size ?? "");
   const [color, setColor] = useState(variant?.colorOption ?? "");
@@ -94,6 +97,7 @@ export default function EditVariantDialog({
     formData.append("originalPrice", originalPrice);
     formData.append("discountPrice", discountPrice);
     formData.append("stock", stock);
+    formData.append("commission", commission);
     formData.append("bulkOrders", JSON.stringify(bulkOders));
     if (size.trim() !== "") {
       formData.append("size", size);
@@ -145,6 +149,11 @@ export default function EditVariantDialog({
                   label="Original Price"
                   value={originalPrice}
                   onChange={(e) => setOriginalPrice(e.target.value)}
+                />
+                <InputField
+                  label="Commission (%)"
+                  value={commission}
+                  onChange={(e) => setCommission(e.target.value)}
                 />
                 <InputField
                   label="Available Stock"

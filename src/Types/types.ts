@@ -31,6 +31,8 @@ export interface Variant {
   thumbnail?: string | null;
   originalPrice: number;
   discountPrice?: number;
+  commission?: number;
+  commissionHistory?: { commission: number; updatedAt: string }[];
   stock: number;
   _id: string;
   productId: string | Product;
@@ -152,6 +154,10 @@ export type User = {
   role: string;
   createdAt: string;
   avatar?: string;
+  parentUser?: string | User | null;
+  accountType?: string;
+  shopId?: string;
+  permissions?: Record<string, boolean>;
 };
 
 type Transaction = {
@@ -183,6 +189,14 @@ export type Seller = {
   password: string;
   transections: Transaction[];
   __v: number;
+  memberContext?: {
+    memberId: string;
+    isSubMember: boolean;
+    permissions: Record<string, boolean>;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  };
 };
 
 type PaymentInfo = {

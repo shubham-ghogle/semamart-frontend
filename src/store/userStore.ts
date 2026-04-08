@@ -16,7 +16,9 @@ export const useUserStore = create<UserStore>()(
     (set, get) => ({
       user: null,
       addUser: (user) => {
-        set(() => ({ user }));
+        set((state) => ({
+          user: state.user ? { ...state.user, ...user } : user,
+        }));
       },
       removeUser: () => {
         // Clear persisted store properly

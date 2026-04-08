@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useSupportStore } from '@/store/supportStore';
-import { useSellerStore } from '@/store/sellerStore';
 import { Eye } from "lucide-react";
+import { useSellerSession } from "./sellerSession";
 
 const SellerSupportScreen = () => {
   const navigate = useNavigate();
   const { tickets, createTicket, fetchTickets } = useSupportStore();
-  const seller = useSellerStore(s => s.seller);
+  const { shopId, email, canAccess, user } = useSellerSession();
 
   const [topic, setTopic] = useState('');
   const [message, setMessage] = useState('');
@@ -23,13 +23,13 @@ const SellerSupportScreen = () => {
 
   // Filter tickets for current seller
   const sellerTickets = tickets.filter(ticket =>
-    (typeof ticket.user === 'string' && (ticket.user === seller?._id || ticket.user === seller?.email)) ||
-    (typeof ticket.user === 'object' && ticket.user._id === seller?._id)
+    (typeof ticket.user === 'string' && (ticket.user === shopId || ticket.user === email || ticket.user === user?._id)) ||
+    (typeof ticket.user === 'object' && ticket.user._id === shopId)
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!seller) return;
+    if (!shopId) return;
 
     // Validate fields - check if message is not just empty HTML tags
     const strippedMessage = message.replace(/<[^>]*>/g, '').trim();
@@ -63,7 +63,7 @@ const SellerSupportScreen = () => {
 
     await createTicket({
       userType: 'Seller',
-      user: seller?.email || seller?._id || '',
+      user: email || shopId || '',
       topic,
       message,
       documents: documentList,
@@ -80,6 +80,11 @@ const SellerSupportScreen = () => {
 
   return (
     <div className="p-4 sm:p-6">
+      {!canAccess("Support") ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-gray-600">
+          You do not have access to support.
+        </div>
+      ) : (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold mb-4">Support</h1>
         
@@ -167,6 +172,7 @@ const SellerSupportScreen = () => {
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 };

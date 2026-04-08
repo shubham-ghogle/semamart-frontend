@@ -4,6 +4,7 @@ import { Product, Variant } from "../Types/types";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useUserStore } from "./userStore";
 import { API_URL } from "@/data";
+import { getAccountOwnerId } from "@/lib/utils";
 
 
 export type WishlistItem = {
@@ -31,8 +32,9 @@ export const useWishlistStore = create<WishlistStore>()(
 
       addToWishlist: async (product, variant) => {
         const user = useUserStore.getState().user;
+        const accountOwnerId = getAccountOwnerId(user);
 
-        if (!user?._id) {
+        if (!accountOwnerId) {
           console.error("User not logged in");
           return;
         }
@@ -76,7 +78,7 @@ export const useWishlistStore = create<WishlistStore>()(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        user_id: user?._id,
+        user_id: accountOwnerId,
         product_id: product._id,
         variant_id: variantId, // will be null if not present
       }),
@@ -88,8 +90,9 @@ export const useWishlistStore = create<WishlistStore>()(
 
    removeFromWishlist: async (productId, variantId) => {
   const user = useUserStore.getState().user;
+  const accountOwnerId = getAccountOwnerId(user);
 
-  if (!user?._id) {
+  if (!accountOwnerId) {
     console.error("User not logged in");
     return;
   }
@@ -97,7 +100,7 @@ export const useWishlistStore = create<WishlistStore>()(
   try {
     // Call API with userId
     await fetch(
-      API_URL+`wishlist/${user._id}/${productId}/${variantId ?? "null"}`,
+      API_URL+`wishlist/${accountOwnerId}/${productId}/${variantId ?? "null"}`,
       {
         method: "DELETE",
         headers: {
@@ -121,14 +124,15 @@ export const useWishlistStore = create<WishlistStore>()(
 
     clearWishlist: async () => {
   const user = useUserStore.getState().user;
+  const accountOwnerId = getAccountOwnerId(user);
 
-  if (!user?._id) {
+  if (!accountOwnerId) {
     console.error("User not logged in");
     return;
   }
 
   try {
-    const response = await fetch(API_URL+`wishlist/clear/${user._id}`, {
+    const response = await fetch(API_URL+`wishlist/clear/${accountOwnerId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

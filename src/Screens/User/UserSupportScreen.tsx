@@ -5,11 +5,14 @@ import 'react-quill/dist/quill.snow.css';
 import { useSupportStore } from '@/store/supportStore';
 import { useUserStore } from '@/store/userStore';
 import { Eye } from "lucide-react";
+import { getAccountOwnerEmail, getAccountOwnerId } from "@/lib/utils";
 
 const UserSupportScreen = () => {
   const navigate = useNavigate();
   const { tickets, createTicket, fetchTickets } = useSupportStore();
   const user = useUserStore(s => s.user);
+  const accountOwnerEmail = getAccountOwnerEmail(user);
+  const accountOwnerId = getAccountOwnerId(user);
 
   const [topic, setTopic] = useState('');
   const [message, setMessage] = useState('');
@@ -24,15 +27,15 @@ const UserSupportScreen = () => {
   // Filter tickets for current user
   const userTickets = tickets.filter(ticket => {
     if (typeof ticket.user === 'string') {
-      return ticket.user === user?._id || ticket.user === user?.email;
+      return ticket.user === accountOwnerEmail || ticket.user === accountOwnerId;
     } else {
-      return ticket.user._id === user?._id;
+      return ticket.user._id === accountOwnerId || ticket.user.email === accountOwnerEmail;
     }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !accountOwnerEmail) return;
 
     // Validate fields - check if message is not just empty HTML tags
     const strippedMessage = message.replace(/<[^>]*>/g, '').trim();
@@ -64,9 +67,9 @@ const UserSupportScreen = () => {
       }
     }
 
-     await createTicket({
-      userType: user.role === 'Seller' ? 'Seller' : user.role === 'Institute' ? 'Institute' : 'Customer',
-      user: user.email, // Store email as string for consistency
+      await createTicket({
+        userType: user.role === 'Seller' ? 'Seller' : user.role === 'Institute' ? 'Institute' : 'Customer',
+      user: accountOwnerEmail, // Shared account uses the primary account email
       topic,
       message,
       documents: documentList,

@@ -58,12 +58,13 @@ export const addProductFormDefaultValues = {
   productComparisionSheet: null as any,
   specialityPackage: "",
   specialityPackageType: "",
-  variants: [
+    variants: [
     {
       size: null as string | null,
       colorOption: null as string | null,
       originalPrice: "",
       discountPrice: "",
+      commission: "",
       stocks: "",
       bulkOrders: [] as {
         qty?: number | undefined;

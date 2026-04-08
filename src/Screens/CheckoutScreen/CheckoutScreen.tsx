@@ -10,6 +10,7 @@ import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellB
 import { toast } from "react-toastify";
 import { API_URL } from "@/data";
 import { useMutation } from "@tanstack/react-query";
+import { getVariantCommission } from "@/lib/utils";
 
 export default function CheckoutScreen(): JSX.Element {
   const { user } = useUserStore((s) => s);
@@ -105,7 +106,7 @@ export default function CheckoutScreen(): JSX.Element {
     const gstAmountPerLine = Number(el.paymentslip?.gstAmount) || (unitBase * (el.taxClass || 0)) / 100;
     const qty = el.qty ?? 1;
     const totalPrice = Number(el.paymentslip?.grandTotal) || (unitBase + gstAmountPerLine / qty) * qty;
-    const adminCommission = (el.product?.commission || 0) * qty;
+    const adminCommission = getVariantCommission(el.variant ?? el.product) * qty;
 
     return {
       shopId: typeof el.product?.shopId === "string" ? el.product.shopId : (el.product?.shopId as Seller)?._id,

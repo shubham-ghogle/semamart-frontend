@@ -5,6 +5,7 @@ import { EyeIcon } from "lucide-react";
 import { Order } from "../../Types/types";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
+import { getVariantCommission } from "@/lib/utils";
 
 /* ================= TYPES ================= */
 
@@ -43,18 +44,11 @@ const truncate = (text: string, max = 35) =>
         ? truncate(order.variant.productId.name, 35)
         : "-";
       
-    let commission = 0;
-
     const customerName =
       typeof order.user !== "string"
         ? order.user.instituteName
         : "-";
-
-    const pid =
-      typeof order.variant === "object"
-        ? (order.variant as any)?.productId
-        : null;
-    if (pid && typeof pid === "object") commission = pid.commission ?? 0;
+    const commission = getVariantCommission(order);
 
     const orderedAtTs = order.createdAt
       ? new Date(order.createdAt).getTime()

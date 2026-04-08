@@ -6,6 +6,7 @@ import { EyeIcon, ClockIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useUserStore } from "@/store/userStore";
 import { BASE_URL } from "@/data";
+import { getAccountOwnerId } from "@/lib/utils";
 
 type AdminNote = {
   note: string;
@@ -36,11 +37,16 @@ export default function BulkOrderDetails() {
   const [historyOrder, setHistoryOrder] = useState<BulkOrderRow | null>(null); // HISTORY MODAL STATE
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
+  const accountOwnerId = getAccountOwnerId(user);
 
   useEffect(() => {
     const fetchBulkOrders = async () => {
+      if (!accountOwnerId) {
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await fetch(`/api/v2/bulkorder/bulk-orders/user/${user?._id}`);
+        const res = await fetch(`/api/v2/bulkorder/bulk-orders/user/${accountOwnerId}`);
         if (!res.ok) throw new Error("Failed to fetch bulk orders");
 
         const data = await res.json();
@@ -57,7 +63,7 @@ export default function BulkOrderDetails() {
     };
 
     fetchBulkOrders();
-  }, [user?._id]);
+  }, [accountOwnerId]);
 
   if (loading)
     return (

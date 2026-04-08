@@ -146,6 +146,7 @@ useEffect(() => {
     } else {
       setSelectedVariant(null);
     }
+    setActiveIdx(0);
     setIsVariantActive(false);
     setSelectedPack(null); // by default, no combo selected
   }, [product]);
@@ -188,12 +189,22 @@ useEffect(() => {
       return
     }
     if (!product) return;
-    const parsedMinMaxQty = JSON.parse(
-      product.minmaxrule as unknown as string,
-    ) as { minQty: string; maxQty: string };
-    const intMinQty = parseInt(parsedMinMaxQty.minQty);
+    let intMinQty = 1;
+    try {
+      const parsedMinMaxQty =
+        typeof product.minmaxrule === "string"
+          ? (JSON.parse(product.minmaxrule as unknown as string) as {
+              minQty?: string;
+              maxQty?: string;
+            })
+          : ((product.minmaxrule as unknown as { minQty?: string }) || {});
+      const parsedValue = parseInt(parsedMinMaxQty?.minQty || "");
+      intMinQty = isNaN(parsedValue) ? 1 : parsedValue;
+    } catch {
+      intMinQty = 1;
+    }
 
-    const packQty = selectedPack?.qty ?? (isNaN(intMinQty) ? 1 : intMinQty);
+    const packQty = selectedPack?.qty ?? intMinQty;
     const packPrice =
       selectedPack?.price ??
       selectedVariant?.discountPrice ??
@@ -339,6 +350,7 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
                     <button
                       key={v._id}
                       onClick={() => {
+                        setActiveIdx(0);
                         setSelectedVariant(v);
                         setIsVariantActive(true);
                         setSelectedPack(null);

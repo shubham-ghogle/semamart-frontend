@@ -7,6 +7,7 @@ import GroupPaymentDialog from "./GroupPaymentDialog";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { Filter, Search, X } from "lucide-react"; // Assuming lucide-react is installed
+import { getAccountOwnerId } from "@/lib/utils";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,18 +15,19 @@ const Orderpage = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const { user } = useUserStore((state) => state);
+  const accountOwnerId = getAccountOwnerId(user);
   const navigate = useNavigate();
 
   const { data: orders = [], status } = useQuery({
-    queryKey: ["user-orders", user?._id],
+    queryKey: ["user-orders", accountOwnerId],
     queryFn: async () => {
-      if (!user?._id) throw new Error("User not found");
-      const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
+      if (!accountOwnerId) throw new Error("User not found");
+      const res = await fetch(`${API_URL}order/get-all-orders/${accountOwnerId}`);
       const data = await res.json();
       if (data.success) return data.orders as Order[];
       throw new Error(data.message);
     },
-    enabled: !!user?._id,
+    enabled: !!accountOwnerId,
   });
 
   /* ---------------- HELPERS ---------------- */

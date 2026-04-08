@@ -6,6 +6,7 @@ import {
   FaPen,
   FaTrash,
 } from "react-icons/fa";
+import { getAccountOwnerId } from "@/lib/utils";
 
 
 const initialFormData: Address = {
@@ -25,6 +26,7 @@ type NotificationType = "success" | "error" | "info";
 
 const ManageAddress = () => {
   const { user } = useUserStore((state) => state);
+  const accountOwnerId = getAccountOwnerId(user);
   const [formData, setFormData] = useState<Address>(initialFormData);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -47,12 +49,12 @@ const ManageAddress = () => {
   }>({ visible: false, message: "" });
 
   useEffect(() => {
-    if (!user?._id) return;
+    if (!accountOwnerId) return;
 
     const fetchAddresses = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_URL}user/${user._id}/addresses`);
+        const res = await fetch(`${API_URL}user/${accountOwnerId}/addresses`);
         if (!res.ok) throw new Error("Failed to fetch addresses");
         const data = await res.json();
         setAddresses(data || []);
@@ -98,7 +100,7 @@ const ManageAddress = () => {
 
   // When user clicks "Delete" button on an address:
   const handleDeleteClick = async (addressId: string) => {
-    if (!user?._id) {
+    if (!accountOwnerId) {
       showNotification("User not logged in", "error");
       return;
     }
@@ -108,7 +110,7 @@ const ManageAddress = () => {
       // onConfirm
       setConfirm({ visible: false, message: "" });
       try {
-        const res = await fetch(`${API_URL}user/${user._id}/addresses/${addressId}`, {
+        const res = await fetch(`${API_URL}user/${accountOwnerId}/addresses/${addressId}`, {
           method: "DELETE",
         });
 
@@ -190,7 +192,7 @@ const ManageAddress = () => {
         );
       } else {
         // Add new address
-        res = await fetch(`${API_URL}user/${user._id}/addresses`, {
+        res = await fetch(`${API_URL}user/${accountOwnerId}/addresses`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

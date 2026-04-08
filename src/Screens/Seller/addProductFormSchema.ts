@@ -24,6 +24,12 @@ export const variantSchema = z.object({
       message: "Discount price must be greater then zero",
     }),
 
+  commission: z
+    .string()
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Commission must be zero or greater",
+    }),
+
   bulkOrders: z
     .array(
       z.object({

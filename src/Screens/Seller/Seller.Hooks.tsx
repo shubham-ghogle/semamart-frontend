@@ -4,15 +4,30 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { redirect } from "react-router"; // ✅ added for route protection
 import { API_URL } from "@/data";
+import { isSellerMember } from "./sellerSession";
 
 // 🔒 AUTH GUARD — ensures only logged-in sellers can access /seller pages
 export function requireSellerAuth() {
-  const seller = localStorage.getItem("seller-storage");
-  if (!seller) {
-    // redirect unauthenticated seller to seller login/register
-    return redirect("/login");
+  try {
+    const userRaw = localStorage.getItem("user-storage");
+    if (userRaw) {
+      const parsed = JSON.parse(userRaw);
+      const user = parsed?.state?.user || parsed?.user || parsed;
+      if (isSellerMember(user)) {
+        return null;
+      }
+    }
+  } catch {
+    // fall through
   }
-  return null;
+
+  const seller = localStorage.getItem("seller-storage");
+  if (seller) {
+    return null;
+  }
+
+  // redirect unauthenticated seller to seller login/register
+  return redirect("/login");
 }
 
 // ✅ Fetch all seller orders
