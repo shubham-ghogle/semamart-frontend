@@ -1,4 +1,4 @@
-import { Seller, Order, Product, Variant } from "@/Types/types";
+import { Seller, Order } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";

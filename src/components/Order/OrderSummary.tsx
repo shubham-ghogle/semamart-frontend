@@ -4,7 +4,7 @@ import Header from "../Header/Header";
 import { useUserStore } from "@/store/userStore";
 import OrderBreadcrumb from "../ui/OrderBredcrum"; 
 import { FiDownload, FiLoader, FiPackage, FiTruck, FiCheckCircle } from "react-icons/fi";
-import { FaUser, FaHome, FaCreditCard } from "react-icons/fa";
+import { FaUser, FaHome } from "react-icons/fa";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 import StarRating from "../Order/StarRating";
