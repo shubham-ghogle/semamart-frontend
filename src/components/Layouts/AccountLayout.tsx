@@ -16,7 +16,7 @@ export default function AccountLayout() {
         className="transition-all duration-200"
         style={{ minHeight: "calc(100vh - var(--account-header-height, 80px))" }}
       >
-        <section className="px-4 md:px-6 py-8">
+        <section className="container mx-auto px-4 md:px-6 py-8">
           <Outlet />
         </section>
 

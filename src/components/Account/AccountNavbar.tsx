@@ -184,7 +184,7 @@ const AccountNavbar: React.FC = () => {
       {/* --- Desktop Sidebar (unchanged) --- */}
       <aside
         className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-40 bg-white shadow-md transition-all duration-200 ${
-          pinned ? "w-[320px]" : "w-[80px]"
+          pinned ? "w-[200px]" : "w-[80px]"
         }`}
         aria-expanded={pinned}
       >
@@ -200,7 +200,7 @@ const AccountNavbar: React.FC = () => {
             <div className={`transition-all ${pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
               <p className="text-xs text-gray-400">Hello,</p>
               <p className="font-semibold text-gray-800 leading-4">{currentName}</p>
-              <p className="text-xs text-gray-500 truncate max-w-[180px]">{currentEmail}</p>
+              {/* <p className="text-xs text-gray-500 truncate max-w-[180px]">{currentEmail}</p> */}
             </div>
           </div>
 
