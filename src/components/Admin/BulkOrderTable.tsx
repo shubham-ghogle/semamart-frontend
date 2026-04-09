@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon, ClockIcon,  MessageSquare } from "lucide-react";
+import { toast } from "react-toastify";
+import LoaderUi from "../UIComponents/LoaderUi";
 
 import { DataTable } from "../ui/data-table";
 import { BASE_URL } from "@/data";
@@ -159,11 +161,11 @@ export default function BulkOrdersTable() {
       setNote("");
     } catch (err) {
       console.error(err);
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
   };
 
-  if (loading) return <p>Loading bulk orders...</p>;
+  if (loading) return <LoaderUi title="Loading bulk orders..." />;
 
   /* -------------------- TABLE -------------------- */
   const columns: ColumnDef<BulkOrderRow>[] = [

@@ -3,6 +3,15 @@ import { redirect } from "react-router";
 import { Seller, User } from "../../Types/types";
 import { API_URL } from "@/data";
 
+function isSellerMember(user: any) {
+  return (
+    user &&
+    (user.accountType === "seller-member" ||
+      user.role === "SellerMember" ||
+      user.role === "seller-member")
+  );
+}
+
 // ✅ Updated: Add optional role for admin/other roles
 export type UserData = {
   email: string;
@@ -84,6 +93,16 @@ export function getUserFromLocalLoader() {
   const userRaw = localStorage.getItem("user-storage");
   const sellerRaw = localStorage.getItem("seller-storage");
 
+  if (userRaw) {
+    try {
+      const parsed = JSON.parse(userRaw);
+      const user = parsed?.state?.user || parsed?.user || parsed;
+      if (isSellerMember(user)) {
+        return redirect("/seller");
+      }
+    } catch {}
+  }
+
   // If seller is logged in → go to seller dashboard
   if (sellerRaw) {
     console.log("Seller is logged in, redirecting to /seller");
@@ -113,7 +132,19 @@ export function requireUserAuth() {
 
 // Protect seller routes
 export function protectSellerRoute() {
-  const seller = localStorage.getItem("seller-storage");
-  if (!seller) return redirect("/login");
-  return null;
+  try {
+    const userRaw = localStorage.getItem("user-storage");
+    if (userRaw) {
+      const parsed = JSON.parse(userRaw);
+      const user = parsed?.state?.user || parsed?.user || parsed;
+      if (isSellerMember(user)) return null;
+    }
+
+    const seller = localStorage.getItem("seller-storage");
+    if (seller) return null;
+  } catch {
+    // fall through to redirect
+  }
+
+  return redirect("/login");
 }

@@ -2,7 +2,6 @@
 import { AiOutlineProduct } from "react-icons/ai";
 import { CiDeliveryTruck } from "react-icons/ci";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
-import { useSellerStore } from "../../store/sellerStore";
 import { useQuery } from "@tanstack/react-query";
 import {
   getDeliveredOrdersForSeller,
@@ -12,11 +11,13 @@ import {
 import SellerOrderTable from "../../components/Seller/SellerOrderTable";
 import { useNavigate } from "react-router-dom";
 import { Coins } from "lucide-react";
+import { getVariantCommission } from "@/lib/utils";
+import { useSellerSession } from "./sellerSession";
 
 type status = "pending" | "success" | "error";
 
 export default function SellerDashboard() {
-  const { seller } = useSellerStore((state) => state);
+  const { shopId, canAccess } = useSellerSession();
   const navigate = useNavigate();
 
   const {
@@ -24,10 +25,10 @@ export default function SellerDashboard() {
     error: orderErr,
     status: orderStatus,
   } = useQuery({
-    queryKey: ["seller-orders", seller?._id],
-    queryFn: () => getOrdersForSeller(seller?._id || ""),
+    queryKey: ["seller-orders", shopId],
+    queryFn: () => getOrdersForSeller(shopId || ""),
     staleTime: Infinity,
-    enabled: !!seller?._id,
+    enabled: !!shopId,
   });
 
   const {
@@ -35,10 +36,10 @@ export default function SellerDashboard() {
     status: proStatus,
     error: proError,
   } = useQuery({
-    queryKey: ["seller-products", seller?._id],
-    queryFn: () => getProductsForSeller(seller?._id || ""),
+    queryKey: ["seller-products", shopId],
+    queryFn: () => getProductsForSeller(shopId || ""),
     staleTime: Infinity,
-    enabled: !!seller?._id,
+    enabled: !!shopId,
   });
 
   const {
@@ -46,10 +47,10 @@ export default function SellerDashboard() {
     status: deliveredStatus,
     error: deliveredErr,
   } = useQuery({
-    queryKey: ["seller-delivered-orders", seller?._id],
+    queryKey: ["seller-delivered-orders", shopId],
     queryFn: getDeliveredOrdersForSeller,
     staleTime: 60 * 1000,
-    enabled: !!seller?._id,
+    enabled: !!shopId,
   });
 
   const isSuccess =
@@ -71,16 +72,14 @@ export default function SellerDashboard() {
     orderErr?.message ||
     (deliveredErr as Error | null)?.message ||
     "Something went wrong";
+  const displayStatus: status = canAccess("Dashboard") ? overAllStatus : "success";
 
   const deliveredOrders =
     deliveredOrdersData?.filter((o: any) => o.status === "Delivered") ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc: { totalSales: number; totalRevenue: number }, order: any) => {
-      const pid =
-        typeof order.variant === "object" ? order.variant?.productId : null;
-      const commissionPerUnit =
-        pid && typeof pid === "object" ? (pid.commission ?? 0) : 0;
+      const commissionPerUnit = getVariantCommission(order);
       const orderTotal = order.totalPrice || 0;
       const commissionAmount = commissionPerUnit * (order.qty ?? 0);
 
@@ -143,11 +142,13 @@ export default function SellerDashboard() {
 
   return (
     <SellerMainWrapper
-      status={overAllStatus}
+      status={displayStatus}
       errorMessage={overAllError}
       heading="Seller Dashboard"
     >
-      {isSuccess && (
+      {!canAccess("Dashboard") ? (
+        <div className="rounded-xl border bg-white p-4 text-gray-600">You do not have access to the dashboard.</div>
+      ) : isSuccess && (
         <>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-full mx-auto">
             {CARDS.map((c) => {

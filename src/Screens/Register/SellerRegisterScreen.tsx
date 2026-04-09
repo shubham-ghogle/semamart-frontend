@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "@/data";
 import indiaStates, { getDistricts } from "india-state-district";
 import Select from "react-select";
+import { toast } from "react-toastify";
 
 
 interface SellerForm {
@@ -222,7 +223,7 @@ export default function SellerRegistration(): JSX.Element {
 
       if (!response.ok) {
         setRegStatus("error");
-        alert(result.message || "Failed to register seller.");
+        toast.error(result.message || "Failed to register seller.");
         return;
       }
 
@@ -255,7 +256,7 @@ export default function SellerRegistration(): JSX.Element {
     } catch (error) {
       console.error("Error submitting form:", error);
       setRegStatus("error");
-      alert("Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again later.");
     }
   };
 

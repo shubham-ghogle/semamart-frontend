@@ -2,6 +2,7 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";// adjust path if needed
 import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
 
 type Manager = {
   srNo: number;
@@ -51,7 +52,7 @@ const demoData: Manager[] = [
 
 const ManagerTable: React.FC = () => {
   const handleView = (user: Manager) => {
-    alert(`Viewing details for ${user.name}`);
+    toast.info(`Viewing details for ${user.name}`);
   };
 
   const columns: ColumnDef<Manager>[] = [

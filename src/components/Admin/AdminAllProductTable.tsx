@@ -154,11 +154,13 @@ export default function AdminAllProductTable({
 
   // flatten to rows, apply filtering, and sorting (your code + badge field from remote)
   const rows: VariantRow[] = (() => {
-    let filteredRows: VariantRow[] = products.flatMap((pro) =>
+      let filteredRows: VariantRow[] = products.flatMap((pro) =>
       pro.variants.map((v) => {
         const lastCommission =
-          Array.isArray(pro.commissionHistory) && pro.commissionHistory.length > 0
-            ? pro.commissionHistory[pro.commissionHistory.length - 1]
+          Array.isArray(v.commissionHistory) && v.commissionHistory.length > 0
+            ? v.commissionHistory[v.commissionHistory.length - 1]
+            : Array.isArray(pro.commissionHistory) && pro.commissionHistory.length > 0
+              ? pro.commissionHistory[pro.commissionHistory.length - 1]
             : null;
 
         return {
@@ -173,7 +175,7 @@ export default function AdminAllProductTable({
           discountPrice: v.discountPrice ?? 0,
           createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
           productId: pro._id,
-          commission: pro.commission || 0,
+        commission: v?.commission ?? pro?.commission ?? 0,
           commissionHistoryDate: lastCommission
             ? new Date(lastCommission.updatedAt).toLocaleDateString("en-IN")
             : "-",
@@ -181,7 +183,7 @@ export default function AdminAllProductTable({
           adminVisibility: pro.visibilityByAdmin,
           sellerVisibility: pro.visibilityBySeller,
           badge: pro.badge ?? false,
-          commissionHistory: pro.commissionHistory || [],
+          commissionHistory: v.commissionHistory || pro.commissionHistory || [],
           rawCreatedAt: new Date(pro.createdAt),
           productCategories: pro.category || [], // Include product categories
           totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
@@ -331,7 +333,7 @@ export default function AdminAllProductTable({
         }),
     },
     { accessorKey: "createdAt", header: "Created On" },
-    { accessorKey: "commission", header: "Commission" },
+    { accessorKey: "commission", header: "Commission Amount" },
     {
       id: "action",
       header: "Actions",
@@ -346,6 +348,7 @@ export default function AdminAllProductTable({
           <UpdateCommissionDialog
             currentCommission={row.original.commission}
             productId={row.original.productId}
+            variantId={row.original.id}
           />
           <DisplayCommission history={row.original.commissionHistory} />
         </div>

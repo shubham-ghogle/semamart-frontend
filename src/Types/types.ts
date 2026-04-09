@@ -29,8 +29,11 @@ export interface Variant {
   size?: string | null;
   colorOption?: string | null;
   thumbnail?: string | null;
+  images?: string[];
   originalPrice: number;
   discountPrice?: number;
+  commission?: number;
+  commissionHistory?: { commission: number; updatedAt: string }[];
   stock: number;
   _id: string;
   productId: string | Product;
@@ -51,8 +54,8 @@ export interface Product {
   unspsc?: string;
   upsells?: string[];
   crosssells?: string[];
-  specialityPackage: string; // fixed (required)
-  specialityPackageType: string; // fixed (required)
+  specialityPackage: string[];
+  specialityPackageType: string[];
   manufacturer:
     | string
     | {
@@ -152,6 +155,10 @@ export type User = {
   role: string;
   createdAt: string;
   avatar?: string;
+  parentUser?: string | User | null;
+  accountType?: string;
+  shopId?: string;
+  permissions?: Record<string, boolean>;
 };
 
 type Transaction = {
@@ -183,6 +190,14 @@ export type Seller = {
   password: string;
   transections: Transaction[];
   __v: number;
+  memberContext?: {
+    memberId: string;
+    isSubMember: boolean;
+    permissions: Record<string, boolean>;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  };
 };
 
 type PaymentInfo = {

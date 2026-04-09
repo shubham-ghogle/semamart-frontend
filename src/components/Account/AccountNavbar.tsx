@@ -11,6 +11,7 @@ import {
   FaLayerGroup,
   FaHeadset,
   FaPhoneAlt,
+  FaUsers,
 } from "react-icons/fa";
 import {  } from "react-icons/fa";
 
@@ -54,6 +55,7 @@ const AccountNavbar: React.FC = () => {
 
   const isSeller = !!seller;
   const isUser = !!user;
+  const isSubAccount = !!user?.parentUser;
 
   // pinned (desktop) — read from localStorage
   const [pinned, setPinned] = useState<boolean>(() => {
@@ -184,7 +186,7 @@ const AccountNavbar: React.FC = () => {
       {/* --- Desktop Sidebar (unchanged) --- */}
       <aside
         className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-40 bg-white shadow-md transition-all duration-200 ${
-          pinned ? "w-[320px]" : "w-[80px]"
+          pinned ? "w-[200px]" : "w-[80px]"
         }`}
         aria-expanded={pinned}
       >
@@ -200,7 +202,7 @@ const AccountNavbar: React.FC = () => {
             <div className={`transition-all ${pinned ? "opacity-100" : "opacity-0 max-w-0 pointer-events-none"}`}>
               <p className="text-xs text-gray-400">Hello,</p>
               <p className="font-semibold text-gray-800 leading-4">{currentName}</p>
-              <p className="text-xs text-gray-500 truncate max-w-[180px]">{currentEmail}</p>
+              {/* <p className="text-xs text-gray-500 truncate max-w-[180px]">{currentEmail}</p> */}
             </div>
           </div>
 
@@ -214,6 +216,7 @@ const AccountNavbar: React.FC = () => {
                   <NavItem to="/account/address" icon={<FaMapMarkerAlt />} label="Manage Addresses" active={isActive("/account/address")} />
                   <NavItem to="/account/wishlist" icon={<FaRegHeart />} label="My Wishlist" active={isActive("/account/wishlist")} />
                   <NavItem to="/account/mybulkorder-request" icon={<FaLayerGroup />} label="Bulkorder Request" active={isActive("/account/mybulkorder-request")} />
+                  {!isSubAccount && <NavItem to="/account/members" icon={<FaUsers />} label="Members" active={isActive("/account/members")} />}
                   <NavItem to="/account/support" icon={<FaHeadset />} label="Support" active={isActive("/account/support")} />
                   <NavItem to="/account/contact-us" icon={<FaPhoneAlt />} label="Contact Us" active={isActive("/account/contact-us")} />
                 </>
@@ -306,6 +309,7 @@ const AccountNavbar: React.FC = () => {
                   <NavItem to="/account/address" icon={<FaMapMarkerAlt />} label="Manage Addresses" active={isActive("/account/address")} onClick={() => setOpen(false)} />
                   <NavItem to="/account/wishlist" icon={<FaRegHeart />} label="My Wishlist" active={isActive("/account/wishlist")} onClick={() => setOpen(false)} />
                   <NavItem to="/account/mybulkorder-request" icon={<FaLayerGroup />} label="Bulkorder Request" active={isActive("/account/mybulkorder-request")} onClick={() => setOpen(false)} />
+                  {!isSubAccount && <NavItem to="/account/members" icon={<FaUsers />} label="Members" active={isActive("/account/members")} onClick={() => setOpen(false)} />}
                   <NavItem to="/account/support" icon={<FaHeadset />} label="Support" active={isActive("/account/support")} onClick={() => setOpen(false)} />
                   <NavItem to="/account/contact-us" icon={<FaPhoneAlt />} label="Contact Us" active={isActive("/account/contact-us")} onClick={() => setOpen(false)} />
                 </>

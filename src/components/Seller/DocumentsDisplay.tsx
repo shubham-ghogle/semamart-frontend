@@ -6,6 +6,7 @@ import { Product } from "@/Types/types";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 import { Trash2, RotateCcw } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export default function DocumentsDisplay() {
   const { id } = useParams();
@@ -31,8 +32,7 @@ export default function DocumentsDisplay() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Upload failed");
+        throw new Error(await getApiErrorMessage(res, "Upload failed"));
       }
 
       const data = await res.json();
@@ -53,8 +53,7 @@ export default function DocumentsDisplay() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Delete failed");
+        throw new Error(await getApiErrorMessage(res, "Delete failed"));
       }
 
       const data = await res.json();

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { User, getAllUsers, deleteUser } from "./Admin.HooksAndUtils";
 import AdminUserTable from "@/components/Admin/AdminUserTable";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
+import { toast } from "react-toastify";
 
 const AllUserScreen: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -37,10 +38,9 @@ const AllUserScreen: React.FC = () => {
     try {
       await deleteUser(id);
       setUsers((prev) => prev.filter((u) => u._id !== id));
-      // optionally show toast instead of alert
-      alert("User deleted successfully!");
+      toast.success("User deleted successfully!");
     } catch (err: any) {
-      alert(err?.message || "Failed to delete user");
+      toast.error(err?.message || "Failed to delete user");
     }
   };
 

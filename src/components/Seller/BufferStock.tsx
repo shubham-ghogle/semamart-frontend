@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router";
 import { BASE_URL } from "@/data";
-import { useSellerStore } from "@/store/sellerStore";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 
 type BufferStockRow = {
@@ -28,13 +28,14 @@ export default function BufferStock() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { seller } = useSellerStore((state) => state);
+  const { shopId } = useSellerSession();
 
   useEffect(() => {
+    if (!shopId) return;
     const fetchStock = async () => {
       try {
         const res = await fetch(
-        `/api/v2/product/getallproducts/bufferstock/${seller?._id}`
+        `/api/v2/product/getallproducts/bufferstock/${shopId}`
         );
         if (!res.ok) throw new Error("Failed to fetch stock");
 
@@ -53,7 +54,7 @@ export default function BufferStock() {
     };
 
     fetchStock();
-  }, []);
+  }, [shopId]);
 
   // Map API response to table rows safely
   const rows: BufferStockRow[] = (stockItems || []).map((item) => {

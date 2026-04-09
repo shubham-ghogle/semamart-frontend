@@ -201,7 +201,7 @@ export default function AdminProduct() {
         discountPrice: v?.discountPrice ?? 0,
         createdAt: pro?.createdAt ? new Date(pro.createdAt).toLocaleDateString("en-IN") : "-",
         productId: pro._id,
-        commission: pro?.commission ?? 0,
+        commission: v?.commission ?? pro?.commission ?? 0,
         seller: pro?.shopId?.businessName ?? "-",
         sellerVisibility: typeof pro.visibilityBySeller === "boolean" ? pro.visibilityBySeller : true,
         adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
@@ -337,7 +337,7 @@ export default function AdminProduct() {
     
     {
       accessorKey: "commission",
-      header: "Platform Fee",
+      header: "Commission Amount",
       cell: ({ row }) => row.original.commission.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         }),
@@ -353,6 +353,7 @@ export default function AdminProduct() {
       <UpdateCommissionDialog
         currentCommission={row.original.commission}
         productId={row.original.productId}
+        variantId={row.original.id}
       />
     </div>
       ),

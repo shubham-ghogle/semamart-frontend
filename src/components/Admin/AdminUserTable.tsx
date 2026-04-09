@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router";
 import { User } from "@/Screens/Admin/Admin.HooksAndUtils";
 import { BASE_URL } from "@/data";
+import { toast } from "react-toastify";
 
 type Row = {
   id: string;
@@ -88,7 +89,7 @@ export default function AdminUserTable({
       URL.revokeObjectURL(blobUrl);
     } catch (err: any) {
       console.error("PDF download error:", err);
-      alert(err?.message || "Could not download PDF. Ensure you are logged in as admin and the file exists.");
+      toast.error(err?.message || "Could not download PDF. Ensure you are logged in as admin and the file exists.");
     }
   }
 

@@ -56,8 +56,8 @@ export const addProductFormDefaultValues = {
   certificate: [] as any[],
   oemLetter: null as any,
   productComparisionSheet: null as any,
-  specialityPackage: "",
-  specialityPackageType: "",
+  specialityPackage: [] as { name: string; val: string }[],
+  specialityPackageType: [] as { name: string; val: string }[],
   variants: [
     {
       size: null as string | null,
@@ -65,6 +65,7 @@ export const addProductFormDefaultValues = {
       originalPrice: "",
       discountPrice: "",
       stocks: "",
+      images: [] as any[],
       bulkOrders: [] as {
         qty?: number | undefined;
         price?: number | undefined;

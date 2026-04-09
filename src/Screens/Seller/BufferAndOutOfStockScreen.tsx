@@ -2,15 +2,26 @@ import { useState } from "react";
 import SellerMainWrapper from "../../components/Seller/SellerMainWrapper";
 import OutOfStockTable from "@/components/Seller/OutOfStockProduct";
 import BufferStockTable from "../../components/Seller/BufferStock";
+import { useSellerSession } from "./sellerSession";
 
 type TabType =  "outOfStock" | "bufferStock";
 
 export default function BufferAndOutOfStockScreen() {
+  const { canAccess } = useSellerSession();
   const [activeTab, setActiveTab] = useState<TabType>("outOfStock");
+
+  if (!canAccess("StockManagement")) {
+    return (
+      <SellerMainWrapper heading="Stock Management" status="success">
+        <div className="rounded-xl border bg-white p-4 text-gray-600">
+          You do not have access to stock management.
+        </div>
+      </SellerMainWrapper>
+    );
+  }
 
   return (
     <SellerMainWrapper heading="Stock Management" status="success">
-      {/* Tabs */}
       <div className="mb-4 flex space-x-4 border-b">
        
         <button

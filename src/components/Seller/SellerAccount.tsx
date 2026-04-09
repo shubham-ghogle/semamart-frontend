@@ -3,6 +3,7 @@ import { FaPen, FaTimes, FaCheck, FaSpinner, FaEye, FaEyeSlash } from "react-ico
 import { useSellerStore } from "@/store/sellerStore";
 import { API_URL } from "@/data";
 import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 interface Profile {
   firstName: string;
@@ -18,6 +19,7 @@ interface Profile {
 type EditableField = keyof Profile;
 
 const SellerAccount: React.FC = () => {
+  const { memberMode, canAccess } = useSellerSession();
   const seller = useSellerStore((state) => state.seller);
   const updateSellerStore = useSellerStore((state) => state.updateSeller);
 
@@ -311,6 +313,24 @@ const SellerAccount: React.FC = () => {
       setRequestingEmailChange(false);
     }
   };
+
+  if (memberMode) {
+    return (
+      <div className="flex-1 px-4 sm:px-8 py-6 bg-gray-50 min-h-screen">
+        <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] p-6">
+          <h1 className="text-2xl font-semibold text-gray-800">My Account</h1>
+          <p className="text-sm text-gray-500 mt-2">
+            Member accounts can use the seller portal, but the business profile is managed by the main seller.
+          </p>
+          {!canAccess("MyAccount") && (
+            <div className="mt-4 rounded-xl border bg-gray-50 p-4 text-gray-600">
+              You do not have permission to open account settings.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 px-4 sm:px-8 py-6 bg-gray-50 min-h-screen">

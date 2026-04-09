@@ -257,9 +257,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   }
                 onClick={async () => {
                   if (!isStatusUpdatable(status)) {
-                    alert(
-                      "Cannot mark as Delivered without tracking info!"
-                    );
+                    toast.error("Cannot mark as Delivered without tracking info!");
                     return;
                   }
 

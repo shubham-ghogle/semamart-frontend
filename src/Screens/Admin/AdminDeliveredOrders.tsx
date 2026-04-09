@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminDeliveredOrderTable from "@/components/Admin/AdminDeliveredOrderTable";
 import { getAllOrders } from "./Admin.HooksAndUtils";
+import { getVariantCommission } from "@/lib/utils";
 
 const formatMoney = (v: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -22,11 +23,7 @@ export default function AdminDeliveredOrders() {
 
   const totals = deliveredOrders.reduce(
     (acc, o) => {
-      const pid =
-        typeof o.variant === "object" ? (o.variant as any)?.productId : null;
-
-      const commission =
-        pid && typeof pid === "object" ? pid.commission ?? 0 : 0;
+      const commission = getVariantCommission(o);
 
       const commissionAmount = commission * (o.qty ?? 0);
 

@@ -59,7 +59,7 @@ export default function AccountHeader() {
     try {
       const next = !pinned;
       localStorage.setItem("account_sidebar_pinned", String(next));
-      document.documentElement.style.setProperty("--account-sidebar-width", next ? "320px" : "80px");
+      document.documentElement.style.setProperty("--account-sidebar-width", next ? "200px" : "80px");
 
       // notify AccountNavbar
       window.dispatchEvent(new CustomEvent("account-sidebar-change", { detail: next }));

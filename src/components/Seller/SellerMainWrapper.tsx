@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import LoaderUi from "../UIComponents/LoaderUi";
 
 type Status = "pending" | "success" | "error";
 
@@ -46,20 +47,7 @@ export default function SellerMainWrapper({
 
         <div className="p-5 sm:p-6 space-y-5 max-h-[calc(100vh-160px)] sm:max-h-none overflow-auto">
           {status === "pending" ? (
-            <div className="w-full flex items-center justify-center py-10">
-              <svg className="w-8 h-8 animate-spin" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-            </div>
+            <LoaderUi title="Loading..." />
           ) : status === "error" ? (
             <div className="p-4 bg-red-50 text-red-700 rounded-md ring-1 ring-red-100">
               {errorMessage || "Something went wrong."}

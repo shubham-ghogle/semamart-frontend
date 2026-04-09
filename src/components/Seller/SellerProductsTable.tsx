@@ -9,9 +9,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
-import { useSellerStore } from "@/store/sellerStore";
 import DisplayCommission from "../Admin/DisplayCommission";
 import { IoIosArrowForward } from "react-icons/io";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 type VariantRow = {
   id: string;
@@ -40,7 +40,7 @@ type SellerProductTableProps = {
 export default function SellerProductTable({
   products,
 }: SellerProductTableProps) {
-  const { seller } = useSellerStore((state) => state);
+  const { shopId, canAccess } = useSellerSession();
   const [sortBy, setSortBy] = useState("newest");
   // Filter states
   const [category, setCategory] = useState("");
@@ -120,9 +120,9 @@ export default function SellerProductTable({
         discountPrice: v.discountPrice ?? 0,
         createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
         productId: pro._id,
-        commission: pro.commission || 0,
+        commission: v.commission ?? pro.commission ?? 0,
         sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
-        commissionHistory: pro.commissionHistory || [],
+        commissionHistory: v.commissionHistory || pro.commissionHistory || [],
         rawCreatedAt: new Date(pro.createdAt),
         productCategories: pro.category || [], // Include product categories
         totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
@@ -307,21 +307,25 @@ export default function SellerProductTable({
 
       ];
 
-      const qc = useQueryClient();
-      const { mutate: mutateVisibility, status } = useMutation({
+  const qc = useQueryClient();
+  const { mutate: mutateVisibility, status } = useMutation({
         mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
           updateVisibility(data.proIds, data.isVisible),
         onSuccess: async () => {
           qc.invalidateQueries({
-            queryKey: ["seller-products", seller?._id],
+            queryKey: ["seller-products", shopId],
           });
-        },
-      onError(error) {
+      },
+    onError(error) {
       const msg = error?.message || "Failed to update visibility";
       toast.error(msg);
-      qc.invalidateQueries({ queryKey: ["seller-products", seller?._id] });
+      qc.invalidateQueries({ queryKey: ["seller-products", shopId] });
     },
   });
+
+  if (!canAccess("AllProducts")) {
+    return <div className="rounded-xl border bg-white p-4 text-gray-600">You do not have access to view products.</div>;
+  }
 
   return (
     <>

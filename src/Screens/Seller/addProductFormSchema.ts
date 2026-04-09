@@ -33,6 +33,11 @@ export const variantSchema = z.object({
     )
     .max(3, "You can define at most 3 bulk order options")
     .optional(),
+
+  images: z
+    .array(z.union([z.instanceof(File), z.string()]))
+    .optional()
+    .nullable(),
 });
 
 const addProductFormSchema = z
@@ -87,12 +92,28 @@ const addProductFormSchema = z
     upsells: z.array(z.string().url()).optional(),
     crosssells: z.array(z.string().url()).optional(),
 
-    specialityPackage: z.string().optional(),
-    specialityPackageType: z.string().optional(),
+    specialityPackage: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Speciality name required"),
+          val: z.string().min(1, "Speciality value required"),
+        }),
+      )
+      .optional()
+      .default([]),
+    specialityPackageType: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Speciality type name required"),
+          val: z.string().min(1, "Speciality type value required"),
+        }),
+      )
+      .optional()
+      .default([]),
 
     // BRAND (new) — optional free-text
-// previously: brand: z.string().optional(),
-brand: z.string().min(2, "Brand is required"),
+    // previously: brand: z.string().optional(),
+    brand: z.string().min(2, "Brand is required"),
 
     manufacturerName: z
       .string()

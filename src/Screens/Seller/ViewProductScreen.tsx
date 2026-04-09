@@ -7,11 +7,12 @@ import { fetchProductCategories } from "./AddProductScreen2";
 import AddProductForm from "@/components/Seller/AddProductForm";
 import { LoaderIcon } from "lucide-react";
 import { API_URL } from "@/data";
+import { getErrorMessage } from "@/lib/utils";
 
 export default function ViewProductScreen() {
   const { id } = useParams();
 
-  const { data: product, status } = useQuery({
+  const { data: product, status, error } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProductDetail(id),
   });
@@ -41,7 +42,7 @@ export default function ViewProductScreen() {
   if (status === "error" || !product || !data || !subCats) {
     return (
       <div className="h-screen grid place-items-center">
-        <p>Something went wrong</p>
+        <p>{getErrorMessage(error, "Unable to load product details")}</p>
       </div>
     );
   }
@@ -53,7 +54,31 @@ export default function ViewProductScreen() {
 
   const subCategory = subCats
     .filter((el: any) => product.subCategory?.includes(el._id))
-    .map((el: any) => ({ name: el.name, val: el._id }));
+    .map((el: any) => ({ name: el.name, val: el._id, tags: el.tags || [] }));
+
+  const specialityPackage = Array.isArray(product.specialityPackage)
+    ? product.specialityPackage.map((item: any) =>
+        typeof item === "string" ? item : item?._id || item?.val || String(item),
+      )
+    : product.specialityPackage
+      ? [typeof product.specialityPackage === "string"
+          ? product.specialityPackage
+          : (product.specialityPackage as any)?._id ||
+            (product.specialityPackage as any)?.val ||
+            String(product.specialityPackage)]
+      : [];
+
+  const specialityPackageType = Array.isArray(product.specialityPackageType)
+    ? product.specialityPackageType.map((item: any) =>
+        typeof item === "string" ? item : item?._id || item?.val || String(item),
+      )
+    : product.specialityPackageType
+      ? [typeof product.specialityPackageType === "string"
+          ? product.specialityPackageType
+          : (product.specialityPackageType as any)?._id ||
+            (product.specialityPackageType as any)?.val ||
+            String(product.specialityPackageType)]
+      : [];
 
   const minmaxrule = product?.minmaxrule
     ? typeof product.minmaxrule === "string"
@@ -131,7 +156,7 @@ export default function ViewProductScreen() {
     certificate: [],
     oemLetter: null,
     productComparisionSheet: null,
-    specialityPackage: product?.specialityPackage || "",
+    specialityPackage: specialityPackage,
     // FIXED: Safe mapping for variants and nested stocks
     variants:
       product?.variants?.map((el) => ({
@@ -140,15 +165,16 @@ export default function ViewProductScreen() {
         originalPrice: el?.originalPrice?.toString() ?? "",
         discountPrice: el?.discountPrice?.toString() ?? "",
         stocks: el?.stock?.toString() ?? "0",
-        bulkOrders: el?.bulkOrders || [],
+        images: Array.isArray(el?.images) ? el.images : [],
+        bulkOrders: Array.isArray(el?.bulkOrders) ? el.bulkOrders : [],
       })) || [],
-    specialityPackageType: product?.specialityPackageType || "",
+    specialityPackageType: specialityPackageType,
   };
 
   return (
     <SellerMainWrapper
       status={status}
-      errorMessage="Something went wrong"
+      errorMessage={getErrorMessage(error, "Unable to load product details")}
       heading="Product Detail"
     >
       {status === "success" && catStatus === "success" && data && product && (

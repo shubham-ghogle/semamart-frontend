@@ -3,6 +3,8 @@ import SellerDeliveredOrderTable from "../../components/Seller/SellerDeliveredOr
 import { useQuery } from "@tanstack/react-query";
 import { getDeliveredOrdersForSeller } from "./Seller.Hooks";
 import { Order } from "../../Types/types";
+import { useSellerSession } from "./sellerSession";
+import { getVariantCommission } from "@/lib/utils";
 
 const formatMoney = (v: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -13,24 +15,23 @@ const formatMoney = (v: number) =>
   }).format(v);
 
 export default function SellerDeliveredOrders() {
+  const { shopId, canAccess } = useSellerSession();
   const {
     data: orders,
     status,
     error,
   } = useQuery<Order[]>({
-    queryKey: ["seller-delivered-orders"],
+    queryKey: ["seller-delivered-orders", shopId],
     queryFn: getDeliveredOrdersForSeller,
+    enabled: !!shopId,
   });
+  const displayStatus = canAccess("AllSales") ? status : "success";
 
   const deliveredOrders = orders?.filter((o) => o.status === "Delivered") ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc, o) => {
-      const pid =
-        typeof o.variant === "object" ? (o.variant as any)?.productId : null;
-
-      const commission =
-        pid && typeof pid === "object" ? (pid.commission ?? 0) : 0;
+      const commission = getVariantCommission(o);
 
       const orderTotal = o.totalPrice || 0;
 
@@ -52,12 +53,14 @@ export default function SellerDeliveredOrders() {
 
   return (
     <SellerMainWrapper
-      status={status as any}
+      status={displayStatus as any}
       errorMessage={(error as Error)?.message || "Something went wrong"}
       heading="Total Sales"
       subHeading="Sales for orders that have been delivered"
     >
-      {status === "success" && (
+      {!canAccess("AllSales") ? (
+        <div className="rounded-xl border bg-white p-4 text-gray-600">You do not have access to sales data.</div>
+      ) : status === "success" && (
         <>
           <div className="flex justify-end gap-4 mb-6">
             {/* Updated to Semamart Teal with white text */}

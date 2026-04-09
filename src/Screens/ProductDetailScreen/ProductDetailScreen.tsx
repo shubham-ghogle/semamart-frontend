@@ -10,6 +10,8 @@ import ProductPageBtns from "../../components/Product/ProductPageBtns";
 import { useWishlistStore } from "../../store/wishlistStore";
 import ProductDetailsInfo from "../../components/Product/ProductDetailsInfo";
 import { getProductDetail } from "./ProductDetails.HooksUtils";
+import { toast } from "react-toastify";
+import LoaderUi from "@/components/UIComponents/LoaderUi";
 
 /**
  * Product details screen
@@ -35,7 +37,7 @@ export default function ProductDetailsScreen() {
     // pick variant (defaultVariant fallback to first)
     const variant = (product as any).defaultVariant || product.variants?.[0];
     if (!variant) {
-      alert("No variant available for this product");
+      toast.error("No variant available for this product");
       return;
     }
 
@@ -48,7 +50,7 @@ export default function ProductDetailsScreen() {
       return elProdId === product._id && elVarId === variant._id;
     });
     if (isItemInCart) {
-      alert("Item already in the cart");
+      toast.error("Item already in the cart");
       return;
     }
 
@@ -108,7 +110,7 @@ export default function ProductDetailsScreen() {
     setCount((c) => (c > 1 ? c - 1 : c));
   }
 
-  if (status === "pending") return <div>Loading...</div>;
+  if (status === "pending") return <LoaderUi title="Loading product..." />;
   if (status === "error") return <div>error...</div>;
 
   return (

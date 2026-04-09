@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
-import { useSellerStore } from "@/store/sellerStore";
+import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 export default function SellerHeader() {
-  const { seller } = useSellerStore((state) => state);
+  const { displayName } = useSellerSession();
 
   // desktop pinned state
   const [pinned, setPinned] = useState<boolean>(() => {
@@ -134,7 +134,7 @@ export default function SellerHeader() {
         {/* RIGHT: business name (desktop only) */}
         <div className="hidden md:flex items-center gap-4 pr-4">
           <div className="hidden sm:block text-sm text-gray-700">
-            {seller?.businessName}
+            {displayName}
           </div>
         </div>
       </div>

@@ -1,10 +1,12 @@
-import { Seller, Order, Product, Variant } from "@/Types/types";
+import { Seller, Order } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { EyeIcon, UserIcon, Clipboard } from "lucide-react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "@/data";
+import { getVariantCommission } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 /* ================= TYPES ================= */
 
@@ -66,7 +68,7 @@ export default function AdminSellerTable({
       a.remove();
       URL.revokeObjectURL(blobUrl);
     } catch (err: any) {
-      alert(err?.message || "Could not download PDF.");
+      toast.error(err?.message || "Could not download PDF.");
     }
   }
 
@@ -81,10 +83,7 @@ export default function AdminSellerTable({
 
     // 2. Calculate Net Revenue (Sales - Platform Fees)
     const sellerNetRevenue = sellerOrders.reduce((acc, o) => {
-      const variant = o.variant as Variant;
-      const pid = variant?.productId as Product;
-      
-      const commissionPerUnit = pid?.commission ?? 0;
+      const commissionPerUnit = getVariantCommission(o);
       const totalCommission = commissionPerUnit * (o.qty ?? 0);
       
       const orderNet = (o.totalPrice || 0) - totalCommission;

@@ -79,7 +79,9 @@ import AdminImageUploader from "./components/Admin/AdminImageUploader";
 import AdminUserAccount from "./components/Admin/AdminUserAccount";
 import AdminSupportScreen from "./Screens/Admin/AdminSupportScreen";
 import SellerSupportScreen from "./Screens/Seller/SellerSupportScreen";
+import SellerMembersScreen from "./Screens/Seller/SellerMembersScreen";
 import UserSupportScreen from "./Screens/User/UserSupportScreen";
+import UserMembersScreen from "./Screens/User/UserMembersScreen";
 import SupportDetail from "./Screens/Admin/SupportDetail";
 import OrderProductCard from "./components/ui/OrderProductCard";
 import UserWishlist from "./components/ui/UserWishlist";
@@ -458,6 +460,7 @@ export const router = createBrowserRouter([
       },
       { path: "support", element: <SellerSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
+      { path: "members", element: <SellerMembersScreen /> },
       { path: "contact-us", element: <ContactUsScreen /> },
     ],
   },
@@ -477,6 +480,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "support", element: <UserSupportScreen /> },
+      { path: "members", element: <UserMembersScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
       { path: "contact-us", element: <ContactUsScreen /> },
     ],
@@ -493,6 +497,7 @@ export const router = createBrowserRouter([
       { path: "orders", element: <MyOrderPage /> },
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
       { path: "support", element: <UserSupportScreen /> },
+      { path: "members", element: <UserMembersScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
       { path: "contact-us", element: <ContactUsScreen /> },
     ],

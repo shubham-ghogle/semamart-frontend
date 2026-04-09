@@ -4,6 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { Product, Variant } from "../Types/types";
 import { useUserStore } from "./userStore";
 import { API_URL } from "@/data";
+import { getAccountOwnerId } from "@/lib/utils";
 
 
 export type PaymentSlip = {
@@ -83,7 +84,8 @@ export const useCartStore = create<CartStore>()(
 
       addToCart: async (item) => {
         const user = useUserStore.getState().user;
-            if (!user?._id) {
+        const accountOwnerId = getAccountOwnerId(user);
+            if (!accountOwnerId) {
               console.error("User not logged in");
               return;
             }
@@ -149,14 +151,14 @@ export const useCartStore = create<CartStore>()(
             ],
           };
         });
-         try {
+        try {
         await fetch(API_URL+"cart/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  user_id: user?._id,
+  user_id: accountOwnerId,
   product_id: itemProdId,
   variant_id: itemVarId,
 }),
@@ -169,14 +171,15 @@ export const useCartStore = create<CartStore>()(
 
     removeFromCart: async (productId, variantId) => {
        const user = useUserStore.getState().user;
+       const accountOwnerId = getAccountOwnerId(user);
 
-  if (!user?._id) {
+  if (!accountOwnerId) {
     console.error("User not logged in");
     return;
   }
         try {
        
-          await fetch(API_URL+`cart/${user._id}/${productId}/${variantId}`, {
+          await fetch(API_URL+`cart/${accountOwnerId}/${productId}/${variantId}`, {
             method: "DELETE",
           });
 
@@ -233,16 +236,17 @@ export const useCartStore = create<CartStore>()(
 
       // clearCart: () => set(() => ({ cart: [] })),
   
-         clearCart: async () => {
+     clearCart: async () => {
   const user = useUserStore.getState().user;
+  const accountOwnerId = getAccountOwnerId(user);
 
-  if (!user?._id) {
+  if (!accountOwnerId) {
     console.error("User not logged in");
     return;
   }
 
   try {
-    const response = await fetch(API_URL+`cart/clear/${user._id}`, {
+    const response = await fetch(API_URL+`cart/clear/${accountOwnerId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
