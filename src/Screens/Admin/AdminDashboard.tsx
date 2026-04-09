@@ -101,46 +101,44 @@ const AdminDashboard = () => {
     return { ...item, count };
   });
 
-  return (
-    <div className="bg-gradient-to-br from-white to-gray-100 p-8 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+return (
+    <div className="bg-gradient-to-br from-white to-gray-100 p-2 sm:p-4 md:p-6 min-h-screen">
+      <div className="w-full">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 p-6 rounded-xl">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4 p-2 sm:p-4 rounded-xl">
           {/* 1. Welcome Message */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
               Welcome back {user?.firstName || "Admin"} 👋
             </h1>
           </div>
 
-
-
-  {/* 3. Last Updated Message */}
-  <div>
-    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium italic">
-      Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-    </p>
-  </div>
-</div>
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          {/* 3. Last Updated Message */}
+          <div>
+            <p className="text-gray-500 text-xs sm:text-sm italic">
+              Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+{/* Overview Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-8">
           {stockData.map((item, index) => (
             <div 
               key={index}
               onClick={() => navigate(item.label === "Vendors" ? "/admin/sellers" : item.label === "New Vendors" ? "/admin/requests" : item.label === "Institutes" ? "/admin/users" : "/admin/orders")}
-              className={`bg-gradient-to-r ${item.color} text-white rounded-2xl p-6 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+              className={`bg-gradient-to-r ${item.color} text-white rounded-xl lg:rounded-2xl p-3 lg:p-6 shadow-md lg:shadow-lg cursor-pointer hover:scale-105 transition-transform`}
             >
               <div className="flex items-center justify-between">
-                <item.IconComponent className="text-4xl" />
-                <span className="text-4xl font-bold">{item.count}</span>
+                <item.IconComponent className="text-2xl lg:text-4xl" />
+                <span className="text-2xl lg:text-4xl font-bold">{item.count}</span>
               </div>
-              <p className="text-lg mt-4 font-medium">{item.label}</p>
+              <p className="text-sm lg:text-lg mt-2 lg:mt-4 font-medium">{item.label}</p>
             </div>
           ))}
         </div>
 
         {/* Orders Table */}
-        <h2 className="text-center text-2xl mb-4 text-gray-800 font-semibold">Recent Orders</h2>
+        <h2 className="text-center text-lg sm:text-xl lg:text-2xl mb-2 sm:mb-4 text-gray-800 font-semibold">Recent Orders</h2>
         <AdminMainWrapper status={ordersStatus} heading="All Orders">
           {ordersData && <AdminOrderTable orders={ordersData?.orders} />}
         </AdminMainWrapper>

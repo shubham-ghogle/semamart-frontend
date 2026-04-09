@@ -415,11 +415,13 @@ doc.text(
   const end = Math.min(total, (pageIndex + 1) * pageSize);
 
   return (
-    <div className="w-full">
+   <div className="w-full px-2">
+      {/* Filter bar - horizontal scroll */}
       <section
-        className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full"
+        className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {/* serach input */}
+        {/* Search */}
         {!disableSearch && (
           <Input
             type="text"
@@ -430,19 +432,15 @@ doc.text(
             onChange={(event) =>
               table.getColumn(searchColId)?.setFilterValue(event.target.value)
             }
-            className="min-w-[180px] max-w-sm p-2 border rounded w-full sm:w-auto"
+            className="flex-1 min-w-[200px] shrink-0"
           />
         )}
         
-          
-
-
-         
-
+        {/* All filters - visible on all screens */}
         {!disableBtns && (
-          <article className="flex items-center gap-2 sm:gap-3 overflow-x-auto w-full justify-end flex-wrap">
+          <div className="flex items-center gap-2 shrink-0">
             {!disabeAdminVisibilitySwitch && selectedRows.rows.length > 0 && (
-              <article className="justify-self-end flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <Switch
                   id="admin-prodcut-visibiity"
                   onCheckedChange={(e) => {
@@ -454,14 +452,14 @@ doc.text(
                     }
                   }}
                 />
-                <Label htmlFor="admin-prodcut-visibiity">
+                <Label htmlFor="admin-prodcut-visibiity" className="text-xs whitespace-nowrap">
                   Switch product visibility
                 </Label>
-              </article>
+              </div>
             )}
 
             {!disabeSellerVisibilitySwitch && selectedRows.rows.length > 0 && (
-              <article className="justify-self-end flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <Switch
                   id="seller-prodcut-visibiity"
                   onCheckedChange={(e) => {
@@ -473,12 +471,13 @@ doc.text(
                     }
                   }}
                 />
-                <Label htmlFor="seller-prodcut-visibiity">
+                <Label htmlFor="seller-prodcut-visibiity" className="text-xs whitespace-nowrap">
                   Switch product visibility
                 </Label>
-              </article>
+              </div>
             )}
             
+            {/* Status filter */}
             {enableStatusFilter && statusColumnId && (
               <Select
                 value={
@@ -491,8 +490,8 @@ doc.text(
                     ?.setFilterValue(v === "All" ? undefined : v)
                 }
               >
-                <SelectTrigger className="w-35">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className="w-28 shrink-0 h-9">
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map(s => (
@@ -504,8 +503,9 @@ doc.text(
               </Select>
             )}
 
+            {/* Date filter */}
             {enableCalender && (
-              <div className="min-w-fit">
+              <div className="min-w-fit shrink-0">
                 <CalendarPopoverWithPresets
                   startDate={startDate}
                   endDate={endDate}
@@ -528,7 +528,7 @@ doc.text(
                     ?.setFilterValue(v === "All" ? undefined : v)
                 }
               >
-                <SelectTrigger className="w-35">
+                <SelectTrigger className="w-28 min-w-[112px] shrink-0 hidden sm:flex">
                   <SelectValue placeholder="Salesman" />
                 </SelectTrigger>
                 <SelectContent>
@@ -544,16 +544,16 @@ doc.text(
 
             {/* export buttons */}
             {!disableExport && (
-              <div className="min-w-fit">
+              <div className="min-w-fit shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="ml-auto bg-background text-txt-drk-gray"
+                      className="bg-background text-txt-drk-gray whitespace-nowrap h-9"
                     >
-                      <DownloadIcon />
+                      <DownloadIcon size={16} />
                       <span>Export</span>
-                      <ChevronDown />
+                      <ChevronDown size={14} />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -564,18 +564,18 @@ doc.text(
               </div>
             )}
 
-            {/* column visibility */}
+{/* column visibility */}
             {!disableColumnVisibility && (
-              <div className="min-w-fit">
+              <div className="min-w-fit shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="ml-auto bg-background text-txt-drk-gray"
+                      className="bg-background text-txt-drk-gray whitespace-nowrap h-9"
                     >
-                      <FilterIcon />
-                      Columns
-                      <ChevronDown />
+                      <FilterIcon size={16} />
+                      <span>Columns</span>
+                      <ChevronDown size={14} />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -596,15 +596,15 @@ doc.text(
                         </DropdownMenuCheckboxItem>
                       );
                     })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
-        </article>
-      )}
-    </section>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
-    <div className="rounded-md border overflow-x-auto">
+      <div className="w-full max-w-full rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -23,19 +23,19 @@ export default function AdminMainWrapper({
   const showBackButton = heading === "Products" || heading ==="User Profile" || heading==="Seller Profile" || heading==="Order Summary" || heading==="Order Details" ;
 
   return (
-    <div className="flex-1 px-4 sm:px-6 py-4 w-full">
-      <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible w-full pb-6">
-        <div className="px-5 py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div className="flex-1 px-2 sm:px-4 md:px-6 py-4 w-full">
+      <div className="mx-auto bg-white rounded-xl shadow-md w-full pb-4 sm:pb-6">
+        <div className="px-3 sm:px-5 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">{heading || "Admin"}</h1>
-            <p className="text-sm text-gray-500 mt-1">{subHeading || "Manage the Admin account"}</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">{heading || "Admin"}</h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">{subHeading || "Manage the Admin account"}</p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {showBackButton && (
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium"
+                className="flex items-center gap-1 text-gray-700 hover:text-gray-900 text-sm font-medium"
               >
                 <svg
                   className="w-4 h-4"
@@ -53,7 +53,7 @@ export default function AdminMainWrapper({
           </div>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-5 max-h-[calc(100vh-160px)] sm:max-h-none overflow-auto">
+        <div className="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-5 overflow-auto">
           {status === "pending" ? (
             <div className="w-full flex items-center justify-center py-10">
               <svg className="w-8 h-8 animate-spin" viewBox="0 0 24 24" aria-hidden>
