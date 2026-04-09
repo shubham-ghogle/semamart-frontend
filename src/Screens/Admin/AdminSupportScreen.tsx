@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { CalendarIcon, Eye } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
+import { CalendarPopoverWithPresets } from "@/components/UIComponents/CalendarPopoverWithPresets";
 import { useSupportStore } from '@/store/supportStore';
 
 const AdminSupportScreen = () => {
@@ -58,60 +53,22 @@ const AdminSupportScreen = () => {
     <div className="p-4 sm:p-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold mb-4">Support Management</h1>
-        <div className="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto">
           <input
             type="text"
             placeholder="Search by Case ID, Name, Topic"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border p-2 rounded w-full sm:flex-1 min-w-[250px]"
+            className="border p-2 rounded min-w-[180px] flex-1"
           />
           
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
-                  !startDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {startDate ? format(startDate, "PPP") : <span>From Date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "justify-start text-left font-normal w-full sm:w-auto min-w-[200px]",
-                  !endDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {endDate ? format(endDate, "PPP") : <span>To Date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <CalendarPopoverWithPresets
+            startDate={startDate}
+            endDate={endDate}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            minDate={new Date(2020, 0, 1)}
+          />
         </div>
         
         <div className="overflow-x-auto">

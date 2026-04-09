@@ -372,12 +372,12 @@ export default function AdminAllProductTable({
   return (
     <div className="p-4 w-full">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-        {/* Filter Criteria Row */}
-        <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="flex flex-col">
+        {/* Filter bar - all in one row with horizontal scroll */}
+        <div className="mb-4 flex flex-nowrap items-end gap-3 overflow-x-auto no-scrollbar w-full">
+          <div className="flex flex-col shrink-0">
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
             <select 
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[120px]"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -389,7 +389,7 @@ export default function AdminAllProductTable({
             </select>
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col shrink-0">
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
             <div ref={categoryRef} className="relative">
               <button
@@ -397,14 +397,12 @@ export default function AdminAllProductTable({
                   setIsCategoryOpen((p) => !p);
                   setHoveredCategory(null);
                 }}
-                className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[140px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
               >
-                <span>
+                <span className="truncate">
                 {category 
                   ? (
-                      // First check if it's a subcategory
                       Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name || 
-                      // Then check if it's a main category
                       categoriesData?.find((cat: any) => cat._id === category)?.name 
                     )
                   : "All"
@@ -460,10 +458,10 @@ export default function AdminAllProductTable({
             </div>
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col shrink-0">
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
             <select 
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px]"
               value={productStatus}
               onChange={(e) => setProductStatus(e.target.value)}
             >
@@ -473,35 +471,35 @@ export default function AdminAllProductTable({
             </select>
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min</label>
             <input
               type="number"
               placeholder="Min"
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max</label>
             <input
               type="number"
               placeholder="Max"
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
             />
           </div>
 
-          <div className="flex flex-col ml-auto">
+          <div className="flex flex-col shrink-0 ml-auto">
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
             <button 
-              className="px-3 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-xl shadow-sm transition-all duration-200 h-10"
+              className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg shadow-sm transition-all duration-200 h-10 whitespace-nowrap"
               onClick={handleResetFilters}
             >
-              Reset Filter
+              Reset
             </button>
           </div>
         </div>

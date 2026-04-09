@@ -207,9 +207,9 @@ const AdminMemberAccess = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 space-y-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 space-y-8">
       {/* ================= ADD MEMBER SECTION ================= */}
-      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8 space-y-6">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-4 md:p-8 space-y-6">
         <h1 className="text-2xl font-bold text-gray-800">Member Access Management</h1>
 
         <div className="mb-4">

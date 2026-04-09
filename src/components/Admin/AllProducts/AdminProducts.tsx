@@ -366,26 +366,26 @@ export default function AdminProduct() {
   return (
     <div className="p-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-        <h1 className="text-xl font-semibold mb-4">All Products</h1>
+<h1 className="text-xl font-semibold mb-4">All Products</h1>
 
-      {/* Filter Criteria Row - Below Title, Above Search */}
-      <div className="mb-4 flex flex-wrap items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
-          <select 
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="price-low">Price Low–High</option>
-            <option value="price-high">Price High–Low</option>
-            <option value="bestSelling">Best Selling</option>
-          </select>
-        </div>
+        {/* Filter bar - all in one row */}
+        <div className="mb-4 flex flex-nowrap items-center gap-2 p-1 bg-gray-50 rounded-xl overflow-x-auto no-scrollbar w-full">
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
+            <select
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px]"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="price-low">Price Low–High</option>
+              <option value="price-high">Price High–Low</option>
+              <option value="bestSelling">Best Selling</option>
+            </select>
+          </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col shrink-0">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
           <div ref={categoryRef} className="relative">
             <button
@@ -393,7 +393,7 @@ export default function AdminProduct() {
                 setIsCategoryOpen((p) => !p);
                 setHoveredCategory(null);
               }}
-              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-xl hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[120px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
             >
               <span>
                 {category 
@@ -456,10 +456,10 @@ export default function AdminProduct() {
           </div>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col shrink-0">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
           <select 
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[80px]"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -469,35 +469,35 @@ export default function AdminProduct() {
           </select>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col shrink-0">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
           <input
             type="number"
             placeholder="Min"
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
           />
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col shrink-0">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
           <input
             type="number"
             placeholder="Max"
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all w-24"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
           />
         </div>
 
-        <div className="flex flex-col ml-auto">
+        <div className="flex flex-col shrink-0 ml-auto mr-2">
           <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
           <button 
-            className="px-3 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-xl shadow-sm transition-all duration-200 h-10"
+            className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg h-10"
             onClick={handleResetFilters}
           >
-            Reset Filter
+            Reset
           </button>
         </div>
       </div>
