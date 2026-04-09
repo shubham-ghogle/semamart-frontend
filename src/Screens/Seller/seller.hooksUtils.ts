@@ -56,8 +56,8 @@ export const addProductFormDefaultValues = {
   certificate: [] as any[],
   oemLetter: null as any,
   productComparisionSheet: null as any,
-  specialityPackage: [] as string[],
-  specialityPackageType: [] as string[],
+  specialityPackage: [] as { name: string; val: string }[],
+  specialityPackageType: [] as { name: string; val: string }[],
   variants: [
     {
       size: null as string | null,

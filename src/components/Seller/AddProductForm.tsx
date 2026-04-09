@@ -80,6 +80,12 @@ type AddProductFormProps =
       productId: string;
     };
 
+function getSelectValue(entry: any) {
+  if (!entry) return "";
+  if (typeof entry === "string") return entry;
+  return entry.val || entry.value || entry._id || "";
+}
+
 export default function AddProductForm({
   multiVariant = false,
   categories,
@@ -1199,28 +1205,22 @@ return (
                             1,
                           ),
                         }).map((_, index) => ({
-                          packageId: form.watch("specialityPackage")?.[index] || "",
-                          typeId: form.watch("specialityPackageType")?.[index] || "",
+                          packageId: getSelectValue(
+                            form.watch("specialityPackage")?.[index],
+                          ),
+                          typeId: getSelectValue(
+                            form.watch("specialityPackageType")?.[index],
+                          ),
                         }))}
                         onChange={(rows) => {
                           form.setValue(
                             "specialityPackage",
                             rows
                               .filter((row) => row.packageId)
-                              .map((row) => {
-                                const selectedPackage = rows.find(
-                                  (item) => item.packageId === row.packageId,
-                                );
-                                const packageName =
-                                  selectedPackage?.packageId &&
-                                  row.packageId
-                                    ? row.packageId
-                                    : "";
-                                return {
-                                  name: packageName,
-                                  val: row.packageId,
-                                };
-                              }),
+                              .map((row) => ({
+                                name: row.packageId,
+                                val: row.packageId,
+                              })),
                             { shouldDirty: true, shouldTouch: true },
                           );
                           form.setValue(
