@@ -175,7 +175,7 @@ export default function AdminAllProductTable({
           discountPrice: v.discountPrice ?? 0,
           createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
           productId: pro._id,
-          commission: v.commission ?? pro.commission ?? 0,
+        commission: v?.commission ?? pro?.commission ?? 0,
           commissionHistoryDate: lastCommission
             ? new Date(lastCommission.updatedAt).toLocaleDateString("en-IN")
             : "-",
@@ -333,7 +333,7 @@ export default function AdminAllProductTable({
         }),
     },
     { accessorKey: "createdAt", header: "Created On" },
-    { accessorKey: "commission", header: "Commission" },
+    { accessorKey: "commission", header: "Commission Amount" },
     {
       id: "action",
       header: "Actions",
@@ -348,6 +348,7 @@ export default function AdminAllProductTable({
           <UpdateCommissionDialog
             currentCommission={row.original.commission}
             productId={row.original.productId}
+            variantId={row.original.id}
           />
           <DisplayCommission history={row.original.commissionHistory} />
         </div>

@@ -5,6 +5,8 @@ import { ChangeEvent } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useParams } from "react-router";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
+import { toast } from "react-toastify";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export default function MediaDisplay() {
 
@@ -19,6 +21,9 @@ export default function MediaDisplay() {
       uploadImage(v.file, v.productId, v.idx),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product", id] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to upload image");
     },
   });
 
@@ -82,7 +87,10 @@ async function uploadImage(file: File, productId: string, idx?: number) {
   const res = await fetch(API_URL + "product/upload-image/" + productId, {
     method: "PUT",
     body: formData,
+    credentials: "include",
   });
 
-  if (!res.ok) throw new Error("Failed to upload image");
+  if (!res.ok) {
+    throw new Error(await getApiErrorMessage(res, "Failed to upload image"));
+  }
 }

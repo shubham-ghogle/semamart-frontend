@@ -21,7 +21,7 @@ export default function UserScreenMainWrapper({
       </h1>
       {status === "pending" && <LoaderUi title="Loading..." />}
       {status === "error" && <LoaderUi title={errorMeassage || ""} />}
-      {children}
+      {status === "success" && children}
     </article>
   );
 }

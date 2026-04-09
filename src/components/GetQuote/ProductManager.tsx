@@ -2,6 +2,7 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table"; // adjust path if needed
 import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
 
 type HospitalProduct = {
   srNo: number;
@@ -57,7 +58,7 @@ const demoProducts: HospitalProduct[] = [
 
 const ProductManager: React.FC = () => {
   const handleView = (product: HospitalProduct) => {
-    alert(`Viewing ${product.productName}`);
+    toast.info(`Viewing ${product.productName}`);
   };
 
   const columns: ColumnDef<HospitalProduct>[] = [

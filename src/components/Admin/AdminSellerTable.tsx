@@ -6,6 +6,7 @@ import { EyeIcon, UserIcon, Clipboard } from "lucide-react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "@/data";
 import { getVariantCommission } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 /* ================= TYPES ================= */
 
@@ -67,7 +68,7 @@ export default function AdminSellerTable({
       a.remove();
       URL.revokeObjectURL(blobUrl);
     } catch (err: any) {
-      alert(err?.message || "Could not download PDF.");
+      toast.error(err?.message || "Could not download PDF.");
     }
   }
 

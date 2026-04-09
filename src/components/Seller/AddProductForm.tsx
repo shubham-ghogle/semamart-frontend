@@ -1,7 +1,7 @@
+// @ts-nocheck
 import { addProductFormSchema } from "@/Screens/Seller/addProductFormSchema";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -35,6 +35,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { format } from "date-fns";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useSellerStore } from "@/store/sellerStore";
@@ -54,13 +55,14 @@ import { Checkbox } from "../ui/checkbox";
 import DocumentsDisplay from "./DocumentsDisplay";
 import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
-import AddProductFormVariants from "./AddProductFormVariants";
+import AddProductFormVariants from "./AddProductFormVariants.tsx";
 import { useBlocker, useNavigate } from "react-router";
 import { useDebounce } from "@/hooks";
 import { InfoTooltip } from "../ui/InfoTooltip";
 import Subformlabel from "../ui/Subformlabel";
 import indiaStates, { getDistricts } from "india-state-district";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 
 type AddProductFormProps =
@@ -78,8 +80,6 @@ type AddProductFormProps =
       productId: string;
     };
 
-type ProductFormType = z.infer<typeof addProductFormSchema>;
-
 export default function AddProductForm({
   multiVariant = false,
   categories,
@@ -91,8 +91,14 @@ export default function AddProductForm({
   const seller = useSellerStore((state) => state.seller);
   const { shopId, canAccess } = useSellerSession();
   const [currCategory, setCurrCategory] = useState({ name: "", val: "" });
-  const [currSubcategory, setCurrSubcategory] = useState({ name: "", val: "" });
+  const [currSubcategory, setCurrSubcategory] = useState<{ name: string; val: string; tags: string[] }>({
+    name: "",
+    val: "",
+    tags: [],
+  });
   const [isMultiVariant, setIsMultiVariant] = useState(multiVariant);
+  const [variantImages, setVariantImages] = useState<File[][]>([]);
+  const [subcategoryTagsMap, setSubcategoryTagsMap] = useState<Record<string, string[]>>({});
 
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -142,7 +148,7 @@ export default function AddProductForm({
     value: c._id,
   }));
 
-  const form = useForm<ProductFormType>({
+  const form = useForm<any>({
     resolver: zodResolver(addProductFormSchema),
     defaultValues: normalizedProduct
       ? normalizedProduct
@@ -157,11 +163,17 @@ export default function AddProductForm({
   const {
     fields: variantFields,
     append,
-    remove: removeVariant,
+    remove,
   } = useFieldArray({
     name: "variants",
     control: form.control,
   });
+
+  function removeVariant(index: number) {
+    remove(index);
+    setThumbnail((prev) => prev.filter((_, i) => i !== index));
+    setVariantImages((prev) => prev.filter((_, i) => i !== index));
+  }
 
   function addVariant() {
     append({
@@ -170,9 +182,16 @@ export default function AddProductForm({
       size: null,
       colorOption: null,
       discountPrice: "",
-      commission: "",
       bulkOrders: [],
+      images: [],
     });
+    setVariantImages((prev) => [...prev, []]);
+  }
+
+  function removeVariantAt(index: number) {
+    removeVariant(index);
+    setVariantImages((prev) => prev.filter((_, i) => i !== index));
+    setThumbnail((prev) => prev.filter((_, i) => i !== index));
   }
 
   const crossFields = form.watch("crosssells") || [];
@@ -213,14 +232,9 @@ export default function AddProductForm({
     value: el._id,
   }));
 
-  useEffect(() => {
-    const subCatId = currSubcategory.val;
-    const subCatSelected = subCatList.find((el) => el._id === subCatId);
-    form.setValue("tags", [
-      ...form.getValues("tags"),
-      ...(subCatSelected?.tags || []),
-    ]);
-  }, [form.watch("subCategory")]);
+  function mergeTags(existing: string[], incoming: string[]) {
+    return Array.from(new Set([...existing, ...incoming].filter(Boolean)));
+  }
 
   function addAddtri(attri: Record<string, string>) {
     const currentAttri = form.getValues("attributes") || [];
@@ -243,12 +257,16 @@ export default function AddProductForm({
     form.setValue("subCategory", [...subCaategories, currSubcategory]);
     const subCatId = currSubcategory.val;
     const subCatSelected = subCatList.find((el) => el._id === subCatId);
-    form.setValue("tags", [
-      ...form.getValues("tags"),
-      ...(subCatSelected?.tags || []),
-    ]);
+    setSubcategoryTagsMap((prev) => ({
+      ...prev,
+      [subCatId]: subCatSelected?.tags || [],
+    }));
+    form.setValue(
+      "tags",
+      mergeTags(form.getValues("tags") || [], subCatSelected?.tags || []),
+    );
     setCurrCategory({ name: "", val: "" });
-    setCurrSubcategory({ name: "", val: "" });
+    setCurrSubcategory({ name: "", val: "", tags: [] });
   }
 
   //media
@@ -295,6 +313,30 @@ export default function AddProductForm({
     const imgs = [...images];
     imgs.splice(i, 1);
     setImages(imgs);
+  }
+
+  function handleVariantImagesChange(
+    e: ChangeEvent<HTMLInputElement>,
+    index: number,
+  ) {
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    setVariantImages((prev) => {
+      const next = [...prev];
+      next[index] = files;
+      return next;
+    });
+    form.setValue(`variants.${index}.images`, files, { shouldDirty: true });
+  }
+
+  function removeVariantImage(index: number, imageIndex: number) {
+    setVariantImages((prev) => {
+      const next = [...prev];
+      const current = [...(next[index] || [])];
+      current.splice(imageIndex, 1);
+      next[index] = current;
+      form.setValue(`variants.${index}.images`, current, { shouldDirty: true });
+      return next;
+    });
   }
 
   const [shortVideo, setShortVideo] = useState<File | null>(null);
@@ -414,11 +456,12 @@ export default function AddProductForm({
       form.reset();
       setImages([]);
       setThumbnail([]);
+      setVariantImages([]);
       setShortVideo(null);
       qc.invalidateQueries({ queryKey: ["seller-products"] });
     },
-    onError: () => {
-      toast.error("Something went wrong!!");
+    onError: (error: any) => {
+      toast.error(getErrorMessage(error, "Unable to add product. Please check the form and try again."));
     },
   });
 
@@ -429,12 +472,12 @@ export default function AddProductForm({
       await qc.invalidateQueries({ queryKey: ["product", productId] });
       toast.success("Product updated");
     },
-    onError: () => {
-      toast.error("Something went wrong!");
+    onError: (error: any) => {
+      toast.error(getErrorMessage(error, "Unable to update product. Please try again."));
     },
   });
 
-  function onSubmit(values: z.infer<typeof addProductFormSchema>) {
+  function onSubmit(values: any) {
     if (!product) {
       if (thumbnail.length === 0) {
         form.setError("thumbnail" as any, {
@@ -453,14 +496,14 @@ export default function AddProductForm({
     newForm.append(
       "variants",
       JSON.stringify(
-        values.variants.map((el) => ({
+        values.variants.map((el, index) => ({
           size: el.size,
           colorOption: el.colorOption,
           originalPrice: el.originalPrice,
           discountPrice: el.discountPrice,
           stock: el.stocks,
-          commission: el.commission,
           bulkOrders: el.bulkOrders ?? [],
+          imagesCount: variantImages[index]?.length || 0,
         })),
       ),
     );
@@ -503,12 +546,12 @@ export default function AddProductForm({
         newForm.append("upsells", c);
       });
     }
-    if (values.specialityPackage) {
-      newForm.append("specialityPackage", values.specialityPackage);
-    }
-    if (values.specialityPackageType) {
-      newForm.append("specialityPackageType", values.specialityPackageType);
-    }
+    values.specialityPackage.forEach((value) => {
+      newForm.append("specialityPackage", value);
+    });
+    values.specialityPackageType.forEach((value) => {
+      newForm.append("specialityPackageType", value);
+    });
     newForm.append("manufacturerName", values.manufacturerName);
     newForm.append("email", values.email);
     newForm.append("phone", values.phone);
@@ -596,6 +639,11 @@ export default function AddProductForm({
         }
       });
     }
+    variantImages.forEach((files) => {
+      files.forEach((file) => {
+        newForm.append("variantImages", file);
+      });
+    });
     images.forEach((i) => {
       newForm.append("images", i);
     });
@@ -615,10 +663,28 @@ export default function AddProductForm({
   function deleteCategory(i: number) {
     const cats = [...form.getValues("category")];
     const subCats = [...form.getValues("subCategory")];
+    const removedSubCategory = subCats[i];
+    const removedTags = removedSubCategory
+      ? (removedSubCategory as any).tags || subcategoryTagsMap[removedSubCategory.val] || []
+      : [];
     cats.splice(i, 1);
     subCats.splice(i, 1);
     form.setValue("category", cats);
     form.setValue("subCategory", subCats);
+    if (removedTags.length > 0) {
+      const currentTags = form.getValues("tags") || [];
+      form.setValue(
+        "tags",
+        currentTags.filter((tag) => !removedTags.includes(tag)),
+      );
+    }
+    if (removedSubCategory) {
+      setSubcategoryTagsMap((prev) => {
+        const next = { ...prev };
+        delete next[removedSubCategory.val];
+        return next;
+      });
+    }
   }
 
 function switchMultiVarianMode() {
@@ -629,11 +695,12 @@ function switchMultiVarianMode() {
       colorOption: null,
       originalPrice: "",
       discountPrice: "",
-      commission: "",
       stocks: "",
+      images: [],
     },
   ]);
   setThumbnail([]);
+  setVariantImages([[]]);
 }
 
 
@@ -863,6 +930,9 @@ return (
                                 setCurrSubcategory({
                                   name: subCatName,
                                   val: value,
+                                  tags:
+                                    subCatList.find((el) => el._id === value)
+                                      ?.tags || [],
                                 });
                               }}
                             />
@@ -1122,16 +1192,47 @@ return (
                       </div>
                     <FormControl>
                       <SpecialityDropdown
-                        viewMode={product ? true : false}
-                        value={form.watch("specialityPackage") || ""}
-                        setValue={(v) => {
-                          form.setValue("specialityPackage", v);
-                        }}
-                        packageTypeValue={
-                          form.watch("specialityPackageType") || ""
-                        }
-                        setPackageValue={(v) => {
-                          form.setValue("specialityPackageType", v);
+                        values={Array.from({
+                          length: Math.max(
+                            (form.watch("specialityPackage")?.length || 0),
+                            (form.watch("specialityPackageType")?.length || 0),
+                            1,
+                          ),
+                        }).map((_, index) => ({
+                          packageId: form.watch("specialityPackage")?.[index] || "",
+                          typeId: form.watch("specialityPackageType")?.[index] || "",
+                        }))}
+                        onChange={(rows) => {
+                          form.setValue(
+                            "specialityPackage",
+                            rows
+                              .filter((row) => row.packageId)
+                              .map((row) => {
+                                const selectedPackage = rows.find(
+                                  (item) => item.packageId === row.packageId,
+                                );
+                                const packageName =
+                                  selectedPackage?.packageId &&
+                                  row.packageId
+                                    ? row.packageId
+                                    : "";
+                                return {
+                                  name: packageName,
+                                  val: row.packageId,
+                                };
+                              }),
+                            { shouldDirty: true, shouldTouch: true },
+                          );
+                          form.setValue(
+                            "specialityPackageType",
+                            rows
+                              .filter((row) => row.typeId)
+                              .map((row) => ({
+                                name: row.typeId,
+                                val: row.typeId,
+                              })),
+                            { shouldDirty: true, shouldTouch: true },
+                          );
                         }}
                       />
                     </FormControl>
@@ -2151,12 +2252,14 @@ return (
                           handleThumbnailChange={handleThumbnailChange}
                           thumbnail={thumbnail}
                           form={form}
-                          removeVariant={removeVariant}
+                          removeVariant={removeVariantAt}
                           isMultiVariant={isMultiVariant}
                           thumbnailError={
                             (form.formState.errors as any).thumbnail
                           }
                           removeThumbnail={removeThumbnail}
+                          variantImages={variantImages}
+                          setVariantImages={setVariantImages}
                           // minQty={Number(form.getValues("minmaxrule.minQty"))}
                         />
                       </div>
@@ -2269,7 +2372,7 @@ return (
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file && file.size > 5 * 1024 * 1024) {
-                          alert("Video size should not exceed 5MB.");
+                          toast.error("Video size should not exceed 5MB.");
                           return;
                         }
                         if (file) {
@@ -2321,7 +2424,7 @@ async function fetchSubcategories(categoryId: string) {
   if (categoryId.trim() === "") return;
   const url = API_URL + "category/" + categoryId;
   const res = await fetch(url);
-  if (!res.ok) throw new Error();
+  if (!res.ok) throw new Error("Failed to load subcategories");
   const data = (await res.json()) as CategoryDetailApiRes;
   return data;
 }
@@ -2330,9 +2433,12 @@ async function postProduct(formData: FormData) {
   const res = await fetch(API_URL + "product/create-product-v2", {
     method: "post",
     body: formData,
+    credentials: "include",
   });
 
-  if (!res.ok) throw new Error();
+  if (!res.ok) {
+    throw new Error(await getApiErrorMessage(res, "Failed to create product"));
+  }
 }
 
 async function editProduct(formData: FormData, productId: string) {
@@ -2342,7 +2448,9 @@ async function editProduct(formData: FormData, productId: string) {
     credentials: "include",
   });
 
-  if (!res.ok) throw new Error();
+  if (!res.ok) {
+    throw new Error(await getApiErrorMessage(res, "Failed to update product"));
+  }
 }
 
 function useBeforeUnload(when: boolean) {

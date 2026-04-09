@@ -8,6 +8,7 @@ import {
   FiX,
   FiUploadCloud,
 } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 /* ================= HELPER ================= */
 const resolveImageSrc = (preview?: string) => {
@@ -227,7 +228,7 @@ export default function HeroSectionUploader() {
   const validate = () => {
     for (const i of items) {
       if (!i.preview) {
-        alert("All banners and sliders must have an image");
+        toast.error("All banners and sliders must have an image");
         return false;
       }
     }
@@ -265,7 +266,7 @@ export default function HeroSectionUploader() {
     deletedIds.current = [];
     original.current = structuredClone(items);
     setEditing(false);
-    alert("Saved successfully");
+    toast.success("Saved successfully");
   };
 
   /* -------- CANCEL -------- */

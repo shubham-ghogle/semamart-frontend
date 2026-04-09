@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -14,46 +13,63 @@ import { FaRupeeSign } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
-import { useParams } from "react-router";
+import { useEffect, useState } from "react";
 
 type UpdateCommissionDialogProps = {
   currentCommission: number;
   productId: string;
+  variantId: string;
 };
 export default function UpdateCommissionDialog({
   currentCommission,
   productId,
+  variantId,
 }: UpdateCommissionDialogProps) {
-  const { sellerId } = useParams();
-
   const [open, setOpen] = useState(false);
-  const [newCommission, setNewCommission] = useState(0);
+  const [newCommission, setNewCommission] = useState(
+    currentCommission.toString(),
+  );
 
   const qc = useQueryClient();
 
-  async function updateCommison(comm: number, proId: string) {
-    const res = await fetch(API_URL + "product/update-commission/" + proId, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+  useEffect(() => {
+    if (open) {
+      setNewCommission(currentCommission.toString());
+    }
+  }, [currentCommission, open]);
+
+  async function updateCommissionAmount(comm: number, varId: string) {
+    const res = await fetch(
+      API_URL + "product-variant/update-commission/" + varId,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ commission: comm }),
       },
-      credentials: "include",
-      body: JSON.stringify({ commission: comm }),
-    });
-    if (!res.ok) throw new Error();
-    return res.json();
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data?.message || "Unable to update commission amount");
+    }
+    return data;
   }
 
   const { mutate, status } = useMutation({
-    mutationFn: (v: { newCommission: number; proId: string }) => {
-      return updateCommison(v.newCommission, v.proId);
+    mutationFn: (v: { newCommission: number; variantId: string }) => {
+      return updateCommissionAmount(v.newCommission, v.variantId);
     },
-    onSuccess: async() => {
-      await qc.invalidateQueries({ queryKey: ["seller-products", sellerId] });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["admin-products"] });
+      await qc.invalidateQueries({ queryKey: ["product", productId] });
+      await qc.invalidateQueries({ queryKey: ["seller-products"] });
+      toast.success("Commission amount updated");
       setOpen(false);
     },
-    onError: () => {
-      toast.error("Something went wrong");
+    onError: (error: any) => {
+      toast.error(error?.message || "Unable to update commission amount");
     },
   });
 
@@ -61,18 +77,18 @@ export default function UpdateCommissionDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon">
-         <FaRupeeSign  />
+          <FaRupeeSign />
         </Button>
       </DialogTrigger>
       {open && (
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Update Commission</DialogTitle>
+            <DialogTitle>Update Commission Amount</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="flex flex-col space-y-2">
-              <Label className="text-sm font-medium">Old Commission Amount</Label>
+              <Label className="text-sm font-medium">Current Commission Amount</Label>
               <Input value={currentCommission} disabled readOnly />
             </div>
 
@@ -80,9 +96,11 @@ export default function UpdateCommissionDialog({
               <Label className="text-sm font-medium">New Commission Amount</Label>
               <Input
                 type="number"
+                min="0"
+                step="0.01"
                 value={newCommission}
-                onChange={(e) => setNewCommission(Number(e.target.value))}
-                placeholder="Enter new commission"
+                onChange={(e) => setNewCommission(e.target.value)}
+                placeholder="Enter new commission amount"
               />
             </div>
           </div>
@@ -90,12 +108,19 @@ export default function UpdateCommissionDialog({
           <DialogFooter>
             <Button
               type="button"
-              onClick={() =>
-                mutate({ newCommission: newCommission, proId: productId })
-              }
+              onClick={() => {
+                if (newCommission.trim() === "" || Number.isNaN(Number(newCommission))) {
+                  toast.error("Please enter a valid commission amount");
+                  return;
+                }
+                mutate({
+                  newCommission: Number(newCommission),
+                  variantId,
+                });
+              }}
               disabled={status === "pending"}
             >
-              {status === "pending" ? "Loading..." : "Ok"}
+              {status === "pending" ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>

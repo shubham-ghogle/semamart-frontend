@@ -69,8 +69,21 @@ useEffect(() => {
         return demoImages.map((d) => ({ type: "image" as const, src: d }));
       }
       const media: { type: "image" | "video"; src: string }[] = [];
+      const selectedVariantImages = Array.isArray(selectedVariant?.images)
+        ? selectedVariant.images
+        : [];
+
+      if (selectedVariantImages.length > 0) {
+        selectedVariantImages.forEach((img: string) => {
+          const maybeUrl = toImageUrl(img);
+          if (typeof maybeUrl === "string" && maybeUrl.length > 0) {
+            media.push({ type: "image", src: maybeUrl });
+          }
+        });
+      }
 
       if (
+        media.length === 0 &&
         Array.isArray((product as any).images) &&
         (product as any).images.length > 0
       ) {
@@ -108,7 +121,7 @@ useEffect(() => {
       }
 
       return media;
-    }, [product]);
+    }, [product, selectedVariant]);
 
   const displayOriginalPrice =
     selectedVariant?.originalPrice ?? (product as any)?.originalPrice;
@@ -407,29 +420,29 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
         />
       </div>
 
-      <div className="space-y-8 mt-12 w-full max-w-[1600px] mx-auto px-4">
-        {product && (
+      <section className="mx-auto mt-12 w-full max-w-[1600px] space-y-8 px-4">
+        {product ? (
           <UpsellCrossSellBlock
             upsells={(product as any).upsells || []}
             crosssells={(product as any).crosssells || []}
             currentProductId={(product as any)._id}
             titlePrefix="You may also like"
           />
-        )}
+        ) : null}
 
         <hr className="border-t border-gray-400" />
-        <h1 className="font-bold text-2xl mt-6 ml-2 text-[#1C647C]">
+        <h1 className="ml-2 mt-6 text-2xl font-bold text-[#1C647C]">
           Related Products
         </h1>
-        <div className="flex flex-wrap justify-around mt-8">
-          {product && (
+        <div className="mt-8 flex flex-wrap justify-around">
+          {product ? (
             <RelatedProducts
               productType={(product as any).productType}
               productId={(product as any)._id}
             />
-          )}
+          ) : null}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { BASE_URL } from "@/data";
 import EditVariantDialog from "./EditVariantDialog";
+import { toast } from "react-toastify";
 
 type VariantsDisplayProps = {
   minQty: number; // minimum allowed quantity
@@ -26,10 +27,10 @@ export default function VariantsDisplay({ minQty }: VariantsDisplayProps) {
   // Example submit handler
   const handleSubmit = () => {
     if (hasErrors) {
-      alert("Please fix errors before submitting!");
+      toast.error("Please fix errors before submitting!");
       return;
     }
-    alert("Submitted successfully!");
+    toast.success("Submitted successfully!");
   };
 
   return (
@@ -49,26 +50,34 @@ export default function VariantsDisplay({ minQty }: VariantsDisplayProps) {
               <ReadOnlyField label="Available Stock" value={el.stock} />
               <ReadOnlyField label="Size" value={el.size ?? "-"} />
               <ReadOnlyField label="Color" value={el.colorOption ?? "-"} />
-              <ReadOnlyField
-                label="Commission"
-                value={el.commission ?? 0}
-              />
             </section>
             <section className="space-y-2 w-72 grid grid-rows-[70px_1fr]">
               <ReadOnlyField
                 label="Discount Price"
                 value={(el.discountPrice ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
               />
-              <div>
+              <div className="space-y-2">
                 <img
                   className="rounded object-fill max-h-40"
                   src={BASE_URL + "images/" + el.thumbnail}
                   alt={el.size ?? "variant image"}
                 />
+                {Array.isArray(el.images) && el.images.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {el.images.map((image, imageIndex) => (
+                      <img
+                        key={`${image}-${imageIndex}`}
+                        className="h-16 w-16 rounded border object-cover"
+                        src={BASE_URL + "images/" + image}
+                        alt={`Variant image ${imageIndex + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
             <article className="absolute right-1 top-1">
-              <EditVariantDialog addNew={false} variant={el} />
+              <EditVariantDialog addNew={false} variant={el} minQty={minQty} />
             </article>
           </article>
 
@@ -103,7 +112,7 @@ export default function VariantsDisplay({ minQty }: VariantsDisplayProps) {
       ))}
 
       <section className="mt-2 flex justify-start gap-4">
-        <EditVariantDialog addNew={true} productId={id ?? ""} />
+        <EditVariantDialog addNew={true} productId={id ?? ""} minQty={minQty} />
         <button
           onClick={handleSubmit}
           disabled={hasErrors}
@@ -149,8 +158,8 @@ function BulkOrderField({ initialQty, minQty, onError }: BulkOrderFieldProps) {
 
     if (!touched) setTouched(true); // mark as touched on first input
 
-    if (value <= minQty) {
-      const errMsg = `Quantity must be greater than ${minQty}`;
+    if (value < minQty) {
+      const errMsg = `Quantity must be at least ${minQty}`;
       setError(errMsg);
       onError(errMsg);
     } else {

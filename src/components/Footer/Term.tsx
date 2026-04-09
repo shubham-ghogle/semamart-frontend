@@ -1,4 +1,5 @@
-import  { useState } from "react";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const Term = () => {
   const [accepted, setAccepted] = useState(false);
@@ -9,10 +10,10 @@ const Term = () => {
 
   const handleSubmit = () => {
     if (accepted) {
-      alert("Thank you for accepting the Terms and Conditions!");
+      toast.success("Thank you for accepting the Terms and Conditions!");
       // Add further logic here (e.g., form submission, navigation)
     } else {
-      alert("Please accept the Terms and Conditions to proceed.");
+      toast.error("Please accept the Terms and Conditions to proceed.");
     }
   };
 

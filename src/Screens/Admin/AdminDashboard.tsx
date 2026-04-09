@@ -9,6 +9,8 @@ import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
 import { API_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
+import { toast } from "react-toastify";
+import LoaderUi from "@/components/UIComponents/LoaderUi";
 
 
 const OVERVIEW_ITEMS = [
@@ -71,21 +73,21 @@ const AdminDashboard = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        alert(`${selectedRole} added successfully!`);
+        toast.success(`${selectedRole} added successfully!`);
         setIsModalOpen(false);
         setFormData({ firstName: "", lastName: "", email: "", password: "" });
       } else {
-        alert(data.message || "Something went wrong");
+        toast.error(data.message || "Something went wrong");
       }
     } catch (err) {
-      alert("Server error");
+      toast.error("Server error");
     } finally {
       setLoading(false);
     }
   };
 
   if (dashboardLoading || ordersLoading) {
-    return <div className="flex justify-center items-center h-64">Loading Dashboard...</div>;
+    return <LoaderUi title="Loading dashboard..." />;
   }
 
   if (dashboardIsError || ordersIsError) {

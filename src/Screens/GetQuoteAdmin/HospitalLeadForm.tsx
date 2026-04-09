@@ -10,6 +10,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { getMedicopListWithProducts, getGeneratedRequirements } from "@/medicop/storage";
 import MedicopPageShell from "@/medicop/MedicopPageShell";
+import { toast } from "react-toastify";
 
 // State and district data
 // Medical departments data
@@ -166,12 +167,12 @@ const HospitalLeadForm = () => {
     
     // Validate mandatory fields
     if (!formData.state) {
-      alert("Please select a State");
+      toast.error("Please select a State");
       return;
     }
     
     if (!formData.district) {
-      alert("Please select a District");
+      toast.error("Please select a District");
       return;
     }
     
@@ -186,7 +187,7 @@ const HospitalLeadForm = () => {
       return;
     }
     console.log("Hospital/Lead form submitted:", formData);
-    alert("Hospital/Lead form submitted successfully!");
+    toast.success("Hospital/Lead form submitted successfully!");
   };
 
   const content = (

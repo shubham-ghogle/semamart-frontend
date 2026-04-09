@@ -29,6 +29,7 @@ export interface Variant {
   size?: string | null;
   colorOption?: string | null;
   thumbnail?: string | null;
+  images?: string[];
   originalPrice: number;
   discountPrice?: number;
   commission?: number;
@@ -53,8 +54,8 @@ export interface Product {
   unspsc?: string;
   upsells?: string[];
   crosssells?: string[];
-  specialityPackage: string; // fixed (required)
-  specialityPackageType: string; // fixed (required)
+  specialityPackage: string[];
+  specialityPackageType: string[];
   manufacturer:
     | string
     | {

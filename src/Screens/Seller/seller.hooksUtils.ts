@@ -56,16 +56,16 @@ export const addProductFormDefaultValues = {
   certificate: [] as any[],
   oemLetter: null as any,
   productComparisionSheet: null as any,
-  specialityPackage: "",
-  specialityPackageType: "",
-    variants: [
+  specialityPackage: [] as string[],
+  specialityPackageType: [] as string[],
+  variants: [
     {
       size: null as string | null,
       colorOption: null as string | null,
       originalPrice: "",
       discountPrice: "",
-      commission: "",
       stocks: "",
+      images: [] as any[],
       bulkOrders: [] as {
         qty?: number | undefined;
         price?: number | undefined;

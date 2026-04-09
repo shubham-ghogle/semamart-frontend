@@ -1,4 +1,5 @@
 import { useState, ChangeEvent, FormEvent } from "react";
+import { toast } from "react-toastify";
 
 export enum AddressType {
   Home = "Home",
@@ -58,7 +59,7 @@ const AddressForm: React.FC<Props> = ({ onSubmit }) => {
     e.preventDefault();
 
     if (!/^[0-9]{10}$/.test(formData.mobile)) {
-      alert("Mobile number must be a 10-digit number.");
+      toast.error("Mobile number must be a 10-digit number.");
       return;
     }
 
@@ -70,7 +71,7 @@ const AddressForm: React.FC<Props> = ({ onSubmit }) => {
       !formData.district ||
       !formData.state
     ) {
-      alert("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
 

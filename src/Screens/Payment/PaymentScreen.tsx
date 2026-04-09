@@ -1,6 +1,8 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { API_URL } from "@/data";
+import { toast } from "react-toastify";
+import LoaderUi from "@/components/UIComponents/LoaderUi";
 
 export default function PaymentScreen() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -35,14 +37,18 @@ export default function PaymentScreen() {
 
       if (!res.ok) throw new Error("Failed to place order");
 
-      alert("Order placed successfully!");
+      toast.success("Order placed successfully!");
       //navigate("/orders"); // redirect to orders page
     } catch (err) {
       console.error(err);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!order) {
+    return <LoaderUi title="Preparing payment..." />;
   }
 
   return (

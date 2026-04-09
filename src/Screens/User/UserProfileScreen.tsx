@@ -9,6 +9,7 @@ import { ActionBtn } from "../../components/UIComponents/Buttons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_URL } from "@/data";
 import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
+import { toast } from "react-toastify";
 
 export default function UserProfileScreen() {
   const { user, addUser } = useUserStore((state) => state);
@@ -69,9 +70,9 @@ export default function UserProfileScreen() {
       setRequestingEmailChange(true);
       await requestEmailChange("user", newEmail.trim());
       setNewEmail("");
-      alert("Confirmation link sent to your current email.");
+      toast.success("Confirmation link sent to your current email.");
     } catch (error: any) {
-      alert(error?.message || "Failed to request email change.");
+      toast.error(error?.message || "Failed to request email change.");
     } finally {
       setRequestingEmailChange(false);
     }

@@ -3,6 +3,7 @@ import { getAllSellers, deleteSeller, getAllOrders } from "./Admin.HooksAndUtils
 import AdminSellerTable from "@/components/Admin/AdminSellerTable";
 import { Seller, Order } from "@/Types/types"; // Added Order type
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
+import { toast } from "react-toastify";
 
 const AllSellerScreen: React.FC = () => {
   const [sellers, setSellers] = useState<Seller[]>([]);
@@ -43,13 +44,13 @@ const AllSellerScreen: React.FC = () => {
     try {
       await deleteSeller(id);
       setSellers((prev) => prev.filter((seller) => seller._id !== id));
-      alert("Seller deleted successfully!");
+      toast.success("Seller deleted successfully!");
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || "Failed to delete seller");
     }
   };
 
-  if (loading) return <p className="p-8 text-center text-gray-500">Loading sellers and financial data...</p>;
+  if (loading) return <AdminMainWrapper status="pending" heading="Verified Sellers" />;
   if (error) return <p className="text-red-500 p-8">{error}</p>;
 
   return (

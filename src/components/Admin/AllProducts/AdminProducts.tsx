@@ -337,7 +337,7 @@ export default function AdminProduct() {
     
     {
       accessorKey: "commission",
-      header: "Platform Fee",
+      header: "Commission Amount",
       cell: ({ row }) => row.original.commission.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         }),
@@ -353,6 +353,7 @@ export default function AdminProduct() {
       <UpdateCommissionDialog
         currentCommission={row.original.commission}
         productId={row.original.productId}
+        variantId={row.original.id}
       />
     </div>
       ),

@@ -1,6 +1,7 @@
 import { API_URL, BASE_URL } from "@/data";
 import React, { useEffect, useState } from "react";
 import { FiUploadCloud, FiEdit2, FiSave, FiX } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 // Type definitions
 type BannerItem = {
@@ -124,7 +125,7 @@ const SectionBannerUploader: React.FC = () => {
         !s.left.link ||
         !s.right.link
       ) {
-        alert("Please fill all fields and upload images for all banners");
+        toast.error("Please fill all fields and upload images for all banners");
         return;
       }
     }
@@ -132,7 +133,7 @@ const SectionBannerUploader: React.FC = () => {
     // Check if anything changed
     const isChanged = JSON.stringify(sectionBanners) !== JSON.stringify(originalBanners);
     if (!isChanged) {
-      alert("No changes to save");
+      toast.info("No changes to save");
       setIsEditing(false);
       return;
     }
@@ -174,12 +175,12 @@ const SectionBannerUploader: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Upload failed");
 
-      alert("Promo banners saved successfully");
+      toast.success("Promo banners saved successfully");
       setIsEditing(false);
       setOriginalBanners(JSON.parse(JSON.stringify(sectionBanners)));
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Upload failed");
+      toast.error(err.message || "Upload failed");
     }
   };
 
