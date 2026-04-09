@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarPopoverWithPresets } from "@/components/UIComponents/CalendarPopoverWithPresets";
 import { useSupportStore } from '@/store/supportStore';
+import { Eye } from "lucide-react";
 
 const AdminSupportScreen = () => {
   const navigate = useNavigate();
