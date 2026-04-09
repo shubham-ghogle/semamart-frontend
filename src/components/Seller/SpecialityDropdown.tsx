@@ -18,6 +18,8 @@ export default function SpecialityDropdown({
   onChange,
 }: SpecialityDropdownProps) {
   const [packageTypesById, setPackageTypesById] = useState<Record<string, Option[]>>({});
+  const [currentPackageId, setCurrentPackageId] = useState("");
+  const [currentTypeId, setCurrentTypeId] = useState("");
 
   const { data } = useQuery({
     queryKey: ["special-package"],
@@ -37,52 +39,87 @@ export default function SpecialityDropdown({
 
   const packageOptions = data?.map((el) => ({ label: el.name, value: el._id })) || [];
 
-  function updateRow(index: number, patch: Partial<{ packageId: string; typeId: string }>) {
-    const next = [...values];
-    next[index] = { ...next[index], ...patch };
-    onChange(next);
-  }
+  const currentTypeOptions = packageTypesById[currentPackageId] || [];
 
   function addRow() {
-    onChange([...(values.length ? values : []), { packageId: "", typeId: "" }]);
+    if (!currentPackageId || !currentTypeId) return;
+    const alreadyExists = values.some(
+      (entry) =>
+        entry.packageId === currentPackageId && entry.typeId === currentTypeId,
+    );
+    if (alreadyExists) {
+      return;
+    }
+    onChange([
+      ...values,
+      { packageId: currentPackageId, typeId: currentTypeId },
+    ]);
+    setCurrentPackageId("");
+    setCurrentTypeId("");
   }
 
   function removeRow(index: number) {
     const next = [...values];
     next.splice(index, 1);
-    onChange(next.length ? next : [{ packageId: "", typeId: "" }]);
+    onChange(next);
+  }
+
+  function getPackageLabel(packageId: string) {
+    return packageOptions.find((option) => option.value === packageId)?.label || packageId;
+  }
+
+  function getTypeLabel(packageId: string, typeId: string) {
+    return (
+      packageTypesById[packageId]?.find((option) => option.value === typeId)?.label ||
+      typeId
+    );
   }
 
   return (
     <div className="space-y-3">
-      {values.map((entry, index) => (
-        <div key={`${entry.packageId || "speciality"}-${index}`} className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
-          <Autocomplete
-            listItems={packageOptions}
-            placeholder="Select speciality package"
-            setValue={(packageId) => updateRow(index, { packageId, typeId: "" })}
-            value={entry.packageId}
-          />
-          <Autocomplete
-            listItems={packageTypesById[entry.packageId] || []}
-            placeholder="Select speciality package type"
-            setValue={(typeId) => updateRow(index, { typeId })}
-            value={entry.typeId}
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => removeRow(index)}
-            disabled={values.length === 1 && !values[0].packageId && !values[0].typeId}
-          >
-            <X className="w-4 h-4 text-red-500" />
-          </Button>
+      {values.length > 0 && (
+        <div className="space-y-2">
+          {values.map((entry, index) => (
+            <div
+              key={`${entry.packageId}-${entry.typeId}-${index}`}
+              className="flex items-center justify-between rounded-md border bg-gray-50 px-3 py-2"
+            >
+              <div className="text-sm text-gray-700">
+                {getPackageLabel(entry.packageId)}
+                {entry.typeId ? ` / ${getTypeLabel(entry.packageId, entry.typeId)}` : ""}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeRow(index)}
+              >
+                <X className="w-4 h-4 text-red-500" />
+              </Button>
+            </div>
+          ))}
         </div>
-      ))}
-      <Button type="button" variant="outline" onClick={addRow}>
-        + Add Speciality
-      </Button>
+      )}
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
+        <Autocomplete
+          listItems={packageOptions}
+          placeholder="Select speciality package"
+          setValue={(packageId) => {
+            setCurrentPackageId(packageId);
+            setCurrentTypeId("");
+          }}
+          value={currentPackageId}
+        />
+        <Autocomplete
+          listItems={currentTypeOptions}
+          placeholder="Select speciality package type"
+          setValue={setCurrentTypeId}
+          value={currentTypeId}
+        />
+        <Button type="button" variant="secondary" onClick={addRow}>
+          Add
+        </Button>
+      </div>
     </div>
   );
 }
