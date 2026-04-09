@@ -64,6 +64,24 @@ export default function ProductInfoSection({
         </div>
       )}
 
+      {selectedVariant && (
+        <div className="flex flex-wrap gap-2">
+          {selectedVariant.colorOption ? (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              Color: {selectedVariant.colorOption}
+            </span>
+          ) : null}
+          {selectedVariant.size ? (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              Size: {selectedVariant.size}
+            </span>
+          ) : null}
+          <span className="rounded-full bg-[#1C647C]/10 px-3 py-1 text-xs font-medium text-[#1C647C]">
+            Stock: {stock}
+          </span>
+        </div>
+      )}
+
       <div className="flex items-center text-base text-gray-500 gap-3">
         <StarIcons
             stars={product.avgRating ?? 0}

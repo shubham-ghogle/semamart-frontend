@@ -53,7 +53,6 @@ import {
 import SpecialityDropdown from "./SpecialityDropdown";
 import { Checkbox } from "../ui/checkbox";
 import DocumentsDisplay from "./DocumentsDisplay";
-import MediaDisplay from "./MediaDisplay";
 import VariantsDisplay from "./VariantsDisplay";
 import AddProductFormVariants from "./AddProductFormVariants.tsx";
 import { useBlocker, useNavigate } from "react-router";
@@ -299,26 +298,6 @@ export default function AddProductForm({
     const thumbs = [...thumbnail];
     thumbs[i] = null;
     setThumbnail(thumbs);
-  }
-
-  const [images, setImages] = useState<File[]>([]);
-  const handleImageChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    e.preventDefault();
-    if (!e.target.files) return;
-    const file = e.target.files[0];
-    if (file) {
-      const updatedImages = [...images];
-      updatedImages[index] = file;
-      setImages(updatedImages);
-    }
-  };
-  function removeImage(i: number) {
-    const imgs = [...images];
-    imgs.splice(i, 1);
-    setImages(imgs);
   }
 
   function handleVariantImagesChange(
@@ -649,9 +628,6 @@ export default function AddProductForm({
       files.forEach((file) => {
         newForm.append("variantImages", file);
       });
-    });
-    images.forEach((i) => {
-      newForm.append("images", i);
     });
     if (shortVideo) {
       newForm.append("shortVideo", shortVideo);
@@ -2224,7 +2200,6 @@ return (
             {product ? (
               <AccordionContent className="px-2 sm:px-4 pt-2 pb-6 space-y-4">
                <VariantsDisplay minQty={Number(form.getValues("minmaxrule.minQty"))} />
-                <MediaDisplay />
               </AccordionContent>
             ) : (
               <AccordionContent className="px-2 sm:px-4 pt-2 pb-6">
@@ -2282,52 +2257,9 @@ return (
 
                 <section className="space-y-4 mt-4">
                   <div>
-                    <SubFormLabel>Upload other images</SubFormLabel>
-                    <div className="flex gap-3 flex-wrap mt-2">
-                      {Array.from({ length: 4 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="border relative border-gray-300 h-[90px] w-[90px] sm:h-[120px] sm:w-[120px] flex items-center justify-center rounded-md cursor-pointer overflow-hidden"
-                        >
-                          <label
-                            htmlFor={`uploadImage-${index}`}
-                            className="cursor-pointer w-full h-full block"
-                          >
-                            {images[index] ? (
-                              <div className="h-full w-full relative">
-                                <img
-                                  src={URL.createObjectURL(images[index])}
-                                  alt={`Image-${index + 1}`}
-                                  className="h-full w-full object-cover"
-                                />
-                                <Button
-                                  size="icon"
-                                  variant="destructive"
-                                  className="absolute top-1 right-1"
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    removeImage(index);
-                                  }}
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <AiOutlinePlusCircle size={30} color="#555" />
-                              </div>
-                            )}
-                          </label>
-                          <input
-                            type="file"
-                            id={`uploadImage-${index}`}
-                            className="hidden"
-                            onChange={(e) => handleImageChange(e, index)}
-                          />
-                        </div>
-                      ))}
+                    <SubFormLabel>Variant Images</SubFormLabel>
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                      Each sellable version should keep its own thumbnail and images inside the variant card above. If you keep a single-variant product, Variant 1 acts as the full product.
                     </div>
                   </div>
 

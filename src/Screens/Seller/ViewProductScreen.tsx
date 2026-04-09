@@ -159,13 +159,18 @@ export default function ViewProductScreen() {
     specialityPackage: specialityPackage,
     // FIXED: Safe mapping for variants and nested stocks
     variants:
-      product?.variants?.map((el) => ({
+      product?.variants?.map((el, index) => ({
         size: el?.size || null,
         colorOption: el?.colorOption || null,
         originalPrice: el?.originalPrice?.toString() ?? "",
         discountPrice: el?.discountPrice?.toString() ?? "",
         stocks: el?.stock?.toString() ?? "0",
-        images: Array.isArray(el?.images) ? el.images : [],
+        images:
+          Array.isArray(el?.images) && el.images.length > 0
+            ? el.images
+            : index === 0 && Array.isArray(product?.images)
+              ? product.images
+              : [],
         bulkOrders: Array.isArray(el?.bulkOrders) ? el.bulkOrders : [],
       })) || [],
     specialityPackageType: specialityPackageType,

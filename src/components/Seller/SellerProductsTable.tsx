@@ -13,24 +13,29 @@ import DisplayCommission from "../Admin/DisplayCommission";
 import { IoIosArrowForward } from "react-icons/io";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
-type VariantRow = {
+type ProductVariantRow = {
   id: string;
-  productName: string;
   thumbnail: string;
   colorOption?: string;
   size?: string;
   stock: number;
   originalPrice: number;
   discountPrice: number;
+  commission: number;
+  commissionHistory: { updatedAt: string; commission: number }[];
+};
+
+type ProductRow = {
+  id: string;
+  productName: string;
   createdAt: string;
   productId: string;
-  commission: number;
   sellerVisibility: boolean;
-  commissionHistory: { updatedAt: string; commission: number }[];
   rawCreatedAt: Date;
-  productCategories: string[]; // Add product categories
-  totalOrderedQuantity?: number; // Add total ordered quantity
-  avgRating: number; // Added avgRating from remote
+  productCategories: string[];
+  totalOrderedQuantity?: number;
+  avgRating: number;
+  variants: ProductVariantRow[];
 };
 
 type SellerProductTableProps = {
@@ -41,6 +46,14 @@ export default function SellerProductTable({
   products,
 }: SellerProductTableProps) {
   const { shopId, canAccess } = useSellerSession();
+  const getLowestPrice = (row: ProductRow) =>
+    row.variants.length > 0
+      ? Math.min(...row.variants.map((variant) => variant.originalPrice))
+      : 0;
+  const getHighestPrice = (row: ProductRow) =>
+    row.variants.length > 0
+      ? Math.max(...row.variants.map((variant) => variant.originalPrice))
+      : 0;
   const [sortBy, setSortBy] = useState("newest");
   // Filter states
   const [category, setCategory] = useState("");
@@ -107,28 +120,29 @@ export default function SellerProductTable({
   };
 
   // flatten to rows, apply filtering, and sorting
-  const rows: VariantRow[] = (() => {
-    let filteredRows: VariantRow[] = products.flatMap((pro) =>
-      pro.variants.map((v) => ({
+  const rows: ProductRow[] = (() => {
+    let filteredRows: ProductRow[] = products.map((pro) => ({
+      id: pro._id,
+      productName: pro.name,
+      createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
+      productId: pro._id,
+      sellerVisibility: pro.visibilityBySeller !== false,
+      rawCreatedAt: new Date(pro.createdAt),
+      productCategories: pro.category || [],
+      totalOrderedQuantity: pro.totalOrderedQuantity || 0,
+      avgRating: pro.avgRating ?? 0,
+      variants: (pro.variants || []).map((v) => ({
         id: v._id,
-        productName: pro.name,
         thumbnail: BASE_URL + "images/" + v.thumbnail,
         colorOption: v.colorOption || "-",
         size: v.size || "-",
         stock: v.stock,
         originalPrice: v.originalPrice,
         discountPrice: v.discountPrice ?? 0,
-        createdAt: new Date(pro.createdAt).toLocaleDateString("en-IN"),
-        productId: pro._id,
         commission: v.commission ?? pro.commission ?? 0,
-        sellerVisibility: pro.visibilityBySeller !== false, // fallback: undefined => true
         commissionHistory: v.commissionHistory || pro.commissionHistory || [],
-        rawCreatedAt: new Date(pro.createdAt),
-        productCategories: pro.category || [], // Include product categories
-        totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
-        avgRating: pro.avgRating ?? "-", // Added avgRating from remote
       })),
-    );
+    }));
 
     // Apply category filter (supports both categories and subcategories)
     if (category) {
@@ -160,10 +174,14 @@ export default function SellerProductTable({
 
     // Apply price range filter
     if (minPrice !== "") {
-      filteredRows = filteredRows.filter(row => row.originalPrice >= minPrice);
+      filteredRows = filteredRows.filter(row =>
+        row.variants.some((variant) => variant.originalPrice >= minPrice),
+      );
     }
     if (maxPrice !== "") {
-      filteredRows = filteredRows.filter(row => row.originalPrice <= maxPrice);
+      filteredRows = filteredRows.filter(row =>
+        row.variants.some((variant) => variant.originalPrice <= maxPrice),
+      );
     }
 
     // Apply sorting
@@ -174,9 +192,9 @@ export default function SellerProductTable({
         case "oldest":
           return (a.rawCreatedAt?.getTime() || 0) - (b.rawCreatedAt?.getTime() || 0);
         case "price-low":
-          return a.originalPrice - b.originalPrice;
+          return getLowestPrice(a) - getLowestPrice(b);
         case "price-high":
-          return b.originalPrice - a.originalPrice;
+          return getHighestPrice(b) - getHighestPrice(a);
         case "bestSelling":
           // Best selling is based on total ordered quantity
           return (b.totalOrderedQuantity || 0) - (a.totalOrderedQuantity || 0);
@@ -186,7 +204,7 @@ export default function SellerProductTable({
     });
   })();
 
-  const columns: ColumnDef<VariantRow>[] = [
+  const columns: ColumnDef<ProductRow>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -231,59 +249,49 @@ export default function SellerProductTable({
       accessorKey: "productName",
       header: "Product",
       cell: ({ row }) => (
-        <p className="w-32 text-ellipsis overflow-hidden">
-          {row.original.productName}
-        </p>
+        <div className="space-y-1">
+          <p className="w-40 overflow-hidden text-ellipsis font-semibold text-slate-900">
+            {row.original.productName}
+          </p>
+          <p className="text-xs text-slate-500">Created: {row.original.createdAt}</p>
+        </div>
       ),
     },
     {
-      accessorKey: "thumbnail",
-      header: "Image",
+      id: "variants",
+      header: "Variants",
       cell: ({ row }) => (
-        <img
-          src={row.original.thumbnail}
-          alt="thumb"
-          className="w-12 h-12 object-cover rounded"
-        />
+        <div className="space-y-3">
+          {row.original.variants.map((variant, index) => (
+            <div
+              key={variant.id}
+              className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[72px_1fr_auto]"
+            >
+              <img
+                src={variant.thumbnail}
+                alt={`Variant ${index + 1}`}
+                className="h-[72px] w-[72px] rounded-lg object-cover"
+              />
+              <div className="grid gap-1 text-sm text-slate-600 md:grid-cols-2">
+                <p className="font-semibold text-slate-900">
+                  {[variant.colorOption, variant.size].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
+                </p>
+                <p>Stock: {variant.stock}</p>
+                <p>MRP: Rs. {variant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                <p>Selling: Rs. {(variant.discountPrice ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                <p className="font-medium text-[#1C647C]">
+                  Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="flex items-start">
+                <DisplayCommission history={variant.commissionHistory} />
+              </div>
+            </div>
+          ))}
+        </div>
       ),
-    },
-    { accessorKey: "colorOption", header: "Color" },
-    { accessorKey: "size", header: "Size" },
-    { accessorKey: "stock", header: "Stock" },
-    {
-      accessorKey: "originalPrice",
-      header: "Price",
-      cell: ({ row }) =>
-        row.original.originalPrice.toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-        }),
-    },
-    {
-      accessorKey: "discountPrice",
-      header: "% Price",
-      cell: ({ row }) =>
-        row.original.discountPrice.toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-        }),
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created On",
     },
     { accessorKey: "avgRating", header: "Rating" }, // Added avgRating column from remote
-    {
-      accessorKey: "commission",
-      header: () => (
-        <div className="flex items-center gap-1">
-          Commission 
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          {row.original.commission} 
-        </div>
-      ),
-    },
         {
             id: "action",
             header: "Actions",
@@ -298,9 +306,6 @@ export default function SellerProductTable({
                 <Link to={`/product/${row.original.productId}`} target="_blank">
                   <AiOutlineEye size={20} className="text-gray-500" />
                 </Link>
-
-                <DisplayCommission history={row.original.commissionHistory} />
-
               </div>
             ),
           },

@@ -46,7 +46,6 @@ useEffect(() => {
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [animating, setAnimating] = useState<boolean>(false);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
-  const [isVariantActive, setIsVariantActive] = useState<boolean>(false);
   const [selectedPack, setSelectedPack] = useState<{
     qty: number;
     price: number;
@@ -69,12 +68,13 @@ useEffect(() => {
         return demoImages.map((d) => ({ type: "image" as const, src: d }));
       }
       const media: { type: "image" | "video"; src: string }[] = [];
-      const selectedVariantImages = Array.isArray(selectedVariant?.images)
-        ? selectedVariant.images
-        : [];
+      const selectedVariantMedia = [
+        selectedVariant?.thumbnail,
+        ...(Array.isArray(selectedVariant?.images) ? selectedVariant.images : []),
+      ].filter(Boolean);
 
-      if (selectedVariantImages.length > 0) {
-        selectedVariantImages.forEach((img: string) => {
+      if (selectedVariantMedia.length > 0) {
+        Array.from(new Set(selectedVariantMedia)).forEach((img: string) => {
           const maybeUrl = toImageUrl(img);
           if (typeof maybeUrl === "string" && maybeUrl.length > 0) {
             media.push({ type: "image", src: maybeUrl });
@@ -160,7 +160,6 @@ useEffect(() => {
       setSelectedVariant(null);
     }
     setActiveIdx(0);
-    setIsVariantActive(false);
     setSelectedPack(null); // by default, no combo selected
   }, [product]);
 
@@ -348,33 +347,52 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
             setAnimating={setAnimating}
             selectedVariant={selectedVariant}
             selectedPack={selectedPack}
-            isVariantActive={isVariantActive}
-            setIsVariantActive={setIsVariantActive}
           />
 
           {Array.isArray((product as any).variants) &&
             (product as any).variants.length > 1 && (
-              <div className="mt-6 w-full flex flex-col items-center">
-                <h3 className="text-lg font-semibold mb-2 text-[#1C647C]">
-                  Choose Variant
-                </h3>
-                <div className="flex flex-wrap gap-3">
+              <div className="mt-6 w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-semibold text-[#1C647C]">
+                    Choose Variant
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Images, pricing, stock, and bulk offers update with your selection.
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
                   {(product as any).variants.map((v: any) => (
                     <button
                       key={v._id}
                       onClick={() => {
                         setActiveIdx(0);
                         setSelectedVariant(v);
-                        setIsVariantActive(true);
                         setSelectedPack(null);
                       }}
-                      className={`px-4 py-2 border rounded-lg text-sm transition ${
+                      className={`flex items-start gap-3 rounded-xl border px-3 py-3 text-left transition ${
                         selectedVariant?._id === v._id
-                          ? "bg-[#1C647C] text-white"
-                          : "bg-white text-gray-700 border-gray-300"
+                          ? "border-[#1C647C] bg-[#1C647C]/5 shadow-sm"
+                          : "border-slate-200 bg-white text-gray-700 hover:border-[#1C647C]/40"
                       }`}
                     >
-                      {v.colorOption ?? ""} {v.size ? ` | Size: ${v.size}` : ""}
+                      <img
+                        src={toImageUrl(v.thumbnail || v.images?.[0]) || "/placeholder.png"}
+                        alt={v.colorOption || v.size || "Variant"}
+                        className="h-16 w-16 rounded-lg border object-cover"
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="font-semibold text-slate-900">
+                          {[v.colorOption, v.size].filter(Boolean).join(" / ") || `Variant ${(product as any).variants.indexOf(v) + 1}`}
+                        </span>
+                        <span className="text-sm text-slate-500">
+                          Stock: {v.stock ?? 0}
+                        </span>
+                        <span className="text-sm font-medium text-[#1C647C]">
+                          Rs. {(v.discountPrice ?? v.originalPrice ?? 0).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                      </span>
                     </button>
                   ))}
                 </div>

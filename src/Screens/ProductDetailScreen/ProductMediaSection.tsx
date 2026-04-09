@@ -1,5 +1,5 @@
 // ProductMediaSection.tsx
-import { PLACEHOLDER, toImageUrl } from "./utils";
+import { PLACEHOLDER } from "./utils";
 
 export default function ProductMediaSection({
   product,
@@ -9,12 +9,9 @@ export default function ProductMediaSection({
   animating,
   setAnimating,
   selectedVariant,
-  isVariantActive,
-  setIsVariantActive,
 }: any) {
   const handleThumbClick = (idx: number) => {
     if (activeIdx !== idx) {
-      setIsVariantActive(false);
       setAnimating(true);
       setTimeout(() => {
         setActiveIdx(idx);
@@ -34,7 +31,7 @@ export default function ProductMediaSection({
       >
         {productMedia[activeIdx]?.type === "image" ? (
           <img
-            src={isVariantActive && selectedVariant?.thumbnail ? toImageUrl(selectedVariant.thumbnail) : productMedia[activeIdx]?.src || PLACEHOLDER}
+            src={productMedia[activeIdx]?.src || PLACEHOLDER}
             alt={`${(product as any).name} - main`}
             className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${animating ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
             style={{ position: "absolute", top: 0, left: 0 }}
