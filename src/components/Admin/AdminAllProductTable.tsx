@@ -331,7 +331,7 @@ export default function AdminAllProductTable({
               />
               <div className="grid gap-1 text-sm text-slate-600 md:grid-cols-2">
                 <p className="font-semibold text-slate-900">
-                  {[variant.colorOption, variant.size].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
+                  {[variant.colorOption].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
                 </p>
                 <p>Stock: {variant.stock}</p>
                 <p>MRP: Rs. {variant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
@@ -339,6 +339,9 @@ export default function AdminAllProductTable({
                 <p className="font-medium text-[#1C647C]">
                   Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
+                {/* <p className="text-xs">
+                  Size: {variant.size || "-"}
+                </p> */}
               </div>
               <div className="flex items-start gap-2">
                 <UpdateCommissionDialog
