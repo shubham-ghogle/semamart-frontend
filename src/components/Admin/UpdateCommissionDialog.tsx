@@ -19,11 +19,15 @@ type UpdateCommissionDialogProps = {
   currentCommission: number;
   productId: string;
   variantId: string;
+  bulkOrderId?: string;
+  title?: string;
 };
 export default function UpdateCommissionDialog({
   currentCommission,
   productId,
   variantId,
+  bulkOrderId,
+  title = "Update Commission Amount",
 }: UpdateCommissionDialogProps) {
   const [open, setOpen] = useState(false);
   const [newCommission, setNewCommission] = useState(
@@ -38,9 +42,12 @@ export default function UpdateCommissionDialog({
     }
   }, [currentCommission, open]);
 
-  async function updateCommissionAmount(comm: number, varId: string) {
+  async function updateCommissionAmount(comm: number, varId: string, tierId?: string) {
+    const endpoint = tierId
+      ? `${API_URL}product-variant/update-bulk-order-commission/${varId}/${tierId}`
+      : `${API_URL}product-variant/update-commission/${varId}`;
     const res = await fetch(
-      API_URL + "product-variant/update-commission/" + varId,
+      endpoint,
       {
         method: "PUT",
         headers: {
@@ -58,8 +65,8 @@ export default function UpdateCommissionDialog({
   }
 
   const { mutate, status } = useMutation({
-    mutationFn: (v: { newCommission: number; variantId: string }) => {
-      return updateCommissionAmount(v.newCommission, v.variantId);
+    mutationFn: (v: { newCommission: number; variantId: string; bulkOrderId?: string }) => {
+      return updateCommissionAmount(v.newCommission, v.variantId, v.bulkOrderId);
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -83,7 +90,7 @@ export default function UpdateCommissionDialog({
       {open && (
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Update Commission Amount</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -116,6 +123,7 @@ export default function UpdateCommissionDialog({
                 mutate({
                   newCommission: Number(newCommission),
                   variantId,
+                  bulkOrderId,
                 });
               }}
               disabled={status === "pending"}

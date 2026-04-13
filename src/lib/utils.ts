@@ -36,11 +36,39 @@ function toFiniteNumber(value: unknown) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function getBulkTierCommission(source: any) {
+  const variant =
+    source?.variant && typeof source.variant === "object"
+      ? source.variant
+      : source;
+  const qty = toFiniteNumber(source?.qty);
+
+  if (!variant || qty === null || !Array.isArray(variant.bulkOrders)) {
+    return null;
+  }
+
+  const matchedTier = [...variant.bulkOrders]
+    .sort((a: any, b: any) => Number(a?.qty || 0) - Number(b?.qty || 0))
+    .reduce((latest: any, tier: any) => {
+      const tierQty = toFiniteNumber(tier?.qty);
+      if (tierQty !== null && qty >= tierQty) {
+        return tier;
+      }
+      return latest;
+    }, null);
+
+  const bulkCommission = toFiniteNumber(matchedTier?.commission);
+  return bulkCommission !== null ? bulkCommission : null;
+}
+
 export function getVariantCommission(source: any) {
   if (!source) return 0;
 
   const direct = toFiniteNumber(source.commission);
   if (direct !== null) return direct;
+
+  const bulkTierCommission = getBulkTierCommission(source);
+  if (bulkTierCommission !== null) return bulkTierCommission;
 
   const variant =
     source.variant && typeof source.variant === "object"

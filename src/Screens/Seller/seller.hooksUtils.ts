@@ -67,8 +67,11 @@ export const addProductFormDefaultValues = {
       stocks: "",
       images: [] as any[],
       bulkOrders: [] as {
+        _id?: string | undefined;
         qty?: number | undefined;
         price?: number | undefined;
+        commission?: number | undefined;
+        commissionHistory?: { commission: number; updatedAt: string }[] | undefined;
       }[],
     },
   ],

@@ -23,6 +23,13 @@ type ProductVariantRow = {
   discountPrice: number;
   commission: number;
   commissionHistory: { updatedAt: string; commission: number }[];
+  bulkOrders: {
+    id: string;
+    qty: number;
+    price: number;
+    commission: number;
+    commissionHistory: { updatedAt: string; commission: number }[];
+  }[];
 };
 
 type ProductRow = {
@@ -187,6 +194,15 @@ export default function AdminAllProductTable({
         discountPrice: v.discountPrice ?? 0,
         commission: v?.commission ?? pro?.commission ?? 0,
         commissionHistory: v.commissionHistory || pro.commissionHistory || [],
+        bulkOrders: Array.isArray(v.bulkOrders)
+          ? v.bulkOrders.map((bulk) => ({
+              id: bulk._id,
+              qty: bulk.qty,
+              price: bulk.price,
+              commission: bulk.commission ?? v?.commission ?? pro?.commission ?? 0,
+              commissionHistory: bulk.commissionHistory || [],
+            }))
+          : [],
       })),
     }));
 
@@ -340,13 +356,52 @@ export default function AdminAllProductTable({
                   Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-2 flex-wrap">
                 <UpdateCommissionDialog
                   currentCommission={variant.commission}
                   productId={row.original.productId}
                   variantId={variant.id}
+                  title="Update Variant Commission"
                 />
                 <DisplayCommission history={variant.commissionHistory} />
+              </div>
+              {variant.bulkOrders.length > 0 && (
+                <div className="col-span-full rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="mb-2 text-sm font-semibold text-slate-700">
+                    Bulk Order Tiers
+                  </p>
+                  <div className="space-y-2">
+                    {variant.bulkOrders.map((bulkOrder) => (
+                      <div
+                        key={bulkOrder.id}
+                        className="grid gap-2 rounded-lg border border-slate-200 p-3 md:grid-cols-[1fr_1fr_1fr_auto]"
+                      >
+                        <p className="text-sm text-slate-600">
+                          Qty: <span className="font-medium text-slate-900">{bulkOrder.qty}</span>
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          Pack Price: <span className="font-medium text-slate-900">Rs. {bulkOrder.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                        </p>
+                        <p className="text-sm font-medium text-[#1C647C]">
+                          Commission: Rs. {bulkOrder.commission.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </p>
+                        <div className="flex items-start gap-2 flex-wrap">
+                          <UpdateCommissionDialog
+                            currentCommission={bulkOrder.commission}
+                            productId={row.original.productId}
+                            variantId={variant.id}
+                            bulkOrderId={bulkOrder.id}
+                            title="Update Bulk Tier Commission"
+                          />
+                          <DisplayCommission history={bulkOrder.commissionHistory} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="col-span-full rounded-lg border border-dashed border-slate-200 bg-white/70 px-3 py-2 text-xs text-slate-500">
+                Variant commission and bulk-tier commission are handled separately. Old tiers without their own commission safely fall back to the variant commission until backfilled.
               </div>
             </div>
           ))}

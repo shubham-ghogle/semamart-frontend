@@ -171,7 +171,17 @@ export default function ViewProductScreen() {
             : index === 0 && Array.isArray(product?.images)
               ? product.images
               : [],
-        bulkOrders: Array.isArray(el?.bulkOrders) ? el.bulkOrders : [],
+        bulkOrders: Array.isArray(el?.bulkOrders)
+          ? el.bulkOrders.map((bulk) => ({
+              _id: bulk?._id,
+              qty: bulk?.qty,
+              price: bulk?.price,
+              commission: bulk?.commission,
+              commissionHistory: Array.isArray(bulk?.commissionHistory)
+                ? bulk.commissionHistory
+                : [],
+            }))
+          : [],
       })) || [],
     specialityPackageType: specialityPackageType,
   };

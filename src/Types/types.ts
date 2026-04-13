@@ -26,18 +26,24 @@ export interface Review {
 // }
 
 export interface Variant {
+  commission?: number;
+  commissionHistory?: { commission: number; updatedAt: string }[];
+  bulkOrders: {
+    qty: number;
+    price: number;
+    commission?: number;
+    commissionHistory?: { commission: number; updatedAt: string }[];
+    _id: string;
+  }[];
   size?: string | null;
   colorOption?: string | null;
   thumbnail?: string | null;
   images?: string[];
   originalPrice: number;
   discountPrice?: number;
-  commission?: number;
-  commissionHistory?: { commission: number; updatedAt: string }[];
   stock: number;
   _id: string;
   productId: string | Product;
-  bulkOrders: { qty: number; price: number; _id: string }[];
 }
 
 export interface Product {

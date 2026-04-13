@@ -59,7 +59,13 @@ export default function EditVariantDialog({
       : [],
   );
   const [bulkOrders, setBulkOrders] = useState(
-    variant?.bulkOrders.map((v) => ({ qty: v.qty, price: v.price })) ?? [],
+    variant?.bulkOrders.map((v) => ({
+      _id: v._id,
+      qty: v.qty,
+      price: v.price,
+      commission: v.commission,
+      commissionHistory: v.commissionHistory ?? [],
+    })) ?? [],
   );
 
   const thumbnailSrc = useMemo(
@@ -329,7 +335,16 @@ export default function EditVariantDialog({
                     className="bg-green-200 text-green-600"
                     type="button"
                     onClick={() =>
-                      setBulkOrders((prev) => [...prev, { qty: 0, price: 0 }])
+                      setBulkOrders((prev) => [
+                        ...prev,
+                        {
+                          _id: "",
+                          qty: 0,
+                          price: 0,
+                          commission: undefined,
+                          commissionHistory: [],
+                        },
+                      ])
                     }
                   >
                     +
