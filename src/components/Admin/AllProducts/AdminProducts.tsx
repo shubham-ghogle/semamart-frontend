@@ -10,6 +10,14 @@ import { toast } from "react-toastify";
 import UpdateCommissionDialog from "../UpdateCommissionDialog";
 import { Link } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 
 type VariantRow = {
@@ -34,7 +42,33 @@ type VariantRow = {
   totalOrderedQuantity?: number; // Add total ordered quantity
   badge: boolean; // Added badge field from remote
   avgRating: number; // Added avgRating from remote
+  bulkOrders: {
+    id: string;
+    qty: number;
+    price: number;
+    commission: number;
+  }[];
 };
+
+const PRODUCT_ROW_STYLES = [
+  "bg-sky-50/70",
+  "bg-emerald-50/70",
+  "bg-amber-50/70",
+  "bg-rose-50/70",
+  "bg-violet-50/70",
+  "bg-cyan-50/70",
+];
+
+function getProductRowClassName(productId: string) {
+  const hash = Array.from(productId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return PRODUCT_ROW_STYLES[hash % PRODUCT_ROW_STYLES.length];
+}
+
+function getVariantLabel(row: Pick<VariantRow, "colorOption" | "size">) {
+  return [row.colorOption, row.size]
+    .filter((value) => value && value !== "-")
+    .join(" / ") || "Default Variant";
+}
 
 export default function AdminProduct() {
   const qc = useQueryClient();
@@ -210,6 +244,14 @@ export default function AdminProduct() {
         totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
         badge: typeof pro.badge === "boolean" ? pro.badge : false, // Added badge field
         avgRating: pro.avgRating || 0, // Added avgRating field
+        bulkOrders: Array.isArray(v?.bulkOrders)
+          ? v.bulkOrders.map((bulk: any) => ({
+              id: bulk._id,
+              qty: bulk.qty ?? 0,
+              price: bulk.price ?? 0,
+              commission: bulk.commission ?? v?.commission ?? pro?.commission ?? 0,
+            }))
+          : [],
       }))
     );
 
@@ -306,17 +348,46 @@ export default function AdminProduct() {
       accessorKey: "thumbnail",
       header: "Image",
       cell: ({ row }) => (
-        <img src={row.original.thumbnail} alt="thumb" className="w-12 h-12 object-cover rounded" />
+        <img src={row.original.thumbnail} alt="thumb" className="h-12 w-12 min-w-12 rounded object-cover" />
       ),
     },
-    { accessorKey: "seller", header: "Seller" },
+    {
+      accessorKey: "seller",
+      header: "Seller",
+      cell: ({ row }) => (
+        <div className="max-w-[160px] whitespace-normal break-words text-sm leading-5">
+          {row.original.seller}
+        </div>
+      ),
+    },
     {
       accessorKey: "productName",
       header: "Product Name",
-      cell: ({ row }) => <p className="w-32 overflow-hidden text-ellipsis">{row.original.productName}</p>,
+      cell: ({ row }) => (
+        <div className="max-w-[220px] whitespace-normal break-words leading-5">
+          <p className="font-medium">{row.original.productName}</p>
+          <p className="text-xs text-slate-500">{getVariantLabel(row.original)}</p>
+        </div>
+      ),
     },
-    { accessorKey: "colorOption", header: "Color" },
-    { accessorKey: "size", header: "Size" },
+    {
+      accessorKey: "colorOption",
+      header: "Color",
+      cell: ({ row }) => (
+        <div className="max-w-[120px] whitespace-normal break-words leading-5">
+          {row.original.colorOption || "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "size",
+      header: "Size",
+      cell: ({ row }) => (
+        <div className="max-w-[120px] whitespace-normal break-words leading-5">
+          {row.original.size || "-"}
+        </div>
+      ),
+    },
     { accessorKey: "stock", header: "Stock" },
     {
       accessorKey: "originalPrice",
@@ -346,16 +417,19 @@ export default function AdminProduct() {
       id: "action",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-      <Link to={`/product/${row.original.productId}`} target="_blank">
-        <AiOutlineEye size={20} />
-      </Link>
-      <UpdateCommissionDialog
-        currentCommission={row.original.commission}
-        productId={row.original.productId}
-        variantId={row.original.id}
-      />
-    </div>
+        <div className="flex min-w-[220px] flex-wrap items-center gap-2">
+          <Link to={`/product/${row.original.productId}`} target="_blank" className="shrink-0">
+            <AiOutlineEye size={20} />
+          </Link>
+          <UpdateCommissionDialog
+            currentCommission={row.original.commission}
+            productId={row.original.productId}
+            variantId={row.original.id}
+          />
+          {row.original.bulkOrders.length > 0 && (
+            <BulkCommissionDialog row={row.original} />
+          )}
+        </div>
       ),
     },
   ];
@@ -512,10 +586,61 @@ export default function AdminProduct() {
         }
         enableCalender={true}
         dateFieldId="createdAt"
+        getRowClassName={(row) => getProductRowClassName((row as VariantRow).productId)}
       />
 
       {(adminMutStatus === "pending" || badgeMutStatus === "pending") && <ScreenOverlayLoaderUi />}
       </div>
     </div>
+  );
+}
+
+function BulkCommissionDialog({ row }: { row: VariantRow }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button type="button" variant="outline" size="sm" className="shrink-0">
+          Update Bulk Commission
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Bulk Commissions</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p className="whitespace-normal break-words font-medium text-slate-900">
+              {row.productName}
+            </p>
+            <p className="text-sm text-slate-600">{getVariantLabel(row)}</p>
+          </div>
+          {row.bulkOrders.map((bulkOrder) => (
+            <div
+              key={bulkOrder.id}
+              className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 md:flex-row md:items-center md:justify-between"
+            >
+              <div className="grid gap-1 text-sm text-slate-700">
+                <p>
+                  Bulk Qty: <span className="font-semibold text-slate-900">{bulkOrder.qty}</span>
+                </p>
+                <p className="whitespace-normal break-words">
+                  Bulk Price: <span className="font-semibold text-slate-900">Rs. {bulkOrder.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                </p>
+                <p>
+                  Current Commission: <span className="font-semibold text-slate-900">Rs. {bulkOrder.commission.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                </p>
+              </div>
+              <UpdateCommissionDialog
+                currentCommission={bulkOrder.commission}
+                productId={row.productId}
+                variantId={row.id}
+                bulkOrderId={bulkOrder.id}
+                title={`Update Bulk Commission - Qty ${bulkOrder.qty}`}
+              />
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

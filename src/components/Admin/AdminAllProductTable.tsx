@@ -403,9 +403,6 @@ export default function AdminAllProductTable({
                   </div>
                 </div>
               )}
-              <div className="col-span-full rounded-lg border border-dashed border-slate-200 bg-white/70 px-3 py-2 text-xs text-slate-500">
-                Variant commission and bulk-tier commission are handled separately. Old tiers without their own commission safely fall back to the variant commission until backfilled.
-              </div>
             </div>
           ))}
         </div>
