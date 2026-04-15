@@ -532,10 +532,16 @@ export default function AddProductForm({
       });
     }
     values.specialityPackage.forEach((value) => {
-      newForm.append("specialityPackage", value);
+      const normalizedValue = getSelectValue(value);
+      if (normalizedValue) {
+        newForm.append("specialityPackage", normalizedValue);
+      }
     });
     values.specialityPackageType.forEach((value) => {
-      newForm.append("specialityPackageType", value);
+      const normalizedValue = getSelectValue(value);
+      if (normalizedValue) {
+        newForm.append("specialityPackageType", normalizedValue);
+      }
     });
     newForm.append("manufacturerName", values.manufacturerName);
     newForm.append("email", values.email);

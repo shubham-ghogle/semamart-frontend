@@ -4,8 +4,8 @@
 
 
 //live apis
-//  export const API_URL = "https://www.semamart.com/api/v2/"
-//  export const BASE_URL = "https://www.semamart.com/"
+ export const API_URL = "https://www.semamart.com/api/v2/"
+ export const BASE_URL = "https://www.semamart.com/"
 
 
 //test apis
@@ -14,6 +14,6 @@
 
 
 // // //beta apis
-export const API_URL = "https://beta.semamart.com/api/v2/"
-export const BASE_URL = "https://beta.semamart.com/"
+// export const API_URL = "https://beta.semamart.com/api/v2/"
+// export const BASE_URL = "https://beta.semamart.com/"
 
