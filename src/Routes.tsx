@@ -72,7 +72,7 @@ import ReturnsPolicy from "./components/Footer/ReturnPolicy";
 import Shipping from "./components/Footer/Shipping";
 import PrivacyPolicy from "./components/Footer/PrivacyPolicy";
 import Term from "./components/Footer/Term";
-import AdminProduct from "./components/Admin/AllProducts/AdminProducts";
+import AdminProductScreen from "./Screens/Admin/AdminProductScreen";
 import AdminOrderDetailsScreen from "./Screens/Admin/AdminOrderDetailsScreen";
 import AdminSellerAccount from "./components/Admin/AdminSellerAccount";
 import AdminImageUploader from "./components/Admin/AdminImageUploader";
@@ -411,7 +411,7 @@ export const router = createBrowserRouter([
           { path: "order/:orderId", element: <AdminOrderSummary /> },
         ],
       },
-      { path: "products", element: <AdminProduct /> },
+      { path: "products", element: <AdminProductScreen /> },
       { path: "support", element: <AdminSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
       {

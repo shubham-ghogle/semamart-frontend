@@ -439,7 +439,6 @@ export default function AddProductForm({
     onSuccess: () => {
       toast.success("Product added successfully");
       form.reset();
-      setImages([]);
       setThumbnail([]);
       setVariantImages([]);
       setShortVideo(null);
