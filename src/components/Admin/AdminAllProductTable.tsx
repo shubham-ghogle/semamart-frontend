@@ -11,7 +11,7 @@ import { Switch } from "../ui/switch";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { toast } from "react-toastify";
 import DisplayCommission from "./DisplayCommission";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 
 type ProductVariantRow = {
   id: string;
@@ -77,6 +77,17 @@ export default function AdminAllProductTable({
     Record<string, any[]>
   >({});
   const categoryRef = useRef<HTMLDivElement | null>(null);
+
+  const [expandedVariants, setExpandedVariants] = useState<Record<string, boolean>>({});
+const [selectedBulk, setSelectedBulk] = useState<any>(null);
+
+// toggle expand
+const toggleVariant = (variantId: string) => {
+  setExpandedVariants((prev) => ({
+    ...prev,
+    [variantId]: !prev[variantId],
+  }));
+};
 
   // Fetch categories for filter dropdown
   const { data: categoriesData } = useQuery({
@@ -330,36 +341,53 @@ export default function AdminAllProductTable({
         </div>
       ),
     },
-    {
-      id: "variants",
-      header: "Variants",
-      cell: ({ row }) => (
-        <div className="space-y-3">
-          {row.original.variants.map((variant, index) => (
-            <div
-              key={variant.id}
-              className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 "
-            >
+
+
+{
+  id: "variants",
+  header: "Variants",
+  cell: ({ row }) => (
+    <div className="space-y-4">
+      {row.original.variants.map((variant, index) => {
+        const isExpanded = expandedVariants[variant.id];
+
+        return (
+          <div
+            key={variant.id}
+            className="border rounded-xl p-4 bg-slate-50"
+          >
+            {/* TOP SECTION */}
+            <div className="flex gap-4">
               <img
                 src={variant.thumbnail}
-                alt={`Variant ${index + 1}`}
-                className="h-[72px] w-[72px] rounded-lg object-cover"
+                alt="variant"
+                className="w-20 h-20 rounded-lg object-cover"
               />
-              <div className="grid gap-1 text-sm text-slate-600 md:grid-cols-2">
+
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm w-full">
                 <p className="font-semibold text-slate-900">
-                  {[variant.colorOption].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
+                  {variant.colorOption || `Variant ${index + 1}`}
                 </p>
                 <p>Stock: {variant.stock}</p>
-                <p>MRP: Rs. {variant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-                <p>Selling: Rs. {(variant.discountPrice ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-                <p className="font-medium text-[#1C647C]">
-                  Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                <p>
+                  MRP: ₹
+                  {variant.originalPrice.toLocaleString("en-IN")}
                 </p>
-                 <p className="text-xs">
-                  Size: {variant.size || "-"}
-                </p> 
+                <p>
+                  Selling: ₹
+                  {variant.discountPrice.toLocaleString("en-IN")}
+                </p>
+                <p className="text-[#1C647C] font-medium">
+                  Commission: ₹
+                  {variant.commission.toLocaleString("en-IN")}
+                </p>
+                <p>Size: {variant.size || "-"}</p>
               </div>
-              <div className="flex items-start gap-2 flex-wrap">
+            </div>
+
+            {/* VARIANT ACTIONS */}
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex gap-3 items-center">
                 <UpdateCommissionDialog
                   currentCommission={variant.commission}
                   productId={row.original.productId}
@@ -368,46 +396,85 @@ export default function AdminAllProductTable({
                 />
                 <DisplayCommission history={variant.commissionHistory} />
               </div>
+
               {variant.bulkOrders.length > 0 && (
-                <div className="col-span-full rounded-lg border border-slate-200 bg-white p-3">
-                  <p className="mb-2 text-sm font-semibold text-slate-700">
-                    Bulk Order Tiers
-                  </p>
-                  <div className="space-y-2">
-                    {variant.bulkOrders.map((bulkOrder) => (
-                      <div
-                        key={bulkOrder.id}
-                        className="grid gap-2 rounded-lg border border-slate-200 p-3 md:grid-cols-[1fr_1fr_1fr_auto]"
-                      >
-                        <p className="text-sm text-slate-600">
-                          Qty: <span className="font-medium text-slate-900">{bulkOrder.qty}</span>
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          Pack Price: <span className="font-medium text-slate-900">Rs. {bulkOrder.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                        </p>
-                        <p className="text-sm font-medium text-[#1C647C]">
-                          Commission: Rs. {bulkOrder.commission.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                        </p>
-                        <div className="flex items-start gap-2 flex-wrap">
-                          <UpdateCommissionDialog
-                            currentCommission={bulkOrder.commission}
-                            productId={row.original.productId}
-                            variantId={variant.id}
-                            bulkOrderId={bulkOrder.id}
-                            title="Update Bulk Tier Commission"
-                          />
-                          <DisplayCommission history={bulkOrder.commissionHistory} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <button
+                    onClick={() => toggleVariant(variant.id)}
+                    className="flex items-center gap-2 text-sm text-blue-600"
+                  >
+                    <IoIosArrowDown
+                      className={`transition-transform duration-200 ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                      size={18}
+                    />
+                    <span>
+                      {isExpanded ? "Hide Bulk Orders" : "Show Bulk Orders"}
+                    </span>
+                  </button>
               )}
             </div>
-          ))}
-        </div>
-      ),
-    },
+
+            {/* BULK TABLE */}
+            {isExpanded && variant.bulkOrders.length > 0 && (
+              <div className="mt-4 bg-white border rounded-lg overflow-hidden">
+               <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+  <thead className="bg-gray-100 text-gray-700">
+    <tr>
+      <th className="p-3 text-left font-semibold">Qty</th>
+      <th className="p-3 text-left font-semibold">Price</th>
+      <th className="p-3 text-left font-semibold">Commission</th>
+      <th className="p-3 text-right font-semibold pr-4">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody className="divide-y">
+    {variant.bulkOrders
+      .sort((a, b) => a.qty - b.qty)
+      .map((bulk) => (
+        <tr
+          key={bulk.id}
+          className="hover:bg-gray-50 transition-colors"
+        >
+          <td className="p-3 font-medium text-gray-800">
+            {bulk.qty}
+          </td>
+
+          <td className="p-3 text-left text-gray-700">
+            ₹{bulk.price.toLocaleString("en-IN")}
+          </td>
+
+          <td className="p-3 text-left font-semibold text-[#1C647C]">
+            ₹{bulk.commission.toLocaleString("en-IN")}
+          </td>
+
+          <td className="p-3">
+            <div className="flex justify-end items-center gap-3">
+              <UpdateCommissionDialog
+                currentCommission={bulk.commission}
+                productId={row.original.productId}
+                variantId={variant.id}
+                bulkOrderId={bulk.id}
+                title="Update Bulk Tier Commission"
+              />
+              <DisplayCommission history={bulk.commissionHistory} />
+            </div>
+          </td>
+        </tr>
+      ))}
+  </tbody>
+</table>
+
+                {/* APPLY TO ALL */}
+               
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  ),
+},
     {
       id: "action",
       header: "Actions",
