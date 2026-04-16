@@ -338,7 +338,7 @@ export default function AdminAllProductTable({
           {row.original.variants.map((variant, index) => (
             <div
               key={variant.id}
-              className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[72px_1fr_auto]"
+              className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 "
             >
               <img
                 src={variant.thumbnail}
@@ -355,9 +355,9 @@ export default function AdminAllProductTable({
                 <p className="font-medium text-[#1C647C]">
                   Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-                {/* <p className="text-xs">
+                 <p className="text-xs">
                   Size: {variant.size || "-"}
-                </p> */}
+                </p> 
               </div>
               <div className="flex items-start gap-2 flex-wrap">
                 <UpdateCommissionDialog
