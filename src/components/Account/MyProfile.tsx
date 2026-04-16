@@ -154,7 +154,7 @@ const ProfileForm = () => {
 
   return (
     <div className="flex-1 px-4 sm:px-6 py-4">
-      <div className="mx-auto bg-white rounded-2xl shadow-md max-w-[1100px] pb-6">
+      <div className="w-full bg-white rounded-2xl shadow-md pb-6">
         {/* HEADER */}
         <div className="px-5 py-4 border-b flex justify-between">
           <div>

@@ -249,8 +249,8 @@ export default function SellerProductTable({
       accessorKey: "productName",
       header: "Product",
       cell: ({ row }) => (
-        <div className="space-y-1">
-          <p className="w-40 overflow-hidden text-ellipsis font-semibold text-slate-900">
+        <div className="space-y-1 max-w-[150px] sm:max-w-[200px]">
+          <p className="overflow-hidden text-ellipsis font-semibold text-slate-900 text-sm">
             {row.original.productName}
           </p>
           <p className="text-xs text-slate-500">Created: {row.original.createdAt}</p>
@@ -261,30 +261,27 @@ export default function SellerProductTable({
       id: "variants",
       header: "Variants",
       cell: ({ row }) => (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {row.original.variants.map((variant, index) => (
             <div
               key={variant.id}
-              className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[72px_1fr_auto]"
+              className="flex flex-col sm:grid sm:gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:p-3 sm:grid-cols-[60px_1fr]"
             >
               <img
                 src={variant.thumbnail}
                 alt={`Variant ${index + 1}`}
-                className="h-[72px] w-[72px] rounded-lg object-cover"
+                className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-lg object-cover self-start"
               />
-              <div className="grid gap-1 text-sm text-slate-600 md:grid-cols-2">
-                <p className="font-semibold text-slate-900">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:text-sm text-slate-600">
+                <p className="font-semibold text-slate-900 col-span-2 sm:col-span-1 truncate">
                   {[variant.colorOption, variant.size].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
                 </p>
-                <p>Stock: {variant.stock}</p>
-                <p>MRP: Rs. {variant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-                <p>Selling: Rs. {(variant.discountPrice ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
-                <p className="font-medium text-[#1C647C]">
+                <p className="truncate">Stock: {variant.stock}</p>
+                <p className="truncate">MRP: Rs. {variant.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                <p className="truncate">Selling: Rs. {(variant.discountPrice ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                <p className="font-medium text-[#1C647C] col-span-2 sm:col-span-1 truncate">
                   Commission: Rs. {(variant.commission ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
-              </div>
-              <div className="flex items-start">
-                <DisplayCommission history={variant.commissionHistory} />
               </div>
             </div>
           ))}

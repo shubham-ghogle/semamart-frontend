@@ -294,7 +294,7 @@ export default function EditVariantDialog({
               <section className="space-y-4">
                 <p className="text-lg">Bulk Orders</p>
                 {bulkOrders.map((v, i) => (
-                  <article key={i} className="flex items-center gap-2">
+                  <article key={i} className="flex flex-wrap items-start gap-2">
                     <InputField
                       label="Quantity"
                       value={v.qty}

@@ -13,7 +13,7 @@ export default function WishlistPage() {
 
   return (
     <main className="flex-1 min-h-screen bg-gray-50 py-4 md:py-8 lg:py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow-md rounded-xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-4 md:px-8">

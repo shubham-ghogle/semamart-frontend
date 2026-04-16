@@ -22,7 +22,8 @@ export default function AccountHeader() {
     try {
       const stored = localStorage.getItem("account_sidebar_pinned");
       const isPinned = stored === "true";
-      document.documentElement.style.setProperty("--account-sidebar-width", isPinned ? "320px" : "80px");
+      document.documentElement.style.setProperty("--account-sidebar-width", isPinned ? "clamp(16rem, 18vw, 24rem)" : "clamp(5rem, 6vw, 7rem)");
+      document.documentElement.style.setProperty("--account-header-height", "80px");
       setPinned(isPinned);
     } catch {}
   }, []);
@@ -59,7 +60,7 @@ export default function AccountHeader() {
     try {
       const next = !pinned;
       localStorage.setItem("account_sidebar_pinned", String(next));
-      document.documentElement.style.setProperty("--account-sidebar-width", next ? "200px" : "80px");
+      document.documentElement.style.setProperty("--account-sidebar-width", next ? "clamp(16rem, 18vw, 24rem)" : "clamp(5rem, 6vw, 7rem)");
 
       // notify AccountNavbar
       window.dispatchEvent(new CustomEvent("account-sidebar-change", { detail: next }));

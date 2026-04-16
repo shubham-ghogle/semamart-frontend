@@ -22,7 +22,7 @@ export default function AdminHeader() {
       const stored = localStorage.getItem("admin_sidebar_pinned");
       const isPinned = stored === "true";
       // set CSS vars on root (no inline CSS vars used)
-      document.documentElement.style.setProperty("--admin-sidebar-width", isPinned ? "16rem" : "5rem");
+      document.documentElement.style.setProperty("--admin-sidebar-width", isPinned ? "clamp(16rem, 18vw, 24rem)" : "clamp(5rem, 6vw, 7rem)");
       document.documentElement.style.setProperty("--admin-header-height", "80px");
       setPinned(isPinned);
     } catch {}
@@ -54,7 +54,7 @@ export default function AdminHeader() {
     try {
       const next = !pinned;
       localStorage.setItem("admin_sidebar_pinned", String(next));
-      document.documentElement.style.setProperty("--admin-sidebar-width", next ? "16rem" : "5rem");
+      document.documentElement.style.setProperty("--admin-sidebar-width", next ? "clamp(16rem, 18vw, 24rem)" : "clamp(5rem, 6vw, 7rem)");
       window.dispatchEvent(new CustomEvent("admin-sidebar-change", { detail: next }));
       setPinned(next);
     } catch {

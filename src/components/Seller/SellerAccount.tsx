@@ -317,7 +317,7 @@ const SellerAccount: React.FC = () => {
   if (memberMode) {
     return (
       <div className="flex-1 px-4 sm:px-8 py-6 bg-gray-50 min-h-screen">
-        <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px] p-6">
+        <div className="w-full px-2 sm:px-4 md:px-6 bg-white rounded-2xl shadow-md overflow-visible p-6">
           <h1 className="text-2xl font-semibold text-gray-800">My Account</h1>
           <p className="text-sm text-gray-500 mt-2">
             Member accounts can use the seller portal, but the business profile is managed by the main seller.
@@ -334,7 +334,7 @@ const SellerAccount: React.FC = () => {
 
   return (
     <div className="flex-1 px-4 sm:px-8 py-6 bg-gray-50 min-h-screen">
-      <div className="mx-auto bg-white rounded-2xl shadow-md overflow-visible max-w-[1100px]">
+      <div className="w-full px-2 sm:px-4 md:px-6 bg-white rounded-2xl shadow-md overflow-visible">
         {/* Header */}
         <div className="px-6 py-5 border-b flex flex-col sm:flex-row sm:items-center justify-between">
           <div>

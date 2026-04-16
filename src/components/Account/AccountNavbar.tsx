@@ -69,7 +69,7 @@ const AccountNavbar: React.FC = () => {
   // keep CSS var in sync on mount + when pinned changes
   useEffect(() => {
     try {
-      document.documentElement.style.setProperty("--account-sidebar-width", pinned ? "320px" : "80px");
+      document.documentElement.style.setProperty("--account-sidebar-width", pinned ? "clamp(16rem, 18vw, 24rem)" : "clamp(5rem, 6vw, 7rem)");
     } catch {}
   }, [pinned]);
 
@@ -186,7 +186,7 @@ const AccountNavbar: React.FC = () => {
       {/* --- Desktop Sidebar (unchanged) --- */}
       <aside
         className={`hidden md:flex flex-col fixed left-0 top-[80px] bottom-0 z-40 bg-white shadow-md transition-all duration-200 ${
-          pinned ? "w-[200px]" : "w-[80px]"
+          pinned ? "w-[clamp(16rem,18vw,24rem)]" : "w-[clamp(5rem,6vw,7rem)]"
         }`}
         aria-expanded={pinned}
       >

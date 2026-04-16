@@ -605,7 +605,7 @@ doc.text(
       </section>
 
       <div className="w-full max-w-full rounded-md border overflow-x-auto">
-        <Table>
+        <Table className="min-w-[800px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-background">

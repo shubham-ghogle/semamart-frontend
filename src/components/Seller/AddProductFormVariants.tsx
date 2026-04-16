@@ -72,7 +72,7 @@ export default function AddProductFormVariants({
         </Button>
       )}
       <p className="text-sm font-semibold text-gray-500">Variant {index + 1}</p>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
         <FormField
           control={form.control}
           name={`variants.${index}.originalPrice`}
@@ -105,8 +105,8 @@ export default function AddProductFormVariants({
         />
       </div>
 
-      <div className="flex items-start gap-8">
-        <article className="space-y-2 w-1/2">
+      <div className="flex flex-wrap items-start gap-4 sm:gap-8">
+        <article className="space-y-2 flex-1 min-w-[200px]">
           <FormField
             control={form.control}
             name={`variants.${index}.colorOption`}
@@ -150,7 +150,7 @@ export default function AddProductFormVariants({
           />
         </article>
 
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-[200px] max-w-[300px]">
           <FormItem>
             <FormLabel>Upload Thumbnail Image</FormLabel>
             <div className="mt-2 aspect-square w-[220px] overflow-hidden rounded-[5px] border border-gray-300 relative">

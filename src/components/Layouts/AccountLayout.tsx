@@ -13,18 +13,17 @@ export default function AccountLayout() {
       <AccountNavbar />
 
       <main
-        className="transition-all duration-200"
+        className="transition-all duration-200 overflow-y-auto"
         style={{ minHeight: "calc(100vh - var(--account-header-height, 80px))" }}
       >
-        <section className="container mx-auto px-4 md:px-6 py-8">
+        <section className="px-4 md:px-6 py-8 w-full">
           <Outlet />
         </section>
 
         <style>{`
-          /* shift content on md+ to avoid overlap with fixed sidebar */
           @media (min-width: 768px) {
             main > section {
-              padding-left: calc(var(--account-sidebar-width, 320px) + 1rem);
+              padding-left: calc(var(--account-sidebar-width, 0px) + 1rem);
             }
           }
         `}</style>

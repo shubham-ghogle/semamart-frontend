@@ -804,7 +804,7 @@ return (
         )}
 
 
-        className="w-full max-w-full sm:max-w-4xl mx-auto py-6 sm:py-10 bg-white px-4 sm:px-6 rounded-lg shadow overflow-visible"
+        className="w-full px-2 sm:px-4 md:px-6 py-6 sm:py-10 bg-white overflow-visible"
       >
        <Accordion
               type="multiple"
