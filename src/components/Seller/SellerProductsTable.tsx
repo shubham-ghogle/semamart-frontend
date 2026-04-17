@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
-import DisplayCommission from "../Admin/DisplayCommission";
+// import DisplayCommission from "../Admin/DisplayCommission";
 import { IoIosArrowForward } from "react-icons/io";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
 

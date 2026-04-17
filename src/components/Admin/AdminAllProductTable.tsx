@@ -79,7 +79,7 @@ export default function AdminAllProductTable({
   const categoryRef = useRef<HTMLDivElement | null>(null);
 
   const [expandedVariants, setExpandedVariants] = useState<Record<string, boolean>>({});
-const [selectedBulk, setSelectedBulk] = useState<any>(null);
+// const [selectedBulk, setSelectedBulk] = useState<any>(null);
 
 // toggle expand
 const toggleVariant = (variantId: string) => {
