@@ -3,7 +3,7 @@ import { z } from "zod";
 export const variantSchema = z.object({
   // colorOption & size are optional and may be null
   colorOption: z.string().min(1, "Color is required").optional().nullable(),
-  size: z.string().min(1, "Size is required").optional().nullable(),
+  size: z.string().optional().nullable(),
 
   // stocks is stored as string in the form — validate string that converts to positive number
   stocks: z

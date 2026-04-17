@@ -357,32 +357,34 @@ const toggleVariant = (variantId: string) => {
             className="border rounded-xl p-4 bg-slate-50"
           >
             {/* TOP SECTION */}
-            <div className="flex gap-4">
-              <img
-                src={variant.thumbnail}
-                alt="variant"
-                className="w-20 h-20 rounded-lg object-cover"
-              />
+          {/* TOP SECTION */}
+<div className="flex gap-4">
+  <img
+    src={variant.thumbnail}
+    alt="variant"
+    className="w-20 h-20 rounded-lg object-cover shrink-0" // Added shrink-0
+  />
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm w-full">
-                <p className="font-semibold text-slate-900">
-                  {variant.colorOption || `Variant ${index + 1}`}
-                </p>
-                <p>Stock: {variant.stock}</p>
-                <p>
-                  MRP: ₹
-                  {variant.originalPrice.toLocaleString("en-IN")}
-                </p>
-                <p>
-                  Selling: ₹
-                  {variant.discountPrice.toLocaleString("en-IN")}
-                </p>
-                <p className="text-[#1C647C] font-medium">
-                  Commission: ₹
-                  {variant.commission.toLocaleString("en-IN")}
-                </p>
-                <p>Size: {variant.size || "-"}</p>
-              </div>
+  {/* Changed grid-cols-2 to flex flex-wrap */}
+  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm w-full">
+    <p className="font-semibold text-slate-900 w-full mb-1">
+      {variant.colorOption || `Variant ${index + 1}`}
+    </p>
+    
+    {/* Each item now takes up space naturally or wraps if too long */}
+    <p className="whitespace-nowrap">Stock: {variant.stock}</p>
+    <p className="whitespace-nowrap">MRP: ₹{variant.originalPrice.toLocaleString("en-IN")}</p>
+    <p className="whitespace-nowrap">Selling: ₹{variant.discountPrice.toLocaleString("en-IN")}</p>
+    <p className="text-[#1C647C] font-medium whitespace-nowrap">
+      Commission: ₹{variant.commission.toLocaleString("en-IN")}
+    </p>
+    
+    {/* Size can now grow or wrap without breaking the layout */}
+    <p className="text-slate-600">
+      <span className="font-medium">Size:</span> {variant.size || "-"}
+    </p>
+  </div>
+
             </div>
 
             {/* VARIANT ACTIONS */}
@@ -400,7 +402,7 @@ const toggleVariant = (variantId: string) => {
               {variant.bulkOrders.length > 0 && (
                 <button
                     onClick={() => toggleVariant(variant.id)}
-                    className="flex items-center gap-2 text-sm text-blue-600"
+                    className="flex items-center gap-2 text-sm text-[#1C647C]"
                   >
                     <IoIosArrowDown
                       className={`transition-transform duration-200 ${
