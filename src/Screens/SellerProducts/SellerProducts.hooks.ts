@@ -29,7 +29,7 @@ export async function fetchShopInfo(shopId: string): Promise<ShopPayload> {
 export async function getProductsByShop(shopId: string): Promise<Product[]> {
   if (!shopId) return [];
 
-  const res = await fetch(`${API_URL}product/get-all-products-shop/${shopId}`, {
+  const res = await fetch(`${API_URL}product/get-public-products-shop/${shopId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
