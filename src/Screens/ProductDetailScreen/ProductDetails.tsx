@@ -237,17 +237,6 @@ useEffect(() => {
 
     const taxClass = (product as any).taxClass ?? 0;
    
-    const x = {
-      productId: (product as any)._id,
-      variantId: selectedVariant?._id ?? null,
-      product,
-      variant: selectedVariant,
-      qty: packQty,
-      price: perPiece,
-      shopId,
-      taxClass,
-    }
-    console.log(x);
     addToCart({
       productId: (product as any)._id,
       variantId: selectedVariant?._id ?? null,

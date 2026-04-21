@@ -27,7 +27,12 @@ export default function SpecialityDropdown({
   });
 
   useEffect(() => {
-    const ids = values.map((entry) => entry.packageId).filter(Boolean);
+    const ids = Array.from(
+      new Set([
+        ...values.map((entry) => entry.packageId).filter(Boolean),
+        currentPackageId,
+      ].filter(Boolean)),
+    );
     ids.forEach((id) => {
       if (packageTypesById[id]) return;
       getSpecialityPackagesTypes(id).then((res) => {
@@ -38,6 +43,7 @@ export default function SpecialityDropdown({
   }, [values, packageTypesById]);
 
   const packageOptions = data?.map((el) => ({ label: el.name, value: el._id })) || [];
+  const selectedValues = values.filter((entry) => entry.packageId || entry.typeId);
 
   const currentTypeOptions = packageTypesById[currentPackageId] || [];
 
@@ -58,10 +64,14 @@ export default function SpecialityDropdown({
     setCurrentTypeId("");
   }
 
-  function removeRow(index: number) {
-    const next = [...values];
-    next.splice(index, 1);
-    onChange(next);
+  function removeRow(entryToRemove: { packageId: string; typeId: string }) {
+    onChange(
+      values.filter(
+        (entry) =>
+          entry.packageId !== entryToRemove.packageId ||
+          entry.typeId !== entryToRemove.typeId,
+      ),
+    );
   }
 
   function getPackageLabel(packageId: string) {
@@ -77,9 +87,9 @@ export default function SpecialityDropdown({
 
   return (
     <div className="space-y-3">
-      {values.length > 0 && (
+      {selectedValues.length > 0 && (
         <div className="space-y-2">
-          {values.map((entry, index) => (
+          {selectedValues.map((entry, index) => (
             <div
               key={`${entry.packageId}-${entry.typeId}-${index}`}
               className="flex items-center justify-between rounded-md border bg-gray-50 px-3 py-2"
@@ -92,7 +102,7 @@ export default function SpecialityDropdown({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => removeRow(index)}
+                onClick={() => removeRow(entry)}
               >
                 <X className="w-4 h-4 text-red-500" />
               </Button>

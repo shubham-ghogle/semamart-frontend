@@ -17,6 +17,8 @@ export default function PurchasePanel({
   product,
   selectedVariant,
   variantBulkOrders,
+  selectedPack,
+  setSelectedPack,
   handleAddCart,
   handleToggleWishlist,
   inWishlist,
@@ -39,7 +41,7 @@ export default function PurchasePanel({
   };
   const stock = Number(selectedVariant?.stock ?? 0);
   const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
-  const isOutOfStock = stock < moq;
+  const isOutOfStock = stock <= 0 || (moq > 0 && stock < moq);
 
   const handleBulkOrderClick = () => {
     if (!user) {
@@ -58,11 +60,25 @@ export default function PurchasePanel({
           const saved = displayOriginalPrice
             ? Math.round(((displayOriginalPrice - perPiece) / displayOriginalPrice) * 100)
             : 0;
+          const isSelected =
+            selectedPack?.qty === b.qty && selectedPack?.price === b.price;
 
           return (
-            <div
+            <button
+              type="button"
               key={`${b.qty}-${b.price}`}
-              className="flex justify-between items-center p-3 rounded-xl border bg-white"
+              onClick={() =>
+                setSelectedPack(
+                  isSelected
+                    ? null
+                    : { qty: b.qty, price: b.price, label: `Above ${b.qty} Quantity` },
+                )
+              }
+              className={`flex w-full justify-between items-center p-3 rounded-xl border text-left transition ${
+                isSelected
+                  ? "border-[#1C647C] bg-[#ECFBFF] shadow-sm"
+                  : "border-gray-200 bg-white hover:border-[#1C647C]/50"
+              }`}
             >
               <div className="flex flex-col gap-1 w-full">
                 <div className="flex justify-between items-center">
@@ -81,9 +97,12 @@ export default function PurchasePanel({
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <p className="text-xs text-gray-600">@ ₹{perPiece.toFixed(2)}/piece</p>
+                  {isSelected && (
+                    <p className="text-xs font-semibold text-[#1C647C]">Selected</p>
+                  )}
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

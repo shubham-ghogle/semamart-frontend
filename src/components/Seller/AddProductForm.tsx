@@ -789,7 +789,23 @@ return (
               return result;
             }
 
+            function getFirstErrorMessage(errors: any): string {
+              for (const key in errors) {
+                const error = errors[key];
+                if (error?.message) {
+                  return String(error.message);
+                }
+                if (error && typeof error === "object") {
+                  const nested = getFirstErrorMessage(error);
+                  if (nested) return nested;
+                }
+              }
+              return "";
+            }
+
             const errorFields = getAllErrorFields(errors);
+            const firstErrorMessage = getFirstErrorMessage(errors);
+            toast.error(firstErrorMessage || "Please fix the highlighted product form fields.");
 
             const accordionsToOpen = Array.from(
               new Set(errorFields.map((f) => fieldToAccordionMap[f]).filter(Boolean))
@@ -1183,7 +1199,6 @@ return (
                           length: Math.max(
                             (form.watch("specialityPackage")?.length || 0),
                             (form.watch("specialityPackageType")?.length || 0),
-                            1,
                           ),
                         }).map((_, index) => ({
                           packageId: getSelectValue(
@@ -2248,12 +2263,12 @@ return (
                       <article className="flex justify-end">
                         <Button
                           type="button"
-                          size="icon"
                           variant="outline"
-                          className="bg-green-100 cursor-pointer"
+                          className="cursor-pointer bg-green-100 text-green-700 hover:bg-green-200"
                           onClick={addVariant}
                         >
                           <AiOutlinePlusCircle className="text-green-500" />
+                          Add Variant
                         </Button>
                       </article>
                     )}

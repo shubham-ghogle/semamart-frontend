@@ -5,6 +5,9 @@ import StarIcons from "@/components/ui/StarIcons";
 export default function ProductInfoSection({
   product,
   selectedVariant,
+  selectedPack,
+  selectedPerPiece,
+  selectedSavedPercent,
   minOrderQty,
 }: any) {
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
@@ -14,7 +17,9 @@ export default function ProductInfoSection({
   const displayDiscountPrice =
     selectedVariant?.discountPrice ?? product?.discountPrice;
 
-  const mainPrice = displayDiscountPrice ?? displayOriginalPrice ?? 0;
+  const mainPrice = selectedPack
+    ? selectedPerPiece
+    : displayDiscountPrice ?? displayOriginalPrice ?? 0;
 
   const safeNumber = (v: any) => {
     const n = Number(v);
@@ -23,14 +28,16 @@ export default function ProductInfoSection({
 
   const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
   const stock = Number(selectedVariant?.stock ?? 0);
-  const isOutOfStock = moq > 0 && stock < moq;
+  const isOutOfStock = stock <= 0 || (moq > 0 && stock < moq);
 
 
 
 
 
   let topDiscount = 0;
-  if (displayOriginalPrice && displayDiscountPrice) {
+  if (selectedPack) {
+    topDiscount = selectedSavedPercent ?? 0;
+  } else if (displayOriginalPrice && displayDiscountPrice) {
     topDiscount = Math.round(
       ((displayOriginalPrice - displayDiscountPrice) /
         Math.max(displayOriginalPrice, 1)) *
@@ -108,6 +115,11 @@ export default function ProductInfoSection({
           {topDiscount > 0 && (
             <span className="text-green-600 font-semibold text-base">
               {topDiscount}% off
+            </span>
+          )}
+          {selectedPack && (
+            <span className="rounded-full bg-[#1C647C]/10 px-3 py-1 text-xs font-semibold text-[#1C647C]">
+              Bulk price for {selectedPack.qty}+ qty
             </span>
           )}
         </div>

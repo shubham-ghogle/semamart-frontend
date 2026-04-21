@@ -91,6 +91,25 @@ export function getVariantCommission(source: any) {
   return 0;
 }
 
+export function isBulkOrder(source: any) {
+  const variant =
+    source?.variant && typeof source.variant === "object"
+      ? source.variant
+      : source?.variantId && typeof source.variantId === "object"
+        ? source.variantId
+        : source;
+  const qty = toFiniteNumber(source?.qty);
+
+  if (qty === null || !variant || !Array.isArray(variant.bulkOrders)) {
+    return false;
+  }
+
+  return variant.bulkOrders.some((tier: any) => {
+    const tierQty = toFiniteNumber(tier?.qty);
+    return tierQty !== null && qty >= tierQty;
+  });
+}
+
 export function getErrorMessage(error: unknown, fallback = "Something went wrong") {
   if (error instanceof Error && error.message.trim()) {
     return error.message;

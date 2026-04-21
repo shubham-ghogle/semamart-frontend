@@ -7,7 +7,7 @@ import GroupPaymentDialog from "./GroupPaymentDialog";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { Filter, Search, X } from "lucide-react"; // Assuming lucide-react is installed
-import { getAccountOwnerId } from "@/lib/utils";
+import { getAccountOwnerId, isBulkOrder } from "@/lib/utils";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -212,7 +212,14 @@ const Orderpage = () => {
 
                           <div className="flex-1">
                             <h3 className="text-sm font-medium text-gray-900 leading-tight mb-1">{product.name}</h3>
-                            <p className="text-xs text-gray-500">Qty: {order.qty}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-xs text-gray-500">Qty: {order.qty}</p>
+                              {isBulkOrder(order) && (
+                                <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-800">
+                                  Bulk Order
+                                </span>
+                              )}
+                            </div>
                             
                             {order.status === "Delivered" && (
                               <button

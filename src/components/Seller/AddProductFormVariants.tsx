@@ -152,7 +152,7 @@ export default function AddProductFormVariants({
 
         <div className="space-y-3 min-w-[200px] max-w-[300px]">
           <FormItem>
-            <FormLabel>Upload Thumbnail Image</FormLabel>
+            <FormLabel>Upload Variant Thumbnail</FormLabel>
             <div className="mt-2 aspect-square w-[220px] overflow-hidden rounded-[5px] border border-gray-300 relative">
               <label
                 htmlFor={field.id}

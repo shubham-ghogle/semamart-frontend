@@ -5,7 +5,7 @@ import { EyeIcon } from "lucide-react";
 import { Order } from "../../Types/types";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { getVariantCommission } from "@/lib/utils";
+import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 
 /* ================= TYPES ================= */
 
@@ -20,6 +20,7 @@ type Row = {
   orderedOn: string;
   orderedAtTs: number;
   groupStyle: string;
+  isBulkOrder: boolean;
   viewOrder: () => void;
 };
 
@@ -67,6 +68,7 @@ const truncate = (text: string, max = 35) =>
       : "-",
       orderedAtTs,
       groupStyle: "",
+      isBulkOrder: isBulkOrder(order),
       viewOrder: () => navigate(`/seller/orders/${order._id}`),
     };
   });
@@ -166,6 +168,18 @@ const truncate = (text: string, max = 35) =>
     {
       accessorKey: "customerName",
       header: "Institute",
+    },
+    {
+      accessorKey: "isBulkOrder",
+      header: "Type",
+      cell: ({ row }) =>
+        row.original.isBulkOrder ? (
+          <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-800">
+            Bulk Order
+          </span>
+        ) : (
+          <span className="text-xs text-gray-500">Regular</span>
+        ),
     },
     {
       accessorKey: "totalPrice",

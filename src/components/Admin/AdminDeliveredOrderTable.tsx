@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { EyeIcon } from "lucide-react";
-import { getVariantCommission } from "@/lib/utils";
+import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 
 type Row = {
   id: string;
@@ -14,6 +14,7 @@ type Row = {
   totalPrice: number;
   commission: number;
   qty: number;
+  isBulkOrder: boolean;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -45,6 +46,7 @@ export default function AdminDeliveredOrderTable({
       totalPrice: el.totalPrice ?? 0,
       commission: commission * (el.qty ?? 0),
       qty: el.qty ?? 0,
+      isBulkOrder: isBulkOrder(el),
       orderedOn: el.createdAt
         ? new Date(el.createdAt).toLocaleDateString("en-IN")
         : "-",
@@ -91,6 +93,18 @@ export default function AdminDeliveredOrderTable({
     {
       accessorKey: "businessName",
       header: "Seller",
+    },
+    {
+      accessorKey: "isBulkOrder",
+      header: "Type",
+      cell: ({ row }) =>
+        row.original.isBulkOrder ? (
+          <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-800">
+            Bulk Order
+          </span>
+        ) : (
+          <span className="text-xs text-gray-500">Regular</span>
+        ),
     },
 
     {

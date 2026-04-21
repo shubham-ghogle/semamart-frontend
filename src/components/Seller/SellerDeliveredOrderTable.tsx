@@ -5,7 +5,7 @@ import { EyeIcon } from "lucide-react";
 import { Order } from "../../Types/types";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
-import { getVariantCommission } from "@/lib/utils";
+import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 
 /* ================= TYPES ================= */
 
@@ -16,6 +16,7 @@ type Row = {
   totalPrice: number;
   commission: number;
   qty: number;
+  isBulkOrder: boolean;
   orderedOn: string;
   viewOrder: () => void;
 };
@@ -52,6 +53,7 @@ export default function SellerDeliveredOrderTable({
       totalPrice: order.totalPrice,
       commission: commission * (order.qty ?? 0),
       qty: order.qty ?? 0,
+      isBulkOrder: isBulkOrder(order),
       orderedOn: order.createdAt
         ? new Date(order.createdAt).toLocaleDateString("en-IN")
         : "-",
@@ -96,6 +98,18 @@ export default function SellerDeliveredOrderTable({
     {
       accessorKey: "customerName",
       header: "Institute",
+    },
+    {
+      accessorKey: "isBulkOrder",
+      header: "Type",
+      cell: ({ row }) =>
+        row.original.isBulkOrder ? (
+          <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-800">
+            Bulk Order
+          </span>
+        ) : (
+          <span className="text-xs text-gray-500">Regular</span>
+        ),
     },
     {
       accessorKey: "totalPrice",
