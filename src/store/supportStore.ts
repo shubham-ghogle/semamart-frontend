@@ -1,13 +1,188 @@
 // src/store/supportStore.ts
 import { create } from "zustand";
-import { SupportTicket, SupportMessage } from "../Types/types";
+import { SupportTicket } from "../Types/types";
+import { API_URL } from "@/data";
+
+const apiBase = API_URL;
 
 type SupportStore = {
   tickets: SupportTicket[];
   loading: boolean;
   error: string | null;
+  fetchTickets: (userType?: 'User' | 'Seller' | 'Admin') => Promise<void>;
+  createTicket: (ticket: any) => Promise<void>;
+  updateTicketStatus: (ticketId: string, status: string) => Promise<void>;
+  addMessage: (ticketId: string, message: any) => Promise<void>;
+  getTicketById: (id: string) => SupportTicket | undefined;
+  clearError: () => void;
+};
 
-  // Actions
+export const useSupportStore = create<SupportStore>((set, get) => {
+  return {
+    tickets: [],
+    loading: false,
+    error: null,
+
+    fetchTickets: async (userType?: 'User' | 'Seller' | 'Admin') => {
+      set({ loading: true, error: null });
+      try {
+        let url = `${apiBase}support/all`;
+        
+        console.log('userType:', userType);
+        
+        if (userType === 'User') {
+          url = `${apiBase}support/user-tickets`;
+        } else if (userType === 'Seller') {
+          url = `${apiBase}support/seller-tickets`;
+        }
+        
+        console.log('Support: Fetching from', url);
+        
+        const res = await fetch(url, { credentials: 'include' });
+        console.log('Support: Response status', res.status);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log('Support: Response data', data);
+        
+        const tickets = data.tickets || [];
+        console.log('Support: Tickets count', tickets.length);
+        
+        set({ tickets, loading: false });
+      } catch (error: any) {
+        console.error('Support: Fetch error', error);
+        set({ error: error.message, loading: false });
+      }
+    },
+
+    createTicket: async (ticketData) => {
+      set({ loading: true, error: null });
+      try {
+        console.log('Creating ticket with userType:', ticketData.userType);
+        
+        const documents: string[] = [];
+        if (ticketData.documents && ticketData.documents.length > 0) {
+          const fileArray = ticketData.documents instanceof FileList 
+            ? Array.from(ticketData.documents) 
+            : ticketData.documents;
+          
+          const fileReadTasks = fileArray.map((file: File) => {
+            return new Promise<string>((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = () => resolve('');
+              reader.readAsDataURL(file);
+            });
+          });
+          
+          const base64Docs = await Promise.all(fileReadTasks);
+          base64Docs.forEach(doc => {
+            if (doc) documents.push(doc);
+          });
+        }
+        
+        console.log('Support: Creating ticket at', `${apiBase}support/create`);
+        
+        const res = await fetch(`${apiBase}support/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            ...ticketData,
+            documents,
+          }),
+        });
+        
+        console.log('Support: Create response status', res.status);
+        
+        if (!res.ok) {
+          throw new Error('Failed to create ticket');
+        }
+        
+        const data = await res.json();
+        console.log('Support: Create response', data);
+        
+        const newTicket = data.ticket;
+        console.log('Support: New ticket created', newTicket);
+
+        set(state => ({
+          tickets: [...state.tickets, newTicket],
+          loading: false
+        }));
+      } catch (error) {
+        console.error('Support: Create error', error);
+        set({ error: 'Failed to create ticket', loading: false });
+      }
+    },
+
+    updateTicketStatus: async (ticketId, status) => {
+      set({ loading: true, error: null });
+      try {
+        const res = await fetch(`${apiBase}support/${ticketId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status }),
+        });
+        
+        if (!res.ok) {
+          throw new Error('Failed to update ticket status');
+        }
+        
+        const data = await res.json();
+        const updatedTicket = data.ticket;
+
+        set(state => ({
+          tickets: state.tickets.map(ticket =>
+            ticket._id === ticketId ? updatedTicket : ticket
+          ),
+          loading: false
+        }));
+      } catch (error) {
+        set({ error: 'Failed to update ticket status', loading: false });
+      }
+    },
+
+    addMessage: async (ticketId, messageData) => {
+      set({ loading: true, error: null });
+      try {
+        const res = await fetch(`${apiBase}support/${ticketId}/message`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(messageData),
+        });
+        
+        if (!res.ok) {
+          throw new Error('Failed to add message');
+        }
+        
+        const data = await res.json();
+        const updatedTicket = data.ticket;
+
+        set(state => ({
+          tickets: state.tickets.map(ticket =>
+            ticket._id === ticketId ? updatedTicket : ticket
+          ),
+          loading: false
+        }));
+      } catch (error) {
+        set({ error: 'Failed to add message', loading: false });
+      }
+    },
+
+    getTicketById: (id: string) => {
+      return get().tickets.find(ticket => ticket._id === id);
+    },
+
+    clearError: () => set({ error: null }),
+  };
+});
   fetchTickets: (userType?: 'User' | 'Seller' | 'Admin') => Promise<void>;
   createTicket: (ticket: Omit<SupportTicket, '_id' | 'caseId' | 'createdAt' | 'updatedAt' | 'conversation' | 'status' | 'documents'> & { documents?: File[] }) => Promise<void>;
   updateTicketStatus: (ticketId: string, status: SupportTicket['status']) => Promise<void>;
