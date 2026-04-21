@@ -67,21 +67,27 @@ const UserSupportScreen = () => {
       }
     }
 
+    try {
       await createTicket({
         userType: user.role === 'Seller' ? 'Seller' : user.role === 'Institute' ? 'Institute' : 'Customer',
-      user: accountOwnerEmail, // Shared account uses the primary account email
-      topic,
-      message,
-      documents: documentList,
-    });
+        user: accountOwnerEmail, // Shared account uses the primary account email
+        topic,
+        message,
+        documents: documentList,
+      });
 
-    // Show success message
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+      setShowSuccess(true);
+      setShowError('');
+      setTimeout(() => setShowSuccess(false), 3000);
 
-    setTopic('');
-    setMessage('');
-    setFiles(null);
+      setTopic('');
+      setMessage('');
+      setFiles(null);
+    } catch (error: any) {
+      setShowSuccess(false);
+      setShowError(error?.message || 'Support request submit nahi ho saki. Please try again.');
+      setTimeout(() => setShowError(''), 4000);
+    }
   };
 
   return (
