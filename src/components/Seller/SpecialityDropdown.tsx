@@ -36,11 +36,12 @@ export default function SpecialityDropdown({
     ids.forEach((id) => {
       if (packageTypesById[id]) return;
       getSpecialityPackagesTypes(id).then((res) => {
-        const pt = res.packageTypes?.map((e: any) => ({ label: e.name, value: e._id })) || [];
+        const packageTypes = Array.isArray(res) ? res : res?.packageTypes || [];
+        const pt = packageTypes.map((e: any) => ({ label: e.name, value: e._id }));
         setPackageTypesById((prev) => ({ ...prev, [id]: pt }));
       });
     });
-  }, [values, packageTypesById]);
+  }, [values, currentPackageId, packageTypesById]);
 
   const packageOptions = data?.map((el) => ({ label: el.name, value: el._id })) || [];
   const selectedValues = values.filter((entry) => entry.packageId || entry.typeId);
@@ -142,7 +143,7 @@ async function getSpecialityPackages() {
 }
 
 async function getSpecialityPackagesTypes(id: string) {
-  const url = API_URL + "special-package/" + id;
+  const url = API_URL + "special-package/" + id + "/package-types";
   const res = await fetch(url);
   if (!res.ok) throw new Error();
   return res.json();
