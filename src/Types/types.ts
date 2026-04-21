@@ -128,6 +128,7 @@ export interface Product {
   commissionHistory?: { commission: number; updatedAt: string }[];
   visibilityBySeller: boolean;
   visibilityByAdmin: boolean;
+  isAvailableToOrder?: boolean;
   brand?: string;
   badge?:boolean;
   avgRating: number;

@@ -24,6 +24,7 @@ export default function PurchasePanel({
   inWishlist,
   cartAnimation,
   minOrderQty,
+  isAvailableToOrder = true,
 }: any) {
   const displayOriginalPrice =
     selectedVariant?.originalPrice ?? product.originalPrice;
@@ -42,8 +43,10 @@ export default function PurchasePanel({
   const stock = Number(selectedVariant?.stock ?? 0);
   const moq = safeNumber(minOrderQty ?? product?.minOrderQty ?? 0);
   const isOutOfStock = stock <= 0 || (moq > 0 && stock < moq);
+  const isInactive = !isAvailableToOrder;
 
   const handleBulkOrderClick = () => {
+    if (isInactive) return;
     if (!user) {
       navigate("/login");
       return;
@@ -67,6 +70,7 @@ export default function PurchasePanel({
             <button
               type="button"
               key={`${b.qty}-${b.price}`}
+              disabled={isInactive}
               onClick={() =>
                 setSelectedPack(
                   isSelected
@@ -75,7 +79,9 @@ export default function PurchasePanel({
                 )
               }
               className={`flex w-full justify-between items-center p-3 rounded-xl border text-left transition ${
-                isSelected
+                isInactive
+                  ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                  : isSelected
                   ? "border-[#1C647C] bg-[#ECFBFF] shadow-sm"
                   : "border-gray-200 bg-white hover:border-[#1C647C]/50"
               }`}
@@ -110,7 +116,9 @@ export default function PurchasePanel({
       {/* Bulk Order Info */}
       <div
         onClick={handleBulkOrderClick}
-        className="flex cursor-pointer justify-between items-center p-3 rounded-xl border border-gray-300"
+        className={`flex justify-between items-center p-3 rounded-xl border border-gray-300 ${
+          isInactive ? "cursor-not-allowed bg-gray-50 opacity-70" : "cursor-pointer"
+        }`}
       >
         <AiOutlineQuestionCircle className="text-3xl text-[#1C647C]" />
         <div className="flex flex-col gap-1 flex-1 ml-3">
@@ -123,36 +131,50 @@ export default function PurchasePanel({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
+      {isInactive ? (
         <button
-          onClick={handleAddCart}
-          disabled={isOutOfStock}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-2 font-semibold transition-all relative ${
-            isOutOfStock
-              ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
-              : "bg-[#ECFBFF] border-[#1C647C] text-[#1C647C]"
-          }`}
+          type="button"
+          disabled
+          className="w-full rounded-2xl border border-gray-300 bg-gray-100 px-4 py-3 text-center text-base font-semibold text-gray-500 cursor-not-allowed"
         >
-          <AiOutlineShoppingCart size={20} />
-          Add to Cart
-          {cartAnimation && (
-            <span className="absolute left-1/2 -translate-x-1/2 -top-10 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce z-50">
-              <AiOutlineCheckCircle size={20} />
-              Added to Cart! {stock}
-            </span>
-          )}
+          Not Available to Order
         </button>
+      ) : (
+        <div className="flex gap-4">
+          <button
+            onClick={handleAddCart}
+            disabled={isOutOfStock}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-2 font-semibold transition-all relative ${
+              isOutOfStock
+                ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                : "bg-[#ECFBFF] border-[#1C647C] text-[#1C647C]"
+            }`}
+          >
+            <AiOutlineShoppingCart size={20} />
+            Add to Cart
+            {cartAnimation && (
+              <span className="absolute left-1/2 -translate-x-1/2 -top-10 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce z-50">
+                <AiOutlineCheckCircle size={20} />
+                Added to Cart! {stock}
+              </span>
+            )}
+          </button>
 
-        <button
-          onClick={handleToggleWishlist}
-          className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-black border border-[#1C647C] font-semibold"
-        >
-          {inWishlist ? "Remove Wishlist" : "Add to Wish List"}
-        </button>
-      </div>
+          <button
+            onClick={handleToggleWishlist}
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-black border border-[#1C647C] font-semibold"
+          >
+            {inWishlist ? "Remove Wishlist" : "Add to Wish List"}
+          </button>
+        </div>
+      )}
 
       {/* Buy Now / Notify Me */}
-      {isOutOfStock ? (
+      {isInactive ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-center text-sm font-medium text-amber-700">
+          This product is currently inactive and cannot be added to cart, bought, or requested as a bulk order.
+        </div>
+      ) : isOutOfStock ? (
         <button
           className="w-full py-3 rounded-2xl font-semibold text-lg mt-2 border border-orange-400 text-orange-600 bg-orange-50 flex items-center justify-center gap-2"
           onClick={() => {

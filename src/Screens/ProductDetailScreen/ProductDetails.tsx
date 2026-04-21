@@ -60,6 +60,10 @@ useEffect(() => {
     (s) => s,
   );
   const addToCart = useCartStore((s) => s.addToCart);
+  const isAvailableToOrder =
+    (product as any)?.isAvailableToOrder ??
+    ((product as any)?.visibilityByAdmin === true &&
+      (product as any)?.visibilityBySeller === true);
 
   // ✅ Build productMedia
   const productMedia: { type: "image" | "video"; src: string }[] =
@@ -200,7 +204,7 @@ useEffect(() => {
       n("/login")
       return
     }
-    if (!product) return;
+    if (!product || !isAvailableToOrder) return;
     let intMinQty = 1;
     try {
       const parsedMinMaxQty =
@@ -400,6 +404,7 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
                 selectedPerPiece={selectedPerPiece}
                 selectedSavedPercent={selectedSavedPercent}
                 minOrderQty={minOrderQty}
+                isAvailableToOrder={isAvailableToOrder}
               />
             </div>
 
@@ -415,6 +420,7 @@ const handleToggleWishlist = (e: React.MouseEvent) => {
               inWishlist={inWishlist}
               cartAnimation={cartAnimation}
               minOrderQty={minOrderQty}
+              isAvailableToOrder={isAvailableToOrder}
             />
           </div>
         </div>

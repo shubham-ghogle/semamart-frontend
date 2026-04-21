@@ -9,6 +9,7 @@ export default function ProductInfoSection({
   selectedPerPiece,
   selectedSavedPercent,
   minOrderQty,
+  isAvailableToOrder = true,
 }: any) {
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
 
@@ -68,6 +69,12 @@ export default function ProductInfoSection({
       {brandText && (
         <div className="text-sm font-semibold text-slate-700">
           Brand: <span className="text-black">{brandText}</span>
+        </div>
+      )}
+
+      {!isAvailableToOrder && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">
+          This product is inactive and not available to order.
         </div>
       )}
 
