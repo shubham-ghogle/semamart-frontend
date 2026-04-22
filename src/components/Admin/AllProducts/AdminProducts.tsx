@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import ProductCommissionManager from "./ProductCommissionManager";
 
 
 type VariantRow = {
@@ -421,14 +422,12 @@ export default function AdminProduct() {
           <Link to={`/product/${row.original.productId}`} target="_blank" className="shrink-0">
             <AiOutlineEye size={20} />
           </Link>
-          <UpdateCommissionDialog
-            currentCommission={row.original.commission}
+          <ProductCommissionManager
             productId={row.original.productId}
             variantId={row.original.id}
+            productCommission={row.original.commission}
+            bulkOrders={row.original.bulkOrders}
           />
-          {row.original.bulkOrders.length > 0 && (
-            <BulkCommissionDialog row={row.original} />
-          )}
         </div>
       ),
     },
