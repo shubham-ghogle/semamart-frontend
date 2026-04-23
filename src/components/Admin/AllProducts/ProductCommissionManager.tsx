@@ -14,7 +14,7 @@ type BulkOrder = {
   id: string;
   qty: number;
   price: number;
-  commission: number; // per item
+  commission: number;
 };
 
 type Props = {
@@ -24,15 +24,15 @@ type Props = {
   bulkOrders: BulkOrder[];
 };
 
-const formatCurrency = (value: number) =>
-  value.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-  });
+const formatter = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  minimumFractionDigits: 2,
+});
 
 function calculateBulkDetails(bulk: BulkOrder) {
   const pricePerItem = bulk.qty > 0 ? bulk.price / bulk.qty : 0;
   const totalCommission = bulk.commission * bulk.qty;
-
   return { pricePerItem, totalCommission };
 }
 
@@ -42,63 +42,71 @@ export default function ProductCommissionManager({
   productCommission,
   bulkOrders,
 }: Props) {
-  const [mode, setMode] = useState<"product" | "bulk">("product");
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-           <FaRupeeSign/>
+          <FaRupeeSign />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl">
-        {/* Header */}
         <DialogHeader>
           <DialogTitle>Manage Commission</DialogTitle>
         </DialogHeader>
 
-<div className="flex justify-center mb-6">
-  {/* The Parent: must have rounded-full and p-1 */}
-  <div className="inline-flex items-center p-1 bg-[#1C647C] rounded-full">
-    
-    <button
-      onClick={() => setMode("product")}
-      className={`px-6 py-2 text-sm font-semibold transition-all duration-200 ${
-        mode === "product"
-          ? "bg-white text-[#1C647C] rounded-full shadow-sm" // Added rounded-full here
-          : "text-white/80 hover:text-white"
-      }`}
-    >
-      Product
-    </button>
+        {/* ✅ CLEAN TOGGLE */}
+        <div className="flex items-center justify-center space-x-3 mb-6">
+          <span
+            className={`text-xs font-bold ${
+              !isBulkMode ? "text-[#1C647C]" : "text-slate-400"
+            }`}
+          >
+            Product Commission
+          </span>
 
-    <button
-      onClick={() => setMode("bulk")}
-      className={`px-6 py-2 text-sm font-semibold transition-all duration-200 ${
-        mode === "bulk"
-          ? "bg-white text-[#1C647C] rounded-full shadow-sm" // Added rounded-full here
-          : "text-white/80 hover:text-white"
-      }`}
-    >
-      Bulk Pricing
-    </button>
-  </div>
-</div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={isBulkMode}
+              onChange={() => setIsBulkMode(!isBulkMode)}
+            />
+
+            {/* Track */}
+            <div className="w-14 h-7 bg-[#94C0EB] rounded-full"></div>
+
+            {/* Thumb */}
+            <div
+              className={`absolute w-9 h-9 bg-[#1C647C] rounded-full shadow-md transform transition-all duration-300 ${
+                isBulkMode ? "translate-x-6" : "-translate-x-1"
+              }`}
+            />
+          </label>
+
+          <span
+            className={`text-xs font-bold ${
+              isBulkMode ? "text-[#1C647C]" : "text-slate-400"
+            }`}
+          >
+            Bulk Commission
+          </span>
+        </div>
+
         {/* CONTENT */}
-        {mode === "product" ? (
+        {!isBulkMode ? (
           <div className="space-y-4">
-            {/* Product Card */}
             <div className="rounded-xl border p-5 bg-gradient-to-br from-slate-50 to-slate-100">
               <p className="text-xs text-gray-500 uppercase tracking-wide">
                 Product Commission
               </p>
-
               <div className="flex items-end justify-between mt-2">
                 <h2 className="text-2xl font-bold">
-                  ₹ {formatCurrency(productCommission)}
+                  {formatter.format(productCommission)}
                 </h2>
-                <span className="text-sm text-gray-500">per item</span>
+                <span className="text-sm text-gray-500">per unit</span>
               </div>
             </div>
 
@@ -113,10 +121,7 @@ export default function ProductCommissionManager({
           <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
             {bulkOrders.length === 0 ? (
               <div className="border rounded-xl p-6 text-center text-sm text-gray-500">
-                No bulk pricing tiers yet.
-                <div className="mt-2 text-xs">
-                  Add bulk tiers to define quantity-based pricing.
-                </div>
+                No bulk pricing  yet.
               </div>
             ) : (
               bulkOrders.map((bulk) => {
@@ -128,54 +133,46 @@ export default function ProductCommissionManager({
                     key={bulk.id}
                     className="border rounded-xl p-4 bg-white shadow-sm hover:shadow transition"
                   >
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-3">
                       <h3 className="font-semibold">Qty {bulk.qty}</h3>
-
-                       <div className="flex items-center space-x-2">
                       <UpdateCommissionDialog
                         currentCommission={bulk.commission}
                         productId={productId}
                         variantId={variantId}
                         bulkOrderId={bulk.id}
-                        title={`Update Bulk Commission`}
+                        title="Update Bulk Commission"
                       />
                     </div>
-                    </div>
 
-                    {/* Grid Info */}
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="text-gray-500">Bulk Price</p>
                         <p className="font-medium">
-                          ₹ {formatCurrency(bulk.price)}
+                          {formatter.format(bulk.price)}
                         </p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">Price / Item</p>
+                        <p className="text-gray-500">Price / Unit</p>
                         <p className="font-medium">
-                          ₹ {formatCurrency(pricePerItem)}
+                          {formatter.format(pricePerItem)}
                         </p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">Commission / Item</p>
+                        <p className="text-gray-500">Commission / Unit</p>
                         <p className="font-medium">
-                          ₹ {formatCurrency(bulk.commission)}
+                          {formatter.format(bulk.commission)}
                         </p>
                       </div>
 
                       <div>
                         <p className="text-gray-500">Total Commission</p>
                         <p className="font-semibold text-[#1C647C]">
-                          ₹ {formatCurrency(totalCommission)}
+                          {formatter.format(totalCommission)}
                         </p>
                       </div>
                     </div>
-
-                    {/* Action */}
-                   
                   </div>
                 );
               })

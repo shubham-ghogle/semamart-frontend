@@ -100,7 +100,7 @@ export default function UpdateCommissionDialog({
             </div>
 
             <div className="flex flex-col space-y-2">
-              <Label className="text-sm font-medium">New Commission(Per Item) Amount</Label>
+              <Label className="text-sm font-medium">New Commission(Per Unit) Amount</Label>
               <Input
                 type="number"
                 min="0"
