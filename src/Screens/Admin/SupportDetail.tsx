@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BASE_URL } from '@/data';
 import { useUserStore } from '@/store/userStore';
 import { useSupportStore } from '@/store/supportStore';
@@ -21,6 +21,7 @@ const ALLOWED_HTML_TAGS = new Set([
 
 const SupportDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const { seller, memberMode, isOwner } = useSellerSession();
   const { getTicketById, updateTicketStatus, addMessage } = useSupportStore();
@@ -79,6 +80,14 @@ const SupportDetail = () => {
     return 'file';
   };
 
+  const handleBack = () => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate('/admin/support');
+    }
+  };
+
   const sanitizeHtml = (html: string) => {
     if (typeof window === 'undefined' || !html) return html;
 
@@ -126,7 +135,16 @@ const SupportDetail = () => {
 
   return (
     <div className="p-4 sm:p-6">
-      <h1 className="mb-4 text-xl font-bold sm:text-2xl">Case {ticket.caseId}</h1>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold sm:text-2xl">Case {ticket.caseId}</h1>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
+        >
+          Back
+        </button>
+      </div>
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <p><strong>Topic:</strong> {ticket.topic}</p>

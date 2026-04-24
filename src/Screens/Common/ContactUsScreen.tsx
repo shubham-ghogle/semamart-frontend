@@ -6,35 +6,49 @@ type ContactUsScreenProps = {
 
 export default function ContactUsScreen({ title = "Contact Us" }: ContactUsScreenProps) {
   return (
-    <div className="min-h-[calc(100vh-180px)] p-4 sm:p-6 flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2">{title}</h1>
-        <p className="text-center text-gray-500 mb-8">We are here to help. Reach out to us anytime.</p>
-
-        <div className="grid gap-5">
-          <div className="flex items-start gap-4 p-4 rounded-xl bg-sky-50 border border-sky-100">
-            <div className="text-sky-700 text-xl mt-1">
-              <FiPhoneCall />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Mobile</p>
-              <p className="text-base sm:text-lg font-semibold text-gray-900">+91 73038 03555</p>
-              <p className="text-base sm:text-lg font-semibold text-gray-900">+91 96677 47553</p>
-            </div>
+    <div className="min-h-[calc(100vh-180px)] bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full">
+        <div className="rounded-[32px] bg-white p-6 sm:p-10 shadow-sm border border-gray-200">
+          <div className="text-center mx-auto max-w-2xl">
+            <p className="text-sm uppercase tracking-[0.3em] text-sky-600 mb-3">Customer Support</p>
+            <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900">{title}</h1>
+            <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+              Our team is ready to assist you with orders, account questions, and product support. Reach out anytime and we'll get back to you as soon as possible.
+            </p>
           </div>
 
-          <div className="flex items-start gap-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-            <div className="text-emerald-700 text-xl mt-1">
-              <FiMail />
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl border border-sky-100 bg-sky-50 p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+                  <FiPhoneCall size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Call Us</p>
+                  <p className="mt-1 text-sm text-slate-600">Available 9am–7pm, Monday to Saturday</p>
+                </div>
+              </div>
+              <div className="mt-6 space-y-2 text-sm sm:text-base text-slate-900 font-medium">
+                <p>+91 73038 03555</p>
+                <p>+91 96677 47553</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <a
-                href="mailto:info@semamart.com"
-                className="text-base sm:text-lg font-semibold text-gray-900 hover:text-emerald-700"
-              >
-                info@semamart.com
-              </a>
+
+            <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                  <FiMail size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Email</p>
+                  <p className="mt-1 text-sm text-slate-600">We typically respond within one business day</p>
+                </div>
+              </div>
+              <div className="mt-6 text-base font-medium text-slate-900">
+                <a href="mailto:info@semamart.com" className="hover:text-emerald-800">
+                  info@semamart.com
+                </a>
+              </div>
             </div>
           </div>
         </div>
