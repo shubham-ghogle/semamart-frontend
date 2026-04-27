@@ -93,6 +93,11 @@ export default function ProductInfoSection({
           <span className="rounded-full bg-[#1C647C]/10 px-3 py-1 text-xs font-medium text-[#1C647C]">
             Stock: {stock}
           </span>
+          {moq > 0 && (
+            <span className="rounded-full bg-[#1C647C]/10 px-3 py-1 text-xs font-medium text-[#1C647C]">
+              MOQ: {moq}
+            </span>
+          )}
         </div>
       )}
 
