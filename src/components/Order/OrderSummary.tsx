@@ -8,6 +8,7 @@ import { FaUser, FaHome } from "react-icons/fa";
 import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 import StarRating from "../Order/StarRating";
+import { getOrderLinePricing } from "@/lib/utils";
 
 // --- Interfaces ---
 interface Product { _id: string; name: string; images?: string[]; manufacturerName?: string; }
@@ -65,10 +66,12 @@ const OrderSummary = () => {
     }
   }, [order?.review]);
 
-  const unitPrice = orderedProduct?.discountPrice || 0;
-  const qty = order?.qty || 0;
-  const totalAmount = unitPrice * qty;
-  const gstAmount = Math.max(0, (order?.totalPrice || 0) - totalAmount);
+  const pricing = getOrderLinePricing(order);
+  const unitPrice = pricing.chargedPerUnit;
+  const qty = pricing.qty;
+  const totalAmount = pricing.subtotal;
+  const gstAmount = pricing.gstAmount;
+  const mrpPerUnit = pricing.mrpPerUnit || orderedProduct?.originalPrice || unitPrice;
   const displayPaymentStatus = order?.paymentInfo?.status === "Pending" && ["Packed", "Shipped", "Delivered"].includes(order.status) ? "Paid" : (order?.paymentInfo?.status || "Pending");
 
   const handleSubmitReview = async () => {
@@ -255,7 +258,7 @@ const OrderSummary = () => {
               <div className="space-y-4">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Product Price</span>
-                  <span className="line-through">₹{orderedProduct.originalPrice.toLocaleString()}</span>
+                  <span className="line-through">₹{mrpPerUnit.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm font-medium text-gray-800">
                   <span>Discounted price</span>
@@ -276,7 +279,7 @@ const OrderSummary = () => {
                 </div>
                 <div className="flex justify-between text-xl font-black text-gray-900 pt-2 border-t mt-4">
                   <span>Total price</span>
-                  <span>₹{order.totalPrice.toLocaleString()}</span>
+                  <span>₹{pricing.total.toLocaleString()}</span>
                 </div>
 
                 <div className="mt-6 space-y-3">

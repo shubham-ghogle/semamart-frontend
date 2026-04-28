@@ -4,6 +4,7 @@ import { CartItem, useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { getCartLinePricing } from "@/lib/utils";
 
 type CartProps = {
   cartOpenHandler: () => void;
@@ -18,31 +19,10 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   // ✅ Main totals calculation: prefer paymentslip values, fallback to item.price
   const { subtotal, gstTotal, grandTotal } = cart.reduce(
     (acc, item) => {
-      const qty = Number(item.qty ?? 1);
-      const taxRate = Number(item.taxClass ?? 0);
-
-      // prefer stored per-piece price or paymentslip base
-      const unitBase =
-        Number(item.price) ||
-        Number(item.paymentslip?.basePrice) ||
-        Number(item.variant?.discountPrice) ||
-        Number(item.variant?.originalPrice) ||
-        Number(item.product?.variants?.[0]?.discountPrice) ||
-        Number(item.product?.variants?.[0]?.originalPrice) ||
-        0;
-
-      // prefer stored paymentslip totals if present (already GST-excluded)
-      const lineTotalExGST =
-        Number(item.paymentslip?.total) || unitBase * qty;
-
-      const gstAmount =
-        Number(item.paymentslip?.gstAmount) || (lineTotalExGST * taxRate) / 100;
-
-      const lineGrand = Number(item.paymentslip?.grandTotal) || lineTotalExGST + gstAmount;
-
-      acc.subtotal += lineTotalExGST;
+      const { subtotal, gstAmount, total } = getCartLinePricing(item);
+      acc.subtotal += subtotal;
       acc.gstTotal += gstAmount;
-      acc.grandTotal += lineGrand;
+      acc.grandTotal += total;
 
       return acc;
     },
@@ -166,21 +146,7 @@ const CartSingle = ({ data }: CartSingleProps) => {
       ? `/images/${product.images[0]}`
       : "/default-image.png";
 
-  const unitPrice =
-    Number(data.price) ||
-    Number(data.paymentslip?.basePrice) ||
-    Number((variant as any)?.discountPrice) ||
-    Number((variant as any)?.originalPrice) ||
-    Number(product.variants?.[0]?.discountPrice) ||
-    Number(product.variants?.[0]?.originalPrice) ||
-    0;
-
-  const qty = data.qty ?? 1;
-  const taxRate = Number(data.taxClass ?? 0);
-
-  const lineTotalEx = unitPrice * qty;
-  const gstAmount = (lineTotalEx * taxRate) / 100;
-  // const lineTotalIncl = lineTotalEx + gstAmount;
+  const { qty, taxRate, unitBase, subtotal, gstAmount } = getCartLinePricing(data);
 
   const productId =
     typeof data.productId === "string" ? data.productId : (data.productId as any)?._id;
@@ -210,14 +176,14 @@ const CartSingle = ({ data }: CartSingleProps) => {
               {(variant as any)?.size ? ` | Size: ${(variant as any).size}` : ""}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Unit: ₹{unitPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              Unit: ₹{unitBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </p>
           </div>
 
           {/* Price */}
           <div className="text-right">
             <p className="text-sm font-semibold text-gray-900">
-              ₹{lineTotalEx.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              ₹{subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </p>
             {taxRate > 0 && (
               <p className="text-xs text-gray-500">

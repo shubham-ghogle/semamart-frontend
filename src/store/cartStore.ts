@@ -129,17 +129,6 @@ export const useCartStore = create<CartStore>()(
           // new item
           const perPiece = resolvePerPiece(item, item.qty);
           //console.log(perPiece);
-          let x = {
-            cart: [
-              ...state.cart,
-              {
-                ...item,
-                price: perPiece,
-                paymentslip: buildSlip(perPiece, item.qty, gstPercent),
-              },
-            ],
-          };
-          console.log(x);
           return {
             cart: [
               ...state.cart,
@@ -161,11 +150,12 @@ export const useCartStore = create<CartStore>()(
   user_id: accountOwnerId,
   product_id: itemProdId,
   variant_id: itemVarId,
+  qty: item.qty,
 }),
 
     });
   } catch (error) {
-    console.error("Failed to add to wishlist API:", error);
+    console.error("Failed to add to cart API:", error);
   }
       },
 

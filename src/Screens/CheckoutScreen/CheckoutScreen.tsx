@@ -1,6 +1,6 @@
 // src/Screens/CheckoutScreen/CheckoutScreen.tsx
 import { useEffect, useMemo, useState } from "react";
-import { useCartStore, CartItem } from "../../store/cartStore";
+import { useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { Address, Seller } from "../../Types/types";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellB
 import { toast } from "react-toastify";
 import { API_URL } from "@/data";
 import { useMutation } from "@tanstack/react-query";
-import { getVariantCommission } from "@/lib/utils";
+import { getCartLinePricing, getVariantCommission } from "@/lib/utils";
 
 export default function CheckoutScreen(): JSX.Element {
   const { user } = useUserStore((s) => s);
@@ -47,33 +47,12 @@ export default function CheckoutScreen(): JSX.Element {
   };
 
   // --- Helpers ---
-  const getUnitBase = (item: CartItem) =>
-    Number(item.price) ||
-    Number(item.paymentslip?.basePrice) ||
-    Number(item.variant?.discountPrice) ||
-    Number(item.variant?.originalPrice) ||
-    Number(item.product?.variants?.[0]?.discountPrice) ||
-    Number(item.product?.variants?.[0]?.originalPrice) ||
-    0;
-
-  const getLineTotals = (item: CartItem) => {
-    const qty = Number(item.qty ?? 1);
-    const unitBase = getUnitBase(item);
-    const taxRate = Number(item.taxClass ?? 0);
-
-    const lineTotalExGST = Number(item.paymentslip?.total) || unitBase * qty;
-    const gstAmount = Number(item.paymentslip?.gstAmount) || (lineTotalExGST * taxRate) / 100;
-    const lineGrand = Number(item.paymentslip?.grandTotal) || lineTotalExGST + gstAmount;
-
-    return { qty, unitBase, taxRate, lineTotalExGST, gstAmount, lineGrand };
-  };
-
   // Totals
   const { subTotal, totalGST, grandTotal } = (cart || []).reduce((acc, curr) => {
-    const { lineTotalExGST, gstAmount, lineGrand } = getLineTotals(curr);
-    acc.subTotal += lineTotalExGST;
+    const { subtotal, gstAmount, total } = getCartLinePricing(curr);
+    acc.subTotal += subtotal;
     acc.totalGST += gstAmount;
-    acc.grandTotal += lineGrand;
+    acc.grandTotal += total;
     return acc;
   }, { subTotal: 0, totalGST: 0, grandTotal: 0 });
 
@@ -102,10 +81,8 @@ export default function CheckoutScreen(): JSX.Element {
   // Payload for API
   const cartToApi = (cart || []).map((el) => {
     const fallbackVariantId = el.product?.variants?.[0]?._id ?? null;
-    const unitBase = getUnitBase(el);
-    const gstAmountPerLine = Number(el.paymentslip?.gstAmount) || (unitBase * (el.taxClass || 0)) / 100;
-    const qty = el.qty ?? 1;
-    const totalPrice = Number(el.paymentslip?.grandTotal) || (unitBase + gstAmountPerLine / qty) * qty;
+    const { qty, unitBase, total } = getCartLinePricing(el);
+    const totalPrice = total;
     const adminCommission = getVariantCommission(el.variant ?? el.product) * qty;
 
     return {
@@ -115,7 +92,7 @@ export default function CheckoutScreen(): JSX.Element {
       qty,
       totalPrice,
       tax: el.taxClass || 0,
-      unitPrice: el.variant?.originalPrice ?? 0,
+      unitPrice: el.variant?.originalPrice ?? unitBase,
       dispatchState: el.product?.dispatchState ?? null,
       dispatchDistrict: el.product?.dispatchDistrict ?? null,
       adminCommision: adminCommission,
@@ -270,12 +247,10 @@ export default function CheckoutScreen(): JSX.Element {
 
           <div className="divide-y">
             {cart.map((item) => {
-              const { qty, unitBase, taxRate, gstAmount, } = getLineTotals(item);
+              const { qty, unitBase, taxRate, gstPerUnit } = getCartLinePricing(item);
               const productId = typeof item.productId === "string" ? item.productId : (item.productId as any)?._id;
               const variantId = typeof item.variantId === "string" ? item.variantId : (item.variantId as any)?._id;
               const thumb = normalizeImage(item.variant?.thumbnail) ?? (item.product?.images?.[0] ? `/images/${item.product.images[0]}` : "/placeholder.png");
-
-              const gstPerUnit = gstAmount / qty;
 
               return (
                 <article key={`${productId}-${variantId ?? "nv"}`} className="flex items-center gap-4 py-2">
