@@ -11,7 +11,7 @@ export default function AllProducts() {
   const [error, setError] = useState<string | null>(null);
 
   // Filter States
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [sort, setSort] = useState("popularity");
   const [selectedManufacturerName, setSelectedManufacturerName] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number | "">("");
