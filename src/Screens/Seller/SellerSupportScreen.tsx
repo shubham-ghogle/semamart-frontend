@@ -61,21 +61,27 @@ const SellerSupportScreen = () => {
       }
     }
 
-    await createTicket({
-      userType: 'Seller',
-      user: email || shopId || '',
-      topic,
-      message,
-      documents: documentList,
-    });
+    try {
+      await createTicket({
+        userType: 'Seller',
+        user: email || shopId || '',
+        topic,
+        message,
+        documents: documentList,
+      });
 
-    // Show success message
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+      setShowSuccess(true);
+      setShowError('');
+      setTimeout(() => setShowSuccess(false), 3000);
 
-    setTopic('');
-    setMessage('');
-    setFiles(null);
+      setTopic('');
+      setMessage('');
+      setFiles(null);
+    } catch (error: any) {
+      setShowSuccess(false);
+      setShowError(error?.message || 'Support request submit nahi ho saki. Please try again.');
+      setTimeout(() => setShowError(''), 4000);
+    }
   };
 
   return (

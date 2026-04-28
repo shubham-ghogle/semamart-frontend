@@ -100,14 +100,14 @@ export default function UpdateCommissionDialog({
             </div>
 
             <div className="flex flex-col space-y-2">
-              <Label className="text-sm font-medium">New Commission Amount</Label>
+              <Label className="text-sm font-medium">New Commission(Per Unit) Amount</Label>
               <Input
                 type="number"
                 min="0"
                 step="0.01"
                 value={newCommission}
                 onChange={(e) => setNewCommission(e.target.value)}
-                placeholder="Enter new commission amount"
+                placeholder="Enter new commission(Per Item) amount"
               />
             </div>
           </div>

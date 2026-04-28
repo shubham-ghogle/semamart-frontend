@@ -121,7 +121,7 @@ const Orderpage = () => {
 
   return (
     <div className="bg-[#f1f3f6] min-h-screen py-4 md:py-6 px-3 md:px-10 text-[#212121]">
-      <div className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row gap-6 w-full">
         
         {/* DESKTOP SIDEBAR */}
         <aside className="hidden md:block w-64 bg-white p-5 rounded-sm shadow-sm h-fit sticky top-4">

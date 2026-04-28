@@ -7,17 +7,9 @@ import { AiOutlineEye } from "react-icons/ai";
 import { ScreenOverlayLoaderUi } from "@/components/UIComponents/LoaderUi";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
-import UpdateCommissionDialog from "../UpdateCommissionDialog";
 import { Link } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import ProductCommissionManager from "./ProductCommissionManager";
 
 
 type VariantRow = {
@@ -421,14 +413,12 @@ export default function AdminProduct() {
           <Link to={`/product/${row.original.productId}`} target="_blank" className="shrink-0">
             <AiOutlineEye size={20} />
           </Link>
-          <UpdateCommissionDialog
-            currentCommission={row.original.commission}
+          <ProductCommissionManager
             productId={row.original.productId}
             variantId={row.original.id}
+            productCommission={row.original.commission}
+            bulkOrders={row.original.bulkOrders}
           />
-          {row.original.bulkOrders.length > 0 && (
-            <BulkCommissionDialog row={row.original} />
-          )}
         </div>
       ),
     },
@@ -592,55 +582,5 @@ export default function AdminProduct() {
       {(adminMutStatus === "pending" || badgeMutStatus === "pending") && <ScreenOverlayLoaderUi />}
       </div>
     </div>
-  );
-}
-
-function BulkCommissionDialog({ row }: { row: VariantRow }) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="shrink-0">
-          Update Bulk Commission
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Bulk Commissions</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <p className="whitespace-normal break-words font-medium text-slate-900">
-              {row.productName}
-            </p>
-            <p className="text-sm text-slate-600">{getVariantLabel(row)}</p>
-          </div>
-          {row.bulkOrders.map((bulkOrder) => (
-            <div
-              key={bulkOrder.id}
-              className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 md:flex-row md:items-center md:justify-between"
-            >
-              <div className="grid gap-1 text-sm text-slate-700">
-                <p>
-                  Bulk Qty: <span className="font-semibold text-slate-900">{bulkOrder.qty}</span>
-                </p>
-                <p className="whitespace-normal break-words">
-                  Bulk Price: <span className="font-semibold text-slate-900">Rs. {bulkOrder.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                </p>
-                <p>
-                  Current Commission: <span className="font-semibold text-slate-900">Rs. {bulkOrder.commission.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                </p>
-              </div>
-              <UpdateCommissionDialog
-                currentCommission={bulkOrder.commission}
-                productId={row.productId}
-                variantId={row.id}
-                bulkOrderId={bulkOrder.id}
-                title={`Update Bulk Commission - Qty ${bulkOrder.qty}`}
-              />
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
