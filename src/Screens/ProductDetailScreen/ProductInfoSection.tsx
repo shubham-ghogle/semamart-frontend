@@ -95,7 +95,7 @@ export default function ProductInfoSection({
           </span>
           {moq > 0 && (
             <span className="rounded-full bg-[#1C647C]/10 px-3 py-1 text-xs font-medium text-[#1C647C]">
-              MOQ: {moq}
+              Minimum Order Quantity: {moq}
             </span>
           )}
         </div>
