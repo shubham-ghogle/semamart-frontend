@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
+import { getOrderLinePricing } from "@/lib/utils";
 
 
 type AdminOrderDetailProps = {
@@ -105,12 +106,11 @@ const shippedDateRaw =
 const shippedDate = shippedDateRaw
   ? new Date(shippedDateRaw)
   : null;
-  const defaultTotal =
-    data.qty * (data.variant && typeof data.variant !== "string"
-      ? data.variant.discountPrice ?? 0
-      : 0);
- const taxPercent = data.tax || 0;
-  const taxAmount = (defaultTotal * taxPercent) / 100;
+  const pricing = getOrderLinePricing(data);
+  const defaultTotal = pricing.subtotal;
+  const taxPercent = pricing.taxRate;
+  const taxAmount = pricing.gstAmount;
+  const chargedPerUnit = pricing.chargedPerUnit;
 
 
 
@@ -159,7 +159,7 @@ const shippedDate = shippedDateRaw
                   : "-"}
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
-                {data.qty} × {(data.variant?.discountPrice ?? data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
+                {data.qty} × {chargedPerUnit.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -195,7 +195,7 @@ const shippedDate = shippedDateRaw
         <div className="space-y-1">
           <OrderDetailsField
             label="Total Price:"
-            value={`₹${data?.totalPrice.toLocaleString("en-IN", {
+            value={`₹${pricing.total.toLocaleString("en-IN", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}`}

@@ -5,6 +5,7 @@ import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
+import { getCartLinePricing } from "@/lib/utils";
 
 // -------------------
 // Main AddToCart Component
@@ -25,13 +26,10 @@ export default function AddToCart() {
   const { subTotal, totalGST, grandTotal } = useMemo(() => {
     return cart.reduce(
       (acc, item) => {
-        const basePrice = item.price; // already bulk-aware
-        const gstRate = item.taxClass ?? 0;
-        const gstAmount = (basePrice * gstRate) / 100;
-
-        acc.subTotal += basePrice * item.qty;
-        acc.totalGST += gstAmount * item.qty;
-        acc.grandTotal += (basePrice + gstAmount) * item.qty;
+        const { subtotal, gstAmount, total } = getCartLinePricing(item);
+        acc.subTotal += subtotal;
+        acc.totalGST += gstAmount;
+        acc.grandTotal += total;
         return acc;
       },
       { subTotal: 0, totalGST: 0, grandTotal: 0 }
@@ -185,14 +183,8 @@ const CartSingle = React.memo(({ data }: CartSingleProps) => {
       ? `/images/${product.images[0]}`
       : "/default-image.png";
 
-  const basePrice = data.price; // bulk-aware
-  const gstRate = data.taxClass ?? 0;
-  const gstAmountPerPiece = (basePrice * gstRate) / 100;
-
-  const qty = data.qty;
-  const totalBase = basePrice * qty;
-  const totalGST = gstAmountPerPiece * qty;
-  const totalInclGST = totalBase + totalGST;
+  const { qty, taxRate: gstRate, unitBase: basePrice, subtotal: totalBase, gstAmount: totalGST, total: totalInclGST, gstPerUnit: gstAmountPerPiece } =
+    getCartLinePricing(data);
 
   const originalPrice =
     variant?.originalPrice ?? product.variants?.[0]?.originalPrice ?? basePrice;

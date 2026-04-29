@@ -239,6 +239,10 @@ export type Order = {
   totalPrice: number;
   tax?: number;
   unitPrice?: number;
+  discounted_amount?: number;
+  cgst_amount?: number;
+  sgst_amount?: number;
+  igst_amount?: number;
   status:
     | "Created"
     | "Paid"

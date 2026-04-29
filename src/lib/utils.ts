@@ -126,3 +126,72 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
 
   return fallback;
 }
+
+function numberOrZero(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+export function getCartLinePricing(item: any) {
+  const qty = Math.max(1, numberOrZero(item?.qty) || 1);
+  const taxRate = numberOrZero(item?.taxClass);
+  const unitBase =
+    numberOrZero(item?.paymentslip?.basePrice) ||
+    numberOrZero(item?.price) ||
+    numberOrZero(item?.variant?.discountPrice) ||
+    numberOrZero(item?.variant?.originalPrice) ||
+    numberOrZero(item?.product?.variants?.[0]?.discountPrice) ||
+    numberOrZero(item?.product?.variants?.[0]?.originalPrice);
+
+  const subtotal =
+    numberOrZero(item?.paymentslip?.total) || unitBase * qty;
+  const gstAmount =
+    numberOrZero(item?.paymentslip?.gstAmount) || (subtotal * taxRate) / 100;
+  const total =
+    numberOrZero(item?.paymentslip?.grandTotal) || subtotal + gstAmount;
+
+  return {
+    qty,
+    taxRate,
+    unitBase,
+    subtotal,
+    gstAmount,
+    total,
+    gstPerUnit: qty > 0 ? gstAmount / qty : 0,
+  };
+}
+
+export function getOrderLinePricing(order: any) {
+  const qty = Math.max(1, numberOrZero(order?.qty) || 1);
+  const taxRate = numberOrZero(order?.tax);
+  const mrpPerUnit =
+    numberOrZero(order?.unitPrice) ||
+    numberOrZero(order?.variant?.originalPrice) ||
+    numberOrZero(order?.variant?.discountPrice);
+  const chargedPerUnit =
+    numberOrZero(order?.discounted_amount) ||
+    numberOrZero(order?.variant?.discountPrice) ||
+    mrpPerUnit;
+
+  const subtotal = chargedPerUnit * qty;
+  const storedTaxAmount =
+    numberOrZero(order?.cgst_amount) +
+    numberOrZero(order?.sgst_amount) +
+    numberOrZero(order?.igst_amount);
+  const gstAmount =
+    storedTaxAmount > 0
+      ? storedTaxAmount
+      : Math.max(0, numberOrZero(order?.totalPrice) - subtotal) || (subtotal * taxRate) / 100;
+  const total = numberOrZero(order?.totalPrice) || subtotal + gstAmount;
+
+  return {
+    qty,
+    taxRate,
+    mrpPerUnit,
+    chargedPerUnit,
+    subtotal,
+    gstAmount,
+    total,
+    gstPerUnit: qty > 0 ? gstAmount / qty : 0,
+  };
+}

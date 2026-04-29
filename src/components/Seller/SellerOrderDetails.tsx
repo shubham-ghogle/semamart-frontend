@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
+import { getOrderLinePricing } from "@/lib/utils";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -39,13 +40,11 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
 
   // ✅ Default price total (without tax)
-  const defaultTotal =
-    data.qty *
-    (data.variant && typeof data.variant !== "string"
-      ? data.variant.discountPrice ?? 0
-      : 0);
-  const taxPercent = data.tax || 0;
-  const taxAmount = (defaultTotal * taxPercent) / 100;
+  const pricing = getOrderLinePricing(data);
+  const defaultTotal = pricing.subtotal;
+  const taxPercent = pricing.taxRate;
+  const taxAmount = pricing.gstAmount;
+  const chargedPerUnit = pricing.chargedPerUnit;
 
   // Helper to check if Delivered can be selected
   const isStatusUpdatable = (newStatus: string) => {
@@ -134,7 +133,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               </h5>
               <h5 className="pl-3 text-lg text-darkGray">
                 {data.qty} ×{" "}
-                {(data.variant?.discountPrice ?? 0).toLocaleString("en-IN", {
+                {chargedPerUnit.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                 })}
               </h5>
@@ -166,7 +165,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         <div className="space-y-1">
           <OrderDetailsField
             label="Total Price:"
-            value={`₹${data.totalPrice.toLocaleString("en-IN", {
+            value={`₹${pricing.total.toLocaleString("en-IN", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}`}
