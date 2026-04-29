@@ -39,7 +39,7 @@ export default function AllProducts() {
     fetchProducts();
   }, []);
 
-  // --- Data Processing ---
+  // --- Helpers ---
   const getProductPrice = (p: Product) => {
     const v = p.variants?.[0];
     return v?.discountPrice ?? v?.originalPrice ?? 0;
@@ -47,7 +47,9 @@ export default function AllProducts() {
 
   const getManufacturerName = (p: Product) => {
     if (!p.manufacturer) return "Unknown";
-    return typeof p.manufacturer === "object" ? p.manufacturer.manufacturerName || "Unknown" : p.manufacturer;
+    return typeof p.manufacturer === "object"
+      ? p.manufacturer.manufacturerName || "Unknown"
+      : p.manufacturer;
   };
 
   const allManufacturerNames = useMemo(() => {
@@ -59,9 +61,12 @@ export default function AllProducts() {
       .filter((p) => {
         const price = getProductPrice(p);
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
-        const matchesBrand = selectedManufacturerName.length === 0 || selectedManufacturerName.includes(getManufacturerName(p));
+        const matchesBrand =
+          selectedManufacturerName.length === 0 ||
+          selectedManufacturerName.includes(getManufacturerName(p));
         const matchesMinPrice = minPrice === "" || price >= minPrice;
         const matchesMaxPrice = maxPrice === "" || price <= maxPrice;
+
         return matchesSearch && matchesBrand && matchesMinPrice && matchesMaxPrice;
       })
       .sort((a, b) => {
@@ -73,73 +78,137 @@ export default function AllProducts() {
       });
   }, [products, search, sort, selectedManufacturerName, minPrice, maxPrice]);
 
-  if (loading || error) return (
-    <div className="h-screen flex flex-col">
-      <Header />
-      <div className="flex-1 flex items-center justify-center">{loading ? "Loading..." : error}</div>
-    </div>
-  );
+  if (loading || error) {
+    return (
+      <div className="h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          {loading ? "Loading..." : error}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    // 1. Root container: fixed height, no scroll
     <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
       <Header />
 
-      {/* 2. Main content area: fills remaining height */}
       <div className="flex flex-1 overflow-hidden">
-        
-        {/* 3. SIDEBAR: Own scrollbar only if content overflows */}
+
+        {/* Overlay (Mobile only) */}
+        {showFilters && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setShowFilters(false)}
+          />
+        )}
+
+        {/* Sidebar */}
         <aside
           className={`
             fixed inset-y-0 left-0 z-50 w-72 bg-white transform transition-transform duration-300
-            md:translate-x-0 md:static md:w-64 border-r p-5 
+            md:relative md:translate-x-0 md:w-64 border-r p-5
             flex flex-col h-full overflow-y-auto
             ${showFilters ? "translate-x-0" : "-translate-x-full"}
           `}
         >
-          <div className="md:hidden flex justify-end"><button onClick={() => setShowFilters(false)}>✕</button></div>
+          {/* Close Button (Mobile) */}
+          <div className="md:hidden flex justify-end mb-4">
+            <button onClick={() => setShowFilters(false)}>✕</button>
+          </div>
+
           <h3 className="text-lg font-bold mb-6">Filters</h3>
-          
+
+          {/* Brand Filter */}
           <div className="mb-8">
-            <h4 className="text-xs font-bold uppercase text-gray-400 mb-4">Brand</h4>
+            <h4 className="text-xs font-bold uppercase text-gray-400 mb-4">
+              Brand
+            </h4>
             <div className="space-y-3">
-              {allManufacturerNames.map(brand => (
-                <label key={brand} className="flex items-center text-sm cursor-pointer hover:text-cyan-700">
-                  <input type="checkbox" className="mr-3 accent-cyan-700" onChange={() => {
-                    setSelectedManufacturerName(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]);
-                  }} />
+              {allManufacturerNames.map((brand) => (
+                <label
+                  key={brand}
+                  className="flex items-center text-sm cursor-pointer hover:text-cyan-700"
+                >
+                  <input
+                    type="checkbox"
+                    className="mr-3 accent-cyan-700"
+                    onChange={() => {
+                      setSelectedManufacturerName((prev) =>
+                        prev.includes(brand)
+                          ? prev.filter((b) => b !== brand)
+                          : [...prev, brand]
+                      );
+                    }}
+                  />
                   {brand}
                 </label>
               ))}
             </div>
           </div>
 
+          {/* Price Filter */}
           <div className="mb-8">
-            <h4 className="text-xs font-bold uppercase text-gray-400 mb-4">Price Range</h4>
-            <input type="number" placeholder="Min" className="w-full border p-2 rounded mb-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))} />
-            <input type="number" placeholder="Max" className="w-full border p-2 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))} />
+            <h4 className="text-xs font-bold uppercase text-gray-400 mb-4">
+              Price Range
+            </h4>
+            <input
+              type="number"
+              placeholder="Min"
+              className="w-full border p-2 rounded mb-2"
+              onChange={(e) =>
+                setMinPrice(e.target.value === "" ? "" : Number(e.target.value))
+              }
+            />
+            <input
+              type="number"
+              placeholder="Max"
+              className="w-full border p-2 rounded"
+              onChange={(e) =>
+                setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))
+              }
+            />
           </div>
         </aside>
 
-        {/* 4. PRODUCT GRID: This is the only part that should scroll the products */}
+        {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <div className="p-4 md:p-8 flex-1 overflow-y-auto">
+
+            {/* Header Row */}
             <div className="flex justify-between items-center mb-6">
-               <h2 className="text-xl font-bold">Products ({filteredProducts.length})</h2>
-               <select value={sort} onChange={(e) => setSort(e.target.value)} className="border p-2 rounded text-sm bg-white">
+              <h2 className="text-xl font-bold">
+                Products ({filteredProducts.length})
+              </h2>
+
+              <div className="flex items-center gap-2">
+                {/* Mobile Filter Button */}
+                <button
+                  onClick={() => setShowFilters(true)}
+                  className="md:hidden border px-3 py-2 rounded bg-white text-sm"
+                >
+                  Filters
+                </button>
+
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="border p-2 rounded text-sm bg-white"
+                >
                   <option value="popularity">Sort by Popularity</option>
                   <option value="priceLow">Price: Low to High</option>
                   <option value="priceHigh">Price: High to Low</option>
-               </select>
+                </select>
+              </div>
             </div>
 
+            {/* Products Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
               {filteredProducts.map((product) => (
                 <DefaultProductCard key={product._id} product={product} />
               ))}
             </div>
-            
-            {/* Footer inside the scrollable area so it appears at the end of the list */}
+
             <Footer />
           </div>
         </main>
