@@ -80,12 +80,13 @@ export default function LoginForm() {
      },
    });
 
-   function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
     if (accountType === "seller") {
-      sellerMutation.mutate({ email, password });
+      sellerMutation.mutate({ email: normalizedEmail, password });
     } else {
-      userMutation.mutate({ email, password });
+      userMutation.mutate({ email: normalizedEmail, password });
     }
   }
 

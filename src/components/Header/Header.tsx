@@ -22,7 +22,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useUserStore } from "@/store/userStore";
 import { useSellerStore } from "@/store/sellerStore";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import {
   MEDICOP_LIST_EVENT_NAME,
   getMedicopList,
@@ -31,9 +31,26 @@ import {
 const PLACEHOLDER_IMG = placeholderImg;
 function toImageUrl(value?: string | null) {
   if (!value) return PLACEHOLDER_IMG;
-  if (value.startsWith("http://") || value.startsWith("https://")) return value;
-  if (value.startsWith("/")) return value;
-  return `/images/${value}`;
+  const normalized = value.trim().replace(/^\/+/, "");
+  if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+  if (normalized.startsWith("images/")) return `${BASE_URL}${normalized}`;
+  return `${BASE_URL}images/${normalized}`;
+}
+
+function getSuggestionImageSrc(product: Product) {
+  const variantFirst = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants[0] : undefined;
+  const variantCandidate =
+    variantFirst?.thumbnail ||
+    (Array.isArray(variantFirst?.images) && variantFirst.images.length > 0 ? variantFirst.images[0] : undefined);
+  if (variantCandidate) return toImageUrl(variantCandidate);
+
+  const productCandidate =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images[0]
+      : undefined;
+  if (productCandidate) return toImageUrl(productCandidate);
+
+  return PLACEHOLDER_IMG;
 }
 
 type Category = { _id: string; name: string };
@@ -530,13 +547,7 @@ export default function Header() {
                         const id = (p as any)._id;
                         const rawCategory = (p as any).category;
                         const categoryLabel = typeof rawCategory === "string" ? rawCategory : rawCategory?.name || "";
-                        const imgCandidate =
-                          Array.isArray((p as any).images) && (p as any).images.length > 0
-                            ? (p as any).images[0]
-                            : Array.isArray((p as any).variants) && (p as any).variants.length > 0
-                            ? (p as any).variants[0].thumbnail
-                            : undefined;
-                        const imgSrc = toImageUrl(imgCandidate);
+                        const imgSrc = getSuggestionImageSrc(p);
                         return (
                           <li
                             key={id || `${(p as any).name}-${i}`}
@@ -981,13 +992,7 @@ export default function Header() {
                     const id = (p as any)._id;
                     const rawCategory = (p as any).category;
                     const categoryLabel = typeof rawCategory === "string" ? rawCategory : rawCategory?.name || "";
-                    const imgCandidate =
-                      Array.isArray((p as any).images) && (p as any).images.length > 0
-                        ? (p as any).images[0]
-                        : Array.isArray((p as any).variants) && (p as any).variants.length > 0
-                        ? (p as any).variants[0].thumbnail
-                        : undefined;
-                    const imgSrc = toImageUrl(imgCandidate);
+                    const imgSrc = getSuggestionImageSrc(p);
                     return (
                       <li
                         key={id || `${(p as any).name}-${i}`}

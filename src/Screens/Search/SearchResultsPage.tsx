@@ -10,15 +10,33 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/UIComponents/collapsible";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 const PLACEHOLDER = "/placeholder.png";
 
 function toImageUrl(value?: string | null) {
   if (!value) return undefined;
   if (value.startsWith("http://") || value.startsWith("https://")) return value;
-  if (value.startsWith("/")) return value;
-  return `/images/${value}`;
+
+  const normalized = value.trim().replace(/^\/+/, "");
+  if (normalized.startsWith("images/")) {
+    return `${BASE_URL}${normalized}`;
+  }
+  return `${BASE_URL}images/${normalized}`;
+}
+
+function getProductImageSrc(product: Product) {
+  const firstVariant = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants[0] : undefined;
+
+  const variantImage =
+    firstVariant?.thumbnail ||
+    (Array.isArray(firstVariant?.images) && firstVariant.images.length > 0 ? firstVariant.images[0] : undefined);
+  if (variantImage) return toImageUrl(variantImage);
+
+  const productImage = Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : null;
+  if (productImage) return toImageUrl(productImage);
+
+  return PLACEHOLDER;
 }
 
 function pickBestVariant(variants?: Variant[]) {
@@ -54,6 +72,7 @@ export default function SearchResultsPage() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [sort, setSort] = useState("relevance");
+  const [priceRangeAuto, setPriceRangeAuto] = useState(true);
 
   const categories = ["All", "Consumables", "Pharmaceutical", "Equipment"];
 
@@ -83,7 +102,18 @@ export default function SearchResultsPage() {
           : Array.isArray(data)
           ? data
           : data?.results || data?.items || [];
-        setResults(Array.isArray(products) ? products : []);
+        const normalizedProducts = Array.isArray(products) ? products : [];
+        setResults(normalizedProducts);
+
+        if (priceRangeAuto && normalizedProducts.length > 0) {
+          const highestPrice = normalizedProducts.reduce(
+            (max, product) => Math.max(max, getDisplayDiscountPrice(product)),
+            0,
+          );
+          if (highestPrice > maxPrice) {
+            setMaxPrice(highestPrice);
+          }
+        }
       } catch (err) {
         console.error("Search fetch error", err);
         setResults([]);
@@ -175,14 +205,20 @@ export default function SearchResultsPage() {
                 <input
                   type="number"
                   value={minPrice}
-                  onChange={(e) => setMinPrice(Number(e.target.value || 0))}
+                  onChange={(e) => {
+                    setMinPrice(Number(e.target.value || 0));
+                    setPriceRangeAuto(false);
+                  }}
                   className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                   placeholder="Min"
                 />
                 <input
                   type="number"
                   value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value || 0))}
+                  onChange={(e) => {
+                    setMaxPrice(Number(e.target.value || 0));
+                    setPriceRangeAuto(false);
+                  }}
                   className="w-1/2 border border-gray-300 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                   placeholder="Max"
                 />
@@ -197,6 +233,7 @@ export default function SearchResultsPage() {
                 setMinPrice(0);
                 setMaxPrice(100000);
                 setSort("relevance");
+                setPriceRangeAuto(true);
               }}
               className="w-full text-sm text-white bg-[#1C647C] border border-[#1C647C] rounded-md py-1 hover:bg-[#164d5f] transition font-medium"
             >
@@ -226,10 +263,7 @@ export default function SearchResultsPage() {
                   (w) => w.productId === p._id
                 );
 
-                const imgSrc =
-                  Array.isArray(p.images) && p.images.length > 0
-                    ? toImageUrl(p.images[0]) ?? PLACEHOLDER
-                    : PLACEHOLDER;
+                const imgSrc = getProductImageSrc(p);
 
                 const dispPrice = getDisplayDiscountPrice(p);
                 const origPrice = getDisplayOriginalPrice(p);
