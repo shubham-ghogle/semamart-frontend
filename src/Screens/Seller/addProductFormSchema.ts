@@ -1,9 +1,16 @@
 import { z } from "zod";
 
+const fileOrStringSchema = z.custom<File | string>(
+  (value) => value instanceof File || typeof value === "string",
+  {
+    message: "Please upload a valid image",
+  },
+);
+
 export const variantSchema = z.object({
   // colorOption & size are optional and may be null
   colorOption: z.string().min(1, "Color is required").optional().nullable(),
-  size: z.string().optional().nullable(),
+  size: z.string().trim().max(120, "Size must be 120 characters or less").optional().nullable(),
 
   // stocks is stored as string in the form — validate string that converts to positive number
   stocks: z
@@ -35,7 +42,7 @@ export const variantSchema = z.object({
     .optional(),
 
   images: z
-    .array(z.union([z.instanceof(File), z.string()]))
+    .array(fileOrStringSchema)
     .optional()
     .nullable(),
 });

@@ -24,6 +24,7 @@ type AddProductFormVariantsProps = {
   removeThumbnail: (index: number) => void;
   variantImages: File[][];
   setVariantImages: Dispatch<SetStateAction<File[][]>>;
+  handleVariantImagesChange: (e: ChangeEvent<HTMLInputElement>, index: number) => void;
 };
 
 export default function AddProductFormVariants({
@@ -38,6 +39,7 @@ export default function AddProductFormVariants({
   removeThumbnail,
   variantImages,
   setVariantImages,
+  handleVariantImagesChange,
 }: AddProductFormVariantsProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -51,6 +53,10 @@ export default function AddProductFormVariants({
       const next = [...prev];
       next[index] = nextImages;
       return next;
+    });
+    form.setValue(`variants.${index}.images`, nextImages, {
+      shouldDirty: true,
+      shouldValidate: true,
     });
   }
 
@@ -207,12 +213,7 @@ export default function AddProductFormVariants({
                 id={`variant-images-${index}`}
                 multiple
                 accept="image/*"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  if (!files.length) return;
-                  updateVariantImages([...currentVariantImages, ...files]);
-                  e.target.value = "";
-                }}
+                onChange={(e) => handleVariantImagesChange(e, index)}
               />
               <label
                 htmlFor={`variant-images-${index}`}
@@ -250,6 +251,19 @@ export default function AddProductFormVariants({
                   </div>
                 )}
               </label>
+              <p className="text-xs text-gray-500">
+                Up to 5 images per variant. JPG, PNG, WEBP up to 5MB each.
+              </p>
+              {currentVariantImages.length > 0 && (
+                <p className="text-xs font-medium text-slate-600">
+                  {currentVariantImages.length} image{currentVariantImages.length > 1 ? "s" : ""} selected
+                </p>
+              )}
+              {form.formState.errors?.variants?.[index]?.images?.message && (
+                <p className="text-sm text-red-500">
+                  {String(form.formState.errors?.variants?.[index]?.images?.message)}
+                </p>
+              )}
             </div>
           </FormItem>
         </div>

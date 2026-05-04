@@ -85,6 +85,30 @@ function getSelectValue(entry: any) {
   return entry.val || entry.value || entry._id || "";
 }
 
+const MAX_VARIANT_IMAGES = 5;
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
+function validateImageFiles(files: File[]) {
+  const validFiles: File[] = [];
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      toast.error(`${file.name} is not a supported image file.`);
+      continue;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast.error(`${file.name} should not exceed ${MAX_IMAGE_SIZE_MB}MB.`);
+      continue;
+    }
+
+    validFiles.push(file);
+  }
+
+  return validFiles;
+}
+
 export default function AddProductForm({
   multiVariant = false,
   categories,
@@ -281,17 +305,22 @@ export default function AddProductForm({
     i: number,
   ) => {
     e.preventDefault();
-    const file = e.target.files?.[0];
-    if (file)
-      setThumbnail((p) => {
-        const img = [...p];
-        if (img[i]) {
-          img.splice(i + 1, 0, file);
-        } else {
-          img[i] = file;
-        }
-        return img;
-      });
+    const nextFile = e.target.files?.[0];
+    if (!nextFile) return;
+
+    const [file] = validateImageFiles([nextFile]);
+    if (!file) {
+      e.target.value = "";
+      return;
+    }
+
+    setThumbnail((prev) => {
+      const next = [...prev];
+      next[i] = file;
+      return next;
+    });
+    form.clearErrors("thumbnail" as any);
+    e.target.value = "";
   };
 
   function removeThumbnail(i: number) {
@@ -304,13 +333,22 @@ export default function AddProductForm({
     e: ChangeEvent<HTMLInputElement>,
     index: number,
   ) {
-    const files = Array.from(e.target.files || []).slice(0, 5);
+    const incomingFiles = validateImageFiles(Array.from(e.target.files || []));
+    const currentImages = variantImages[index] || [];
+    if (currentImages.length + incomingFiles.length > MAX_VARIANT_IMAGES) {
+      toast.info(`Only ${MAX_VARIANT_IMAGES} images are allowed per variant.`);
+    }
     setVariantImages((prev) => {
       const next = [...prev];
-      next[index] = files;
+      const current = next[index] || [];
+      next[index] = [...current, ...incomingFiles].slice(0, MAX_VARIANT_IMAGES);
+      form.setValue(`variants.${index}.images`, next[index], {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       return next;
     });
-    form.setValue(`variants.${index}.images`, files, { shouldDirty: true });
+    e.target.value = "";
   }
 
   function removeVariantImage(index: number, imageIndex: number) {
@@ -319,7 +357,10 @@ export default function AddProductForm({
       const current = [...(next[index] || [])];
       current.splice(imageIndex, 1);
       next[index] = current;
-      form.setValue(`variants.${index}.images`, current, { shouldDirty: true });
+      form.setValue(`variants.${index}.images`, current, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       return next;
     });
   }
@@ -2255,6 +2296,7 @@ return (
                           removeThumbnail={removeThumbnail}
                           variantImages={variantImages}
                           setVariantImages={setVariantImages}
+                          handleVariantImagesChange={handleVariantImagesChange}
                           // minQty={Number(form.getValues("minmaxrule.minQty"))}
                         />
                       </div>
