@@ -74,7 +74,10 @@ export async function getOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong");
 
   const res = await fetch(
-    API_URL + "order/get-order-details-seller/" + orderId
+    API_URL + "order/get-order-details-seller/" + orderId,
+    {
+      credentials: "include",
+    }
   );
 
   if (!res.ok) {
@@ -211,4 +214,22 @@ export async function getDeliveredOrdersForSeller() {
   }
 
   return data.orders;
+}
+
+export async function getSellerOrderRequests() {
+  const res = await fetch(API_URL + "order/seller-order-requests", {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message || "Failed to fetch request orders");
+  }
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(data.message || "Failed to fetch request orders");
+  }
+
+  return data.orders as Order[];
 }

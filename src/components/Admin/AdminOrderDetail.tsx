@@ -10,6 +10,7 @@ import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
+import OrderRequestPanel from "../Order/OrderRequestPanel";
 
 
 type AdminOrderDetailProps = {
@@ -383,6 +384,8 @@ const shippedDate = shippedDateRaw
           </div>
         )}
       </section>
+
+      <OrderRequestPanel order={data} role="admin" />
     </div>
   );
 }

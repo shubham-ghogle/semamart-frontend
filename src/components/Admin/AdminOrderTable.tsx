@@ -6,6 +6,7 @@ import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { EyeIcon } from "lucide-react";
 import { getVariantCommission, isBulkOrder } from "@/lib/utils";
+import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
 type Row = {
   id: string;
@@ -21,6 +22,7 @@ type Row = {
   productName: string;
   sellerPayout: number;
   isBulkOrder: boolean;
+  requestStatus: string;
   viewOrder: (orderId: string) => void;
 };
 
@@ -73,6 +75,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     return {
       id: el._id,
       status: displayStatus,
+      requestStatus: getVisibleOrderRequest(el)?.status || "No Request",
       customer: typeof el.user === "string" ? "-" : (el.user?.instituteName ?? "-"),
       shop: typeof el.shop === "string" ? "-" : (el.shop?.businessName ?? "-"),
       productName,
@@ -234,6 +237,10 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     },
 
     {
+      accessorKey: "requestStatus",
+      header: "Request",
+    },
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
@@ -281,6 +288,12 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
         statusColumnId="status"
         statusOptions={[
           "All",
+          "No Request",
+          "Requested",
+          "Sent To Seller",
+          "Completed",
+          "Admin Rejected",
+          "Seller Rejected",
           "Verify Payment",
           "Pending",
           "Processing",

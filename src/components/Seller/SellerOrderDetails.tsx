@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
+import OrderRequestPanel from "../Order/OrderRequestPanel";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -276,6 +277,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
           </div>
         )}
       </section>
+
+      <OrderRequestPanel order={data} role="seller" />
     </div>
   );
 }

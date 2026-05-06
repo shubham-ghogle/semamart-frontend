@@ -13,7 +13,9 @@ export default function UserOrdersScreen() {
   const { data: orders, status } = useQuery({
     queryKey: ["user-orders", { userId: accountOwnerId }],
     queryFn: async function () {
-      const res = await fetch(API_URL+"order/get-all-orders/" + accountOwnerId)
+      const res = await fetch(API_URL+"order/get-all-orders/" + accountOwnerId, {
+        credentials: "include",
+      })
       if (!res.ok) throw new Error("Somethig went wrong")
 
       const data = await res.json() as { success: boolean, orders: Order[], message: string }

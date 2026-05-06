@@ -6,6 +6,7 @@ import { Order } from "../../Types/types";
 import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { getVariantCommission, isBulkOrder } from "@/lib/utils";
+import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
 /* ================= TYPES ================= */
 
@@ -21,6 +22,7 @@ type Row = {
   orderedAtTs: number;
   groupStyle: string;
   isBulkOrder: boolean;
+  requestStatus: string;
   viewOrder: () => void;
 };
 
@@ -58,6 +60,7 @@ const truncate = (text: string, max = 35) =>
     return {
       id: order._id,
       status: order.status === "Paid" ? "Processing" : (order.status ?? "-"),
+      requestStatus: getVisibleOrderRequest(order)?.status || "No Request",
       productName,
       customerName,
       totalPrice: order.totalPrice,
@@ -197,7 +200,11 @@ const truncate = (text: string, max = 35) =>
           minimumFractionDigits: 2,
         }),
     },
-  {
+    {
+      accessorKey: "requestStatus",
+      header: "Request",
+    },
+    {
   accessorKey: "status",
   header: "Status",
   cell: ({ row }) => {
@@ -257,6 +264,12 @@ const truncate = (text: string, max = 35) =>
         statusColumnId="status"         
         statusOptions={[
             "All",
+            "No Request",
+            "Requested",
+            "Sent To Seller",
+            "Completed",
+            "Admin Rejected",
+            "Seller Rejected",
             "Verify Payment",
             "Pending",
             "Processing",

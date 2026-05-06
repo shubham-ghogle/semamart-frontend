@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/data";
 import { Filter, Search, X } from "lucide-react"; // Assuming lucide-react is installed
 import { getAccountOwnerId, isBulkOrder } from "@/lib/utils";
+import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +23,9 @@ const Orderpage = () => {
     queryKey: ["user-orders", accountOwnerId],
     queryFn: async () => {
       if (!accountOwnerId) throw new Error("User not found");
-      const res = await fetch(`${API_URL}order/get-all-orders/${accountOwnerId}`);
+      const res = await fetch(`${API_URL}order/get-all-orders/${accountOwnerId}`, {
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.success) return data.orders as Order[];
       throw new Error(data.message);
@@ -217,6 +220,11 @@ const Orderpage = () => {
                               {isBulkOrder(order) && (
                                 <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-800">
                                   Bulk Order
+                                </span>
+                              )}
+                              {getVisibleOrderRequest(order) && (
+                                <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-800">
+                                  {getVisibleOrderRequest(order)?.status}
                                 </span>
                               )}
                             </div>

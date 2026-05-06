@@ -10,7 +10,7 @@ import { MdStorefront, MdWarehouse, MdContactPage } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
 import { PiCurrencyInrBold } from "react-icons/pi";
-import { LuContactRound, LuMessageSquare, LuInbox } from "react-icons/lu";
+import { LuContactRound, LuMessageSquare, LuInbox, LuClipboardList } from "react-icons/lu";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -211,6 +211,7 @@ export default function SellerNavbar() {
     { to: "/seller/products", icon: <AiOutlineProduct />, label: "All Products", permission: "AllProducts" as const },
     { to: "/seller/orders", end: true, icon: <LuInbox />, label: "All Orders", permission: "AllOrders" as const },
     { to: "/seller/orders/delivered", icon: <PiCurrencyInrBold />, label: "Total Sales", permission: "AllSales" as const },
+    { to: "/seller/requests", icon: <LuClipboardList />, label: "Requests", permission: "Requests" as const },
     { to: "/seller/support", icon: <LuMessageSquare />, label: "Support", permission: "Support" as const },
     { to: "/seller/stock-management", icon: <MdWarehouse />, label: "Stock Management", permission: "StockManagement" as const },
     { to: "/seller/members", icon: <MdStorefront />, label: "Team Members", permission: "ManageMembers" as const },

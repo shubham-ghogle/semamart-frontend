@@ -95,7 +95,9 @@ export function useAddAddress() {
 export async function getUserOrderDetails(orderId?: string) {
   if (!orderId) throw new Error("Something went wrong")
 
-  const res = await fetch(API_URL+"order/user-order-details/" + orderId)
+  const res = await fetch(API_URL+"order/user-order-details/" + orderId, {
+    credentials: "include",
+  })
 
   if (!res.ok) {
     const errMessage = await res.json();

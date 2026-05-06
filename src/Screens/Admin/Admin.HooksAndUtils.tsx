@@ -89,6 +89,21 @@ export async function getAllOrders() {
   return data;
 }
 
+export async function getAdminOrderRequests() {
+  const response = await fetch(API_URL + "order/admin-order-requests", {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const errMessage = await response.json().catch(() => null);
+    throw new Error(errMessage?.message || "Failed to fetch order requests");
+  }
+
+  const data = (await response.json()) as AdminOrdersApiRes;
+  if (!data.success) throw new Error(data.message);
+  return data.orders;
+}
+
 // ====== Products ======
 export async function getAdminProducts() {
   const res = await fetch(API_URL+"product/admin-all-products", {

@@ -225,6 +225,46 @@ type PaymentAttempt = {
   message?: string;
 };
 
+export type OrderRequestType = "Cancel" | "Return" | "Replace";
+export type OrderRequestStatus =
+  | "Requested"
+  | "Sent To Seller"
+  | "Admin Rejected"
+  | "Seller Rejected"
+  | "Completed";
+export type OrderRequestResolution =
+  | "Pending"
+  | "Cancelled"
+  | "Refund"
+  | "Replacement";
+
+export type OrderRequest = {
+  _id: string;
+  requestType: OrderRequestType;
+  status: OrderRequestStatus;
+  reason: string;
+  description?: string;
+  evidenceFiles?: string[];
+  resolutionType: OrderRequestResolution;
+  requestedBy?: string | User;
+  requestedAt?: string;
+  adminReviewedAt?: string | null;
+  adminDecisionNote?: string;
+  sentToSellerAt?: string | null;
+  sellerReviewedAt?: string | null;
+  sellerDecisionNote?: string;
+  completedAt?: string | null;
+  isActive?: boolean;
+};
+
+export type OrderRequestSummary = {
+  hasActiveRequest: boolean;
+  activeRequest?: OrderRequest | null;
+  latestRequest?: OrderRequest | null;
+  eligibleRequestTypes: OrderRequestType[];
+  requestWindowDays: number;
+};
+
 export type Order = {
   _id: string;
   cart?: {
@@ -282,6 +322,8 @@ export type Order = {
     trackingNumber: string;
     trackingDocument: string;
   };
+  requestLog?: OrderRequest[];
+  requestSummary?: OrderRequestSummary;
   paymentFile:null | string;
   sellerPayout:number;
 };

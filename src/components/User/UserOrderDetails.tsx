@@ -3,6 +3,7 @@ import { Order  } from "../../Types/types";
 import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { formatDate } from "../UIComponents/Inputs";
 import ReviewModal from "./ReviewModal";
+import OrderRequestPanel from "../Order/OrderRequestPanel";
 
 type UserOrderDetailsProps = {
   data: Order;
@@ -105,6 +106,8 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
           <h4 className="pt-3 text-[20px] font-semibold">Order Status:</h4>
           <h4 className="pt-3 text-[20px] font-semibold">{data?.status}</h4>
         </section>
+
+        <OrderRequestPanel order={data} role="user" />
       </div>
 
       {isReviewModalOpen && (

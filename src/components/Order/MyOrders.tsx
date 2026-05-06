@@ -80,7 +80,7 @@ const MyOrders: React.FC = () => {
   }, [user]);
 
   const handleOrderClick = (productId: string) => {
-    navigate(`/account/orders/${productId}`);
+    navigate(`/account/order-summary/${productId}`);
   };
 
   const normalizeImage = (src?: string | null) => {

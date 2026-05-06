@@ -28,6 +28,7 @@ import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import SellerDeliveredOrders from "./Screens/Seller/SellerDeliveredOrders";
+import SellerOrderRequests from "./Screens/Seller/SellerOrderRequests";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
 import ViewProductScreen from "./Screens/Seller/ViewProductScreen";
@@ -458,6 +459,7 @@ export const router = createBrowserRouter([
           { path: ":orderId", element: <OrderDetailsScreen /> },
         ],
       },
+      { path: "requests", element: <SellerOrderRequests /> },
       { path: "support", element: <SellerSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
       { path: "members", element: <SellerMembersScreen /> },
@@ -495,6 +497,7 @@ export const router = createBrowserRouter([
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "orders", element: <MyOrderPage /> },
+      { path: "orders/:orderId", element: <UserOrderDetailsScreen /> },
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
       { path: "support", element: <UserSupportScreen /> },
       { path: "members", element: <UserMembersScreen /> },
@@ -512,7 +515,7 @@ export const router = createBrowserRouter([
   { path: "/products", element: <AllProducts /> },
   { path: "/medicop/products", element: <MediqopProductsPage /> },
   {
-    path: "account/orders/:productId",
+    path: "account/order-summary/:productId",
     loader: requireUserAuth,
     element: <OrderSummary />,
   },

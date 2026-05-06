@@ -4,6 +4,7 @@ import { formatDate } from "../UIComponents/Inputs"
 import { TableBodyCell, TableHeader, TableWrapper } from "../UIComponents/Table"
 import { AiOutlineEye } from "react-icons/ai"
 import { isBulkOrder } from "@/lib/utils"
+import { getVisibleOrderRequest } from "@/lib/orderRequests"
 
 type UserOrderTableProps = {
   orders: Order[]
@@ -15,6 +16,7 @@ export default function UserOrderTable({ orders }: UserOrderTableProps) {
     "Type",
     "Total Price",
     "Ordered on",
+    "Request",
     "Actions",
   ]
   return (
@@ -40,6 +42,7 @@ export default function UserOrderTable({ orders }: UserOrderTableProps) {
                 })}
             />
             <TableBodyCell text={formatDate(or.createdAt)} />
+            <TableBodyCell text={getVisibleOrderRequest(or)?.status || "-"} />
             <td align="center">
               <button>
                 {/* TODO order details */}
