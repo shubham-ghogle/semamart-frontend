@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
+import { getProductImage } from "@/lib/utils";
 
 
 type AdminOrderDetailProps = {
@@ -149,9 +150,9 @@ const shippedDate = shippedDateRaw
             className="w-full flex items-center gap-2 mb-5"
           >
             <img
-              src={BASE_URL + "/images/" + data.variant.thumbnail}
+              src={getProductImage(data.variant.productId, data.variant)}
               alt="Product item order img"
-              className="w-[80x] h-[80px]"
+              className="w-[80px] h-[80px] object-cover"
             />
             <div className="w-full">
               <h5 className="pl-3 text-lg">

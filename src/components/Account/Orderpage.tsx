@@ -5,7 +5,7 @@ import { Order, Product, Variant } from "@/Types/types";
 import MakePaymentDialog from "./MakePaymentDialog";
 import GroupPaymentDialog from "./GroupPaymentDialog";
 import { useQuery } from "@tanstack/react-query";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { Filter, Search, X } from "lucide-react"; // Assuming lucide-react is installed
 import { getAccountOwnerId, isBulkOrder } from "@/lib/utils";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
@@ -42,7 +42,7 @@ const Orderpage = () => {
   const normalizeImage = (src?: string | null) => {
     if (!src) return "/placeholder.png";
     if (src.startsWith("http") || src.startsWith("/")) return src;
-    return `/images/${src}`;
+    return `${BASE_URL}images/${src}`;
   };
 
   /* ---------------- FILTERING & GROUPING (Memoized) ---------------- */

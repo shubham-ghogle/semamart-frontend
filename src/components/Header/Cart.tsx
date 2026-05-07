@@ -1,10 +1,12 @@
 import { IoBagHandleOutline } from "react-icons/io5";
 import { RxCross1 } from "react-icons/rx";
+import { createPortal } from "react-dom";
 import { CartItem, useCartStore } from "../../store/cartStore";
 import { useUserStore } from "../../store/userStore";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { getCartLinePricing } from "@/lib/utils";
+import { BASE_URL } from "@/data";
 
 type CartProps = {
   cartOpenHandler: () => void;
@@ -16,10 +18,11 @@ export default function Cart({ cartOpenHandler }: CartProps) {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // ✅ Main totals calculation: prefer paymentslip values, fallback to item.price
+  // ✅ Main totals calculation
   const { subtotal, gstTotal, grandTotal } = cart.reduce(
     (acc, item) => {
       const { subtotal, gstAmount, total } = getCartLinePricing(item);
+
       acc.subtotal += subtotal;
       acc.gstTotal += gstAmount;
       acc.grandTotal += total;
@@ -31,9 +34,12 @@ export default function Cart({ cartOpenHandler }: CartProps) {
 
   function checkoutHandler() {
     if (!user) {
-      toast.warning("Please login to continue", { position: "top-left" });
+      toast.warning("Please login to continue", {
+        position: "top-left",
+      });
       return;
     }
+
     if (user.role === "Admin") {
       toast.warning("Please login as customer to continue", {
         position: "top-left",
@@ -45,7 +51,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
     navigate("/checkout");
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]">
       <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl rounded-l-3xl flex flex-col overflow-hidden">
         {/* Header */}
@@ -54,6 +60,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             <IoBagHandleOutline size={28} />
             <h2 className="text-2xl font-bold">{cart.length} item(s)</h2>
           </div>
+
           <div className="flex items-center gap-2">
             <button
               onClick={clearCart}
@@ -62,6 +69,7 @@ export default function Cart({ cartOpenHandler }: CartProps) {
             >
               Clear All
             </button>
+
             <RxCross1
               size={24}
               className="text-white cursor-pointer hover:opacity-80 transition"
@@ -74,14 +82,18 @@ export default function Cart({ cartOpenHandler }: CartProps) {
         {cart.length === 0 ? (
           <div className="flex-grow flex flex-col items-center justify-center px-8 text-gray-500">
             <div className="text-6xl mb-4 animate-pulse">🛒</div>
-            <h3 className="text-xl font-semibold mb-2">Your cart is empty!</h3>
+
+            <h3 className="text-xl font-semibold mb-2">
+              Your cart is empty!
+            </h3>
+
             <p className="text-center">
               Browse our products and add something to your cart.
             </p>
           </div>
         ) : (
           <>
-            {/* Items List */}
+            {/* Cart Items */}
             <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 p-4 space-y-4">
               {cart.map((item) => (
                 <CartSingle
@@ -91,31 +103,49 @@ export default function Cart({ cartOpenHandler }: CartProps) {
               ))}
             </div>
 
-            {/* Footer / Checkout */}
+            {/* Footer */}
             <div className="px-6 py-4 bg-gray-50 border-t space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-base text-gray-700">Subtotal</span>
-                <span className="font-semibold">₹{subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-base text-gray-700">GST</span>
-                <span className="font-semibold text-green-600">
-                  ₹{gstTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+
+                <span className="font-semibold">
+                  ₹
+                  {subtotal.toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-base text-gray-700">GST</span>
+
+                <span className="font-semibold text-green-600">
+                  ₹
+                  {gstTotal.toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold text-gray-800">
                   Total (Incl. GST)
                 </span>
+
                 <span className="text-xl font-bold text-gray-900">
-                  ₹{grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  ₹
+                  {grandTotal.toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
+
               <button
                 onClick={checkoutHandler}
                 className="w-full text-white py-3 rounded-2xl font-semibold text-lg shadow mt-3"
                 style={{
-                  background: "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
+                  background:
+                    "linear-gradient(270deg, #FCB320 0%, #F04526 100%)",
                 }}
               >
                 Checkout Now
@@ -124,7 +154,8 @@ export default function Cart({ cartOpenHandler }: CartProps) {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -137,21 +168,35 @@ const CartSingle = ({ data }: CartSingleProps) => {
 
   const product = data.product;
   const variant = data.variant;
+
   if (!product) return null;
 
   const imageUrl =
-    (variant && (variant as any).thumbnail)
-      ? `/images/${(variant as any).thumbnail}`
+    variant?.thumbnail
+      ? variant.thumbnail.startsWith("http")
+        ? variant.thumbnail
+        : `${BASE_URL}images/${variant.thumbnail}`
       : product.images?.[0]
-      ? `/images/${product.images[0]}`
-      : "/default-image.png";
+      ? `${BASE_URL}images/${product.images[0]}`
+      : "/placeholder.png";
 
-  const { qty, taxRate, unitBase, subtotal, gstAmount } = getCartLinePricing(data);
+  const {
+    qty,
+    taxRate,
+    unitBase,
+    subtotal,
+    gstAmount,
+  } = getCartLinePricing(data);
 
   const productId =
-    typeof data.productId === "string" ? data.productId : (data.productId as any)?._id;
+    typeof data.productId === "string"
+      ? data.productId
+      : (data.productId as any)?._id;
+
   const variantId =
-    typeof data.variantId === "string" ? data.variantId : (data.variantId as any)?._id;
+    typeof data.variantId === "string"
+      ? data.variantId
+      : (data.variantId as any)?._id;
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-4 py-4 border-b border-gray-200">
@@ -171,53 +216,81 @@ const CartSingle = ({ data }: CartSingleProps) => {
             <h4 className="text-base font-semibold text-gray-900">
               {(product as any).name}
             </h4>
+
             <p className="text-sm text-gray-600 mt-1">
-              {(variant as any)?.colorOption ? `${(variant as any).colorOption}` : ""}
-              {(variant as any)?.size ? ` | Size: ${(variant as any).size}` : ""}
+              {(variant as any)?.colorOption
+                ? `${(variant as any).colorOption}`
+                : ""}
+
+              {(variant as any)?.size
+                ? ` | Size: ${(variant as any).size}`
+                : ""}
             </p>
+
             <p className="text-xs text-gray-500 mt-1">
-              Unit: ₹{unitBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              Unit: ₹
+              {unitBase.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           </div>
 
           {/* Price */}
           <div className="text-right">
             <p className="text-sm font-semibold text-gray-900">
-              ₹{subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              ₹
+              {subtotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             </p>
+
             {taxRate > 0 && (
               <p className="text-xs text-gray-500">
-                GST {taxRate}%: ₹{gstAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                GST {taxRate}%: ₹
+                {gstAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
               </p>
             )}
           </div>
         </div>
 
-        {/* Quantity & Remove */}
+        {/* Qty + Remove */}
         <div className="flex items-center gap-4 mt-3">
-          {/* Qty controls */}
           <div className="flex items-center border rounded-md overflow-hidden">
             <button
-              onClick={() => productId && changeQyt(productId, variantId ?? null, -1)}
+              onClick={() =>
+                productId &&
+                changeQyt(productId, variantId ?? null, -1)
+              }
               disabled={qty === 1}
               className={`w-8 h-8 text-lg font-bold ${
-                qty === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-100"
+                qty === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white hover:bg-gray-100"
               }`}
             >
               −
             </button>
+
             <div className="px-3 text-sm font-medium">{qty}</div>
+
             <button
-              onClick={() => productId && changeQyt(productId, variantId ?? null, 1)}
+              onClick={() =>
+                productId &&
+                changeQyt(productId, variantId ?? null, 1)
+              }
               className="w-8 h-8 text-lg font-bold bg-white hover:bg-gray-100"
             >
               +
             </button>
           </div>
 
-          {/* Remove button */}
           <button
-            onClick={() => productId && removeFromCart(productId, variantId ?? null)}
+            onClick={() =>
+              productId &&
+              removeFromCart(productId, variantId ?? null)
+            }
             className="text-sm text-red-600 hover:underline"
           >
             REMOVE

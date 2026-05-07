@@ -4,6 +4,7 @@ import { RxCross1 } from "react-icons/rx";
 import { useWishlistStore, WishlistItem } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
+import { BASE_URL } from "@/data";
 
 export default function WishlistPage() {
   const wishlist = useWishlistStore((s) => s.wishlist);
@@ -64,7 +65,7 @@ export default function WishlistPage() {
                       className="w-full sm:w-32 h-40 sm:h-32 shrink-0 overflow-hidden rounded-lg border border-gray-100"
                     >
                       <img
-                        src={variant?.thumbnail ? `/images/${variant.thumbnail}` : product.images?.[0] ? `/images/${product.images[0]}` : "/placeholder.png"}
+                        src={variant?.thumbnail ? `${BASE_URL}images/${variant.thumbnail}` : product.images?.[0] ? `${BASE_URL}images/${product.images[0]}` : "/placeholder.png"}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />

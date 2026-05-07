@@ -8,7 +8,7 @@ import Confetti from "react-confetti";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
 import { toast } from "react-toastify";
-import { API_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useMutation } from "@tanstack/react-query";
 import { getCartLinePricing, getVariantCommission } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export default function CheckoutScreen(): JSX.Element {
   const normalizeImage = (src?: string | null) => {
     if (!src) return null;
     if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src;
-    return `/images/${src}`;
+    return `${BASE_URL}images/${src}`;
   };
 
   // --- Helpers ---
@@ -250,7 +250,7 @@ export default function CheckoutScreen(): JSX.Element {
               const { qty, unitBase, taxRate, gstPerUnit } = getCartLinePricing(item);
               const productId = typeof item.productId === "string" ? item.productId : (item.productId as any)?._id;
               const variantId = typeof item.variantId === "string" ? item.variantId : (item.variantId as any)?._id;
-              const thumb = normalizeImage(item.variant?.thumbnail) ?? (item.product?.images?.[0] ? `/images/${item.product.images[0]}` : "/placeholder.png");
+              const thumb = normalizeImage(item.variant?.thumbnail) ?? (item.product?.images?.[0] ? `${BASE_URL}images/${item.product.images[0]}` : "/placeholder.png");
 
               return (
                 <article key={`${productId}-${variantId ?? "nv"}`} className="flex items-center gap-4 py-2">
