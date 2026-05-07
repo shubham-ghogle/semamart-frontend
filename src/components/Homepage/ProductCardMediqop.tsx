@@ -16,25 +16,44 @@ const PLACEHOLDER = "/placeholder.png";
 
 export default function ProductCardMediqop({ product }: Props) {
   const [checked, setChecked] = useState(false);
+
   const { user } = useUserStore();
   const n = useNavigate();
-  const variant = product.variants?.[0] ?? null;
+
+  const variant =
+    (product as any).defaultVariant ||
+    product.variants?.[0] ||
+    null;
+
+  const isAvailableToOrder =
+    (product as any)?.isAvailableToOrder ??
+    ((product as any)?.visibilityByAdmin === true &&
+      (product as any)?.visibilityBySeller === true);
 
   // image selection
-  const imageUrl = (variant?.thumbnail && `${BASE_URL}images/${variant.thumbnail}`) || PLACEHOLDER;
+  const imageUrl = variant?.thumbnail
+    ? variant.thumbnail.startsWith("http")
+      ? variant.thumbnail
+      : `${BASE_URL}images/${variant.thumbnail}`
+    : PLACEHOLDER;
 
   // cart store
   const addToCart = useCartStore((s) => s.addToCart);
 
-  const handleAddCart = (e?: React.MouseEvent<HTMLButtonElement>) => {
-    if (!checked) {
-      toast.warning("Please select the product first", { position: "top-center", autoClose: 1500 });
-      return;
-    }
-
+  const handleAddCart = (
+    e?: React.MouseEvent<HTMLButtonElement>
+  ) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    if (!checked) {
+      toast.warning("Please select the product first", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+      return;
     }
 
     if (!user) {
@@ -42,34 +61,78 @@ export default function ProductCardMediqop({ product }: Props) {
       return;
     }
 
-    if (!variant || (variant.stock ?? 0) <= 0) {
-      toast.error("Out of stock", { position: "top-center", autoClose: 1500 });
+    if (!variant) {
+      toast.error("Variant not found", {
+        position: "top-center",
+        autoClose: 1500,
+      });
       return;
     }
 
-    if (!product) return;
+    if ((variant.stock ?? 0) <= 0) {
+      toast.error("Out of stock", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+      return;
+    }
 
-    const discountPrice = variant.discountPrice;
-    const originalPrice = variant.originalPrice;
-    const perPiecePrice = discountPrice ?? originalPrice ?? 0;
+    if (!isAvailableToOrder) {
+      toast.error("This product is currently inactive", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+      return;
+    }
 
-    const parsedMinMaxQty = JSON.parse(
-      (product.minmaxrule as unknown as string) || '{"minQty":"1","maxQty":"1"}',
-    ) as { minQty: string; maxQty: string };
-    const intMinQty = parseInt(parsedMinMaxQty.minQty || "1");
+    const discountPrice = Number(
+      variant.discountPrice ?? 0
+    );
+
+    const originalPrice = Number(
+      variant.originalPrice ?? 0
+    );
+
+    const perPiecePrice =
+      discountPrice > 0
+        ? discountPrice
+        : originalPrice;
+
+    let intMinQty = 1;
+
+    try {
+      const parsedMinMaxQty =
+        typeof product.minmaxrule === "string"
+          ? JSON.parse(product.minmaxrule)
+          : product.minmaxrule || {};
+
+      const parsedValue = parseInt(
+        parsedMinMaxQty?.minQty || "1",
+        10
+      );
+
+      intMinQty = isNaN(parsedValue)
+        ? 1
+        : parsedValue;
+    } catch {
+      intMinQty = 1;
+    }
+
+    const shopId =
+      typeof (product as any).shopId === "string"
+        ? (product as any).shopId
+        : ((product as any).shopId?._id ?? "");
 
     addToCart({
       productId: product._id,
       variantId: variant._id,
       product,
       variant,
-      qty: intMinQty ?? 1,
+      qty: intMinQty,
       price: perPiecePrice,
-      shopId: (product as any).shopId?._id || (product as any).shopId,
-      taxClass: (product as any).taxClass ?? 0,
+      shopId,
+      taxClass: Number((product as any).taxClass ?? 0),
     });
-
-
 
     toast.success(`${product.name} added to cart!`, {
       position: "top-center",
@@ -82,33 +145,40 @@ export default function ProductCardMediqop({ product }: Props) {
     });
   };
 
-
-
   // --- resolve category name using categoriesMap fetched from backend ---
   const categoriesMap = useCategoriesMap();
 
   const getCategoryLabel = (): string => {
     const cat = product.category;
 
-    // Case: populated array of objects [{ _id, name }]
+    // populated array
     if (Array.isArray(cat) && cat.length > 0) {
       const first = cat[0];
-      if (first && typeof first === "object" && "name" in first) {
+
+      if (
+        first &&
+        typeof first === "object" &&
+        "name" in first
+      ) {
         return (first as any).name ?? "General";
       }
-      // if first is string (id)
+
       if (typeof first === "string") {
         return categoriesMap[first] ?? "General";
       }
     }
 
-    // Case: single string id
+    // single string
     if (typeof cat === "string") {
       return categoriesMap[cat] ?? "General";
     }
 
-    // Case: single populated object { name }
-    if (cat && typeof cat === "object" && "name" in cat) {
+    // single object
+    if (
+      cat &&
+      typeof cat === "object" &&
+      "name" in cat
+    ) {
       return (cat as any).name ?? "General";
     }
 
@@ -116,22 +186,28 @@ export default function ProductCardMediqop({ product }: Props) {
   };
 
   const categoryLabel = getCategoryLabel();
-  const stock = variant?.stock ?? 0;
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const stock = Number(variant?.stock ?? 0);
+
+  const handleCheckboxChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     e.preventDefault();
     e.stopPropagation();
-    setChecked(!checked);
+
+    setChecked((prev) => !prev);
   };
 
   return (
     <div
       className="
-        group relative border rounded-xl bg-white hover:shadow-lg transition-all duration-300 overflow-hidden
-        md:w-[220px] w-[62vw] max-w-[220px] md:h-[340px] h-auto
+        group relative border rounded-xl bg-white hover:shadow-lg
+        transition-all duration-300 overflow-hidden
+        md:w-[220px] w-[62vw] max-w-[220px]
+        md:h-[340px] h-auto
       "
     >
-      {/* Checkbox at top-right */}
+      {/* Checkbox */}
       <div className="absolute top-3 right-3 z-30">
         <input
           type="checkbox"
@@ -143,20 +219,25 @@ export default function ProductCardMediqop({ product }: Props) {
       </div>
 
       {/* Whole card clickable */}
-      <Link to={`/product/${product._id}`} className="block h-full">
-        {/* Image Section */}
+      <Link
+        to={`/product/${product._id}`}
+        className="block h-full"
+      >
+        {/* Image */}
         <div className="flex items-center justify-center bg-gray-50 overflow-hidden md:h-[190px] h-24 p-2">
           <img
             src={imageUrl}
             alt={product.name}
             className="max-h-[84%] max-w-[84%] object-contain transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
+              (
+                e.currentTarget as HTMLImageElement
+              ).src = PLACEHOLDER;
             }}
           />
         </div>
 
-        {/* Text Section */}
+        {/* Text */}
         <div
           className={
             "w-full bg-white px-3 pb-3 pt-2 transition-all duration-300 transform " +
@@ -164,18 +245,22 @@ export default function ProductCardMediqop({ product }: Props) {
             "md:translate-y-0 md:group-hover:-translate-y-10"
           }
         >
-           <h3 className="text-sm font-medium text-gray-900 line-clamp-2">{product.name}</h3>
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+            {product.name}
+          </h3>
 
-          {/* hide category & rating on mobile to reduce clutter */}
-          <p className="text-xs text-gray-500 truncate capitalize hidden md:block">{categoryLabel}</p>
+          <p className="text-xs text-gray-500 truncate capitalize hidden md:block">
+            {categoryLabel}
+          </p>
         </div>
 
-        {/* Desktop: Add to Cart Button (kept for md+, hidden on mobile) */}
-        {stock > 0 && (
+        {/* Desktop Add to Cart */}
+        {isAvailableToOrder && stock > 0 && (
           <div
             className={
               "hidden md:flex left-0 w-full justify-center transition-all duration-300 " +
-              "opacity-0 md:mt-0 md:translate-y-4 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:absolute md:bottom-3"
+              "opacity-0 md:mt-0 md:translate-y-4 md:group-hover:translate-y-0 " +
+              "md:group-hover:opacity-100 md:absolute md:bottom-3"
             }
           >
             <button
@@ -184,16 +269,23 @@ export default function ProductCardMediqop({ product }: Props) {
               aria-label={`Add ${product.name} to cart`}
               disabled={!checked}
             >
-              {/* Text Layer */}
+              {/* Text */}
               <span className="transition-all duration-300 ease-out group-hover/addbtn:opacity-0 group-hover/addbtn:-translate-y-1">
                 Add to Cart
               </span>
 
-              {/* Icon Layer (Cart + Plus) */}
+              {/* Icon */}
               <span className="absolute inset-0 flex items-center justify-center opacity-0 translate-y-2 transition-all duration-300 ease-out group-hover/addbtn:opacity-100 group-hover/addbtn:translate-y-0">
                 <div className="relative w-5 h-5">
-                  <ShoppingCart size={19} className="text-white" />
-                  <Plus size={10} className="absolute -top-1 -right-1 text-green-400 bg-[#1C647C] rounded-full" />
+                  <ShoppingCart
+                    size={19}
+                    className="text-white"
+                  />
+
+                  <Plus
+                    size={10}
+                    className="absolute -top-1 -right-1 text-green-400 bg-[#1C647C] rounded-full"
+                  />
                 </div>
               </span>
             </button>
@@ -201,8 +293,8 @@ export default function ProductCardMediqop({ product }: Props) {
         )}
       </Link>
 
-      {/* Mobile: small circular Add-to-cart icon at bottom-right (visible only on mobile) */}
-      {stock > 0 && (
+      {/* Mobile Add to Cart */}
+      {isAvailableToOrder && stock > 0 && (
         <button
           onClick={handleAddCart}
           aria-label={`Add ${product.name} to cart`}
@@ -210,10 +302,8 @@ export default function ProductCardMediqop({ product }: Props) {
           className="md:hidden absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full bg-[#1C647C] shadow-lg flex items-center justify-center text-white border-2 border-white/20 hover:scale-105 transition-transform"
           disabled={!checked}
         >
-          {/* slightly smaller centered cart icon */}
           <ShoppingCart size={14} />
 
-          {/* smaller white badge with green '+' */}
           <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#059669] text-[9px] font-semibold shadow-sm">
             +
           </span>
