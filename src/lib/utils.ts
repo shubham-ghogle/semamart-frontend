@@ -1,6 +1,7 @@
 import type { User } from "@/Types/types"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { BASE_URL } from "@/data"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -132,9 +133,22 @@ function numberOrZero(value: unknown) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+export function normalizeTaxRate(value: unknown) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const match = value.match(/(\d+(?:\.\d+)?)/);
+    return match ? numberOrZero(match[1]) : 0;
+  }
+  return 0;
+}
+
 export function getCartLinePricing(item: any) {
   const qty = Math.max(1, numberOrZero(item?.qty) || 1);
-  const taxRate = numberOrZero(item?.taxClass);
+  const taxRate =
+    normalizeTaxRate(item?.taxClass) ||
+    normalizeTaxRate(item?.product?.taxClass) ||
+    normalizeTaxRate(item?.productId?.taxClass) ||
+    normalizeTaxRate(item?.paymentslip?.gstPercent);
   const unitBase =
     numberOrZero(item?.paymentslip?.basePrice) ||
     numberOrZero(item?.price) ||
@@ -194,4 +208,11 @@ export function getOrderLinePricing(order: any) {
     total,
     gstPerUnit: qty > 0 ? gstAmount / qty : 0,
   };
+}
+
+export function getProductImage(product: any, variant?: any): string {
+  const variantThumbnail = variant?.thumbnail;
+  if (variantThumbnail) return `${BASE_URL}images/${variantThumbnail}`;
+  if (product?.images?.[0]) return `${BASE_URL}images/${product.images[0]}`;
+  return "/placeholder.png";
 }

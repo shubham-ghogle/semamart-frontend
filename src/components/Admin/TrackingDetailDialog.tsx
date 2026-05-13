@@ -84,9 +84,14 @@ export default function TrackingDetailDialog({
     field: keyof DeliveryDetails,
     value: string
   ) => {
+    const nextValue =
+      field === "pickupPersonPhone"
+        ? value.replace(/\D/g, "").slice(0, 10)
+        : value;
+
     setDeliveryDetails((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: nextValue,
     }));
   };
 
@@ -135,6 +140,11 @@ export default function TrackingDetailDialog({
       !pickupPersonPhone.trim()
     ) {
       toast.warning("All fields are required");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(pickupPersonPhone.trim())) {
+      toast.warning("Pickup phone must be a valid 10-digit number");
       return;
     }
 
@@ -215,6 +225,9 @@ export default function TrackingDetailDialog({
             <Label>Pickup Phone *</Label>
             <Input
               type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              placeholder="Enter 10-digit phone number"
               value={deliveryDetails.pickupPersonPhone}
               onChange={(e) =>
                 handleChange(

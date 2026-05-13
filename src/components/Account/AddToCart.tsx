@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import RelatedProducts from "../../components/UIComponents/RelatedProductCard";
 import UpsellCrossSellBlock from "../../components/UIComponents/UpsellCrossSellBlock";
 import { getCartLinePricing } from "@/lib/utils";
+import { BASE_URL } from "@/data";
+
 
 // -------------------
 // Main AddToCart Component
@@ -177,11 +179,11 @@ const CartSingle = React.memo(({ data }: CartSingleProps) => {
   if (!product) return null;
 
   const imageUrl =
-    variant?.thumbnail
-      ? `/images/${variant.thumbnail}`
+    (variant && (variant as any).thumbnail)
+      ? `${BASE_URL}images/${(variant as any).thumbnail}`
       : product.images?.[0]
-      ? `/images/${product.images[0]}`
-      : "/default-image.png";
+      ? `${BASE_URL}images/${product.images[0]}`
+      : "/placeholder.png";
 
   const { qty, taxRate: gstRate, unitBase: basePrice, subtotal: totalBase, gstAmount: totalGST, total: totalInclGST, gstPerUnit: gstAmountPerPiece } =
     getCartLinePricing(data);

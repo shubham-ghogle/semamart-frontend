@@ -91,6 +91,7 @@ export default function DefaultProductCard({ product }: DefaultProductCardProps)
       shopId:
         (product as any).shopId?._id ||
         (product as any).shopId,
+      taxClass: (product as any).taxClass ?? 0,
     });
 
     toast.success(`${product.name} added to cart`, {
