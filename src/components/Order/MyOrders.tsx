@@ -59,7 +59,9 @@ const MyOrders: React.FC = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
+        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`, {
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data.success) {

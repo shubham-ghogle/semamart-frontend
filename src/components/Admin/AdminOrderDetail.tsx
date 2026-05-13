@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
+import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
 
 type AdminOrderDetailProps = {
@@ -22,6 +23,8 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   const { mutationStatus, mutateOrder } = useAdminOrderMutation();
   const [status, setStatus] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
+  const visibleRequest = getVisibleOrderRequest(data);
+  const hasActiveRequest = Boolean(visibleRequest?.isActive);
   const formatDateTime = (dateValue?: string | Date) => {
     if (!dateValue) return "NA";
     const d = new Date(dateValue);
@@ -38,16 +41,25 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
 
 
   const getOptionsForStatus = () => {
-    const statuses = {
-      default: ["Delivered"],
-      refund: ["Processing refund", "Refund Success"],
-    };
-
-    // if (statuses.refund.includes(currentStatus)) {
-    //   return statuses.refund.slice(statuses.refund.indexOf(currentStatus));
-    // }
-
-    return statuses.default;
+    switch (data.status) {
+      case "Created":
+      case "Paid":
+        return ["Processing"];
+      case "Processing":
+        return ["Packed"];
+      case "Packed":
+        return ["Shipped"];
+      case "Shipped":
+        return ["Delivered"];
+      case "Delivered":
+      case "Cancelled":
+      case "Refund Success":
+        return [];
+      case "Refund Requested":
+        return ["Refund Success"];
+      default:
+        return [];
+    }
   };
 
   const handleDownloadInvoice = async (orderId: string | undefined, status: string) => {
@@ -349,7 +361,7 @@ const shippedDate = shippedDateRaw
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
-                disabled={data.status === "Delivered"}
+                disabled={data.status === "Delivered" || hasActiveRequest}
               >
                 <option value="">Select status</option>
                 {getOptionsForStatus().map((option, index) => (
@@ -377,10 +389,15 @@ const shippedDate = shippedDateRaw
                 setStatus(""); 
               }}
               // 3. Keep button disabled if pending OR if no status is selected
-              disabled={mutationStatus === "pending" || !status}
+              disabled={mutationStatus === "pending" || hasActiveRequest || !status}
             >
               {mutationStatus === "pending" ? "Updating.." : "Update Status"}
             </button>
+            {hasActiveRequest && (
+              <p className="mt-2 text-xs text-amber-700">
+                Resolve the active order request first. Normal status updates are locked while a request is in progress.
+              </p>
+            )}
           </div>
         )}
       </section>

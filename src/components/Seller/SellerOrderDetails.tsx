@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
+import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -24,6 +25,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   const [status, setStatus] = useState("");
   const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const visibleRequest = getVisibleOrderRequest(data);
+  const hasActiveRequest = Boolean(visibleRequest?.isActive);
 
   const formatDateTime = (dateValue?: string | Date) => {
     if (!dateValue) return "NA";
@@ -56,11 +59,16 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
   };
 
   const getOptionsForStatus = () => {
-    const statuses = {
-      default: ["Packed", "Shipped",],
-      refund: ["Processing refund", "Refund Success"],
-    };
-    return statuses.default;
+    switch (data.status) {
+      case "Processing":
+        return ["Packed"];
+      case "Packed":
+        return ["Shipped"];
+      case "Shipped":
+        return ["Delivered"];
+      default:
+        return [];
+    }
   };
 
   const handleDownloadInvoice = async (orderId: string | undefined) => {
@@ -220,7 +228,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full mt-2 border h-[35px] rounded-[5px] px-2"
-                disabled={data.status === "Delivered"} 
+                disabled={data.status === "Delivered" || hasActiveRequest} 
               >
                 <option value="">Select status</option>
                 {getOptionsForStatus()
@@ -252,7 +260,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 className="flex-1 px-3 py-2 bg-accent-yellow rounded-sm shadow-md text-sm text-center disabled:opacity-50"
                 disabled={
                     mutationStatus === "pending" ||
-                    data.status === "Shipped" ||
+                    hasActiveRequest ||
+                    !status ||
                     (status === "Delivered" && !data.trackingDetails)
                   }
                 onClick={async () => {
@@ -274,6 +283,11 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 {mutationStatus === "pending" ? "Updating.." : "Update Status"}
               </button>
             </div>
+            {hasActiveRequest && (
+              <p className="mt-2 text-xs text-amber-700">
+                Resolve the active order request first. Normal status updates are locked while a request is in progress.
+              </p>
+            )}
           </div>
         )}
       </section>

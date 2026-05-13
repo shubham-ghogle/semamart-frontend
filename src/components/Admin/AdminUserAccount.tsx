@@ -28,6 +28,12 @@ interface User {
   createdAt: string;
   isVerified: boolean;
   addresses?: Address[];
+  refundBankDetails?: {
+    accountHolderName?: string;
+    accountNumber?: string;
+    ifsc?: string;
+    bankName?: string;
+  };
 }
 
 interface UserResponse {
@@ -144,6 +150,21 @@ const AdminUserAccount: React.FC = () => {
                   <p>Phone: {addr.phone}</p>
                 </div>
               ))}
+            </div>
+          )}
+
+          {user.refundBankDetails?.accountHolderName && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                Refund Bank Details
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Info label="Account Holder" value={user.refundBankDetails.accountHolderName || "-"} />
+                <Info label="Bank Name" value={user.refundBankDetails.bankName || "-"} />
+                <Info label="Account Number" value={user.refundBankDetails.accountNumber || "-"} />
+                <Info label="IFSC" value={user.refundBankDetails.ifsc || "-"} />
+              </div>
             </div>
           )}
         </div>

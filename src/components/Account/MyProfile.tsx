@@ -8,6 +8,7 @@ import {
 import { useUserStore } from "@/store/userStore";
 import { toast } from "react-toastify";
 import { requestEmailChange } from "@/Screens/LoginScreen/EmailChange.Hooks";
+import { RefundBankDetails } from "@/Types/types";
 
 
 const inputBase =
@@ -24,16 +25,24 @@ const ProfileForm = () => {
     email: "",
     phoneNumber: "",
     instituteName: "",
+    refundBankDetails: {
+      accountHolderName: "",
+      accountNumber: "",
+      ifsc: "",
+      bankName: "",
+    },
   });
 
   const [editing, setEditing] = useState({
     name: false,
     institute: false,
+    refundBank: false,
   });
 
   const [saving, setSaving] = useState({
     name: false,
     institute: false,
+    refundBank: false,
   });
   const [newEmail, setNewEmail] = useState("");
   const [requestingEmailChange, setRequestingEmailChange] = useState(false);
@@ -43,6 +52,7 @@ const ProfileForm = () => {
 
   const firstNameRef = useRef<HTMLInputElement>(null);
   const instituteRef = useRef<HTMLInputElement>(null);
+  const accountHolderRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) setProfile(user);
@@ -53,12 +63,25 @@ const ProfileForm = () => {
     setProfile((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleCancel = (field: "name" | "institute") => {
+  const handleRefundBankChange = (
+    field: keyof RefundBankDetails,
+    value: string,
+  ) => {
+    setProfile((prev: any) => ({
+      ...prev,
+      refundBankDetails: {
+        ...(prev.refundBankDetails || {}),
+        [field]: field === "ifsc" ? value.toUpperCase() : value,
+      },
+    }));
+  };
+
+  const handleCancel = (field: "name" | "institute" | "refundBank") => {
     if (user) setProfile(user);
     setEditing((prev) => ({ ...prev, [field]: false }));
   };
 
-  const saveField = async (field: "name" | "institute") => {
+  const saveField = async (field: "name" | "institute" | "refundBank") => {
     setSaving((prev) => ({ ...prev, [field]: true }));
 
     try {
@@ -74,6 +97,17 @@ const ProfileForm = () => {
 
       if (field === "institute") {
         payload = { instituteName: profile.instituteName };
+      }
+
+      if (field === "refundBank") {
+        payload = {
+          refundBankDetails: {
+            accountHolderName: profile.refundBankDetails?.accountHolderName || "",
+            accountNumber: profile.refundBankDetails?.accountNumber || "",
+            ifsc: profile.refundBankDetails?.ifsc || "",
+            bankName: profile.refundBankDetails?.bankName || "",
+          },
+        };
       }
 
       const updated = await updateUser(payload);
@@ -337,6 +371,93 @@ const ProfileForm = () => {
                   : "bg-gray-100 border-transparent"
               }`}
             />
+          </section>
+
+          <section className="rounded-lg border bg-white p-4 shadow-sm hover:shadow transition-shadow">
+            <div className="flex justify-between mb-3">
+              <div>
+                <h3 className="font-medium text-gray-800">Refund Bank Details</h3>
+                <p className="text-xs text-gray-500">
+                  Used when a refund is approved for bank transfer
+                </p>
+              </div>
+
+              {editing.refundBank ? (
+                <div className="flex gap-2">
+                  <button onClick={() => handleCancel("refundBank")}>
+                    <FaTimes />
+                  </button>
+                  <button
+                    onClick={() => saveField("refundBank")}
+                    disabled={saving.refundBank}
+                  >
+                    {saving.refundBank ? (
+                      <FaSpinner className="animate-spin" />
+                    ) : (
+                      <FaCheck />
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setEditing((s) => ({ ...s, refundBank: true }));
+                    setTimeout(() => accountHolderRef.current?.focus(), 50);
+                  }}
+                  className="inline-flex items-center gap-2 text-sky-600 hover:text-sky-700"
+                >
+                  <FaPen /> Edit
+                </button>
+              )}
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <input
+                ref={accountHolderRef}
+                value={profile.refundBankDetails?.accountHolderName || ""}
+                onChange={(e) => handleRefundBankChange("accountHolderName", e.target.value)}
+                readOnly={!editing.refundBank}
+                placeholder="Account holder name"
+                className={`${inputBase} ${
+                  editing.refundBank
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
+                }`}
+              />
+              <input
+                value={profile.refundBankDetails?.bankName || ""}
+                onChange={(e) => handleRefundBankChange("bankName", e.target.value)}
+                readOnly={!editing.refundBank}
+                placeholder="Bank name"
+                className={`${inputBase} ${
+                  editing.refundBank
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
+                }`}
+              />
+              <input
+                value={profile.refundBankDetails?.accountNumber || ""}
+                onChange={(e) => handleRefundBankChange("accountNumber", e.target.value)}
+                readOnly={!editing.refundBank}
+                placeholder="Account number"
+                className={`${inputBase} ${
+                  editing.refundBank
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
+                }`}
+              />
+              <input
+                value={profile.refundBankDetails?.ifsc || ""}
+                onChange={(e) => handleRefundBankChange("ifsc", e.target.value)}
+                readOnly={!editing.refundBank}
+                placeholder="IFSC code"
+                className={`${inputBase} ${
+                  editing.refundBank
+                    ? "bg-white border-sky-200"
+                    : "bg-gray-100 border-transparent"
+                }`}
+              />
+            </div>
           </section>
         </div>
       </div>

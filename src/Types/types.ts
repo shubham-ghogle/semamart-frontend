@@ -149,6 +149,14 @@ export type Address = {
   addressType?: string;
 };
 
+export type RefundBankDetails = {
+  accountHolderName: string;
+  accountNumber: string;
+  ifsc: string;
+  bankName: string;
+  updatedAt?: string | Date | null;
+};
+
 // USER TYPES /////
 export type User = {
   _id: string;
@@ -166,6 +174,7 @@ export type User = {
   accountType?: string;
   shopId?: string;
   permissions?: Record<string, boolean>;
+  refundBankDetails?: RefundBankDetails;
 };
 
 type Transaction = {
@@ -246,6 +255,9 @@ export type OrderRequest = {
   description?: string;
   evidenceFiles?: string[];
   resolutionType: OrderRequestResolution;
+  refundMethod?: "Not Required" | "Bank Transfer";
+  refundBankDetails?: RefundBankDetails;
+  refundBankDetailsAvailable?: boolean;
   requestedBy?: string | User;
   requestedAt?: string;
   adminReviewedAt?: string | null;
@@ -291,6 +303,7 @@ export type Order = {
     | "Shipped"
     | "Delivered"
     | "Cancelled"
+    | "Refund Requested"
     | "Processing refund"
     | "Refund Success";
   paymentInfo?: PaymentInfo;
@@ -311,6 +324,7 @@ export type Order = {
       | "Shipped"
       | "Delivered"
       | "Cancelled"
+      | "Refund Requested"
       | "Processing refund"
       | "Refund Success";
     updatedAt: string;

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { BASE_URL, API_URL } from "@/data";
-import { Order, OrderRequestResolution, OrderRequestType } from "@/Types/types";
+import { Order, OrderRequestResolution, OrderRequestType, RefundBankDetails } from "@/Types/types";
 import {
   getEligibleOrderRequestTypes,
   getOrderRequestLabel,
@@ -34,6 +34,24 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
   const [resolutionType, setResolutionType] = useState<OrderRequestResolution | "">("");
+  const [refundBankDetails, setRefundBankDetails] = useState<RefundBankDetails>({
+    accountHolderName:
+      typeof order.user !== "string"
+        ? order.user?.refundBankDetails?.accountHolderName || ""
+        : "",
+    accountNumber:
+      typeof order.user !== "string"
+        ? order.user?.refundBankDetails?.accountNumber || ""
+        : "",
+    ifsc:
+      typeof order.user !== "string"
+        ? order.user?.refundBankDetails?.ifsc || ""
+        : "",
+    bankName:
+      typeof order.user !== "string"
+        ? order.user?.refundBankDetails?.bankName || ""
+        : "",
+  });
 
   const availableResolutions = useMemo(
     () => getResolutionOptionsForRequestType(visibleRequest?.requestType),
@@ -59,6 +77,12 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
       formData.append("requestType", requestType);
       formData.append("reason", reason);
       formData.append("description", description);
+      if (requestType === "Return") {
+        formData.append("accountHolderName", refundBankDetails.accountHolderName || "");
+        formData.append("accountNumber", refundBankDetails.accountNumber || "");
+        formData.append("ifsc", refundBankDetails.ifsc || "");
+        formData.append("bankName", refundBankDetails.bankName || "");
+      }
       Array.from(files ?? []).forEach((file) => formData.append("request_files", file));
 
       const res = await fetch(`${API_URL}order/request/${order._id}`, {
@@ -175,6 +199,49 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Seller Note</p>
                 <p className="mt-1 text-slate-700">{visibleRequest.sellerDecisionNote || "No seller note added"}</p>
               </div>
+            </div>
+          )}
+
+          {role !== "seller" && visibleRequest.refundMethod === "Bank Transfer" && (
+            <div className="rounded-sm border bg-white p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Refund Method</p>
+              <p className="mt-1 font-medium text-slate-900">Bank Transfer</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-slate-500">Account Holder</p>
+                  <p className="font-medium text-slate-800">
+                    {visibleRequest.refundBankDetails?.accountHolderName || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Bank Name</p>
+                  <p className="font-medium text-slate-800">
+                    {visibleRequest.refundBankDetails?.bankName || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Account Number</p>
+                  <p className="font-medium text-slate-800">
+                    {visibleRequest.refundBankDetails?.accountNumber || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">IFSC</p>
+                  <p className="font-medium text-slate-800">
+                    {visibleRequest.refundBankDetails?.ifsc || "-"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {role === "seller" && visibleRequest.refundMethod === "Bank Transfer" && (
+            <div className="rounded-sm border bg-white p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Refund Method</p>
+              <p className="mt-1 font-medium text-slate-900">Bank Transfer</p>
+              <p className="mt-2 text-xs text-slate-500">
+                Bank details are visible to admin and customer only.
+              </p>
             </div>
           )}
 
@@ -343,11 +410,71 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
                 />
               </div>
 
+              {requestType === "Return" && (
+                <div className="mt-4 rounded-sm border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-900">Refund Bank Details</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    These details are shared with admin for refund processing.
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <Input
+                      value={refundBankDetails.accountHolderName}
+                      onChange={(e) =>
+                        setRefundBankDetails((prev) => ({
+                          ...prev,
+                          accountHolderName: e.target.value,
+                        }))
+                      }
+                      placeholder="Account holder name"
+                    />
+                    <Input
+                      value={refundBankDetails.bankName}
+                      onChange={(e) =>
+                        setRefundBankDetails((prev) => ({
+                          ...prev,
+                          bankName: e.target.value,
+                        }))
+                      }
+                      placeholder="Bank name"
+                    />
+                    <Input
+                      value={refundBankDetails.accountNumber}
+                      onChange={(e) =>
+                        setRefundBankDetails((prev) => ({
+                          ...prev,
+                          accountNumber: e.target.value,
+                        }))
+                      }
+                      placeholder="Account number"
+                    />
+                    <Input
+                      value={refundBankDetails.ifsc}
+                      onChange={(e) =>
+                        setRefundBankDetails((prev) => ({
+                          ...prev,
+                          ifsc: e.target.value.toUpperCase(),
+                        }))
+                      }
+                      placeholder="IFSC code"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   type="button"
                   onClick={() => createRequest.mutate()}
-                  disabled={createRequest.isPending || !requestType || !reason.trim()}
+                  disabled={
+                    createRequest.isPending ||
+                    !requestType ||
+                    !reason.trim() ||
+                    (requestType === "Return" &&
+                      (!refundBankDetails.accountHolderName ||
+                        !refundBankDetails.bankName ||
+                        !refundBankDetails.accountNumber ||
+                        !refundBankDetails.ifsc))
+                  }
                 >
                   {createRequest.isPending ? "Submitting..." : "Submit Request"}
                 </Button>
