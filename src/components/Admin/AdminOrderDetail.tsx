@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 import OrderPaymentViewDialog from "./OrderPaymentViewDialog";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
-import { getOrderLinePricing } from "@/lib/utils";
+import { getOrderLinePricing, getProductImage } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
 
