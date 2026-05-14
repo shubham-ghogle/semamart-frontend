@@ -9,6 +9,7 @@ import { API_URL } from "@/data";
 import { toast } from "react-toastify";
 import StarRating from "../Order/StarRating";
 import { getOrderLinePricing } from "@/lib/utils";
+import OrderRequestPanel from "./OrderRequestPanel";
 
 // --- Interfaces ---
 interface Product { _id: string; name: string; images?: string[]; manufacturerName?: string; }
@@ -16,7 +17,7 @@ interface Variant { _id: string; colorOption?: string; size?: string; originalPr
 interface Order { _id: string; variant?: Variant; qty: number; totalPrice: number; status: string; createdAt?: string; paymentFile?: string; shippingAddress?: { state: string; district: string; instituteAddress1: string; pincode: string; reciever_name: string; phone: string; }; paymentInfo?: { method?: string; status?: string; transactionId?: string; }; statusHistory?: { _id: string; status: string; updatedAt: string; }[]; review?: { _id: string; rating: number; comment: string; images?: string[]; } | null; shop?: { businessName?: string; }; }
 
 const OrderSummary = () => {
-  const { productId } = useParams<{ productId: string }>();
+  const { orderId } = useParams();
   const { user } = useUserStore((state) => state);
   const navigate = useNavigate(); // Initialize navigate
 
@@ -37,14 +38,19 @@ const OrderSummary = () => {
 
   useEffect(() => {
     const fetchOrderData = async () => {
-      if (!user?._id || !productId) return;
+      if (!user?._id || !orderId) return;
       try {
-        const res = await fetch(`${API_URL}order/get-all-orders/${user._id}`);
+          const res = await fetch(
+          `${API_URL}order/get-all-orders/${user._id}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (!data.success) throw new Error("Order fetch failed");
         
-        const foundOrder = data.orders.find((o: Order) => o._id === productId) || 
-                           data.orders.find((o: Order) => o.variant?.productId?._id === productId);
+        const foundOrder = data.orders.find((o: Order) => o._id === orderId) || 
+                           data.orders.find((o: Order) => o.variant?.productId?._id === orderId);
         
         if (!foundOrder) { setError("Order not found"); return; }
         setOrder(foundOrder);
@@ -53,7 +59,7 @@ const OrderSummary = () => {
       } catch (err: any) { setError(err.message); }
     };
     fetchOrderData();
-  }, [user?._id, productId]);
+  }, [user?._id, orderId]);
 
   useEffect(() => {
     if (order?.review) {
@@ -221,7 +227,9 @@ const OrderSummary = () => {
     })}
   </div>
 </div>
+
             </div>
+            <OrderRequestPanel order={order as any} role="user" />
 
             {order.status === "Delivered" && (
               <div className="bg-white border rounded-2xl p-6 shadow-sm">

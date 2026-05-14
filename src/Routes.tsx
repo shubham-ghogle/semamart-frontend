@@ -497,7 +497,7 @@ export const router = createBrowserRouter([
       { path: "address", element: <ManageAddress /> },
       { path: "wishlist", element: <WishlistProduct /> },
       { path: "orders", element: <MyOrderPage /> },
-      { path: "orders/:orderId", element: <UserOrderDetailsScreen /> },
+      // { path: "orders/:orderId", element: <OrderSummary /> },
       { path: "mybulkorder-request", element: <BulkOrderDetails /> },
       { path: "support", element: <UserSupportScreen /> },
       { path: "members", element: <UserMembersScreen /> },
@@ -512,10 +512,14 @@ export const router = createBrowserRouter([
     element: <SellerActivation />,
   },
   { path: "/account", element: <AccountNavbar /> },
+  {
+    path: "/account/orders/:orderId",
+    element: <OrderSummary />
+  },
   { path: "/products", element: <AllProducts /> },
   { path: "/medicop/products", element: <MediqopProductsPage /> },
   {
-    path: "account/order-summary/:productId",
+    path: "account/order-summary/:orderId",
     loader: requireUserAuth,
     element: <OrderSummary />,
   },
