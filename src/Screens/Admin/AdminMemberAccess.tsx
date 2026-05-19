@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 type PermissionsType = {
   UploadImage: boolean;
   AllOrders: boolean;
+  CurrentOrderStatus: boolean;
   AllSeller: boolean;
   AllSales: boolean;
   AllInstitutes: boolean;
@@ -20,6 +21,7 @@ type PermissionsType = {
 const defaultPermissions: PermissionsType = {
   UploadImage: false,
   AllOrders: false,
+  CurrentOrderStatus: false,
   AllSeller: false,
   AllSales: false,
   AllInstitutes: false,

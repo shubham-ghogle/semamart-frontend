@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { EyeIcon } from "lucide-react";
 import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getAdminDisplayOrderStatus } from "@/Screens/Admin/Admin.HooksAndUtils";
 
 type Row = {
   id: string;
@@ -28,9 +29,21 @@ type Row = {
 
 type AdminOrderTableProps = {
   orders: Order[];
+  docName?: string;
+  searchPlaceholder?: string;
+  enableStatusFilter?: boolean;
+  emphasizeStatus?: boolean;
+  statusResolver?: (order: Order) => string;
 };
 
-export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
+export default function AdminOrderTable({
+  orders,
+  docName = "orders",
+  searchPlaceholder = "Search by order id",
+  enableStatusFilter = true,
+  emphasizeStatus = false,
+  statusResolver,
+}: AdminOrderTableProps) {
   const navigate = useNavigate();
   const GROUP_WINDOW_MS = 1 * 60 * 1000;
 
@@ -57,16 +70,9 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
     const commission = getVariantCommission(el);
     
 
-    const paymentMethod = (el.paymentInfo?.method || "").toLowerCase();
-    const paymentStatus = (el.paymentInfo?.status || "").toLowerCase();
-    const isOnlinePaid =
-      ["hdfc", "online", "razorpay"].includes(paymentMethod) ||
-      paymentStatus === "paid";
-
-    const displayStatus =
-      el.status === "Paid"
-        ? (isOnlinePaid ? "Processing" : "Verify Payment")
-        : (el.status || "-");
+    const displayStatus = statusResolver
+      ? statusResolver(el)
+      : getAdminDisplayOrderStatus(el);
 
     const orderedAtTs = el.createdAt
       ? new Date(el.createdAt).getTime()
@@ -144,6 +150,33 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       });
   })();
 
+  const statusColumn: ColumnDef<Row> = {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+
+      let bgColor = "bg-gray-200 text-gray-800";
+      if (status === "Verify Payment") bgColor = "bg-yellow-100 text-yellow-800";
+      else if (status === "Pending") bgColor = "bg-blue-100 text-blue-800";
+      else if (status === "Processing") bgColor = "bg-indigo-100 text-indigo-800";
+      else if (status === "Shipped") bgColor = "bg-purple-100 text-purple-800";
+      else if (status === "Delivered") bgColor = "bg-green-100 text-green-800";
+      else if (status === "Cancelled") bgColor = "bg-red-100 text-red-800";
+      else if (status === "Return") bgColor = "bg-orange-100 text-orange-800";
+
+      return (
+        <span
+          className={`inline-flex rounded-full ${bgColor} ${
+            emphasizeStatus ? "px-3 py-1.5 text-sm font-semibold shadow-sm" : "px-2 py-1 text-sm font-medium"
+          }`}
+        >
+          {status}
+        </span>
+      );
+    },
+  };
+
   const columns: ColumnDef<Row>[] = [
     {
       id: "select",
@@ -177,6 +210,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       accessorKey: "id",
       header: "Order ID",
     },
+    ...(emphasizeStatus ? [statusColumn] : []),
     {
       accessorKey: "productName",
       header: "Product",
@@ -240,28 +274,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       accessorKey: "requestStatus",
       header: "Request",
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-
-        // Define color based on status
-        let bgColor = "bg-gray-200 text-gray-800";
-        if (status === "Verify Payment") bgColor = "bg-yellow-100 text-yellow-800";
-        else if (status === "Pending") bgColor = "bg-blue-100 text-blue-800";
-        else if (status === "Processing") bgColor = "bg-indigo-100 text-indigo-800";
-        else if (status === "Shipped") bgColor = "bg-purple-100 text-purple-800";
-        else if (status === "Delivered") bgColor = "bg-green-100 text-green-800";
-        else if (status === "Cancelled") bgColor = "bg-red-100 text-red-800";
-
-        return (
-          <span className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor}`}>
-            {status}
-          </span>
-        );
-      },
-    },
+    ...(!emphasizeStatus ? [statusColumn] : []),
 
     {
       accessorKey: "action",
@@ -279,12 +292,12 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
       <DataTable
         data={rows}
         columns={columns}
-        docName="orders"
+        docName={docName}
         searchColId="id"
-        searchPlaceholder="Search by order id"
+        searchPlaceholder={searchPlaceholder}
         enableCalender={true}
         dateFieldId="orderedOn"
-        enableStatusFilter={true}
+        enableStatusFilter={enableStatusFilter}
         statusColumnId="status"
         statusOptions={[
           "All",
@@ -300,6 +313,7 @@ export default function AdminOrderTable({ orders }: AdminOrderTableProps) {
           "Shipped",
           "Delivered",
           "Cancelled",
+          "Return",
         ]}
       />
     </div>

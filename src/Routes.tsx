@@ -65,6 +65,7 @@ import SellerProducts from "./Screens/SellerProducts/SellerProducts";
 import SearchResultsPageSeller from "./Screens/SellerProducts/SearchResultsPageSeller";
 import AllOrderScreen from "./Screens/Admin/AllOrderScreen";
 import AdminDeliveredOrders from "./Screens/Admin/AdminDeliveredOrders";
+import CurrentOrderStatusScreen from "./Screens/Admin/CurrentOrderStatusScreen";
 import FooterLayout from "./components/Layouts/FooterLayout";
 import About from "./components/Footer/About";
 import CookiePolicy from "./components/Footer/CookiePolicy";
@@ -419,6 +420,7 @@ export const router = createBrowserRouter([
         path: "orders",
         children: [
           { index: true, element: <AllOrderScreen /> },
+          { path: "current-status", element: <CurrentOrderStatusScreen /> },
 
           // ✅ Admin Total Sales (Delivered Orders)
           { path: "sales", element: <AdminDeliveredOrders /> },

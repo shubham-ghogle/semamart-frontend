@@ -12,6 +12,7 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router";
 import { API_URL } from "@/data";
+import ProductShareSection from "@/components/Product/ProductShareSection";
 
 export default function PurchasePanel({
   product,
@@ -200,6 +201,8 @@ export default function PurchasePanel({
           Buy Now
         </button>
       )}
+
+      <ProductShareSection productName={product?.name} />
 
       {/* Bulk Order Form */}
       <BulkOrderForm

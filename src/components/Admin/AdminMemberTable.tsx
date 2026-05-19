@@ -6,6 +6,7 @@ import { Pencil } from "lucide-react";
 type PermissionsType = {
   UploadImage: boolean;
   AllOrders: boolean;
+  CurrentOrderStatus: boolean;
   AllSeller: boolean;
   AllSales: boolean;
   AllInstitutes: boolean;

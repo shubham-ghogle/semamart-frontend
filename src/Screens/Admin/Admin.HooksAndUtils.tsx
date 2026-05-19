@@ -89,6 +89,20 @@ export async function getAllOrders() {
   return data;
 }
 
+export function getAdminDisplayOrderStatus(order: Order) {
+  const paymentMethod = (order.paymentInfo?.method || "").toLowerCase();
+  const paymentStatus = (order.paymentInfo?.status || "").toLowerCase();
+  const isOnlinePaid =
+    ["hdfc", "online", "razorpay"].includes(paymentMethod) ||
+    paymentStatus === "paid";
+
+  if (order.status === "Paid") {
+    return isOnlinePaid ? "Processing" : "Verify Payment";
+  }
+
+  return order.status || "-";
+}
+
 export async function getAdminOrderRequests() {
   const response = await fetch(API_URL + "order/admin-order-requests", {
     credentials: "include",

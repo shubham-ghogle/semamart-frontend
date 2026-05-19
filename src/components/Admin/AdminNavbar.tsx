@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { LuInbox, LuMail } from "react-icons/lu";
 import { FaBars, FaTimes, FaSignOutAlt, FaBuilding, FaUsers, FaFileImage, FaHeadset } from "react-icons/fa";
+import { FaBoxesStacked } from "react-icons/fa6";
 import { MdWarehouse, MdStorefront } from "react-icons/md";
 import { AiOutlineProduct } from "react-icons/ai";
 import { PiCurrencyInrBold } from "react-icons/pi";
@@ -127,6 +128,7 @@ export default function AdminNavbar() {
   }[] = [
     { to: "/admin", label: "Dashboard", icon: <RxDashboard />, permissionKey: null },
     { to: "/admin/orders", label: "All Orders", icon: <LuInbox />, permissionKey: "AllOrders" },
+    { to: "/admin/orders/current-status", label: "Current Order Status", icon: <FaBoxesStacked />, permissionKey: "CurrentOrderStatus" },
     { to: "/admin/orders/sales", label: "Total Sales", icon: <PiCurrencyInrBold />, permissionKey: "AllSales" },
     { to: "/admin/requests", label: "Requests", icon: <LuMail />, permissionKey: "Requests" },
     { to: "/admin/sellers", label: "All Sellers", icon: <MdStorefront />, permissionKey: "AllSeller" },
