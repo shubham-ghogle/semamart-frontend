@@ -7,6 +7,7 @@ import { DataTable } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 /* ================= TYPES ================= */
 
@@ -59,7 +60,7 @@ const truncate = (text: string, max = 35) =>
 
     return {
       id: order._id,
-      status: order.status === "Paid" ? "Processing" : (order.status ?? "-"),
+      status: getDisplayOrderStatus(order),
       requestStatus: getVisibleOrderRequest(order)?.status || "No Request",
       productName,
       customerName,
@@ -220,7 +221,12 @@ const truncate = (text: string, max = 35) =>
       Cancelled: "bg-red-100 text-red-800",
     };
 
-    const colorClass = statusColors[status] || "bg-gray-100 text-gray-800";
+    let colorClass = statusColors[status] || "bg-gray-100 text-gray-800";
+    if (status.includes("Requested")) colorClass = "bg-amber-100 text-amber-800";
+    else if (status.includes("Sent To Seller")) colorClass = "bg-sky-100 text-sky-800";
+    else if (status.includes("Refund")) colorClass = "bg-rose-100 text-rose-800";
+    else if (status.includes("Rejected")) colorClass = "bg-red-100 text-red-800";
+    else if (status.includes("Replacement")) colorClass = "bg-violet-100 text-violet-800";
 
     return (
       <span
@@ -273,9 +279,25 @@ const truncate = (text: string, max = 35) =>
             "Verify Payment",
             "Pending",
             "Processing",
+            "Packed",
             "Shipped",
             "Delivered",
             "Cancelled",
+            "Cancel Requested",
+            "Cancel Sent To Seller",
+            "Cancel Cancelled",
+            "Cancel Admin Rejected",
+            "Cancel Seller Rejected",
+            "Return Requested",
+            "Return Sent To Seller",
+            "Return Refund",
+            "Return Admin Rejected",
+            "Return Seller Rejected",
+            "Replace Requested",
+            "Replace Sent To Seller",
+            "Replace Replacement",
+            "Replace Admin Rejected",
+            "Replace Seller Rejected",
         ]}
       />
     </div>

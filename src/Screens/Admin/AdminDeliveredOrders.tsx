@@ -3,6 +3,7 @@ import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminDeliveredOrderTable from "@/components/Admin/AdminDeliveredOrderTable";
 import { getAllOrders } from "./Admin.HooksAndUtils";
 import { getVariantCommission } from "@/lib/utils";
+import { isRevenueRecognizedOrder } from "@/lib/orderStatus";
 
 const formatMoney = (v: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -19,7 +20,7 @@ export default function AdminDeliveredOrders() {
   });
 
   const deliveredOrders =
-    data?.orders?.filter((o) => o.status === "Delivered") ?? [];
+    data?.orders?.filter((o) => isRevenueRecognizedOrder(o)) ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc, o) => {

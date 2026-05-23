@@ -12,6 +12,7 @@ import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing, getProductImage } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 
 type AdminOrderDetailProps = {
@@ -97,17 +98,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
   }
 };
 
-  const paymentMethod = (data?.paymentInfo?.method || "").toLowerCase();
-  const paymentStatus = (data?.paymentInfo?.status || "").toLowerCase();
-  const isOnlinePaidOrder =
-    data.status === "Paid" &&
-    (["hdfc", "online", "razorpay"].includes(paymentMethod) ||
-      paymentStatus === "paid");
-
-  const orderStatus =
-    data.status === "Paid"
-      ? (isOnlinePaidOrder ? "Processing" : "Paid: Verify Payment")
-      : data.status;
+  const orderStatus = getDisplayOrderStatus(data);
   const isShipped =
   ["Shipped", "Out for Delivery", "Delivered"].includes(data.status);
 
@@ -131,7 +122,7 @@ const shippedDate = shippedDateRaw
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
-        {!isOnlinePaidOrder && (
+        {data.status !== "Paid" && (
           <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
         )}
           <Button

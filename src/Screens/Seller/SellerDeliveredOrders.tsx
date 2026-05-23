@@ -5,6 +5,7 @@ import { getDeliveredOrdersForSeller } from "./Seller.Hooks";
 import { Order } from "../../Types/types";
 import { useSellerSession } from "./sellerSession";
 import { getVariantCommission } from "@/lib/utils";
+import { isRevenueRecognizedOrder } from "@/lib/orderStatus";
 
 const formatMoney = (v: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -27,7 +28,7 @@ export default function SellerDeliveredOrders() {
   });
   const displayStatus = canAccess("AllSales") ? status : "success";
 
-  const deliveredOrders = orders?.filter((o) => o.status === "Delivered") ?? [];
+  const deliveredOrders = orders?.filter((o) => isRevenueRecognizedOrder(o)) ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc, o) => {

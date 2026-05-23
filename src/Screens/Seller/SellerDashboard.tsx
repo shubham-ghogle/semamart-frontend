@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Coins } from "lucide-react";
 import { getVariantCommission } from "@/lib/utils";
 import { useSellerSession } from "./sellerSession";
+import { isRevenueRecognizedOrder } from "@/lib/orderStatus";
 
 type status = "pending" | "success" | "error";
 
@@ -75,7 +76,7 @@ export default function SellerDashboard() {
   const displayStatus: status = canAccess("Dashboard") ? overAllStatus : "success";
 
   const deliveredOrders =
-    deliveredOrdersData?.filter((o: any) => o.status === "Delivered") ?? [];
+    deliveredOrdersData?.filter((o: any) => isRevenueRecognizedOrder(o)) ?? [];
 
   const totals = deliveredOrders.reduce(
     (acc: { totalSales: number; totalRevenue: number }, order: any) => {

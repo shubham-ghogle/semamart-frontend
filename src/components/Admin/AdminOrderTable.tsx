@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import { EyeIcon } from "lucide-react";
 import { getVariantCommission, isBulkOrder } from "@/lib/utils";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
-import { getAdminDisplayOrderStatus } from "@/Screens/Admin/Admin.HooksAndUtils";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 type Row = {
   id: string;
@@ -72,7 +72,7 @@ export default function AdminOrderTable({
 
     const displayStatus = statusResolver
       ? statusResolver(el)
-      : getAdminDisplayOrderStatus(el);
+      : getDisplayOrderStatus(el);
 
     const orderedAtTs = el.createdAt
       ? new Date(el.createdAt).getTime()
@@ -161,9 +161,15 @@ export default function AdminOrderTable({
       else if (status === "Pending") bgColor = "bg-blue-100 text-blue-800";
       else if (status === "Processing") bgColor = "bg-indigo-100 text-indigo-800";
       else if (status === "Shipped") bgColor = "bg-purple-100 text-purple-800";
+      else if (status === "Packed") bgColor = "bg-orange-100 text-orange-800";
       else if (status === "Delivered") bgColor = "bg-green-100 text-green-800";
       else if (status === "Cancelled") bgColor = "bg-red-100 text-red-800";
       else if (status === "Return") bgColor = "bg-orange-100 text-orange-800";
+      else if (status.includes("Requested")) bgColor = "bg-amber-100 text-amber-800";
+      else if (status.includes("Sent To Seller")) bgColor = "bg-sky-100 text-sky-800";
+      else if (status.includes("Refund")) bgColor = "bg-rose-100 text-rose-800";
+      else if (status.includes("Rejected")) bgColor = "bg-red-100 text-red-800";
+      else if (status.includes("Replacement")) bgColor = "bg-violet-100 text-violet-800";
 
       return (
         <span
@@ -310,10 +316,25 @@ export default function AdminOrderTable({
           "Verify Payment",
           "Pending",
           "Processing",
+          "Packed",
           "Shipped",
           "Delivered",
           "Cancelled",
-          "Return",
+          "Cancel Requested",
+          "Cancel Sent To Seller",
+          "Cancel Cancelled",
+          "Cancel Admin Rejected",
+          "Cancel Seller Rejected",
+          "Return Requested",
+          "Return Sent To Seller",
+          "Return Refund",
+          "Return Admin Rejected",
+          "Return Seller Rejected",
+          "Replace Requested",
+          "Replace Sent To Seller",
+          "Replace Replacement",
+          "Replace Admin Rejected",
+          "Replace Seller Rejected",
         ]}
       />
     </div>

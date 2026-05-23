@@ -13,6 +13,7 @@ import { FaSpinner } from "react-icons/fa";
 import { getOrderLinePricing } from "@/lib/utils";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 type SellerOrderDetailProps = {
   data: Order;
@@ -213,7 +214,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         {data?.status && (
           <div className="w-full max-w-xs">
             <article className="mb-2 flex gap-2">
-              <OrderDetailsField label={data.status} value="" />
+              <OrderDetailsField label={getDisplayOrderStatus(data)} value="" />
                 {data.status === "Shipped" && (
                   <TrackingDetailDialog
                     open={trackingDialogOpen}

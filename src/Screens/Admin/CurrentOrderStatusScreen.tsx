@@ -1,7 +1,6 @@
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
-import { Order } from "@/Types/types";
-import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getDisplayOrderStatus, getOrderStatusBucket } from "@/lib/orderStatus";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
@@ -11,7 +10,7 @@ import {
   FaTimesCircle,
   FaUndoAlt,
 } from "react-icons/fa";
-import { getAdminDisplayOrderStatus, getAllOrders } from "./Admin.HooksAndUtils";
+import { getAllOrders } from "./Admin.HooksAndUtils";
 
 type StatusFilter =
   | "All"
@@ -20,15 +19,6 @@ type StatusFilter =
   | "Delivered"
   | "Cancelled"
   | "Return";
-
-function getCurrentOrderStatus(order: Order): string {
-  const visibleRequest = getVisibleOrderRequest(order);
-  if (visibleRequest?.requestType === "Return") {
-    return "Return";
-  }
-
-  return getAdminDisplayOrderStatus(order);
-}
 
 export default function CurrentOrderStatusScreen() {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("All");
@@ -44,13 +34,13 @@ export default function CurrentOrderStatusScreen() {
     () =>
       orders.reduce<Record<StatusFilter, number>>(
         (acc, order) => {
-          const currentStatus = getCurrentOrderStatus(order);
+          const bucket = getOrderStatusBucket(order);
           acc.All += 1;
-          if (currentStatus === "Pending") acc.Pending += 1;
-          if (currentStatus === "Processing") acc.Processing += 1;
-          if (currentStatus === "Delivered") acc.Delivered += 1;
-          if (currentStatus === "Cancelled") acc.Cancelled += 1;
-          if (currentStatus === "Return") acc.Return += 1;
+          if (bucket === "Pending") acc.Pending += 1;
+          if (bucket === "Processing") acc.Processing += 1;
+          if (bucket === "Delivered") acc.Delivered += 1;
+          if (bucket === "Cancelled") acc.Cancelled += 1;
+          if (bucket === "Return") acc.Return += 1;
           return acc;
         },
         {
@@ -67,7 +57,7 @@ export default function CurrentOrderStatusScreen() {
 
   const filteredOrders = useMemo(() => {
     if (selectedStatus === "All") return orders;
-    return orders.filter((order) => getCurrentOrderStatus(order) === selectedStatus);
+    return orders.filter((order) => getOrderStatusBucket(order) === selectedStatus);
   }, [orders, selectedStatus]);
 
   const statusCards = [
@@ -172,7 +162,7 @@ export default function CurrentOrderStatusScreen() {
           searchPlaceholder="Search by order id"
           enableStatusFilter={false}
           emphasizeStatus
-          statusResolver={getCurrentOrderStatus}
+          statusResolver={getDisplayOrderStatus}
         />
       </div>
     </AdminMainWrapper>
