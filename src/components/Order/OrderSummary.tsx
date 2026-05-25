@@ -105,7 +105,9 @@ const OrderSummary = () => {
     if (!id || order?.status !== "Delivered") { toast.error("Available after delivery"); return; }
     setIsDownloading(true);
     try {
-      const res = await fetch(`${API_URL}order/invoice/${id}`);
+      const res = await fetch(`${API_URL}order/invoice/${id}`, {
+        cache: "no-store",
+      });
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");

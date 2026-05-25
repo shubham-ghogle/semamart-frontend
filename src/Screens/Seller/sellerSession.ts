@@ -8,6 +8,7 @@ export const SELLER_MEMBER_PERMISSION_KEYS = [
   "AddProduct",
   "AllProducts",
   "AllOrders",
+  "CurrentOrderStatus",
   "AllSales",
   "Requests",
   "Support",

@@ -82,6 +82,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       setIsDownloading(true);
       const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
         method: "GET",
+        cache: "no-store",
       });
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);

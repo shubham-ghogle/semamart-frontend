@@ -28,6 +28,7 @@ import SellerDashboard from "./Screens/Seller/SellerDashboard";
 import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import SellerDeliveredOrders from "./Screens/Seller/SellerDeliveredOrders";
+import SellerCurrentOrderStatusScreen from "./Screens/Seller/SellerCurrentOrderStatusScreen";
 import SellerOrderRequests from "./Screens/Seller/SellerOrderRequests";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
@@ -457,6 +458,7 @@ export const router = createBrowserRouter([
         path: "orders",
         children: [
           { index: true, element: <SellerAllOrders /> },
+          { path: "current-status", element: <SellerCurrentOrderStatusScreen /> },
           { path: "delivered", element: <SellerDeliveredOrders /> },
           { path: ":orderId", element: <OrderDetailsScreen /> },
         ],

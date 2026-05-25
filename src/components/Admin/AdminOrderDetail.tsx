@@ -75,6 +75,7 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
     setIsDownloading(true); // start spinner
     const res = await fetch(`${API_URL}order/invoice/${orderId}`, {
       method: "GET",
+      cache: "no-store",
     });
 
     if (!res.ok) {

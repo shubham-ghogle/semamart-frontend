@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
 import { PiCurrencyInrBold } from "react-icons/pi";
 import { LuContactRound, LuMessageSquare, LuInbox, LuClipboardList } from "react-icons/lu";
+import { FaBoxesStacked } from "react-icons/fa6";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -210,6 +211,7 @@ export default function SellerNavbar() {
     { to: "/seller/add-product", icon: <TiDocumentAdd />, label: "Add Product", permission: "AddProduct" as const },
     { to: "/seller/products", icon: <AiOutlineProduct />, label: "All Products", permission: "AllProducts" as const },
     { to: "/seller/orders", end: true, icon: <LuInbox />, label: "All Orders", permission: "AllOrders" as const },
+    { to: "/seller/orders/current-status", icon: <FaBoxesStacked />, label: "Current Order Status", permission: "CurrentOrderStatus" as const },
     { to: "/seller/orders/delivered", icon: <PiCurrencyInrBold />, label: "Total Sales", permission: "AllSales" as const },
     { to: "/seller/requests", icon: <LuClipboardList />, label: "Requests", permission: "Requests" as const },
     { to: "/seller/support", icon: <LuMessageSquare />, label: "Support", permission: "Support" as const },

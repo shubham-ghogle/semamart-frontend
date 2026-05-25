@@ -1,27 +1,27 @@
 import AdminMainWrapper from "@/components/Admin/AdminMainWrapper";
 import AdminOrderTable from "@/components/Admin/AdminOrderTable";
-import { getDisplayOrderStatus, getOrderStatusBucket } from "@/lib/orderStatus";
+import {
+  getOrderAnalytics,
+  getOrderStatusDescription,
+  getStatusFilteredOrders,
+  OrderStatusFilter,
+} from "@/lib/orderAnalytics";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
   FaBoxOpen,
   FaCheckCircle,
   FaClock,
+  FaMoneyBillWave,
+  FaReceipt,
   FaTimesCircle,
   FaUndoAlt,
 } from "react-icons/fa";
+import { FaArrowTrendUp } from "react-icons/fa6";
 import { getAllOrders } from "./Admin.HooksAndUtils";
 
-type StatusFilter =
-  | "All"
-  | "Pending"
-  | "Processing"
-  | "Delivered"
-  | "Cancelled"
-  | "Return";
-
 export default function CurrentOrderStatusScreen() {
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("All");
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatusFilter>("All");
 
   const { data, status, error } = useQuery({
     queryKey: ["admin-all-orders"],
@@ -29,77 +29,94 @@ export default function CurrentOrderStatusScreen() {
   });
 
   const orders = data?.orders ?? [];
+  const analytics = useMemo(() => getOrderAnalytics(orders), [orders]);
 
-  const counts = useMemo(
-    () =>
-      orders.reduce<Record<StatusFilter, number>>(
-        (acc, order) => {
-          const bucket = getOrderStatusBucket(order);
-          acc.All += 1;
-          if (bucket === "Pending") acc.Pending += 1;
-          if (bucket === "Processing") acc.Processing += 1;
-          if (bucket === "Delivered") acc.Delivered += 1;
-          if (bucket === "Cancelled") acc.Cancelled += 1;
-          if (bucket === "Return") acc.Return += 1;
-          return acc;
-        },
-        {
-          All: 0,
-          Pending: 0,
-          Processing: 0,
-          Delivered: 0,
-          Cancelled: 0,
-          Return: 0,
-        },
-      ),
-    [orders],
+  const counts = analytics.counts;
+
+  const filteredOrders = useMemo(
+    () => getStatusFilteredOrders(orders, selectedStatus),
+    [orders, selectedStatus],
   );
-
-  const filteredOrders = useMemo(() => {
-    if (selectedStatus === "All") return orders;
-    return orders.filter((order) => getOrderStatusBucket(order) === selectedStatus);
-  }, [orders, selectedStatus]);
 
   const statusCards = [
     {
       label: "Delivered" as const,
       count: counts.Delivered,
+      amount: analytics.statusMetrics.Delivered.amount,
       color: "from-emerald-500 to-green-600",
       icon: <FaCheckCircle className="text-2xl lg:text-4xl" />,
     },
     {
       label: "Cancelled" as const,
       count: counts.Cancelled,
+      amount: analytics.statusMetrics.Cancelled.amount,
       color: "from-rose-500 to-red-600",
       icon: <FaTimesCircle className="text-2xl lg:text-4xl" />,
     },
     {
       label: "Return" as const,
       count: counts.Return,
+      amount: analytics.statusMetrics.Return.amount,
       color: "from-amber-500 to-orange-600",
       icon: <FaUndoAlt className="text-2xl lg:text-4xl" />,
     },
     {
       label: "Processing" as const,
       count: counts.Processing,
+      amount: analytics.statusMetrics.Processing.amount,
       color: "from-indigo-500 to-blue-600",
       icon: <FaBoxOpen className="text-2xl lg:text-4xl" />,
     },
     {
       label: "Pending" as const,
       count: counts.Pending,
+      amount: analytics.statusMetrics.Pending.amount,
       color: "from-sky-500 to-cyan-600",
       icon: <FaClock className="text-2xl lg:text-4xl" />,
     },
   ];
 
-  const filterOptions: StatusFilter[] = [
+  const filterOptions: OrderStatusFilter[] = [
     "All",
     "Pending",
     "Processing",
     "Delivered",
     "Cancelled",
     "Return",
+  ];
+
+  const money = (value: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(value || 0);
+
+  const summaryCards = [
+    {
+      label: "Gross Order Value",
+      value: money(analytics.statusMetrics.All.amount),
+      helper: `${counts.All} total orders`,
+      icon: <FaMoneyBillWave className="text-xl text-emerald-600" />,
+    },
+    {
+      label: "Recognized Revenue",
+      value: money(analytics.deliveredRevenue),
+      helper: `${counts.Delivered} delivered orders`,
+      icon: <FaArrowTrendUp className="text-xl text-blue-600" />,
+    },
+    {
+      label: "Average Order Value",
+      value: money(analytics.averageOrderValue),
+      helper: `${analytics.fulfillmentRate.toFixed(1)}% fulfillment rate`,
+      icon: <FaReceipt className="text-xl text-violet-600" />,
+    },
+    {
+      label: "Active Requests",
+      value: analytics.activeRequestCount.toString(),
+      helper: `${analytics.returnRate.toFixed(1)}% returns, ${analytics.cancellationRate.toFixed(1)}% cancellations`,
+      icon: <FaUndoAlt className="text-xl text-amber-600" />,
+    },
   ];
 
   return (
@@ -125,8 +142,91 @@ export default function CurrentOrderStatusScreen() {
                 <span className="text-2xl font-bold lg:text-4xl">{card.count}</span>
               </div>
               <p className="mt-3 text-sm font-medium lg:text-base">{card.label} Orders</p>
+              <p className="mt-1 text-sm text-white/85">{money(card.amount)}</p>
             </button>
           ))}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => (
+            <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">{card.label}</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">{card.value}</p>
+                </div>
+                <div className="rounded-full bg-slate-100 p-3">{card.icon}</div>
+              </div>
+              <p className="mt-3 text-sm text-slate-500">{card.helper}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-800">Status amount breakdown</h2>
+                <p className="text-sm text-slate-500">Count and order value grouped by current workflow state</p>
+              </div>
+            </div>
+            <div className="mt-5 space-y-4">
+              {filterOptions.slice(1).map((filter) => {
+                const metric = analytics.statusMetrics[filter];
+                const share = counts.All ? (metric.count / counts.All) * 100 : 0;
+                return (
+                  <div key={filter}>
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                      <div>
+                        <p className="font-medium text-slate-800">{filter}</p>
+                        <p className="text-slate-500">
+                          {metric.count} orders • {money(metric.amount)}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-slate-700">{share.toFixed(1)}%</span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-[#1C647C]"
+                        style={{ width: `${Math.max(share, 4)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">Top performing products</h2>
+              <p className="text-sm text-slate-500">Ranked by recognized revenue, with delivery health context</p>
+            </div>
+            <div className="mt-5 space-y-4">
+              {analytics.topProducts.length === 0 ? (
+                <p className="text-sm text-slate-500">No product performance data available yet.</p>
+              ) : (
+                analytics.topProducts.map((product, index) => (
+                  <div key={`${product.productId}-${index}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-slate-800">{product.productName}</p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {product.orderCount} orders • {product.unitsSold} units sold
+                        </p>
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">{money(product.revenue)}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+                      <span className="rounded-full bg-white px-2.5 py-1">Gross {money(product.grossAmount)}</span>
+                      <span className="rounded-full bg-white px-2.5 py-1">Returns {product.returnCount}</span>
+                      <span className="rounded-full bg-white px-2.5 py-1">Cancelled {product.cancelCount}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -162,7 +262,7 @@ export default function CurrentOrderStatusScreen() {
           searchPlaceholder="Search by order id"
           enableStatusFilter={false}
           emphasizeStatus
-          statusResolver={getDisplayOrderStatus}
+          statusResolver={getOrderStatusDescription}
         />
       </div>
     </AdminMainWrapper>
