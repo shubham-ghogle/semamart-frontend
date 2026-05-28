@@ -214,6 +214,7 @@ export default function SellerNavbar() {
     { to: "/seller/orders/current-status", icon: <FaBoxesStacked />, label: "Current Order Status", permission: "CurrentOrderStatus" as const },
     { to: "/seller/orders/delivered", icon: <PiCurrencyInrBold />, label: "Total Sales", permission: "AllSales" as const },
     { to: "/seller/requests", icon: <LuClipboardList />, label: "Requests", permission: "Requests" as const },
+    { to: "/seller/bulk-requests", icon: <MdWarehouse />, label: "Bulk Requests", permission: "Requests" as const },
     { to: "/seller/support", icon: <LuMessageSquare />, label: "Support", permission: "Support" as const },
     { to: "/seller/stock-management", icon: <MdWarehouse />, label: "Stock Management", permission: "StockManagement" as const },
     { to: "/seller/members", icon: <MdStorefront />, label: "Team Members", permission: "ManageMembers" as const },

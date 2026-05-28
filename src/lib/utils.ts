@@ -65,6 +65,11 @@ function getBulkTierCommission(source: any) {
 export function getVariantCommission(source: any) {
   if (!source) return 0;
 
+  const orderLevel =
+    toFiniteNumber(source.adminCommision) ??
+    toFiniteNumber(source.adminCommission);
+  if (orderLevel !== null) return orderLevel;
+
   const direct = toFiniteNumber(source.commission);
   if (direct !== null) return direct;
 

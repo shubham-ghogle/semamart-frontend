@@ -57,6 +57,13 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
     () => getResolutionOptionsForRequestType(visibleRequest?.requestType),
     [visibleRequest?.requestType],
   );
+  const eligibilityMessage = useMemo(() => {
+    if (eligibleTypes.length === 0) {
+      return `Cancel before shipment. Return or replace requests are shown only when the product and order stage are eligible.`;
+    }
+
+    return `Available request types for this order: ${eligibleTypes.join(", ")}.`;
+  }, [eligibleTypes]);
 
   const invalidateOrderQueries = async () => {
     await Promise.all([
@@ -155,7 +162,7 @@ export default function OrderRequestPanel({ order, role }: OrderRequestPanelProp
         <div>
           <h4 className="text-lg font-semibold text-slate-900">Order Request</h4>
           <p className="text-sm text-slate-500">
-            Cancel before shipment. Return or replace within {order.requestSummary?.requestWindowDays ?? 7} days after delivery.
+            {eligibilityMessage} Request window: {order.requestSummary?.requestWindowDays ?? 7} days after delivery.
           </p>
         </div>
         {visibleRequest && (

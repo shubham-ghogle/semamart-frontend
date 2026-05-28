@@ -65,8 +65,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
         return ["Packed"];
       case "Packed":
         return ["Shipped"];
-      case "Shipped":
-        return ["Delivered"];
       default:
         return [];
     }
@@ -115,7 +113,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       </section>
 
       {/* Order Header */}
-      <section className="w-full flex items-center bg-white justify-between p-6 border-b">
+      <section className="w-full flex flex-col gap-3 bg-white justify-between p-4 sm:flex-row sm:items-center sm:p-6 border-b">
         <OrderDetailsField label="Order ID:" value={data?._id} />
         <OrderDetailsField
           label="Placed on:"
@@ -171,7 +169,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       </section>
 
       {/* Payment Info */}
-      <section className="mt-6 flex justify-between border-b pb-4">
+      <section className="mt-6 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:justify-between">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           <OrderDetailsField
@@ -210,7 +208,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
       )}
 
       {/* Order Status */}
-      <section className="flex justify-between items-start mt-4">
+      <section className="mt-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
           <div className="w-full max-w-xs">
@@ -234,13 +232,6 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
               >
                 <option value="">Select status</option>
                 {getOptionsForStatus()
-                  // Hide Delivered if tracking info missing
-                  .filter(
-                    (option) =>
-                      !(data.status === "Shipped" &&
-                        option === "Delivered" &&
-                        !data.trackingDetails)
-                  )
                   .map((option, index) => (
                     <option value={option} key={index}>
                       {option}
@@ -263,8 +254,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                 disabled={
                     mutationStatus === "pending" ||
                     hasActiveRequest ||
-                    !status ||
-                    (status === "Delivered" && !data.trackingDetails)
+                    !status
                   }
                 onClick={async () => {
                   if (!isStatusUpdatable(status)) {

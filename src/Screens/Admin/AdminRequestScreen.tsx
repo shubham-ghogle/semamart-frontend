@@ -5,11 +5,14 @@ import AdminRequestTable from "../../components/Admin/AdminRequest/AdminRequestT
 import AdminMainWrapper from "../../components/Admin/AdminMainWrapper";
 import { Seller } from "../../Types/types";
 import OrderRequestTable from "@/components/Order/OrderRequestTable";
+import { useSearchParams } from "react-router-dom";
 
 type RequestTab = "seller" | "order";
 
 export default function AdminRequestScreen() {
-  const [activeTab, setActiveTab] = useState<RequestTab>("order");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "seller" ? "seller" : "order";
+  const [activeTab, setActiveTab] = useState<RequestTab>(initialTab);
 
   const sellerQuery = useQuery({
     queryKey: ["sellerRequests"],

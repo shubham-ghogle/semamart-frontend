@@ -9,6 +9,7 @@ import { API_URL, BASE_URL } from "@/data";
 import { Filter, Search, X } from "lucide-react"; // Assuming lucide-react is installed
 import { getAccountOwnerId, isBulkOrder } from "@/lib/utils";
 import { getVisibleOrderRequest } from "@/lib/orderRequests";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 const Orderpage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,7 +58,8 @@ const Orderpage = () => {
         name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order._id.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const statusMatch = statusFilters.length === 0 || statusFilters.includes(order.status);
+      const displayStatus = getDisplayOrderStatus(order);
+      const statusMatch = statusFilters.length === 0 || statusFilters.includes(displayStatus);
 
       return searchMatch && statusMatch;
     });
@@ -101,7 +103,15 @@ const Orderpage = () => {
       </div>
       <div>
         <p className="font-semibold text-xs uppercase mb-3 text-gray-500 tracking-wider">Order Status</p>
-        {["Created", "Paid", "Delivered", "Cancelled"].map((s) => (
+        {[
+          "Created",
+          "Verify Payment",
+          "Processing",
+          "Packed",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+        ].map((s) => (
           <label key={s} className="flex items-center gap-3 mb-3 cursor-pointer text-sm hover:text-blue-600 group">
             <input
               type="checkbox"
@@ -114,7 +124,7 @@ const Orderpage = () => {
               }
             />
             <span className="group-hover:translate-x-1 transition-transform">
-              {s === "Created" ? "Awaiting Payment" : s}
+              {s === "Created" ? "Created" : s}
             </span>
           </label>
         ))}
@@ -201,6 +211,7 @@ const Orderpage = () => {
                       const product = variant?.productId as Product;
                       if (!product) return null;
 
+                      const displayStatus = getDisplayOrderStatus(order);
                       return (
                         <div
                           key={order._id}
@@ -245,9 +256,9 @@ const Orderpage = () => {
                           <div className="flex flex-col sm:items-end min-w-[140px] mt-2 sm:mt-0">
                             <p className="font-bold text-sm">₹{order.totalPrice.toLocaleString("en-IN")}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className={`w-2 h-2 rounded-full ${order.status === "Delivered" ? "bg-green-600" : order.status === "Cancelled" ? "bg-red-500" : "bg-orange-500"}`}></span>
+                              <span className={`w-2 h-2 rounded-full ${displayStatus === "Delivered" ? "bg-green-600" : displayStatus === "Cancelled" ? "bg-red-500" : "bg-orange-500"}`}></span>
                               <span className="text-xs font-semibold">
-                                {order.status === "Created" ? "Awaiting Payment" : order.status}
+                                {displayStatus}
                               </span>
                             </div>
 

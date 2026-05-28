@@ -127,7 +127,17 @@ return (
           {stockData.map((item, index) => (
             <div 
               key={index}
-              onClick={() => navigate(item.label === "Vendors" ? "/admin/sellers" : item.label === "New Vendors" ? "/admin/requests" : item.label === "Institutes" ? "/admin/users" : "/admin/orders")}
+              onClick={() =>
+                navigate(
+                  item.label === "Vendors"
+                    ? "/admin/sellers"
+                    : item.label === "New Vendors"
+                      ? "/admin/requests?tab=seller"
+                      : item.label === "Institutes"
+                        ? "/admin/users"
+                        : "/admin/orders"
+                )
+              }
               className={`bg-gradient-to-r ${item.color} text-white rounded-xl lg:rounded-2xl p-3 lg:p-6 shadow-md lg:shadow-lg cursor-pointer hover:scale-105 transition-transform`}
             >
               <div className="flex items-center justify-between">

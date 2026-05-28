@@ -29,6 +29,7 @@ import SellerAllProductsScreen from "./Screens/Seller/SellerAllProdutScreen";
 import SellerAllOrders from "./Screens/Seller/SellerAllOrders";
 import SellerDeliveredOrders from "./Screens/Seller/SellerDeliveredOrders";
 import SellerCurrentOrderStatusScreen from "./Screens/Seller/SellerCurrentOrderStatusScreen";
+import SellerBulkRequestsScreen from "./Screens/Seller/SellerBulkRequestsScreen";
 import SellerOrderRequests from "./Screens/Seller/SellerOrderRequests";
 import OrderDetailsScreen from "./Screens/Seller/OrderDetailsScreen";
 import AdminDashboard from "./Screens/Admin/AdminDashboard";
@@ -464,6 +465,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "requests", element: <SellerOrderRequests /> },
+      { path: "bulk-requests", element: <SellerBulkRequestsScreen /> },
       { path: "support", element: <SellerSupportScreen /> },
       { path: "support/:id", element: <SupportDetail /> },
       { path: "members", element: <SellerMembersScreen /> },

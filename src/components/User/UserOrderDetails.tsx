@@ -4,6 +4,7 @@ import OrderDetailsField from "../Seller/OrderDetailsFields";
 import { formatDate } from "../UIComponents/Inputs";
 import ReviewModal from "./ReviewModal";
 import OrderRequestPanel from "../Order/OrderRequestPanel";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 type UserOrderDetailsProps = {
   data: Order;
@@ -22,11 +23,13 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
     setIsReviewModalOpen(false);
   }
 
+  const displayStatus = getDisplayOrderStatus(data);
+
   return (
     <>
       <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
         {/* Order Info */}
-        <section className="w-full flex items-center bg-white justify-between p-6 border-b ">
+        <section className="w-full flex flex-col gap-3 bg-white justify-between p-4 sm:flex-row sm:items-center sm:p-6 border-b ">
           <OrderDetailsField label="Order ID:" value={data?._id} />
           <OrderDetailsField
             label="Placed on:"
@@ -54,7 +57,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
         </section>
 
         {/* Payment Info */}
-        <section className="mt-6 flex justify-between border-b pb-4">
+        <section className="mt-6 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:justify-between">
           <h5 className="text-xl">Payment Info:</h5>
           <div className="space-y-1">
             <OrderDetailsField label="Total Price:" value={data?.totalPrice} />
@@ -74,7 +77,7 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
         </section>
 
         {/* Shipping Address */}
-        <section className="mt-6 flex justify-between border-b pb-4">
+        <section className="mt-6 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:justify-between">
           <h5 className="text-xl">Shipping Address</h5>
           <div className="space-y-1">
             <OrderDetailsField
@@ -102,9 +105,9 @@ export default function UserOrderDetails({ data }: UserOrderDetailsProps) {
         </section>
 
         {/* Order Status */}
-        <section className="flex justify-between items-center my-4">
+        <section className="flex flex-col gap-2 my-4 sm:flex-row sm:items-center sm:justify-between">
           <h4 className="pt-3 text-[20px] font-semibold">Order Status:</h4>
-          <h4 className="pt-3 text-[20px] font-semibold">{data?.status}</h4>
+          <h4 className="pt-3 text-[20px] font-semibold break-words">{displayStatus}</h4>
         </section>
 
         <OrderRequestPanel order={data} role="user" />

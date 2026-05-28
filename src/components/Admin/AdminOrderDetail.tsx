@@ -46,10 +46,6 @@ export default function AdminOrderDetail({ data }: AdminOrderDetailProps) {
       case "Created":
       case "Paid":
         return ["Processing"];
-      case "Processing":
-        return ["Packed"];
-      case "Packed":
-        return ["Shipped"];
       case "Shipped":
         return ["Delivered"];
       case "Delivered":
@@ -123,7 +119,7 @@ const shippedDate = shippedDateRaw
   return (
     <div className="bg-white w-full max-w-3xl p-4 mx-auto rounded-sm drop-shadow-sm">
       <section className="flex justify-between items-center">
-        {data.status !== "Paid" && (
+        {data.paymentFile && (
           <OrderPaymentViewDialog paymentData={data.paymentFile} currentStatus={data.status} />
         )}
           <Button
@@ -195,7 +191,7 @@ const shippedDate = shippedDateRaw
         )}
       </section>
 
-      <section className="mt-6 flex justify-between border-b pb-4">
+      <section className="mt-6 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:justify-between">
         <h5 className="text-xl">Payment Info:</h5>
         <div className="space-y-1">
           <OrderDetailsField
@@ -238,7 +234,7 @@ const shippedDate = shippedDateRaw
           </div>
         </section>
       )}
-      <section className="mt-6 flex justify-between border-b pb-4">
+      <section className="mt-6 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:justify-between">
         <h4 className="text-xl">Shipping Address:</h4>
         <article>
           <OrderDetailsField
@@ -341,10 +337,10 @@ const shippedDate = shippedDateRaw
 </section>
 
 
-      <section className="flex justify-between items-start mt-4">
+      <section className="mt-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
         <h4 className="text-[20px] font-semibold">Order Status:</h4>
         {data?.status && (
-          <div>
+          <div className="w-full sm:max-w-xs">
             <article className="mb-2 flex gap-2">
               <OrderDetailsField label={orderStatus} value="" />
             </article>

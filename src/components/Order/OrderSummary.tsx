@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import StarRating from "../Order/StarRating";
 import { getOrderLinePricing } from "@/lib/utils";
 import OrderRequestPanel from "./OrderRequestPanel";
+import { getDisplayOrderStatus } from "@/lib/orderStatus";
 
 // --- Interfaces ---
 interface Product { _id: string; name: string; images?: string[]; manufacturerName?: string; }
@@ -78,7 +79,11 @@ const OrderSummary = () => {
   const totalAmount = pricing.subtotal;
   const gstAmount = pricing.gstAmount;
   const mrpPerUnit = pricing.mrpPerUnit || orderedProduct?.originalPrice || unitPrice;
-  const displayPaymentStatus = order?.paymentInfo?.status === "Pending" && ["Packed", "Shipped", "Delivered"].includes(order.status) ? "Paid" : (order?.paymentInfo?.status || "Pending");
+  const displayPaymentStatus =
+    order?.paymentInfo?.status === "Pending" && ["Packed", "Shipped", "Delivered"].includes(order.status)
+      ? "Paid"
+      : (order?.paymentInfo?.status || "Pending");
+  const displayStatus = getDisplayOrderStatus(order as any);
 
   const handleSubmitReview = async () => {
     if (!reviewData.rating) { toast.error("Please add a rating"); return; }
@@ -169,8 +174,9 @@ const OrderSummary = () => {
               </div>
 
               {/* Status Tracker */}
-<div className="p-8 bg-gray-50 border-t">
-  <div className="relative flex justify-between max-w-2xl mx-auto">
+<div className="p-4 sm:p-8 bg-gray-50 border-t">
+  <div className="relative overflow-x-auto">
+  <div className="relative flex min-w-[520px] justify-between max-w-2xl mx-auto">
     {/* Background Line */}
     <div className="absolute top-5 w-full h-0.5 bg-gray-200"></div>
     
@@ -219,7 +225,7 @@ const OrderSummary = () => {
           {/* Date and Time Display (Matching your image) */}
           {historyEntry && (
             <div className="text-center mt-1">
-              <p className="text-[9px] text-gray-500 font-medium leading-none">
+              <p className="hidden text-[9px] text-gray-500 font-medium leading-none sm:block">
                 {formattedDate}, {formattedTime}
               </p>
             </div>
@@ -227,6 +233,7 @@ const OrderSummary = () => {
         </div>
       );
     })}
+  </div>
   </div>
 </div>
 
@@ -298,6 +305,10 @@ const OrderSummary = () => {
                     <span className="text-xs font-bold px-3 py-1 bg-white border rounded-lg shadow-xs">{order.paymentInfo?.method || "Manual"}</span>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl border space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-500">Order Status</span>
+                      <span className="font-bold text-gray-800">{displayStatus}</span>
+                    </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-500">Payment Status</span>
                       <span className="font-bold text-gray-800">{displayPaymentStatus}</span>

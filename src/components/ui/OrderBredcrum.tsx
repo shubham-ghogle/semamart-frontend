@@ -7,7 +7,7 @@ interface BreadcrumbProps {
 const OrderBreadcrum = ({ orderId }: BreadcrumbProps) => {
   return (
     <nav className="text-sm text-gray-500 mb-4">
-      <ul className="flex gap-2 items-center">
+      <ul className="flex flex-wrap gap-2 items-center">
         <li>
           <Link to="/" className="hover:text-blue-600">Home</Link>
         </li>
@@ -22,7 +22,7 @@ const OrderBreadcrum = ({ orderId }: BreadcrumbProps) => {
         {orderId && (
           <>
             <li>/</li>
-            <li className="font-semibold text-gray-800">{orderId}</li>
+            <li className="font-semibold text-gray-800 break-all">{orderId}</li>
           </>
         )}
       </ul>

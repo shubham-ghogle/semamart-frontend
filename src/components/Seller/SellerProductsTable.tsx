@@ -75,7 +75,8 @@ export default function SellerProductTable({
     queryFn: async () => {
       const res = await fetch(API_URL + "category");
       if (!res.ok) throw new Error("Failed to fetch categories");
-      return res.json();
+      const data = await res.json();
+      return Array.isArray(data) ? data : data?.categories || [];
     },
   });
 
@@ -88,8 +89,9 @@ export default function SellerProductTable({
           if (!res.ok) throw new Error("Failed to fetch subcategories");
           return res.json();
         })
-        .then((data: any[]) => {
-          setSubcategoryMap((prev) => ({ ...prev, [category._id]: data || [] }));
+        .then((data: any[] | { subcategories?: any[] }) => {
+          const subcategories = Array.isArray(data) ? data : data?.subcategories || [];
+          setSubcategoryMap((prev) => ({ ...prev, [category._id]: subcategories }));
         })
         .catch((err) => {
           console.error("Failed to fetch subcategories:", err);

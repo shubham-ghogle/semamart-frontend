@@ -340,6 +340,7 @@ export type Order = {
   requestSummary?: OrderRequestSummary;
   paymentFile:null | string;
   sellerPayout:number;
+  adminCommision?: number;
 };
 
 export type CategoryApiRes = {

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import LoaderUi from "../UIComponents/LoaderUi";
 
 import { DataTable } from "../ui/data-table";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 /* -------------------- STATUS TYPES -------------------- */
 const BULK_ORDER_STATUSES = [
@@ -86,7 +86,9 @@ export default function BulkOrdersTable() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("/api/v2/bulkorder/get-bulk-order");
+        const res = await fetch(`${API_URL}bulkorder/get-bulk-order`, {
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data.success) {
@@ -125,9 +127,10 @@ export default function BulkOrdersTable() {
 
     try {
       const res = await fetch(
-        `/api/v2/bulkorder/update-status/${selectedOrderId}`,
+        `${API_URL}bulkorder/update-status/${selectedOrderId}`,
         {
           method: "PATCH",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: selectedStatus, note }),
         }
