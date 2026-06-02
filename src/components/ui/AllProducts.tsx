@@ -107,7 +107,7 @@ export default function AllProducts() {
         <aside
           className={`
             fixed inset-y-0 left-0 z-50 w-72 bg-white transform transition-transform duration-300
-            md:relative md:translate-x-0 md:w-64 border-r p-5
+            md:relative md:translate-x-0 md:w-64 md:z-1 border-r p-5
             flex flex-col h-full overflow-y-auto
             ${showFilters ? "translate-x-0" : "-translate-x-full"}
           `}
@@ -133,6 +133,7 @@ export default function AllProducts() {
                   <input
                     type="checkbox"
                     className="mr-3 accent-cyan-700"
+                    checked={selectedManufacturerName.includes(brand)}
                     onChange={() => {
                       setSelectedManufacturerName((prev) =>
                         prev.includes(brand)
@@ -155,7 +156,8 @@ export default function AllProducts() {
             <input
               type="number"
               placeholder="Min"
-              className="w-full border p-2 rounded mb-2"
+              value={minPrice}
+              className="w-full border p-2 rounded mb-2 text-sm bg-white"
               onChange={(e) =>
                 setMinPrice(e.target.value === "" ? "" : Number(e.target.value))
               }
@@ -163,7 +165,8 @@ export default function AllProducts() {
             <input
               type="number"
               placeholder="Max"
-              className="w-full border p-2 rounded"
+              value={maxPrice}
+              className="w-full border p-2 rounded text-sm bg-white"
               onChange={(e) =>
                 setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))
               }
@@ -171,42 +174,45 @@ export default function AllProducts() {
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-4 md:p-8 flex-1 overflow-y-auto">
+          {/* Scrollable grid container separate from global footer */}
+          <div className="flex-1 overflow-y-auto flex flex-col justify-between">
+            <div className="p-4 md:p-8">
 
-            {/* Header Row */}
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">
-                Products ({filteredProducts.length})
-              </h2>
+              {/* Header Row */}
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold">
+                  Products ({filteredProducts.length})
+                </h2>
 
-              <div className="flex items-center gap-2">
-                {/* Mobile Filter Button */}
-                <button
-                  onClick={() => setShowFilters(true)}
-                  className="md:hidden border px-3 py-2 rounded bg-white text-sm"
-                >
-                  Filters
-                </button>
+                <div className="flex items-center gap-2">
+                  {/* Mobile Filter Button */}
+                  <button
+                    onClick={() => setShowFilters(true)}
+                    className="md:hidden border px-3 py-2 rounded bg-white text-sm"
+                  >
+                    Filters
+                  </button>
 
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="border p-2 rounded text-sm bg-white"
-                >
-                  <option value="popularity">Sort by Popularity</option>
-                  <option value="priceLow">Price: Low to High</option>
-                  <option value="priceHigh">Price: High to Low</option>
-                </select>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="border p-2 rounded text-sm bg-white"
+                  >
+                    <option value="popularity">Sort by Popularity</option>
+                    <option value="priceLow">Price: Low to High</option>
+                    <option value="priceHigh">Price: High to Low</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
-              {filteredProducts.map((product) => (
-                <DefaultProductCard key={product._id} product={product} />
-              ))}
+              {/* Products Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
+                {filteredProducts.map((product) => (
+                  <DefaultProductCard key={product._id} product={product} />
+                ))}
+              </div>
             </div>
 
             <Footer />

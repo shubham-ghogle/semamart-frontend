@@ -146,7 +146,8 @@ export default function ProductBasedOnType() {
       <div className="flex flex-1">
         {/* Sidebar - overlay on mobile */}
         <aside
-          className={`fixed md:static z-40 top-0 left-0 h-full md:h-auto w-72 md:w-64 bg-white border-r p-4 transition-transform transform ${
+          className={`fixed inset-y-0 left-0 z-50 w-72 bg-white transform transition-transform duration-300
+md:relative md:translate-x-0 md:w-64 md:z-1 border-r p-5 ${
             showFilters ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           } shadow-xl md:shadow-sm`}
         >
