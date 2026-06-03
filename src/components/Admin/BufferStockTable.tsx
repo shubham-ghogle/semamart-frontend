@@ -4,7 +4,7 @@ import { DataTable } from "../ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type BufferStockRow = {
   id: string;
@@ -30,8 +30,8 @@ export default function BufferStockTable() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-       const res = await fetch("/api/v2/product/get-low-stock-products", { 
-        credentials: "include" 
+       const res = await fetch(`${API_URL}product/get-low-stock-products`, {
+        credentials: "include",
       });
         
         if (!res.ok) throw new Error("Failed to fetch stock");

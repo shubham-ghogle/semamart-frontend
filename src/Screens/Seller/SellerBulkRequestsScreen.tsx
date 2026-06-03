@@ -23,6 +23,7 @@ type BulkRow = {
 
 export default function SellerBulkRequestsScreen() {
   const { canAccess } = useSellerSession();
+  const hasRequestsAccess = canAccess("Requests");
   const [rows, setRows] = useState<BulkRow[]>([]);
   const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
   const [errorMessage, setErrorMessage] = useState("");
@@ -63,9 +64,9 @@ export default function SellerBulkRequestsScreen() {
   };
 
   useEffect(() => {
-    if (!canAccess("Requests")) return;
+    if (!hasRequestsAccess) return;
     fetchBulkOrders();
-  }, [canAccess]);
+  }, [hasRequestsAccess]);
 
   const updateStatus = async (id: string, nextStatus: "APPROVED" | "REJECTED") => {
     const note = window.prompt(
@@ -153,10 +154,10 @@ export default function SellerBulkRequestsScreen() {
   return (
     <SellerMainWrapper
       heading="Bulk Requests"
-      status={canAccess("Requests") ? status : "success"}
+      status={hasRequestsAccess ? status : "success"}
       errorMessage={errorMessage}
     >
-      {!canAccess("Requests") ? (
+      {!hasRequestsAccess ? (
         <div className="rounded-xl border bg-white p-4 text-gray-600">
           You do not have access to bulk requests.
         </div>

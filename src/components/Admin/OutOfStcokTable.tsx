@@ -4,7 +4,7 @@ import { DataTable } from "../ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type OutOfStockRow = {
   id: string; // variant ID
@@ -31,7 +31,9 @@ export default function OutOfStockTable() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const res = await fetch("/api/v2/product/get-out-of-stock-products");
+        const res = await fetch(`${API_URL}product/get-out-of-stock-products`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch stock");
 
         const data = await res.json();

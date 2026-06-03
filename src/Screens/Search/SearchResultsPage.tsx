@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Product, Variant } from "../../Types/types";
 import { useCartStore } from "../../store/cartStore";
@@ -11,6 +11,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/UIComponents/collapsible";
 import { API_URL, BASE_URL } from "@/data";
+import {
+  fetchCategoryOptions,
+  matchesProductCategory,
+  mergeCategoryOptions,
+} from "@/lib/productSearch";
 
 const PLACEHOLDER = "/placeholder.png";
 
@@ -67,6 +72,7 @@ export default function SearchResultsPage() {
 
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>(["All"]);
 
   const [category, setCategory] = useState("All");
   const [minPrice, setMinPrice] = useState(0);
@@ -74,12 +80,34 @@ export default function SearchResultsPage() {
   const [sort, setSort] = useState("relevance");
   const [priceRangeAuto, setPriceRangeAuto] = useState(true);
 
-  const categories = ["All", "Consumables", "Pharmaceutical", "Equipment"];
+  const categories = useMemo(
+    () => mergeCategoryOptions(availableCategories, results),
+    [availableCategories, results],
+  );
 
   const addToCart = useCartStore((s) => s.addToCart);
   const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore(
     (s) => s
   );
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCategoryOptions()
+      .then((items) => {
+        if (!active) return;
+        setAvailableCategories(items);
+      })
+      .catch((err) => {
+        console.error("Category fetch error", err);
+        if (!active) return;
+        setAvailableCategories(["All"]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!q) {
@@ -123,14 +151,15 @@ export default function SearchResultsPage() {
     })();
   }, [q]);
 
+  useEffect(() => {
+    if (!categories.some((item) => item.toLowerCase() === category.toLowerCase())) {
+      setCategory("All");
+    }
+  }, [categories, category]);
+
   // Filtering
   let filtered = results.filter((p) => {
-    const inCat =
-      category === "All" ||
-      p.productType === category ||
-      (Array.isArray(p.category)
-        ? p.category.includes(category)
-        : p.category === category);
+    const inCat = matchesProductCategory(p, category);
 
     const displayPrice = getDisplayDiscountPrice(p);
     const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;

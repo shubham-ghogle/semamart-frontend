@@ -4,7 +4,7 @@ import { DataTable } from "../ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 
 type StockRow = {
   id: string;
@@ -33,7 +33,9 @@ export default function StockUpdateTable() {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const res = await fetch("/api/v2/notifyRequest");
+        const res = await fetch(`${API_URL}notifyRequest`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch stock");
 
         const data = await res.json();

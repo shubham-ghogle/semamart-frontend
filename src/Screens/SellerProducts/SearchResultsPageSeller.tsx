@@ -1,5 +1,5 @@
 // src/Screens/Search/SearchResultsPageSeller.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Product, Variant } from "../../Types/types";
@@ -7,6 +7,11 @@ import { fetchShopInfo, getProductsByShop } from "../SellerProducts/SellerProduc
 import ProductCard from "@/components/Homepage/ProductCard";
 import CategoryNav from "@/Screens/SellerProducts/CategoryNav"; // adjust path if needed
 import { API_URL } from "@/data";
+import {
+  fetchCategoryOptions,
+  matchesProductCategory,
+  mergeCategoryOptions,
+} from "@/lib/productSearch";
 
 function pickBestVariant(variants?: Variant[]) {
   if (!Array.isArray(variants) || variants.length === 0) return undefined;
@@ -34,6 +39,7 @@ export default function SearchResultsPageSeller() {
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<string[]>(["All"]);
 
   // filters / sort (same as before)
   const [category, setCategory] = useState("All");
@@ -42,7 +48,10 @@ export default function SearchResultsPageSeller() {
   const [sort, setSort] = useState("relevance");
 
   // local categories for filter dropdown (kept as before)
-  const categories = ["All", "Consumables", "Pharmaceutical", "Equipment"];
+  const categories = useMemo(
+    () => mergeCategoryOptions(availableCategories, results),
+    [availableCategories, results],
+  );
 
   // --- Seller / Shop data + total products + orders ---
   // total products for shop (not search results) using getProductsByShop
@@ -91,6 +100,25 @@ export default function SearchResultsPageSeller() {
   // rating (kept hardcoded to match SellerProducts)
   const rating = 4.3;
 
+  useEffect(() => {
+    let active = true;
+
+    fetchCategoryOptions()
+      .then((items) => {
+        if (!active) return;
+        setAvailableCategories(items);
+      })
+      .catch((err) => {
+        console.error("Category fetch error", err);
+        if (!active) return;
+        setAvailableCategories(["All"]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // search (fetch products matching q & shopId) — keep the original behavior
   useEffect(() => {
     if (!shopId) {
@@ -125,6 +153,12 @@ export default function SearchResultsPageSeller() {
     })();
   }, [q, shopId]);
 
+  useEffect(() => {
+    if (!categories.some((item) => item.toLowerCase() === category.toLowerCase())) {
+      setCategory("All");
+    }
+  }, [categories, category]);
+
   // CategoryNav search handler: update URL params (keeps shopId)
   const handleNavSearch = (term: string) => {
     if (!shopId) return;
@@ -140,10 +174,7 @@ export default function SearchResultsPageSeller() {
 
   // Filtering (same logic)
   let filtered = results.filter((p) => {
-    const inCat =
-      category === "All" ||
-      p.productType === category ||
-      (Array.isArray(p.category) ? p.category.includes(category) : p.category === category);
+    const inCat = matchesProductCategory(p, category);
 
     const displayPrice = getDisplayDiscountPrice(p);
     const inPrice = displayPrice >= minPrice && displayPrice <= maxPrice;
