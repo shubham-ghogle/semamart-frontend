@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { useParams ,useNavigate} from "react-router-dom";
 import { Star, Camera, Loader2, X } from "lucide-react";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useUserStore } from "@/store/userStore";
 import Header from "../Header/Header";
 import { toast } from "react-toastify";
@@ -56,7 +56,9 @@ const ReviewPage: React.FC = () => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/v2/order/get-order/${id}`);
+        const res = await fetch(`${API_URL}order/get-order/${id}`, {
+  credentials: "include",
+});
         if (!res.ok) throw new Error("Failed to fetch order");
         const data = await res.json();
         setOrder(data.order);
@@ -120,11 +122,11 @@ const ReviewPage: React.FC = () => {
 
       if (order?.review?._id) {
         // Updating existing review
-        url = `/api/v2/review/updateReview/${order.review._id}`;
+        url = `${API_URL}review/updateReview/${order.review._id}`;
         method = "PUT";
       } else {
         // Creating new review
-        url = `/api/v2/review/addReview`;
+        url = `${API_URL}review/addReview`;
         method = "POST";
 
         // Add identifiers
