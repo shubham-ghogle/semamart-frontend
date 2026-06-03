@@ -290,8 +290,9 @@ export default function Header() {
         }
         const data = await res.json();
         const products = data.products || data.items || data.results || [];
-        setSuggestions(Array.isArray(products) ? products : []);
-        setShowSug(Array.isArray(products) && products.length > 0);
+        const normalizedProducts = Array.isArray(products) ? products.slice(0, 8) : [];
+        setSuggestions(normalizedProducts);
+        setShowSug(normalizedProducts.length > 0);
       } catch (err) {
         console.error("Search error:", err);
         setSuggestions([]);
@@ -546,7 +547,16 @@ export default function Header() {
                       {suggestions.map((p, i) => {
                         const id = (p as any)._id;
                         const rawCategory = (p as any).category;
-                        const categoryLabel = typeof rawCategory === "string" ? rawCategory : rawCategory?.name || "";
+                        const categoryLabel = Array.isArray(rawCategory)
+                          ? rawCategory
+                              .map((item) =>
+                                typeof item === "string" ? item : item?.name || "",
+                              )
+                              .filter(Boolean)
+                              .join(", ")
+                          : typeof rawCategory === "string"
+                            ? rawCategory
+                            : rawCategory?.name || (p as any).productType || "";
                         const imgSrc = getSuggestionImageSrc(p);
                         return (
                           <li

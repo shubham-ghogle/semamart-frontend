@@ -4,7 +4,7 @@ import { DataTable } from "../ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
 
 
@@ -35,7 +35,8 @@ export default function BufferStock() {
     const fetchStock = async () => {
       try {
         const res = await fetch(
-        `/api/v2/product/getallproducts/bufferstock/${shopId}`
+        `${API_URL}product/getallproducts/bufferstock/${shopId}`,
+        { credentials: "include" }
         );
         if (!res.ok) throw new Error("Failed to fetch stock");
 

@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EyeIcon, ClockIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useUserStore } from "@/store/userStore";
-import { BASE_URL } from "@/data";
+import { API_URL, BASE_URL } from "@/data";
 import { getAccountOwnerId } from "@/lib/utils";
 
 type AdminNote = {
@@ -46,7 +46,9 @@ export default function BulkOrderDetails() {
         return;
       }
       try {
-        const res = await fetch(`/api/v2/bulkorder/bulk-orders/user/${accountOwnerId}`);
+        const res = await fetch(`${API_URL}bulkorder/bulk-orders/user/${accountOwnerId}`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch bulk orders");
 
         const data = await res.json();
