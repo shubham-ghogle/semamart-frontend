@@ -113,7 +113,7 @@ export default function ProductInfoSection({
 
       <div className="mt-2">
         <div className="flex items-baseline gap-3 mt-2 flex-wrap">
-          <span className="text-3xl font-bold text-[#FB9573]">
+          <span className="text-3xl font-bold ">
             ₹{mainPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </span>
           {displayOriginalPrice && displayDiscountPrice && (

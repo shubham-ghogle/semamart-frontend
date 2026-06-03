@@ -33,7 +33,7 @@ export default function ProductMediaSection({
           <img
             src={productMedia[activeIdx]?.src || PLACEHOLDER}
             alt={`${(product as any).name} - main`}
-            className={`object-cover w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${animating ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+            className={` w-full h-full rounded-xl border border-gray-200 shadow transition-all duration-300 ${animating ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
             style={{ position: "absolute", top: 0, left: 0 }}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
