@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom"; // Imported React Portal for breaking stacking context
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, BASE_URL } from "@/data";
 import { DataTable } from "@/components/ui/data-table";
@@ -10,7 +11,6 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import ProductCommissionManager from "./ProductCommissionManager";
-
 
 type VariantRow = {
   id: string;
@@ -24,16 +24,16 @@ type VariantRow = {
   createdAt: string;
   productId: string;
   commission: number;
+  seller: string;
   sellerVisibility: boolean;
   adminVisibility: boolean;
   commissionHistoryDate: string;
   commissionHistoryAmount: number;
-  seller: string;
   rawCreatedAt?: Date;
-  productCategories: string[]; // Add product categories
-  totalOrderedQuantity?: number; // Add total ordered quantity
-  badge: boolean; // Added badge field from remote
-  avgRating: number; // Added avgRating from remote
+  productCategories: string[];
+  totalOrderedQuantity?: number;
+  badge: boolean;
+  avgRating: number;
   bulkOrders: {
     id: string;
     qty: number;
@@ -75,10 +75,11 @@ export default function AdminProduct() {
   // Category dropdown states
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<any>(null);
-  const [subcategoryMap, setSubcategoryMap] = useState<
-    Record<string, any[]>
-  >({});
+  const [subcategoryMap, setSubcategoryMap] = useState<Record<string, any[]>>({});
   const categoryRef = useRef<HTMLDivElement | null>(null);
+
+  // Dynamic dropdown positions state
+  const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0 });
 
   // Fetch categories for filter dropdown
   const { data: categoriesData } = useQuery({
@@ -91,7 +92,17 @@ export default function AdminProduct() {
     },
   });
 
-  // Fetch subcategories on hover
+  // Calculate coordinates whenever dropdown toggles or window scrolls/resizes
+  const updateDropdownCoords = () => {
+    if (categoryRef.current) {
+      const rect = categoryRef.current.getBoundingClientRect();
+      setDropdownCoords({
+        top: rect.bottom + window.scrollY + 6,
+        left: rect.left + window.scrollX,
+      });
+    }
+  };
+
   const handleMouseEnter = (category: any) => {
     setHoveredCategory(category);
     if (!subcategoryMap[category._id]) {
@@ -111,17 +122,30 @@ export default function AdminProduct() {
     }
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside & handle scroll re-calculations
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+        const modalPortal = document.getElementById("admin-category-portal-root");
+        if (modalPortal && modalPortal.contains(event.target as Node)) return;
         setIsCategoryOpen(false);
         setHoveredCategory(null);
       }
     }
+
+    if (isCategoryOpen) {
+      updateDropdownCoords();
+      window.addEventListener("scroll", updateDropdownCoords, true);
+      window.addEventListener("resize", updateDropdownCoords);
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", updateDropdownCoords, true);
+      window.removeEventListener("resize", updateDropdownCoords);
+    };
+  }, [isCategoryOpen]);
 
   // Reset filters
   const handleResetFilters = () => {
@@ -132,7 +156,7 @@ export default function AdminProduct() {
     setMaxPrice("");
   };
 
-  // Fetch admin products (server returns { products: [...] } as in your controller)
+  // Fetch admin products
   const { data, isLoading, isError } = useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => {
@@ -167,7 +191,6 @@ export default function AdminProduct() {
         } catch {}
         throw new Error(errMsg);
       }
-
       return res.json().catch(() => ({ success: true }));
     },
     onSuccess: () => {
@@ -179,26 +202,17 @@ export default function AdminProduct() {
     },
   });
 
-  // Badge mutation (from remote)
+  // Badge mutation
   const { mutate: mutateBadge, status: badgeMutStatus } = useMutation({
     mutationFn: async (productId: string) => {
-      const res = await fetch(
-        API_URL + `product/update-badge/${productId}`,
-        {
-          method: "PUT",
-          credentials: "include",
-        }
-      );
-
+      const res = await fetch(API_URL + `product/update-badge/${productId}`, {
+        method: "PUT",
+        credentials: "include",
+      });
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Failed to update badge");
-      }
-
+      if (!res.ok) throw new Error(data?.message || "Failed to update badge");
       return data;
     },
-
     onSuccess: (data) => {
       const { productId, badge } = data;
       qc.setQueryData(["admin-products"], (old: any[] | undefined) => {
@@ -209,13 +223,12 @@ export default function AdminProduct() {
       });
       toast.success(data?.message || "Badge updated");
     },
-
     onError: (err: any) => {
       toast.error(err?.message || "Error updating badge");
     },
   });
 
-  // flatten to rows, apply filtering, and sorting
+  // Flatten rows, filtering, and sorting
   const rows: VariantRow[] = (() => {
     let filteredRows: VariantRow[] = (data || []).flatMap((pro: any) =>
       (pro.variants || []).map((v: any) => ({
@@ -234,10 +247,10 @@ export default function AdminProduct() {
         sellerVisibility: typeof pro.visibilityBySeller === "boolean" ? pro.visibilityBySeller : true,
         adminVisibility: typeof pro.visibilityByAdmin === "boolean" ? pro.visibilityByAdmin : false,
         rawCreatedAt: pro?.createdAt ? new Date(pro.createdAt) : null,
-        productCategories: pro.category || [], // Include product categories
-        totalOrderedQuantity: pro.totalOrderedQuantity || 0, // Include total ordered quantity
-        badge: typeof pro.badge === "boolean" ? pro.badge : false, // Added badge field
-        avgRating: pro.avgRating || 0, // Added avgRating field
+        productCategories: pro.category || [],
+        totalOrderedQuantity: pro.totalOrderedQuantity || 0,
+        badge: typeof pro.badge === "boolean" ? pro.badge : false,
+        avgRating: pro.avgRating || 0,
         bulkOrders: Array.isArray(v?.bulkOrders)
           ? v.bulkOrders.map((bulk: any) => ({
               id: bulk._id,
@@ -249,43 +262,32 @@ export default function AdminProduct() {
       }))
     );
 
-    // Apply category filter (supports both categories and subcategories)
     if (category) {
-      filteredRows = filteredRows.filter(row => {
+      filteredRows = filteredRows.filter((row) => {
         const productCategories = row.productCategories || [];
-        
-        // Check if product directly has the selected category/subcategory
-        if (productCategories.includes(category)) {
-          return true;
-        }
-        
-        // If selected is a main category, check if product has any of its subcategories
+        if (productCategories.includes(category)) return true;
         const selectedCategory = categoriesData?.find((cat: any) => cat._id === category);
         if (selectedCategory?.subcategories) {
-          return productCategories.some((prodCat: string) => 
+          return productCategories.some((prodCat: string) =>
             selectedCategory.subcategories.includes(prodCat)
           );
         }
-        
         return false;
       });
     }
 
-    // Apply status filter
     if (status) {
       const isActive = status === "Active";
-      filteredRows = filteredRows.filter(row => row.adminVisibility === isActive);
+      filteredRows = filteredRows.filter((row) => row.adminVisibility === isActive);
     }
 
-    // Apply price range filter
     if (minPrice !== "") {
-      filteredRows = filteredRows.filter(row => row.originalPrice >= minPrice);
+      filteredRows = filteredRows.filter((row) => row.originalPrice >= minPrice);
     }
     if (maxPrice !== "") {
-      filteredRows = filteredRows.filter(row => row.originalPrice <= maxPrice);
+      filteredRows = filteredRows.filter((row) => row.originalPrice <= maxPrice);
     }
 
-    // Apply sorting
     return [...filteredRows].sort((a, b) => {
       switch (sortBy) {
         case "newest":
@@ -297,7 +299,6 @@ export default function AdminProduct() {
         case "price-high":
           return b.originalPrice - a.originalPrice;
         case "bestSelling":
-          // Best selling is based on total ordered quantity
           return (b.totalOrderedQuantity || 0) - (a.totalOrderedQuantity || 0);
         default:
           return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
@@ -306,7 +307,6 @@ export default function AdminProduct() {
   })();
 
   const columns: ColumnDef<VariantRow>[] = [
-    
     {
       id: "badge",
       header: "Badge",
@@ -318,7 +318,6 @@ export default function AdminProduct() {
         />
       ),
     },
-
     {
       id: "adminVisibility",
       header: "Admin",
@@ -399,11 +398,11 @@ export default function AdminProduct() {
           minimumFractionDigits: 2,
         }),
     },
-    
     {
       accessorKey: "commission",
       header: "Commission Amount",
-      cell: ({ row }) => row.original.commission.toLocaleString("en-IN", {
+      cell: ({ row }) =>
+        row.original.commission.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         }),
     },
@@ -432,14 +431,15 @@ export default function AdminProduct() {
   return (
     <div className="p-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-<h1 className="text-xl font-semibold mb-4">All Products</h1>
+        <h1 className="text-xl font-semibold mb-4">All Products</h1>
 
-        {/* Filter bar - all in one row */}
-        <div className="mb-4 flex flex-nowrap items-center gap-2 p-1 bg-gray-50 rounded-xl overflow-x-auto no-scrollbar w-full">
+        {/* Filter bar parent wrapper without overflow-hidden styles */}
+        <div className="mb-4 flex flex-nowrap items-center gap-2 p-1 bg-gray-50 rounded-xl overflow-x-auto no-scrollbar w-full relative">
+          
           <div className="flex flex-col shrink-0">
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
             <select
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px]"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px] bg-white"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -451,137 +451,145 @@ export default function AdminProduct() {
             </select>
           </div>
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
-          <div ref={categoryRef} className="relative">
-            <button
-              onClick={() => {
-                setIsCategoryOpen((p) => !p);
-                setHoveredCategory(null);
-              }}
-              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[120px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
-            >
-              <span>
-                {category 
-                  ? (
-                      // First check if it's a subcategory
-                      Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name || 
-                      // Then check if it's a main category
-                      categoriesData?.find((cat: any) => cat._id === category)?.name 
-                    )
-                  : "All"
-                }
-              </span>
-              <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
-            </button>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
+            <div ref={categoryRef} className="relative">
+              <button
+                onClick={() => {
+                  setIsCategoryOpen((p) => !p);
+                  setHoveredCategory(null);
+                }}
+                className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[120px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
+              >
+                <span className="truncate max-w-[90px]">
+                  {category
+                    ? Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name ||
+                      categoriesData?.find((cat: any) => cat._id === category)?.name
+                    : "All"}
+                </span>
+                <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? "rotate-90" : ""}`} size={16} />
+              </button>
 
-            {isCategoryOpen && (
-              <div className="absolute left-0 top-full mt-2 z-50 flex">
-                <div className="bg-white shadow-lg border w-64 max-h-[70vh] overflow-auto text-sm">
-                  <ul className="text-sm font-medium text-gray-800">
-                    {categoriesData?.map((cat: any) => (
-                      <li
-                        key={cat._id}
-                        className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === cat._id ? "bg-gray-100" : ""}`}
-                        onMouseEnter={() => handleMouseEnter(cat)}
-                        onClick={() => {
-                          setCategory(cat._id);
-                          setIsCategoryOpen(false);
-                          setHoveredCategory(null);
-                        }}
-                      >
-                        <span>{cat.name}</span>
-                        <IoIosArrowForward size={18} className="text-gray-500" />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Subcategory panel */}
-                {hoveredCategory &&
-                  subcategoryMap[hoveredCategory._id] &&
-                  subcategoryMap[hoveredCategory._id].length > 0 && (
-                    <div className="bg-white shadow-lg border w-72 max-h-[70vh] overflow-auto p-3 text-sm">
-                      {subcategoryMap[hoveredCategory._id].map((sub: any) => (
-                        <div
-                          key={sub._id}
-                          className="text-gray-700 cursor-pointer py-2 px-2 hover:bg-gray-100"
-                          onClick={() => {
-                            setCategory(sub._id);
-                            setIsCategoryOpen(false);
-                            setHoveredCategory(null);
-                          }}
-                        >
-                          {sub.name}
-                        </div>
-                      ))}
+              {/* REACT PORTAL ATTACHMENT FOR DROPDOWN OVERLAYS */}
+              {isCategoryOpen &&
+                typeof window !== "undefined" &&
+                createPortal(
+                  <div
+                    id="admin-category-portal-root"
+                    style={{
+                      position: "absolute",
+                      top: dropdownCoords.top,
+                      left: dropdownCoords.left,
+                    }}
+                    className="flex bg-white shadow-2xl border border-gray-200 rounded-xl overflow-hidden max-h-[380px] z-[999999]"
+                  >
+                    {/* Main Categories Column */}
+                    <div className="w-64 overflow-y-auto py-1 bg-white border-r border-gray-100">
+                      <ul className="text-sm font-medium text-gray-700">
+                        {categoriesData?.map((cat: any) => (
+                          <li
+                            key={cat._id}
+                            className={`flex justify-between items-center cursor-pointer px-4 py-2.5 transition-colors hover:bg-slate-50 ${hoveredCategory?._id === cat._id ? "bg-slate-100 text-slate-900" : ""}`}
+                            onMouseEnter={() => handleMouseEnter(cat)}
+                            onClick={() => {
+                              setCategory(cat._id);
+                              setIsCategoryOpen(false);
+                              setHoveredCategory(null);
+                            }}
+                          >
+                            <span className="truncate pr-2">{cat.name}</span>
+                            <IoIosArrowForward size={14} className="text-gray-400 shrink-0" />
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  )}
-              </div>
-            )}
+
+                    {/* Subcategories Column */}
+                    {hoveredCategory &&
+                      subcategoryMap[hoveredCategory._id] &&
+                      subcategoryMap[hoveredCategory._id].length > 0 && (
+                        <div className="w-64 bg-slate-50 overflow-y-auto p-1.5 border-l border-gray-100 flex flex-col gap-0.5">
+                          {subcategoryMap[hoveredCategory._id].map((sub: any) => (
+                            <div
+                              key={sub._id}
+                              className="text-gray-600 cursor-pointer py-2 px-3 rounded-lg text-sm hover:bg-white hover:text-slate-900 hover:shadow-sm transition-all truncate"
+                              onClick={() => {
+                                setCategory(sub._id);
+                                setIsCategoryOpen(false);
+                                setHoveredCategory(null);
+                              }}
+                            >
+                              {sub.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                  </div>,
+                  document.body
+                )}
+            </div>
+          </div>
+
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
+            <select
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[80px] bg-white"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
+            <input
+              type="number"
+              placeholder="Min"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20 bg-white"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
+            <input
+              type="number"
+              placeholder="Max"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20 bg-white"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col shrink-0 ml-auto mr-2">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
+            <button
+              className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg h-10 transition-colors"
+              onClick={handleResetFilters}
+            >
+              Reset
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
-          <select 
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[80px]"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
+        <DataTable
+          data={rows}
+          columns={columns}
+          docName="admin-products"
+          disabeSellerVisibilitySwitch
+          onVisibilityChange={(ids: string[], visible: boolean) =>
+            mutateAdminVisibility({ productIds: ids, isVisible: visible })
+          }
+          enableCalender={true}
+          dateFieldId="createdAt"
+          getRowClassName={(row) => getProductRowClassName((row as VariantRow).productId)}
+        />
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
-          <input
-            type="number"
-            placeholder="Min"
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
-
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
-          <input
-            type="number"
-            placeholder="Max"
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
-
-        <div className="flex flex-col shrink-0 ml-auto mr-2">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
-          <button 
-            className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg h-10"
-            onClick={handleResetFilters}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <DataTable
-        data={rows}
-        columns={columns}
-        docName="admin-products"
-        disabeSellerVisibilitySwitch
-        onVisibilityChange={(ids: string[], visible: boolean) =>
-          mutateAdminVisibility({ productIds: ids, isVisible: visible })
-        }
-        enableCalender={true}
-        dateFieldId="createdAt"
-        getRowClassName={(row) => getProductRowClassName((row as VariantRow).productId)}
-      />
-
-      {(adminMutStatus === "pending" || badgeMutStatus === "pending") && <ScreenOverlayLoaderUi />}
+        {(adminMutStatus === "pending" || badgeMutStatus === "pending") && <ScreenOverlayLoaderUi />}
       </div>
     </div>
   );
