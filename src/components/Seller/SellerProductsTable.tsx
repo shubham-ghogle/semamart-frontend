@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { API_URL, BASE_URL } from "@/data";
 import { Product } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
