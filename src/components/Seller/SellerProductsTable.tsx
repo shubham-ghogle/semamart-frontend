@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { API_URL, BASE_URL } from "@/data";
 import { Product } from "@/Types/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -9,9 +9,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { ScreenOverlayLoaderUi } from "../UIComponents/LoaderUi";
 import { Switch } from "../ui/switch";
-// import DisplayCommission from "../Admin/DisplayCommission";
 import { IoIosArrowForward } from "react-icons/io";
 import { useSellerSession } from "@/Screens/Seller/sellerSession";
+
+// Import your project's custom shadcn/radix dropdown primitives here
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type ProductVariantRow = {
   id: string;
@@ -55,13 +61,11 @@ export default function SellerProductTable({
       ? Math.max(...row.variants.map((variant) => variant.originalPrice))
       : 0;
   const [sortBy, setSortBy] = useState("newest");
-  // Filter states
   const [category, setCategory] = useState("");
   const [productStatus, setProductStatus] = useState("");
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
-  // Category dropdown states
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<any>(null);
   const [subcategoryMap, setSubcategoryMap] = useState<
@@ -69,7 +73,6 @@ export default function SellerProductTable({
   >({});
   const categoryRef = useRef<HTMLDivElement | null>(null);
 
-  // Fetch categories for filter dropdown
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -80,7 +83,6 @@ export default function SellerProductTable({
     },
   });
 
-  // Fetch subcategories on hover
   const handleMouseEnter = (category: any) => {
     setHoveredCategory(category);
     if (!subcategoryMap[category._id]) {
@@ -100,19 +102,6 @@ export default function SellerProductTable({
     }
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
-        setIsCategoryOpen(false);
-        setHoveredCategory(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Reset filters
   const handleResetFilters = () => {
     setSortBy("newest");
     setCategory("");
@@ -121,7 +110,6 @@ export default function SellerProductTable({
     setMaxPrice("");
   };
 
-  // flatten to rows, apply filtering, and sorting
   const rows: ProductRow[] = (() => {
     let filteredRows: ProductRow[] = products.map((pro) => ({
       id: pro._id,
@@ -146,35 +134,25 @@ export default function SellerProductTable({
       })),
     }));
 
-    // Apply category filter (supports both categories and subcategories)
     if (category) {
       filteredRows = filteredRows.filter(row => {
         const productCategories = row.productCategories || [];
-        
-        // Check if product directly has the selected category/subcategory
-        if (productCategories.includes(category)) {
-          return true;
-        }
-        
-        // If selected is a main category, check if product has any of its subcategories
+        if (productCategories.includes(category)) return true;
         const selectedCategory = categoriesData?.find((cat: any) => cat._id === category);
         if (selectedCategory?.subcategories) {
           return productCategories.some((prodCat: string) => 
             selectedCategory.subcategories.includes(prodCat)
           );
         }
-        
         return false;
       });
     }
 
-    // Apply status filter
     if (productStatus) {
       const isActive = productStatus === "Active";
       filteredRows = filteredRows.filter(row => row.sellerVisibility === isActive);
     }
 
-    // Apply price range filter
     if (minPrice !== "") {
       filteredRows = filteredRows.filter(row =>
         row.variants.some((variant) => variant.originalPrice >= minPrice),
@@ -186,22 +164,14 @@ export default function SellerProductTable({
       );
     }
 
-    // Apply sorting
     return [...filteredRows].sort((a, b) => {
       switch (sortBy) {
-        case "newest":
-          return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
-        case "oldest":
-          return (a.rawCreatedAt?.getTime() || 0) - (b.rawCreatedAt?.getTime() || 0);
-        case "price-low":
-          return getLowestPrice(a) - getLowestPrice(b);
-        case "price-high":
-          return getHighestPrice(b) - getHighestPrice(a);
-        case "bestSelling":
-          // Best selling is based on total ordered quantity
-          return (b.totalOrderedQuantity || 0) - (a.totalOrderedQuantity || 0);
-        default:
-          return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
+        case "newest": return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
+        case "oldest": return (a.rawCreatedAt?.getTime() || 0) - (b.rawCreatedAt?.getTime() || 0);
+        case "price-low": return getLowestPrice(a) - getLowestPrice(b);
+        case "price-high": return getHighestPrice(b) - getHighestPrice(a);
+        case "bestSelling": return (b.totalOrderedQuantity || 0) - (a.totalOrderedQuantity || 0);
+        default: return (b.rawCreatedAt?.getTime() || 0) - (a.rawCreatedAt?.getTime() || 0);
       }
     });
   })();
@@ -223,28 +193,17 @@ export default function SellerProductTable({
           onChange={(e) => row.toggleSelected(!!e.target.checked)}
         />
       ),
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "sellerVisibility",
       header: "Visibility",
       cell: ({ row }) => (
-        <section>
-          <article>
-            <Switch
-              id="seller-prodcut-visibiity"
-              checked={row.original.sellerVisibility}
-              onCheckedChange={(e) => {
-                mutateVisibility({
-                  proIds: [row.original.productId],
-                  isVisible: e,
-                });
-              }}
-              disabled={status === "pending"}
-            />
-          </article>
-        </section>
+        <Switch
+          id="seller-prodcut-visibiity"
+          checked={row.original.sellerVisibility}
+          onCheckedChange={(e) => mutateVisibility({ proIds: [row.original.productId], isVisible: e })}
+          disabled={status === "pending"}
+        />
       ),
     },
     {
@@ -265,15 +224,8 @@ export default function SellerProductTable({
       cell: ({ row }) => (
         <div className="space-y-2">
           {row.original.variants.map((variant, index) => (
-            <div
-              key={variant.id}
-              className="flex flex-col sm:grid sm:gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:p-3 sm:grid-cols-[60px_1fr]"
-            >
-              <img
-                src={variant.thumbnail}
-                alt={`Variant ${index + 1}`}
-                className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-lg object-cover self-start"
-              />
+            <div key={variant.id} className="flex flex-col sm:grid sm:gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:p-3 sm:grid-cols-[60px_1fr]">
+              <img src={variant.thumbnail} alt={`Variant ${index + 1}`} className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] rounded-lg object-cover self-start" />
               <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:text-sm text-slate-600">
                 <p className="font-semibold text-slate-900 col-span-2 sm:col-span-1 truncate">
                   {[variant.colorOption, variant.size].filter((value) => value && value !== "-").join(" / ") || `Variant ${index + 1}`}
@@ -290,41 +242,24 @@ export default function SellerProductTable({
         </div>
       ),
     },
-    { accessorKey: "avgRating", header: "Rating" }, // Added avgRating column from remote
-        {
-            id: "action",
-            header: "Actions",
-            cell: ({ row }) => (
-              <div className="flex gap-4 items-center">
-                {/* Edit button */}
-                <Link to={`edit/${row.original.productId}`}>
-                  <AiOutlineEdit size={20} />
-                </Link>
-
-                {/* View/Preview button */}
-                <Link to={`/product/${row.original.productId}`} target="_blank">
-                  <AiOutlineEye size={20} className="text-gray-500" />
-                </Link>
-              </div>
-            ),
-          },
-
-      ];
+    { accessorKey: "avgRating", header: "Rating" },
+    {
+      id: "action",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-4 items-center">
+          <Link to={`edit/${row.original.productId}`}><AiOutlineEdit size={20} /></Link>
+          <Link to={`/product/${row.original.productId}`} target="_blank"><AiOutlineEye size={20} className="text-gray-500" /></Link>
+        </div>
+      ),
+    },
+  ];
 
   const qc = useQueryClient();
   const { mutate: mutateVisibility, status } = useMutation({
-        mutationFn: (data: { proIds: string[]; isVisible: boolean }) =>
-          updateVisibility(data.proIds, data.isVisible),
-        onSuccess: async () => {
-          qc.invalidateQueries({
-            queryKey: ["seller-products", shopId],
-          });
-      },
-    onError(error) {
-      const msg = error?.message || "Failed to update visibility";
-      toast.error(msg);
-      qc.invalidateQueries({ queryKey: ["seller-products", shopId] });
-    },
+    mutationFn: (data: { proIds: string[]; isVisible: boolean }) => updateVisibility(data.proIds, data.isVisible),
+    onSuccess: async () => { qc.invalidateQueries({ queryKey: ["seller-products", shopId] }); },
+    onError(error) { toast.error(error?.message || "Failed to update visibility"); qc.invalidateQueries({ queryKey: ["seller-products", shopId] }); },
   });
 
   if (!canAccess("AllProducts")) {
@@ -333,137 +268,145 @@ export default function SellerProductTable({
 
   return (
     <>
-      {/* Filter bar - all in one row with horizontal scroll */}
-      <div className="mb-4 flex flex-nowrap items-center gap-3 p-2 bg-gray-50 rounded-xl overflow-x-auto no-scrollbar w-full">
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
-          <select 
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px]"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="price-low">Price Low–High</option>
-            <option value="price-high">Price High–Low</option>
-            <option value="bestSelling">Best Selling</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
-          <div ref={categoryRef} className="relative">
-            <button
-              onClick={() => {
-                setIsCategoryOpen((p) => !p);
-                setHoveredCategory(null);
-              }}
-              className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[120px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
+      {/* Outer filter bar container layout styling */}
+      <div className="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 w-full relative">
+        <div className="flex flex-nowrap items-center gap-3 overflow-x-auto pb-1 no-scrollbar w-full">
+          
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Sort By</label>
+            <select 
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[120px]"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
             >
-              <span>
-                {category 
-                  ? (
-                      // First check if it's a subcategory
-                      Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name || 
-                      // Then check if it's a main category
-                      categoriesData?.find((cat: any) => cat._id === category)?.name 
-                    )
-                  : "All"
-                }
-              </span>
-              <IoIosArrowForward className={`transition-transform duration-200 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
-            </button>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="price-low">Price Low–High</option>
+              <option value="price-high">Price High–Low</option>
+              <option value="bestSelling">Best Selling</option>
+            </select>
+          </div>
 
-            {isCategoryOpen && (
-              <div className="absolute left-0 top-full mt-2 z-50 flex">
-                <div className="bg-white shadow-lg border w-64 max-h-[70vh] overflow-auto text-sm">
-                  <ul className="text-sm font-medium text-gray-800">
-                    {categoriesData?.map((cat: any) => (
-                      <li
-                        key={cat._id}
-                        className={`group flex justify-between items-center cursor-pointer px-4 py-3 hover:bg-gray-100 ${hoveredCategory?._id === cat._id ? "bg-gray-100" : ""}`}
-                        onMouseEnter={() => handleMouseEnter(cat)}
-                        onClick={() => {
-                          setCategory(cat._id);
-                          setIsCategoryOpen(false);
-                          setHoveredCategory(null);
-                        }}
-                      >
-                        <span>{cat.name}</span>
-                        <IoIosArrowForward size={18} className="text-gray-500" />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
+            <div ref={categoryRef}>
+              
+              {/* RADIX ROOT COMPONENT DROPDOWN CONTAINER */}
+              <DropdownMenu open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex items-center px-3 bg-white text-sm font-medium gap-2 border border-gray-200 h-10 rounded-lg hover:bg-gray-50 min-w-[150px] justify-between focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  >
+                    <span className="truncate max-w-[110px]">
+                      {category 
+                        ? (
+                            Object.values(subcategoryMap).flat().find((sub: any) => sub._id === category)?.name || 
+                            categoriesData?.find((cat: any) => cat._id === category)?.name 
+                          )
+                        : "All"
+                      }
+                    </span>
+                    <IoIosArrowForward className={`transition-transform duration-200 shrink-0 ${isCategoryOpen ? 'rotate-90' : ''}`} size={16} />
+                  </button>
+                </DropdownMenuTrigger>
 
-                {/* Subcategory panel */}
-                {hoveredCategory &&
-                  subcategoryMap[hoveredCategory._id] &&
-                  subcategoryMap[hoveredCategory._id].length > 0 && (
-                    <div className="bg-white shadow-lg border w-72 max-h-[70vh] overflow-auto p-3 text-sm">
-                      {subcategoryMap[hoveredCategory._id].map((sub: any) => (
-                        <div
-                          key={sub._id}
-                          className="text-gray-700 cursor-pointer py-2 px-2 hover:bg-gray-100"
+                {/* Content portal element rendering outside parent tree hierarchy */}
+                <DropdownMenuContent 
+                  align="start" 
+                  sideOffset={6}
+                  className="p-0 bg-white shadow-2xl border border-gray-200 rounded-xl overflow-hidden flex flex-row max-h-[380px] z-[99999]"
+                >
+                  {/* Main Categories Menu */}
+                  <div className="w-64 overflow-y-auto py-1 bg-white border-r border-gray-100">
+                    <ul className="text-sm font-medium text-gray-700">
+                      {categoriesData?.map((cat: any) => (
+                        <li
+                          key={cat._id}
+                          className={`flex justify-between items-center cursor-pointer px-4 py-2.5 transition-colors hover:bg-slate-50 ${hoveredCategory?._id === cat._id ? "bg-slate-100 text-slate-900" : ""}`}
+                          onMouseEnter={() => handleMouseEnter(cat)}
                           onClick={() => {
-                            setCategory(sub._id);
+                            setCategory(cat._id);
                             setIsCategoryOpen(false);
                             setHoveredCategory(null);
                           }}
                         >
-                          {sub.name}
-                        </div>
+                          <span className="truncate pr-2">{cat.name}</span>
+                          <IoIosArrowForward size={14} className="text-gray-400 shrink-0" />
+                        </li>
                       ))}
-                    </div>
-                  )}
-              </div>
-            )}
+                    </ul>
+                  </div>
+
+                  {/* Subcategories Side Split Box */}
+                  {hoveredCategory &&
+                    subcategoryMap[hoveredCategory._id] &&
+                    subcategoryMap[hoveredCategory._id].length > 0 && (
+                      <div className="w-64 bg-slate-50 overflow-y-auto p-1.5 border-l border-gray-100 flex flex-col gap-0.5">
+                        {subcategoryMap[hoveredCategory._id].map((sub: any) => (
+                          <div
+                            key={sub._id}
+                            className="text-gray-600 cursor-pointer py-2 px-3 rounded-lg text-sm hover:bg-white hover:text-slate-900 hover:shadow-sm transition-all truncate"
+                            onClick={() => {
+                              setCategory(sub._id);
+                              setIsCategoryOpen(false);
+                              setHoveredCategory(null);
+                            }}
+                          >
+                            {sub.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
-          <select 
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[80px]"
-            value={productStatus}
-            onChange={(e) => setProductStatus(e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
+            <select 
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 min-w-[100px]"
+              value={productStatus}
+              onChange={(e) => setProductStatus(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
-          <input
-            type="number"
-            placeholder="Min"
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Min Price</label>
+            <input
+              type="number"
+              placeholder="Min"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 w-24"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
 
-        <div className="flex flex-col shrink-0">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
-          <input
-            type="number"
-            placeholder="Max"
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 w-20"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
-          />
-        </div>
+          <div className="flex flex-col shrink-0">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Max Price</label>
+            <input
+              type="number"
+              placeholder="Max"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 w-24"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            />
+          </div>
 
-        <div className="flex flex-col shrink-0 ml-auto">
-          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
-          <button 
-            className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg h-10"
-            onClick={handleResetFilters}
-          >
-            Reset
-          </button>
+          <div className="flex flex-col shrink-0 ml-auto pl-4">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">&nbsp;</label>
+            <button 
+              className="px-4 py-2 text-sm font-medium text-white bg-[#1C647C] hover:bg-[#164d5f] rounded-lg h-10 transition-colors"
+              onClick={handleResetFilters}
+            >
+              Reset
+            </button>
+          </div>
         </div>
       </div>
 
@@ -489,8 +432,6 @@ async function updateVisibility(productIds: string[], isVisible: boolean) {
     body: JSON.stringify({ productIds, isVisible }),
   });
 
-  if (!res.ok) {
-    throw new Error("Could not update");
-  }
+  if (!res.ok) throw new Error("Could not update");
   return res;
 }
