@@ -6,7 +6,7 @@ import { Product } from "../../Types/types";
 import DefaultProductCard from "../../components/Product/ProductCard";
 import { API_URL } from "@/data";
 
-export default function ProductBasedOnSpecialPackagetypes() {
+export default function ProductBasedOnSpecialPackageType() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

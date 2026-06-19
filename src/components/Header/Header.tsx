@@ -632,9 +632,7 @@ export default function Header() {
                                     navigate(
                                       isMedicopRoute
                                         ? `/medicop/products?speciality=${encodeURIComponent(s.name)}`
-                                        : `/get-products-by-speciality-package/${String(s._id)
-                                            .toLowerCase()
-                                            .replace(/[^a-z0-9]+/g, "-")}`
+                                          : `/get-products-by-speciality-package/${String(s._id)}`
                                     )
                                   }
                                 >
@@ -666,11 +664,7 @@ export default function Header() {
                                                 (item) => item._id === hoveredSpecialtyId
                                               )?.name || "Speciality"
                                             )}&packageType=${encodeURIComponent(pkg.name)}`
-                                          : `/get-products-by-speciality-package-type/${String(
-                                              pkg._id
-                                            )
-                                              .toLowerCase()
-                                              .replace(/[^a-z0-9]+/g, "-")}`
+                                          : `/get-products-by-speciality-package-type/${String(pkg._id)}`
                                       )
                                     }
                                   >
@@ -1120,7 +1114,7 @@ export default function Header() {
                               <button
                                 className="flex-1 text-left px-2 py-2 rounded hover:bg-gray-50"
                                 onClick={() => {
-                                  navigate(`/get-products-by-speciality-package/${String(s._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+                                navigate(`/get-products-by-speciality-package/${String(s._id)}`);
                                   setMobileMenuOpen(false);
                                 }}
                               >
@@ -1149,7 +1143,7 @@ export default function Header() {
                                     <button
                                       className="w-full text-left px-2 py-1.5 text-sm text-gray-600 rounded hover:bg-gray-50 hover:text-blue-600"
                                       onClick={() => {
-                                        navigate(`/get-products-by-speciality-package-type/${String(pkg._id).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+                                      navigate(`/get-products-by-speciality-package-type/${String(pkg._id)}`);
                                         setMobileMenuOpen(false);
                                       }}
                                     >

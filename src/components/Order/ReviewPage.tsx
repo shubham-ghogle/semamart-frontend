@@ -135,7 +135,7 @@ const ReviewPage: React.FC = () => {
         formData.append("orderId", order!._id);
       }
 
-      const res = await fetch(url, { method, body: formData });
+      const res = await fetch(url, { method, body: formData, credentials: "include" });
       const data = await res.json();
 
       if (!data.success) throw new Error(data.message || "Failed");
@@ -151,9 +151,9 @@ const ReviewPage: React.FC = () => {
 
       toast.success(order?.review?._id ? "Review updated!" : "Review submitted!");
         navigate(-1);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Something went wrong!");
+      toast.error(err?.message || "Something went wrong!");
     }
   };
 
@@ -297,8 +297,8 @@ const ReviewPage: React.FC = () => {
                   className="hidden"
                 />
               </label>
-              <p className="text-red-500 text-sm mt-2">
-                Please upload only images smaller than 100KB (JPG, PNG).
+              <p className="text-gray-500 text-sm mt-2">
+                Optional. Upload JPG or PNG images up to 100KB each.
               </p>
             </div>
           </div>

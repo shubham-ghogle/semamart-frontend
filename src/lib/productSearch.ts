@@ -12,18 +12,31 @@ function isSameLabel(left: string, right: string) {
 }
 
 export function getProductCategoryLabels(product: Partial<Product> | any): string[] {
+  const explicitCategoryNames: string[] = Array.isArray(product?.categoryNames)
+    ? product.categoryNames
+        .map((item: unknown) => normalizeLabel(typeof item === "string" ? item : ""))
+        .filter((item: string) => Boolean(item))
+    : [];
+
+  if (explicitCategoryNames.length > 0) {
+    return [...new Set(explicitCategoryNames)];
+  }
+
   const categoryValues: CategoryLike[] = Array.isArray(product?.category)
     ? product.category
     : product?.category
       ? [product.category]
       : [];
 
-  const labels = categoryValues
+  const labels: string[] = categoryValues
     .map((item) => {
-      if (typeof item === "string") return normalizeLabel(item);
+      if (typeof item === "string") {
+        const value = normalizeLabel(item);
+        return /^[a-f0-9]{24}$/i.test(value) ? "" : value;
+      }
       return normalizeLabel(item?.name);
     })
-    .filter(Boolean);
+    .filter((item): item is string => Boolean(item));
 
   if (labels.length > 0) {
     return [...new Set(labels)];
@@ -47,13 +60,13 @@ export function mergeCategoryOptions(
   apiCategories: string[] = [],
   products: Array<Partial<Product> | any> = [],
 ) {
-  const merged = [
+  const merged: string[] = [
     "All",
     ...apiCategories,
     ...products.flatMap((product) => getProductCategoryLabels(product)),
   ]
     .map((value) => normalizeLabel(value))
-    .filter(Boolean);
+    .filter((value: string) => Boolean(value));
 
   return merged.filter(
     (value, index) => merged.findIndex((entry) => isSameLabel(entry, value)) === index,
@@ -71,5 +84,5 @@ export async function fetchCategoryOptions() {
 
   return categories
     .map((item: any) => normalizeLabel(item?.name))
-    .filter(Boolean);
+    .filter((item: string) => Boolean(item));
 }
