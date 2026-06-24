@@ -537,11 +537,11 @@ export const router = createBrowserRouter([
   { path: "/get-products-by-subcategory/:id", element: <ProductBasedOnType /> },
   {
     path: "/get-products-by-speciality-package-type/:id",
-    element: <ProductBasedOnSpecialPackage />,
+    element: <ProductBasedOnSpecialPackagetypes />,
   },
   {
     path: "/get-products-by-speciality-package/:id",
-    element: <ProductBasedOnSpecialPackagetypes />,
+    element: <ProductBasedOnSpecialPackage />,
   },
 
   { path: "*", element: <div>404 - Page Not Found</div> },
