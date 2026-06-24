@@ -1258,7 +1258,7 @@ return (
                                 name: row.packageId,
                                 val: row.packageId,
                               })),
-                            { shouldDirty: true, shouldTouch: true },
+                            { shouldDirty: true, shouldTouch: true, shouldValidate: true },
                           );
                           form.setValue(
                             "specialityPackageType",
@@ -1268,11 +1268,14 @@ return (
                                 name: row.typeId,
                                 val: row.typeId,
                               })),
-                            { shouldDirty: true, shouldTouch: true },
+                            { shouldDirty: true, shouldTouch: true, shouldValidate: true },
                           );
                         }}
                       />
                     </FormControl>
+                    <p className="text-xs text-gray-500">
+                      Select speciality package and type. It will be saved automatically.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

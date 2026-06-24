@@ -19,7 +19,6 @@ export default function SpecialityDropdown({
 }: SpecialityDropdownProps) {
   const [packageTypesById, setPackageTypesById] = useState<Record<string, Option[]>>({});
   const [currentPackageId, setCurrentPackageId] = useState("");
-  const [currentTypeId, setCurrentTypeId] = useState("");
 
   const { data } = useQuery({
     queryKey: ["special-package"],
@@ -48,21 +47,21 @@ export default function SpecialityDropdown({
 
   const currentTypeOptions = packageTypesById[currentPackageId] || [];
 
-  function addRow() {
-    if (!currentPackageId || !currentTypeId) return;
+  function addRow(packageId: string, typeId: string) {
+    if (!packageId || !typeId) return;
     const alreadyExists = values.some(
       (entry) =>
-        entry.packageId === currentPackageId && entry.typeId === currentTypeId,
+        entry.packageId === packageId && entry.typeId === typeId,
     );
     if (alreadyExists) {
+      setCurrentPackageId("");
       return;
     }
     onChange([
       ...values,
-      { packageId: currentPackageId, typeId: currentTypeId },
+      { packageId, typeId },
     ]);
     setCurrentPackageId("");
-    setCurrentTypeId("");
   }
 
   function removeRow(entryToRemove: { packageId: string; typeId: string }) {
@@ -111,25 +110,25 @@ export default function SpecialityDropdown({
           ))}
         </div>
       )}
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
+      <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] items-center">
         <Autocomplete
           listItems={packageOptions}
           placeholder="Select speciality package"
           setValue={(packageId) => {
             setCurrentPackageId(packageId);
-            setCurrentTypeId("");
           }}
           value={currentPackageId}
         />
         <Autocomplete
           listItems={currentTypeOptions}
           placeholder="Select speciality package type"
-          setValue={setCurrentTypeId}
-          value={currentTypeId}
+          setValue={(typeId) => {
+            if (!currentPackageId) return;
+            addRow(currentPackageId, typeId);
+          }}
+          value=""
         />
-        <Button type="button" variant="secondary" onClick={addRow}>
-          Add
-        </Button>
+        <p className="text-xs text-gray-500">Selection is added automatically.</p>
       </div>
     </div>
   );

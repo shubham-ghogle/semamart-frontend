@@ -106,6 +106,7 @@ const addProductFormSchema = z
           val: z.string().min(1, "Speciality value required"),
         }),
       )
+      .min(1, "At least one speciality package is required")
       .optional()
       .default([]),
     specialityPackageType: z
@@ -115,6 +116,7 @@ const addProductFormSchema = z
           val: z.string().min(1, "Speciality type value required"),
         }),
       )
+      .min(1, "At least one speciality package type is required")
       .optional()
       .default([]),
 
