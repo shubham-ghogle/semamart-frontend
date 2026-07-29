@@ -53,8 +53,8 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
 
   // Helper to check if Delivered can be selected
   const isStatusUpdatable = (newStatus: string) => {
-    if (data.status === "Shipped" && newStatus === "Delivered") {
-      return !!data.trackingDetails; // Must have tracking info
+    if (newStatus === "Shipped") {
+      return data.status === "Packed";
     }
     return true;
   };
@@ -258,7 +258,12 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   }
                 onClick={async () => {
                   if (!isStatusUpdatable(status)) {
-                    toast.error("Cannot mark as Delivered without tracking info!");
+                    toast.error("This status change is not available right now.");
+                    return;
+                  }
+
+                  if (status === "Shipped") {
+                    setTrackingDialogOpen(true);
                     return;
                   }
 
@@ -267,9 +272,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                     currentStatus: data?.status || "",
                     orderId: orderId || "",
                   });
-                    if (status === "Shipped") {
-                      setTrackingDialogOpen(true);
-                    }
+                  setStatus("");
                 }}
               >
                 {mutationStatus === "pending" ? "Updating.." : "Update Status"}

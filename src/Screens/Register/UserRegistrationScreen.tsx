@@ -32,7 +32,8 @@ function Signup() {
     gstNumber: "",
   });
 
-  const { mutateUser } = useRegisterUser();
+  const { mutateUser, status } = useRegisterUser();
+  const isRegistering = status === "pending";
 
   const indianStates = [
     "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
@@ -180,6 +181,7 @@ function Signup() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isRegistering) return;
     if (!validateStep()) return;
 
     const payload = {
@@ -386,7 +388,13 @@ function Signup() {
 
                 <div className="flex gap-2 mt-2">
                   <button type="button" onClick={prevStep} className="flex-1 h-10 bg-gray-300 text-gray-700 rounded-md">Back</button>
-                  <button type="submit" className="flex-1 h-10 bg-[#1C647C] text-white rounded-md">Register</button>
+                  <button
+                    type="submit"
+                    disabled={isRegistering}
+                    className="flex-1 h-10 bg-[#1C647C] text-white rounded-md disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {isRegistering ? "Sending..." : "Register"}
+                  </button>
                 </div>
               </>
             )}

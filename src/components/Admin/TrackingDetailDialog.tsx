@@ -106,15 +106,21 @@ export default function TrackingDetailDialog({
       orderId: string;
     }) => postTrackingDetails(data, orderId),
     onSuccess: () => {
-      toast.success("Tracking details saved");
+      toast.success("Tracking details saved and order marked as shipped");
       queryClient.invalidateQueries({
         queryKey: ["seller-order-detail", { orderId }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["seller-orders"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-all-orders"],
       });
       setTrackingFile(null);
       onOpenChange(false); // ✅ CLOSE ONLY AFTER SUBMIT
     },
-    onError: () => {
-      toast.error("Failed to save tracking details");
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Failed to save tracking details");
     },
   });
 
@@ -290,7 +296,8 @@ async function postTrackingDetails(
   );
 
   if (!res.ok) {
-    throw new Error("Failed to save tracking details");
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.message || "Failed to save tracking details");
   }
 
   return res.json();
