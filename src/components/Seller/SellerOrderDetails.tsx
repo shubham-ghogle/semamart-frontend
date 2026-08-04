@@ -263,6 +263,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
                   }
 
                   if (status === "Shipped") {
+                    toast.info("Please add tracking details to mark this order as shipped.");
                     setTrackingDialogOpen(true);
                     return;
                   }

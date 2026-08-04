@@ -173,7 +173,7 @@ export default function TrackingDetailDialog({
   /* ----------------------------- UI ----------------------------- */
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
@@ -270,8 +270,16 @@ export default function TrackingDetailDialog({
           )}
 
           <DialogFooter>
-            <Button disabled={isPending}>
-              {isPending ? "Saving..." : "Save"}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Saving..." : "Save & mark shipped"}
             </Button>
           </DialogFooter>
         </form>
@@ -296,8 +304,8 @@ async function postTrackingDetails(
   );
 
   if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(data?.message || "Failed to save tracking details");
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.message || errorData?.error || "Failed to save tracking details");
   }
 
   return res.json();
