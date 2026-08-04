@@ -214,7 +214,7 @@ export default function SellerOrderDetail({ data }: SellerOrderDetailProps) {
           <div className="w-full max-w-xs">
             <article className="mb-2 flex gap-2">
               <OrderDetailsField label={getDisplayOrderStatus(data)} value="" />
-                {data.status === "Shipped" && (
+                {["Packed", "Shipped"].includes(data.status) && (
                   <TrackingDetailDialog
                     open={trackingDialogOpen}
                     onOpenChange={setTrackingDialogOpen}
