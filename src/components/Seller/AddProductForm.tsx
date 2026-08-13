@@ -1723,11 +1723,17 @@ return (
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent>
+                        <PopoverContent
+                          align="start"
+                          sideOffset={8}
+                          collisionPadding={8}
+                          className="w-auto max-w-[calc(100vw-1rem)] overflow-y-auto p-0"
+                        >
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            className="[--cell-size:--spacing(7)] sm:[--cell-size:--spacing(8)]"
                              captionLayout="dropdown"     // ✅ enables month + year dropdown
  
                           />

@@ -177,8 +177,13 @@ export function CalendarPopoverWithPresets({
           - Allows scrolling with a capped height on mobile
           - Presets become full width above calendars
       */}
-      <PopoverContent className="w-full p-0 max-w-[920px] md:rounded-md md:shadow-lg" align="start" >
-        <div className="flex flex-col md:flex-row gap-4 p-4 max-h-[90vh] overflow-y-auto" style={{ WebkitOverflowScrolling: "touch" }}>
+      <PopoverContent
+        className="w-[calc(100vw-1rem)] max-w-[920px] p-0 md:rounded-md md:shadow-lg"
+        align="start"
+        sideOffset={8}
+        collisionPadding={8}
+      >
+        <div className="flex max-h-[calc(100vh-1rem)] flex-col gap-4 overflow-y-auto p-3 sm:p-4 md:flex-row" style={{ WebkitOverflowScrolling: "touch" }}>
           {/* Left presets column (label changed) */}
           <aside className="w-full md:w-[220px] flex-shrink-0">
             <div className="text-sm font-semibold mb-3">Useful dates</div>
@@ -227,7 +232,7 @@ export function CalendarPopoverWithPresets({
             <div className="bg-white rounded-md border p-3 shadow-sm">
               <div className="flex flex-col gap-4">
                 {/* Calendars: stack on mobile, side-by-side on md+ */}
-                <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex flex-col gap-3 md:flex-row">
                   {/* START calendar column */}
                   <div className="min-w-0 w-full">
                     <div className="flex items-center justify-between mb-1">
@@ -274,7 +279,7 @@ export function CalendarPopoverWithPresets({
                       selected={tempStartDate}
                       onSelect={(d: any) => setTempStartDate(d)}
                       defaultMonth={visibleMonthStart}
-                      className="rounded-md border w-full md:max-w-[320px]"
+                      className="w-full rounded-md border [--cell-size:--spacing(7)] sm:[--cell-size:--spacing(8)] md:max-w-[320px]"
                     />
                   </div>
 
@@ -320,7 +325,7 @@ export function CalendarPopoverWithPresets({
                       selected={tempEndDate}
                       onSelect={(d: any) => setTempEndDate(d)}
                       defaultMonth={visibleMonthEnd}
-                      className="rounded-md border w-full md:max-w-[320px]"
+                      className="w-full rounded-md border [--cell-size:--spacing(7)] sm:[--cell-size:--spacing(8)] md:max-w-[320px]"
                     />
                   </div>
                 </div>
